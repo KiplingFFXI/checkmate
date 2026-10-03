@@ -1,0 +1,6 @@
+# Python 3.12. The test runner only needs lupa. The settings window preview needs everything below.
+lupa==2.8
+pillow
+imgui-bundle==1.92.3
+munch
+numpy

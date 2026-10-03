@@ -1,0 +1,131 @@
+-- Nyzul Isle (zone 77).
+-- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
+-- Don't edit this file by hand.
+return {
+    built   = 'phoenix/live f125de32dc',
+    content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
+    -- Each list of link names, written once. A row's links is the number of its list.
+    link_lists = {
+        [1] = { 'Imperial Gear' },
+        [2] = { 'Alexander Image' },
+        [3] = { 'Alexander', 'Alexander Image' },
+    },
+    monsters = {
+        {
+            name   = 'Amnaf',
+            ids    = { 524 },
+            nm     = true,
+            levels = {
+                [77] = { acc = 319, eva = 304, agi = 66, int = 66, mnd = 66, chr = 66 },
+                [78] = { acc = 325, eva = 310, agi = 68, int = 68, mnd = 68, chr = 68 },
+                [79] = { acc = 330, eva = 315, agi = 69, int = 69, mnd = 69, chr = 69 },
+            },
+            aggro  = true,
+            any_level = true,
+            true_detect = true,
+            detects = { 'sight' },
+        },
+        {
+            name   = 'Amnaf',
+            ids    = { 525 },
+            nm     = true,
+            levels = {
+                [80] = { acc = 344, eva = 297, agi = 73, int = 110, mnd = 83, chr = 71 },
+            },
+            ranks  = { ice = 2, water = 9, light = -1, dark = 11, paralyze = 2, bind = 2, poison = 9,
+                       light_sleep = -1, dark_sleep = 11, blind = 11 },
+            magic_dmg = { all = -25 },
+            aggro  = true,
+            any_level = true,
+            true_detect = true,
+            detects = { 'sound', 'magic', 'ability' },
+        },
+        {
+            name   = 'Imperial Gear',
+            ids    = { 526, 527, 528, 529 },
+            nm     = true,
+            levels = {
+                [75] = { acc = 317, eva = 299, agi = 74, int = 63, mnd = 55, chr = 62 },
+            },
+            ranks  = { ice = 1, wind = 1, earth = 1, thunder = 4, water = -1, light = 4, dark = 1, paralyze = 1,
+                       bind = 1, silence = 1, slow = 1, poison = -1, light_sleep = 4, dark_sleep = 1, blind = 1,
+                       stun = 4, gravity = 1 },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sight', 'sound', 'magic' },
+            links  = 1,
+        },
+        {
+            name   = 'Razfahd',
+            ids    = { 535 },
+            nm     = true,
+            levels = {
+                [76] = { acc = 315, eva = 291, agi = 66, int = 75, mnd = 84, chr = 75 },
+            },
+            ranks  = { fire = 5, ice = 5, wind = 5, earth = 5, thunder = 5, water = 5, light = 11, dark = 5,
+                       paralyze = 5, bind = 5, silence = 5, slow = 5, poison = 5, light_sleep = 11, dark_sleep = 5,
+                       blind = 5, stun = 5, gravity = 5 },
+            aggro  = true,
+            any_level = true,
+            true_detect = true,
+            detects = { 'sight', 'magic' },
+        },
+        {
+            name   = 'Alexander',
+            ids    = { 536 },
+            nm     = true,
+            levels = {
+                [80] = { acc = 335, eva = 313, agi = 55, int = 55, mnd = 82, chr = 82 },
+            },
+            ranks  = { fire = 5, ice = 5, wind = 5, earth = 5, thunder = 5, water = 5, light = 11, dark = 5,
+                       paralyze = 5, bind = 5, silence = 5, slow = 5, poison = 5, light_sleep = 11, dark_sleep = 5,
+                       blind = 5, stun = 5, gravity = 5 },
+            aggro  = true,
+            any_level = true,
+            true_detect = true,
+            detects = { 'sight', 'magic' },
+        },
+        {
+            name   = 'Raubahn',
+            ids    = { 537 },
+            nm     = true,
+            levels = {
+                [80] = { acc = 335, eva = 320, agi = 69, int = 69, mnd = 69, chr = 69 },
+            },
+            flags  = { scripted_elements = true },
+        },
+        {
+            name   = 'Alexander',
+            ids    = { 540 },
+            nm     = true,
+            levels = {
+                [80] = { acc = 335, eva = 313, agi = 55, int = 55, mnd = 82, chr = 82 },
+            },
+            ranks  = { fire = 5, ice = 5, wind = 5, earth = 5, thunder = 5, water = 5, light = 11, dark = 5,
+                       paralyze = 5, bind = 5, silence = 5, slow = 5, poison = 5, light_sleep = 11, dark_sleep = 5,
+                       blind = 5, stun = 5, gravity = 5 },
+            immune = { 'dark_sleep', 'light_sleep', 'bind', 'gravity', 'silence', 'petrify' },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sight', 'magic' },
+            links  = 2,
+        },
+        {
+            name   = 'Alexander Image',
+            ids    = { 541, 542, 543 },
+            nm     = true,
+            levels = {
+                [70] = { acc = 281, eva = 262, agi = 49, int = 49, mnd = 73, chr = 73 },
+            },
+            ranks  = { fire = 5, ice = 5, wind = 5, earth = 5, thunder = 5, water = 5, light = 11, dark = 5,
+                       paralyze = 5, bind = 5, silence = 5, slow = 5, poison = 5, light_sleep = 11, dark_sleep = 5,
+                       blind = 5, stun = 5, gravity = 5 },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sight', 'magic' },
+            links  = 3,
+        },
+    },
+    by_name = {},
+}

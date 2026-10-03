@@ -1,0 +1,153 @@
+-- Spire of Vahzl (zone 23).
+-- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
+-- Don't edit this file by hand.
+return {
+    built   = 'phoenix/live f125de32dc',
+    content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
+    -- Each list of link names, written once. A row's links is the number of its list.
+    link_lists = {
+        [1] = { 'Offspring' },
+        [2] = { 'Contemplator', 'Ingurgitator', 'Memory Receptacle', 'Neoingurgitator', 'Repiner' },
+        [3] = { 'Ingurgitator', 'Memory Receptacle', 'Neoingurgitator', 'Repiner' },
+        [4] = { 'Contemplator', 'Memory Receptacle', 'Neoingurgitator', 'Repiner' },
+        [5] = { 'Contemplator', 'Ingurgitator', 'Memory Receptacle', 'Neoingurgitator' },
+        [6] = { 'Contemplator', 'Ingurgitator', 'Memory Receptacle', 'Repiner' },
+    },
+    monsters = {
+        {
+            name   = 'Agonizer',
+            ids    = { 1, 8, 15 },
+            nm     = true,
+            levels = {
+                [54] = { acc = 203, eva = 188, agi = 55, int = 48, mnd = 48, chr = 49 },
+                [55] = { acc = 208, eva = 193, agi = 55, int = 48, mnd = 48, chr = 50 },
+            },
+            ranks  = { wind = -3, earth = 11, thunder = 11, silence = -3, slow = 11, stun = 11, gravity = -3 },
+            immune = { 'dark_sleep', 'light_sleep', 'terror', 'plague' },
+            links  = 1,
+        },
+        {
+            name   = 'Procreator',
+            ids    = { 2, 9, 16 },
+            nm     = true,
+            levels = {
+                [54] = { acc = 203, eva = 190, agi = 59, int = 48, mnd = 48, chr = 49 },
+                [55] = { acc = 208, eva = 195, agi = 59, int = 48, mnd = 48, chr = 50 },
+            },
+            ranks  = { ice = -3, wind = 11, earth = 11, paralyze = -3, bind = -3, silence = 11, slow = 11,
+                       gravity = 11 },
+            immune = { 'dark_sleep', 'light_sleep', 'terror', 'plague' },
+            links  = 1,
+        },
+        {
+            name   = 'Offspring',
+            ids    = { 3, 4, 5, 6, 10, 11, 12, 13, 17, 18, 19, 20 },
+            levels = {
+                [47] = { acc = 171, eva = 160, agi = 55, int = 38, mnd = 38, chr = 43 },
+                [48] = { acc = 174, eva = 163, agi = 55, int = 38, mnd = 38, chr = 44 },
+            },
+            ranks  = { ice = -3, wind = 11, earth = 11, paralyze = -3, bind = -3, silence = 11, slow = 11,
+                       gravity = 11 },
+            immune = { 'dark_sleep', 'light_sleep' },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sound' },
+            links  = 1,
+        },
+        {
+            name   = 'Cumulator',
+            ids    = { 7, 14, 21 },
+            nm     = true,
+            levels = {
+                [54] = { acc = 203, eva = 190, agi = 59, int = 48, mnd = 48, chr = 49 },
+                [55] = { acc = 208, eva = 195, agi = 59, int = 48, mnd = 48, chr = 50 },
+            },
+            ranks  = { fire = -3, ice = 11, wind = 11, paralyze = 11, bind = 11, silence = 11, gravity = 11 },
+            immune = { 'dark_sleep', 'light_sleep', 'terror', 'plague' },
+            links  = 1,
+        },
+        {
+            name   = 'Memory Receptacle',
+            ids    = { 22, 32, 42 },
+            nm     = true,
+            levels = {
+                [55] = { acc = 207, eva = 195, agi = 58, int = 43, mnd = 43, chr = 49 },
+            },
+            magic_dmg = { all = -100 },
+            immune = { 'dark_sleep', 'light_sleep', 'bind', 'gravity', 'silence', 'paralyze', 'slow', 'blind',
+                       'poison' },
+            aggro  = true,
+            detects = { 'sound' },
+            links  = 2,
+        },
+        {
+            name   = 'Memory Receptacle',
+            ids    = { 23, 24, 25, 33, 34, 35, 43, 44, 45 },
+            nm     = true,
+            levels = {
+                [50] = { acc = 180, eva = 169, agi = 54, int = 41, mnd = 41, chr = 45 },
+            },
+            magic_dmg = { all = -50 },
+            immune = { 'dark_sleep', 'light_sleep', 'bind', 'gravity', 'silence', 'paralyze', 'slow', 'blind',
+                       'poison' },
+            links  = 2,
+        },
+        {
+            name   = 'Contemplator',
+            ids    = { 26, 36, 46 },
+            levels = {
+                [50] = { acc = 181, eva = 169, agi = 54, int = 41, mnd = 41, chr = 45 },
+            },
+            ranks  = { wind = -3, earth = 11, thunder = 11, silence = -3, slow = 11, stun = 11, gravity = -3 },
+            immune = { 'dark_sleep', 'light_sleep', 'silence' },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sound' },
+            links  = 3,
+        },
+        {
+            name   = 'Ingurgitator',
+            ids    = { 27, 47 },
+            levels = {
+                [50] = { acc = 181, eva = 169, agi = 54, int = 45, mnd = 45, chr = 47 },
+            },
+            ranks  = { ice = -3, wind = 11, earth = 11, paralyze = -3, bind = -3, silence = 11, slow = 11,
+                       gravity = 11 },
+            immune = { 'dark_sleep', 'light_sleep', 'silence' },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sound' },
+            links  = 4,
+        },
+        {
+            name   = 'Repiner',
+            ids    = { 28, 38, 48 },
+            levels = {
+                [50] = { acc = 181, eva = 169, agi = 54, int = 45, mnd = 45, chr = 47 },
+            },
+            ranks  = { fire = -3, ice = 11, wind = 11, paralyze = 11, bind = 11, silence = 11, gravity = 11 },
+            immune = { 'dark_sleep', 'light_sleep', 'silence' },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sound' },
+            links  = 5,
+        },
+        {
+            name   = 'Neoingurgitator',
+            ids    = { 29, 30, 40, 49, 50 },
+            nm     = true,
+            levels = {
+                [50] = { acc = 181, eva = 170, agi = 57, int = 41, mnd = 41, chr = 45 },
+            },
+            ranks  = { ice = -3, wind = 11, earth = 11, paralyze = -3, bind = -3, silence = 11, slow = 11,
+                       gravity = 11 },
+            immune = { 'dark_sleep', 'light_sleep', 'silence' },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sound' },
+            links  = 6,
+        },
+    },
+    by_name = {},
+}

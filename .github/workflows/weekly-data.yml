@@ -1,0 +1,95 @@
+# Rebuilds the monster data from phoenix/live once a week. When a monster changed, it bumps addon.version, adds a
+# CHANGELOG.md section and opens a pull request into main with the report as its body. See tools/README.txt.
+name: Weekly data refresh
+
+on:
+  schedule:
+    # Mondays at 12:17 UTC. Runs set for the top of the hour tend to start late.
+    - cron: '17 12 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# A run started by hand waits for one that's going, so two runs never race to open the same pull request.
+concurrency: weekly-data
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: main
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Install PyYAML and lupa
+        run: python -m pip install -r tools/requirements.txt
+
+      - name: Clone phoenix/live
+        id: phoenix
+        run: |
+          # The remote is named phoenix, so the exporter's ref phoenix/live works here the same as in a local clone.
+          # The exporter reads the commit with git archive and needs no checked out files.
+          git clone --quiet --depth 1 --branch live --origin phoenix --no-checkout \
+            https://github.com/phoenixffxi/Phoenix "$RUNNER_TEMP/Phoenix"
+          echo "commit=$(git -C "$RUNNER_TEMP/Phoenix" rev-parse --short=10 HEAD)" >> "$GITHUB_OUTPUT"
+          echo "date=$(git -C "$RUNNER_TEMP/Phoenix" log -1 --format=%cs)" >> "$GITHUB_OUTPUT"
+
+      - name: Look for an open pull request for this commit
+        id: open
+        env:
+          BRANCH: data-refresh-${{ steps.phoenix.outputs.commit }}
+        run: |
+          open=$(gh pr list --head "$BRANCH" --state open --json number --jq length)
+          if [ "$open" != 0 ]; then
+            echo "$BRANCH already has an open pull request."
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Rebuild the data and compare it with main
+        id: compare
+        if: steps.open.outputs.found != 'true'
+        run: |
+          cp -r checkmate/data "$RUNNER_TEMP/data_before"
+          python tools/export_data.py --repo "$RUNNER_TEMP/Phoenix" --ref phoenix/live
+          python tools/data_report.py "$RUNNER_TEMP/data_before" checkmate/data \
+            --report "$RUNNER_TEMP/report.md" --bullets "$RUNNER_TEMP/bullets.md"
+          # data_report.py writes the report only when a monster changed.
+          if [ -f "$RUNNER_TEMP/report.md" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Bump the version and add a CHANGELOG section
+        id: bump
+        if: steps.compare.outputs.changed == 'true'
+        env:
+          COMMIT: ${{ steps.phoenix.outputs.commit }}
+          DATE: ${{ steps.phoenix.outputs.date }}
+        run: |
+          version=$(python tools/bump_version.py "Monster data rebuilt from phoenix/live $COMMIT ($DATE)." \
+            "$RUNNER_TEMP/bullets.md")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Commit on a branch and open the pull request
+        if: steps.compare.outputs.changed == 'true'
+        env:
+          COMMIT: ${{ steps.phoenix.outputs.commit }}
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: |
+          branch="data-refresh-$COMMIT"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch --create "$branch"
+          git add checkmate/checkmate.lua checkmate/data CHANGELOG.md
+          git commit --quiet --message "Rebuild the monster data from phoenix/live $COMMIT"
+          # The branch only ever holds this job's commit. A closed pull request leaves it behind, so it's overwritten.
+          git push --force origin "$branch"
+          gh pr create --base main --head "$branch" --body-file "$RUNNER_TEMP/report.md" \
+            --title "checkmate $VERSION, monster data from phoenix/live $COMMIT"

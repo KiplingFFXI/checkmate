@@ -1,0 +1,153 @@
+-- Navukgo Execution Chamber (zone 64).
+-- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
+-- Don't edit this file by hand.
+return {
+    built   = 'phoenix/live f125de32dc',
+    content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
+    -- Each list of link names, written once. A row's links is the number of its list.
+    link_lists = {
+        [1] = { 'Immortal Flan' },
+        [2] = { 'Valkeng' },
+        [3] = { 'Shamarhaan' },
+    },
+    monsters = {
+        {
+            name   = 'Watch Wamoura',
+            ids    = { 1, 3, 5 },
+            levels = {
+                [65] = { acc = 254, eva = 235, agi = 43, int = 43, mnd = 65, chr = 65 },
+            },
+            ranks  = { fire = 1, ice = -2, wind = -1, earth = 2, water = -2, light = -1, paralyze = -2, bind = -2,
+                       silence = -1, slow = 2, poison = -2, light_sleep = -1, gravity = -1 },
+            immune = { 'dark_sleep', 'light_sleep', 'terror' },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sight', 'sound' },
+            flags  = { scripted_elements = true },
+        },
+        {
+            name   = 'Two-faced Flan',
+            ids    = { 7, 9, 11 },
+            nm     = true,
+            levels = {
+                [80] = { acc = 342, eva = 302, agi = 82, int = 101, mnd = 65, chr = 80 },
+            },
+            ranks  = { fire = -1, ice = 1, wind = 1, earth = 1, thunder = -1, water = 3, light = -1, dark = 2,
+                       paralyze = 1, bind = 1, silence = 9, slow = 1, poison = 3, light_sleep = -1, dark_sleep = 2,
+                       blind = 2, stun = -1, gravity = 1 },
+            magic_dmg = { all = 25 },
+            immune = { 'light_sleep', 'terror', 'plague' },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sight', 'ability' },
+            flags  = { scripted_elements = true },
+        },
+        {
+            name   = 'Pudding Master',
+            ids    = { 13, 20, 27 },
+            levels = {
+                [50] = { acc = 180, eva = 153, agi = 54, int = 66, mnd = 42, chr = 53 },
+            },
+            ranks  = { fire = -1, ice = 1, wind = 1, earth = 1, thunder = -1, water = 3, light = -1, dark = 2,
+                       paralyze = 1, bind = 1, silence = 1, slow = 1, poison = 3, light_sleep = -1, dark_sleep = 2,
+                       blind = 2, stun = -1, gravity = 1 },
+            magic_dmg = { all = 25 },
+            aggro  = true,
+            detects = { 'sight', 'ability' },
+        },
+        {
+            name   = 'Immortal Flan',
+            ids    = { 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 32, 33 },
+            nm     = true,
+            levels = {
+                [53] = { acc = 196, eva = 184, agi = 57, int = 54, mnd = 42, chr = 52 },
+            },
+            ranks  = { fire = -1, ice = 1, wind = 1, earth = 1, thunder = -1, water = 3, light = -1, dark = 2,
+                       paralyze = 1, bind = 1, silence = 1, slow = 1, poison = 3, light_sleep = -1, dark_sleep = 2,
+                       blind = 2, stun = -1, gravity = 1 },
+            magic_dmg = { all = 25 },
+            aggro  = true,
+            any_level = true,
+            true_detect = true,
+            detects = { 'sight', 'ability' },
+            links  = 1,
+        },
+        {
+            name   = 'Shamarhaan',
+            ids    = { 34, 36, 38 },
+            levels = {
+                [70] = { acc = 290, eva = 318, agi = 77, int = 73, mnd = 51, chr = 73 },
+            },
+            links  = 2,
+        },
+        {
+            name   = 'Valkeng',
+            ids    = { 35, 37, 39 },
+            nm     = true,
+            levels = {
+                [67] = { acc = 268, eva = 244, agi = 59, int = 71, mnd = 71, chr = 65 },
+            },
+            ranks  = { fire = -1, ice = -1, wind = -1, earth = -1, thunder = -1, water = -1, light = -1, dark = -1,
+                       paralyze = -1, bind = -1, silence = -1, slow = -1, poison = -1, light_sleep = -1,
+                       dark_sleep = -1, blind = -1, stun = -1, gravity = -1 },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sight' },
+            links  = 3,
+        },
+        {
+            name   = 'Khimaira 13',
+            ids    = { 40 },
+            levels = {
+                [70] = { acc = 289, eva = 276, agi = 77, int = 55, mnd = 59, chr = 65 },
+            },
+            ranks  = { fire = 8, ice = 5, wind = 8, earth = 7, thunder = 9, water = 5, light = 7, dark = 5,
+                       paralyze = 7, bind = 7, silence = 7, slow = 7, poison = 7, light_sleep = 7, dark_sleep = 7,
+                       blind = 7, stun = 9, gravity = 8 },
+            magic_dmg = { all = -25 },
+            immune = { 'dark_sleep', 'light_sleep' },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sight', 'sound' },
+        },
+        {
+            name   = 'Gurfurlur the Menacing',
+            ids    = { 46, 51, 56 },
+            levels = {
+                [85] = { acc = 380, eva = 349, agi = 62, int = 55, mnd = 85, chr = 74 },
+            },
+            ranks  = { fire = 7, ice = 7, wind = 2, earth = 7, thunder = 7, water = 2, light = 4, dark = 4,
+                       paralyze = 7, bind = 7, silence = 2, slow = 7, poison = 2, light_sleep = 4, dark_sleep = 4,
+                       blind = 4, stun = 7, gravity = 2 },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sight' },
+        },
+        {
+            name   = 'Hilltroll Elite Guard',
+            ids    = { 47, 48, 52, 53, 57, 58 },
+            levels = {
+                [85] = { acc = 370, eva = 337, agi = 55, int = 55, mnd = 92, chr = 87 },
+            },
+            ranks  = { fire = 3, wind = -1, water = -2, light = -1, dark = -1, silence = -1, poison = -2,
+                       light_sleep = -1, dark_sleep = -1, blind = -1, gravity = -1 },
+            resist = { sleep = 25 },
+            aggro  = true,
+            detects = { 'sight' },
+        },
+        {
+            name   = 'Woodtroll Elite Guard',
+            ids    = { 49, 50, 54, 55, 59, 60 },
+            levels = {
+                [85] = { acc = 421, eva = 332, agi = 98, int = 70, mnd = 85, chr = 74 },
+            },
+            ranks  = { fire = 3, wind = -1, water = -2, light = -1, dark = -1, silence = -1, poison = -2,
+                       light_sleep = -1, dark_sleep = -1, blind = -1, gravity = -1 },
+            resist = { poison = 25 },
+            aggro  = true,
+            detects = { 'sight' },
+        },
+    },
+    by_name = {},
+}

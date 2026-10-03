@@ -1,0 +1,113 @@
+-- Cloister of Gales (zone 201).
+-- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
+-- Don't edit this file by hand.
+return {
+    built   = 'phoenix/live f125de32dc',
+    content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
+    -- Each list of link names, written once. A row's links is the number of its list.
+    link_lists = {
+        [1] = { 'Air Elemental' },
+        [2] = { 'Air Elemental', 'Garuda Prime' },
+    },
+    monsters = {
+        {
+            name   = 'Garuda Prime',
+            ids    = { 1, 2, 3 },
+            nm     = true,
+            levels = {
+                [60] = { acc = 234, eva = 221, agi = 63, int = 56, mnd = 49, chr = 54 },
+            },
+            ranks  = { fire = 6, ice = -3, wind = -3, earth = 11, thunder = 6, water = 6, light = 6, dark = 6,
+                       paralyze = -3, bind = -3, silence = 11, slow = 11, poison = 6, light_sleep = 6,
+                       dark_sleep = 6, blind = 6, stun = 11, gravity = 11 },
+            absorb = { wind = 100 },
+            immune = { 'dark_sleep', 'light_sleep', 'bind', 'gravity', 'silence', 'paralyze', 'slow', 'elegy',
+                       'blind', 'terror' },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sight', 'magic' },
+        },
+        {
+            name   = 'Ogmios',
+            ids    = { 4, 5, 6 },
+            levels = {
+                [65] = { acc = 259, eva = 246, agi = 65, int = 61, mnd = 54, chr = 52 },
+            },
+            ranks  = { fire = 4, ice = 4, wind = 10, earth = -2, thunder = -2, water = -3, paralyze = 4, bind = 4,
+                       silence = 4, slow = -2, poison = -3, stun = -2, gravity = 4 },
+            immune = { 'dark_sleep', 'light_sleep', 'silence', 'terror' },
+            aggro  = true,
+            detects = { 'sight' },
+        },
+        {
+            name   = 'Garuda Prime',
+            ids    = { 7, 8, 9 },
+            nm     = true,
+            levels = {
+                [20] = { acc = 74, eva = 68, agi = 20, int = 22, mnd = 15, chr = 15 },
+            },
+            ranks  = { fire = 6, ice = -3, wind = -3, earth = 11, thunder = 6, water = 6, dark = 6, paralyze = -3,
+                       bind = -3, silence = 11, slow = 11, poison = 6, light_sleep = 6, dark_sleep = 6, blind = 6,
+                       stun = 11, gravity = 11 },
+            meva   = { light = -35 },
+            absorb = { wind = 100 },
+            immune = { 'dark_sleep', 'light_sleep', 'bind', 'gravity', 'silence', 'paralyze', 'slow', 'blind',
+                       'terror' },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sight', 'magic' },
+        },
+        {
+            name   = 'Garuda Prime',
+            ids    = { 10, 15, 20 },
+            nm     = true,
+            levels = {
+                [85] = { acc = 374, eva = 351, agi = 82, int = 92, mnd = 64, chr = 66 },
+            },
+            ranks  = { fire = 4, ice = -3, wind = -3, earth = 11, thunder = 4, water = 4, light = 4, dark = 4,
+                       paralyze = -3, bind = -3, silence = -3, slow = 11, poison = 4, light_sleep = 4,
+                       dark_sleep = 4, blind = 4, stun = 11, gravity = 11 },
+            magic_dmg = { all = -20 },
+            absorb = { wind = 100 },
+            immune = { 'dark_sleep', 'light_sleep', 'bind', 'gravity', 'silence', 'stun', 'slow', 'terror' },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'sight', 'magic' },
+            links  = 1,
+        },
+        {
+            name   = 'Air Elemental',
+            ids    = { 11, 12, 13, 14, 16, 17, 18, 19, 21, 22, 23, 24 },
+            levels = {
+                [75] = { acc = 313, eva = 289, agi = 73, int = 86, mnd = 69, chr = 70 },
+            },
+            ranks  = { ice = -3, wind = -3, earth = 11, paralyze = -3, bind = -3, silence = 11, slow = 11,
+                       gravity = 11 },
+            absorb = { wind = 100 },
+            immune = { 'dark_sleep', 'light_sleep', 'bind', 'gravity', 'silence', 'stun', 'paralyze', 'slow',
+                       'elegy' },
+            aggro  = true,
+            true_detect = true,
+            detects = { 'magic' },
+            links  = 2,
+        },
+        {
+            name   = 'Garuda Prime',
+            ids    = { 25, 26, 27 },
+            nm     = true,
+            levels = {
+                [40] = { acc = 143, eva = 132, agi = 37, int = 44, mnd = 30, chr = 30 },
+            },
+            ranks  = { fire = 6, ice = -3, wind = 11, earth = 11, thunder = 6, water = 6, light = 6, dark = 6,
+                       paralyze = -3, bind = -3, silence = 11, slow = 11, poison = 6, light_sleep = 6,
+                       dark_sleep = 6, blind = 6, stun = 11, gravity = 11 },
+            immune = { 'dark_sleep', 'light_sleep' },
+            aggro  = true,
+            any_level = true,
+            true_detect = true,
+            detects = { 'sight', 'magic' },
+        },
+    },
+    by_name = {},
+}

@@ -1,6 +1,6 @@
 # checkmate
 
-checkmate is an Ashita v4 addon for the Phoenix FFXI server. When you /check a monster, it prints what you'd want to know about it in chat. That's how tough it is, how its evasion and defense compare to your accuracy and attack, your hit rate, how often its swings miss you and your critical hit rate. It also tells you whether it will aggro you at your level and what links with it, how often your magic lands, what it's immune to, which elements it's weak to or resists, and what it drops at your Treasure Hunter. You pick which of those show, how they look and in what order.
+checkmate is an Ashita v4 addon for the Phoenix FFXI private server. When you /check a monster, it prints what you'd want to know about it in chat. That's how tough it is, how its evasion and defense compare to your accuracy and attack, your hit rate, how often its swings miss you and your critical hit rate. It also tells you whether it will aggro you at your level and what links with it, how often your magic lands, what it's immune to, which elements it's weak to or resists, and what it drops at your Treasure Hunter. You pick which of those show, how they look and in what order.
 
 It's built on the Phoenix server's own code and data, so the numbers follow what the server actually does instead of generic FFXI numbers.
 

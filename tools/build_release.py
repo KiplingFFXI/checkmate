@@ -1,5 +1,5 @@
 """
-Zips the addon folder for a release and prints the zip's SHA-256, which the Phoenix launcher lists.
+Zips the addon folder for a release and prints the zip's SHA-256.
 
     python tools\\build_release.py [--out FOLDER]
 

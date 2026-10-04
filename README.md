@@ -4,7 +4,7 @@ checkmate is an Ashita v4 addon for the Phoenix FFXI private server. When you /c
 
 It's built on the Phoenix server's own code and data, so the numbers follow what the server actually does instead of generic FFXI numbers.
 
-> **Phoenix only allows addons that are on its approved list.** An addon under review can't be used until staff approve it. checkmate is its own addon, not part of cadence, so it needs its own approval under Rule 9. Don't use it on Phoenix until it shows up on https://phoenix-xi.com/approved-addons. Any change to the code counts as a new version that needs its own review. checkmate only does anything after a /check you do yourself. With hit rate or evade turned on, that includes sending `/checkparam <me>` for you after each /check. By default it also hides the game's own line for that /check and prints its own in its place, the way checker does. It also ships drop rates, immunities, and aggro and link data worked out from the Phoenix server's source.
+> **Phoenix staff approved checkmate under Rule 9, so you can use it on Phoenix.** Every new version needs its own approval too. While staff look at one, it sits on the Releases page marked Pre-release, so stick to the newest release that isn't. A copy you've changed yourself counts as a new version nobody has reviewed. checkmate only does anything after a /check you do yourself. With hit rate or evade turned on, that includes sending `/checkparam <me>` for you after each /check. By default it also hides the game's own line for that /check and prints its own in its place, the way checker does. It also ships drop rates, immunities, and aggro and link data worked out from the Phoenix server's source.
 
 This is what a level 20 Red Mage under Signet sees after a /check of a Goblin Tinkerer in Valkurm Dunes, with every part and the Elemental and Enfeebling schools turned on. It prints in place of the game's own /check line. The Tinkerer's defense reads normal and it has no immunities, so those are left out. Each `*` is a black star in game, which is the default divider. The star is a Japanese character the FFXI chat font draws, so this file can't show it. The colon after each label is the default label divider.
 
@@ -48,9 +48,9 @@ With only the parts that are on by default, a level 43 character who checks Valk
 
 ## Installing
 
-Once Phoenix staff approve checkmate, you can get it through the Phoenix launcher, and the launcher brings you each new version. You can also install it by hand from this repo's Releases page on GitHub.
+Install it from this repo's Releases page on GitHub.
 
-1. Download `checkmate-<version>.zip` from the newest release on the Releases page.
+1. Download `checkmate-<version>.zip` from the newest release on the Releases page that isn't marked Pre-release. A pre-release is a new version that's still waiting on Phoenix staff.
 2. Extract the zip into your Phoenix `addons` folder, for example `C:\Games\PhoenixXI\addons`. The zip holds the `checkmate` folder, so you end up with `addons\checkmate\checkmate.lua`.
 3. In game, type `/addon load checkmate`.
 4. To load it every time, open the Phoenix launcher, go to Addons, pick "Manually installed" and switch checkmate on. Or add `/addon load checkmate` at the bottom of `scripts\default.txt`, outside the block the launcher manages. Only do one of those, or it loads twice.
@@ -59,11 +59,11 @@ Your settings live in `config\addons\checkmate\`, outside the addon folder, so u
 
 ## Keeping the monster data up to date
 
-The monster data is built into each version of checkmate from the code Phoenix's live server runs. When Phoenix changes its monsters, a new version comes out with the new data. New versions come every so often, through the Phoenix launcher once checkmate is approved there, and on the Releases page. [CHANGELOG.md](CHANGELOG.md) says what changed in each one.
+The monster data is built into each version of checkmate from the code Phoenix's live server runs. When Phoenix changes its monsters, a new version comes out with the new data. Each new version needs Phoenix staff's approval, the same as the first one did, and it's ready to use once its release on the Releases page isn't marked Pre-release anymore. [CHANGELOG.md](CHANGELOG.md) says what changed in each one.
 
 `/checkmate info` shows which Phoenix build your copy's data came from, like `checkmate 1.0.0. The monster data was built from phoenix/live f125de32dc.`
 
-To update by hand, delete your old `addons\checkmate` folder and extract the new zip in its place, the same way you installed it. Your settings and profiles live in `config\addons\checkmate\`, so they carry over.
+To update, delete your old `addons\checkmate` folder and extract the new zip in its place, the same way you installed it. Your settings and profiles live in `config\addons\checkmate\`, so they carry over.
 
 ## Commands
 
@@ -444,7 +444,7 @@ Besides Ashita's normal per-character settings file, the only file checkmate wri
 
 The monster data in `data\zones\`, `data\bands.lua` and `data\too_weak.lua` is built from the Phoenix server's source by `tools\export_data.py`. It reads the zone data, the module overlays, the monster scripts, Phoenix's Dynamis and the Assault tables, and works out every monster's numbers the way the server does. `/checkmate info` shows which commit the data came from and the content settings it assumes. Version 1.0.0 ships data built from `phoenix/live`, the branch the Phoenix server runs, at commit f125de32dc.
 
-This is how each new version's data gets built, from the project folder with Python 3.12 and git. A copy you rebuild yourself is a version Phoenix staff haven't reviewed, so to play with newer data, wait for the next release.
+This is how each new version's data gets built, from the project folder with Python 3.12 and git. A copy you rebuild yourself is a version Phoenix staff haven't reviewed, so to play with newer data, wait for the next release that isn't marked Pre-release.
 
 ```
 python -m pip install -r tools\requirements.txt

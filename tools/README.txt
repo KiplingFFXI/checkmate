@@ -295,16 +295,24 @@ of the addon carries the license.
 Sending it to Phoenix staff
 ---------------------------
 
-Phoenix staff review every version under Rule 9 before the launcher ships it. Open the draft on the repo's
-Releases page and download the zip. Its SHA-256 is in the run's log under the "Build the zip" step, and you can
-work it out yourself in PowerShell.
+Phoenix staff review every version under Rule 9 before players can use it. Staff can't see a draft, so publish
+it as a pre-release while they look at it. On the repo's Releases page, click the pencil on the draft, put a line
+like "Waiting for Phoenix staff approval. Don't use this on Phoenix yet." at the top of the notes, tick Set as a
+pre-release and click Publish release. When you publish it, GitHub makes the tag v<version> on the commit the
+zip was built from.
+
+The zip's SHA-256 is in the run's log under the "Build the zip" step, and you can work it out yourself in
+PowerShell from the zip on the release.
 
   Get-FileHash checkmate-1.0.1.zip
 
-Get-FileHash prints the hash in capital letters, and it's the same hash. Send staff that zip and its hash. A zip
-you build on your PC has a different hash even when the files inside match, so always send the hash of the zip you
-send. Publishing the draft is up to you. When you publish it, GitHub makes the tag v<version> on the commit the
-zip was built from.
+Get-FileHash prints the hash in capital letters, and it's the same hash. Send staff the release's link and that
+hash. A zip you build on your PC has a different hash even when the files inside match, so always send the hash of
+the zip on the release.
+
+Once staff approve it, click the pencil on the release to edit it. Take the waiting line out of the notes, untick
+Set as a pre-release, tick Set as the latest release and click Update release. Don't change the zip, because
+staff approved that exact file.
 
 
 Running a job by hand

@@ -1,9 +1,9 @@
 -- Dangruf Wadi (zone 191).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names, written once. A row's links is the number of its list.
     link_lists = {
@@ -399,7 +399,10 @@ return {
                        paralyze = -2, bind = -2, silence = -3, slow = 2, poison = -2, light_sleep = -3, stun = -2,
                        gravity = -3 },
             drops  = {
-                { rate = 150, item = 768 },  -- flint stone
+                { rate = 1000, item = 768 },  -- flint stone
+                { rate = 150, item = 1108 },  -- pinch of sulfur
+                { rate = 100, item = 642 },  -- chunk of zinc ore
+                { rate = 50, item = 13475 },  -- hermits ring
             },
             aggro  = true,
             detects = { 'sound' },
@@ -461,6 +464,7 @@ return {
                 { rate = 50, item = 4680 },  -- scroll of barsleep
                 { rate = 50, item = 4667 },  -- scroll of silence
                 { rate = 10, item = 4681 },  -- scroll of barpoison
+                { rate = 10, item = 4683 },  -- scroll of barblind
                 { rate = 50, item = 4733 },  -- scroll of protectra
                 { rate = 50, item = 4745 },  -- scroll of sneak
                 { rate = 10, item = 4744 },  -- scroll of invisible

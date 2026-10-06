@@ -1,6 +1,6 @@
 addon.name    = 'checkmate';
 addon.author  = 'Kipling';
-addon.version = '1.0.0';
+addon.version = '1.0.1';
 addon.desc    = 'Hit, evade, crit, aggro, magic, immunities, elements and drops on /check for Phoenix.';
 addon.link    = 'https://github.com/KiplingFFXI/checkmate';
 

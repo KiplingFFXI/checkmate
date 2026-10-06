@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.1
+
+Monster data rebuilt from phoenix/live 465ac4c076 (2026-10-05).
+
+- Mimas in Upper Delkfutts Tower changed its levels.
+- Porphyrion in Upper Delkfutts Tower changed its levels and resist traits.
+- Goblin Leecher in Dangruf Wadi changed its drops.
+- Witchetty Grub in Dangruf Wadi changed its drops.
+- 9 more monsters changed too.
+
 ## 1.0.0
 
 First release.

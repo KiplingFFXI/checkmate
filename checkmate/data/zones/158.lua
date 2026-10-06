@@ -1,9 +1,9 @@
 -- Upper Delkfutts Tower (zone 158).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names, written once. A row's links is the number of its list.
     link_lists = {
@@ -159,7 +159,7 @@ return {
             ids    = { 35 },
             nm     = true,
             levels = {
-                [36] = { acc = 132, eva = 120, agi = 28, int = 22, mnd = 33, chr = 35 },
+                [36] = { acc = 132, eva = 121, agi = 36, int = 23, mnd = 28, chr = 35 },
             },
             ranks  = { earth = -2, thunder = 4, slow = -2, stun = 4 },
             resist = { virus = 15 },
@@ -194,10 +194,10 @@ return {
             ids    = { 45 },
             nm     = true,
             levels = {
-                [36] = { acc = 152, eva = 112, agi = 42, int = 27, mnd = 34, chr = 35 },
+                [36] = { acc = 132, eva = 121, agi = 36, int = 23, mnd = 28, chr = 35 },
             },
             ranks  = { earth = -2, thunder = 4, slow = -2, stun = 4 },
-            resist = { poison = 10 },
+            resist = { virus = 15 },
             drops  = {
                 { rate = 1000, item = 549 },  -- delkfutt key
                 { rate = 1000, item = 549 },  -- delkfutt key

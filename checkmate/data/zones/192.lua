@@ -1,18 +1,16 @@
 -- Inner Horutoto Ruins (zone 192).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names, written once. A row's links is the number of its list.
     link_lists = {
         [1] = { 'Battle Bat', 'Battue Bats', 'Blade Bat' },
         [2] = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger',
-                'Goblin Thug', 'Goblin Tinkerer', 'Goblin Weaver', 'Slendlix Spindlethumb' },
-        [3] = { 'Beady Beetle' },
-        [4] = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger',
                 'Goblin Thug', 'Goblin Tinkerer', 'Goblin Weaver' },
+        [3] = { 'Beady Beetle' },
     },
     monsters = {
         {
@@ -417,24 +415,6 @@ return {
             aggro  = true,
             detects = { 'sound' },
             links  = 1,
-        },
-        {
-            name   = 'Slendlix Spindlethumb',
-            ids    = { 137 },
-            nm     = true,
-            levels = {
-                [33] = { acc = 117, eva = 99, agi = 31, int = 29, mnd = 41, chr = 34 },
-                [34] = { acc = 120, eva = 102, agi = 32, int = 29, mnd = 42, chr = 36 },
-            },
-            ranks  = { fire = -2, ice = -2, wind = -2, earth = -2, thunder = -2, water = -2, light = -3,
-                       paralyze = -2, bind = -2, silence = -2, slow = -2, poison = -2, light_sleep = -3, stun = -2,
-                       gravity = -2 },
-            drops  = {
-                { rate = 100, item = 11494 },  -- circes hat
-            },
-            aggro  = true,
-            detects = { 'sight' },
-            links  = 4,
         },
         {
             name   = 'Will-o-the-Wisp',

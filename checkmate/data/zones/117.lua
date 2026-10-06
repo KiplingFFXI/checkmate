@@ -1,22 +1,28 @@
 -- Tahrongi Canyon (zone 117).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Canyon Rarab' },
-        [2] = { 'Akbaba' },
-        [3] = { 'Canyon Crawler' },
-        [4] = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Digger', 'Goblin Thug', 'Goblin Tinkerer',
-                'Goblin Weaver' },
-        [5] = { 'Serpopard Ishtar', 'Wild Dhalmel' },
-        [6] = { 'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Mendicant', 'Yagudo Persecutor', 'Yagudo Piper',
-                'Yagudo Scribe' },
-        [7] = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Thug', 'Goblin Tinkerer', 'Goblin Weaver' },
-        [8] = { 'Strolling Sapling' },
+        [1] = { sight = { 'Canyon Rarab' } },
+        [2] = { sound = { 'Akbaba' } },
+        [3] = { sound = { 'Canyon Crawler' } },
+        [4] = {
+            sight = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Digger', 'Goblin Thug', 'Goblin Tinkerer',
+                      'Goblin Weaver' },
+        },
+        [5] = { sight = { 'Serpopard Ishtar', 'Wild Dhalmel' } },
+        [6] = {
+            sight = { 'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Mendicant', 'Yagudo Persecutor', 'Yagudo Piper',
+                      'Yagudo Scribe' },
+        },
+        [7] = {
+            sight = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Thug', 'Goblin Tinkerer', 'Goblin Weaver' },
+        },
+        [8] = { sound = { 'Strolling Sapling' } },
     },
     monsters = {
         {
@@ -407,6 +413,7 @@ return {
                              [275] = { 14, 15 }, [276] = { 14, 15 }, [382] = { 14, 15 }, [383] = { 14, 15 },
                              [384] = { 14, 15 }, [408] = { 15, 16 }, [409] = { 15, 16 }, [410] = { 15, 16 },
                              [419] = { 15, 16 }, [420] = { 15, 16 }, [421] = { 15, 16 } },
+            ph_for = { [112] = { 115 }, [238] = { 242 } },
             ranks  = { fire = -2, wind = -3, thunder = -3, water = -2, light = -2, dark = -2, silence = -3,
                        poison = -2, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -3, gravity = -3 },
             drops  = {

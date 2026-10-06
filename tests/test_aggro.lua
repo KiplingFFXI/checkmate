@@ -1,6 +1,6 @@
 -- Tests the aggro part. That covers every verdict, from the /check con and from the Too Weak table
--- for a monster that can't be gauged. It also covers Detection, the notes, the link names and
--- "+N more", Color by threat, and real monsters from the generated data through a real /check.
+-- for a monster that can't be gauged. It also covers Detection, the notes, the link names, how each one
+-- links and "+N more", Color by threat, and real monsters from the generated data through a real /check.
 local aggro    = require('core.aggro');
 local printout = require('core.printout');
 local defaults = require('ui.defaults');
@@ -128,20 +128,73 @@ check('no note', notes_of(AGGRESSIVE) == '' and notes_of({ flags = { scripted_st
 
 -- Links --------------------------------------------------------------------------------------------
 
-local SEVEN = { aggro = true, links = { 'A', 'B', 'C', 'D', 'E', 'F', 'G' } };
+-- The data puts each link name in a group for how it links.
+local SEVEN = { aggro = true, links = { sight = { 'A', 'B', 'C', 'D', 'E', 'F', 'G' } } };
 a = readout(SEVEN, { con = 4 });
 check('five names by default and two more', a.links and #a.names == 5 and a.names[5] == 'E' and a.more == 2);
+expect('each shown name says how it links', table.concat(a.tags, '|'), 'Sight|Sight|Sight|Sight|Sight');
 a = readout(SEVEN, { con = 4 }, 75, { max_links = 0 });
 check('0 shows every name', #a.names == 7 and a.more == 0);
 a = readout(SEVEN, { con = 4 }, 75, { max_links = 7 });
 check('exactly the most shown is no more', #a.names == 7 and a.more == 0);
 a = readout(SEVEN, { con = 4 }, 75, { max_links = 1 });
 check('one name', #a.names == 1 and a.names[1] == 'A' and a.more == 6);
+check('and one tag', #a.tags == 1 and a.tags[1] == 'Sight');
+a = readout(SEVEN, { con = 4 }, 75, { link_how = false });
+check('Show how each one links off gives no tags', #a.names == 5 and a.tags == nil and a.senses == nil);
 a = readout(SEVEN, { con = 4 }, 75, { link_names = false });
 check('names off', a.links == true and a.names == nil and a.more == 0);
+check('names off says how they link all together', a.tags == nil and table.concat(a.senses, ', ') == 'Sight');
+a = readout(SEVEN, { con = 4 }, 75, { link_names = false, link_how = false });
+check('and nothing with both off', a.links == true and a.names == nil and a.more == 0 and a.senses == nil);
 check('no links', readout(AGGRESSIVE, { con = 4 }).links == false and readout({ links = {} }, { con = 4 }).links == false);
 check('links don\'t depend on your level', readout(SEVEN, { con = 0 }).links and #readout(SEVEN, { con = 0 }).names == 5);
 check('max_links is 12', aggro.MAX_LINKS == 12);
+
+-- How each one links. Nine groups, each with its words. One that neither sees nor hears says what it
+-- notices, like Magic, and one that notices none of those has no words.
+expect('the nine ways in order', table.concat(aggro.LINK_WAYS, ' '),
+    'superlink sight true_sight sound true_sound both true_both magic neither');
+local words_ok = true;
+for _, way in ipairs(aggro.LINK_WAYS) do
+    words_ok = words_ok and type(aggro.LINK_WORDS[way]) == 'table';
+end
+check('each has a list of words', words_ok);
+local function words(way) return table.concat(aggro.LINK_WORDS[way], ', '); end
+check('their words', words('superlink') == 'Superlink' and words('sight') == 'Sight' and words('true_sight') == 'True Sight'
+    and words('sound') == 'Sound' and words('true_sound') == 'True Sound' and words('both') == 'Sight, Sound'
+    and words('true_both') == 'True Sight, True Sound' and words('magic') == 'Magic' and #aggro.LINK_WORDS.neither == 0);
+
+-- A made-up mix. Every name shows once, in order, and C counts once.
+local MIX = { aggro = true, links = { superlink = { 'S' }, sight = { 'B', 'D' }, true_sound = { 'A', 'C' },
+    neither = { 'C' } } };
+a = readout(MIX, { con = 4 }, 75, { max_links = 0 });
+expect('the mix names each once, in order', table.concat(a.names, ' '), 'A B C D S');
+expect('each with how it links', table.concat(a.tags, '|'), 'True Sound|Sight|True Sound|Sight|Superlink');
+a = readout(MIX, { con = 4 }, 75, { max_links = 3 });
+check('the most shown counts names, each once', table.concat(a.names, ' ') == 'A B C' and a.more == 2
+    and table.concat(a.tags, '|') == 'True Sound|Sight|True Sound');
+a = readout(MIX, { con = 4 }, 75, { link_names = false });
+expect('names off lists each word once, in a fixed order', table.concat(a.senses, ', '), 'Superlink, Sight, True Sound');
+
+-- A name in two groups shows both, unless one has no words.
+local function tags_of(links)
+    return table.concat(readout({ links = links }, { con = 4 }, 75, { max_links = 0 }).tags, '|');
+end
+expect('a name that sees in one spot and hears in another', tags_of({ sight = { 'B' }, sound = { 'B' } }), 'Sight or Sound');
+expect('one that hears and one that notices magic', tags_of({ sound = { 'M' }, magic = { 'M' } }), 'Sound or Magic');
+expect('one that hears and one that notices none of those', tags_of({ sound = { 'R' }, neither = { 'R' } }), 'Sound');
+expect('one that notices magic', tags_of({ magic = { 'Fire Elemental' } }), 'Magic');
+expect('one that notices none of those has an empty tag', tags_of({ neither = { 'N' } }), '');
+expect('both senses', tags_of({ both = { 'X' } }), 'Sight, Sound');
+expect('both with true detection', tags_of({ true_both = { 'X' } }), 'True Sight, True Sound');
+local function senses_of(links)
+    return table.concat(readout({ links = links }, { con = 4 }, 75, { link_names = false }).senses, ', ');
+end
+expect('names off goes by the fixed order, not the groups', senses_of({ true_sound = { 'Y' }, true_both = { 'X' } }),
+    'True Sight, True Sound');
+expect('names off with magic', senses_of({ magic = { 'X' }, superlink = { 'Y' } }), 'Superlink, Magic');
+expect('names off with only none of those has no words', senses_of({ neither = { 'N' } }), '');
 
 -- The printout -------------------------------------------------------------------------------------
 
@@ -163,11 +216,12 @@ local function plain(s, row, check_result, my_level)
 end
 
 local s = settings();
-local THUG = { aggro = true, detects = { 'sight' }, links = { 'Goblin Digger', 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' } };
-expect('aggressive with its links', plain(s, THUG), 'Aggro: Aggressive (Sight)  Links with Goblin Digger, Goblin Fisher, '
-    .. 'Goblin Thug, Goblin Weaver');
-expect('too weak', plain(s, THUG, { con = 0 }), 'Aggro: Too weak to aggro you unless you rest  Links with Goblin Digger, '
-    .. 'Goblin Fisher, Goblin Thug, Goblin Weaver');
+local THUG = { aggro = true, detects = { 'sight' },
+    links = { sight = { 'Goblin Digger', 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' } } };
+expect('aggressive with its links', plain(s, THUG), 'Aggro: Aggressive (Sight)  Links with Goblin Digger (Sight), '
+    .. 'Goblin Fisher (Sight), Goblin Thug (Sight), Goblin Weaver (Sight)');
+expect('too weak', plain(s, THUG, { con = 0 }), 'Aggro: Too weak to aggro you unless you rest  Links with Goblin Digger '
+    .. '(Sight), Goblin Fisher (Sight), Goblin Thug (Sight), Goblin Weaver (Sight)');
 expect('not aggressive and doesn\'t link', plain(s, {}), 'Aggro: Not aggressive  Doesn\'t link');
 check('never aggressive', plain(s, { no_aggro = true }) == 'Aggro: Never aggressive  Doesn\'t link');
 expect('a range across the cutoff', plain(s, AGGRESSIVE, { low = 50, high = 60 }),
@@ -175,19 +229,34 @@ expect('a range across the cutoff', plain(s, AGGRESSIVE, { low = 50, high = 60 }
 check('an unknown level', plain(s, AGGRESSIVE, {}) == 'Aggro: Aggressive (level unknown) (Sight)  Doesn\'t link');
 check('any level', plain(s, ANY, { con = 0 }) == 'Aggro: Aggressive at any level (Sight)  Doesn\'t link');
 local ERUCA = { aggro = true, detects = { 'sound' }, aggro_note = 'sleeps', aggro_hours = { 6, 20 },
-    flags = { scripted_aggro = true }, links = { 'Carmine Eruca', 'Flame Eruca' } };
+    flags = { scripted_aggro = true }, links = { sound = { 'Carmine Eruca' }, true_sound = { 'Flame Eruca' } } };
 expect('notes after how it finds you', plain(s, ERUCA), 'Aggro: Aggressive (Sound) (awake 6:00-20:59) (can change in the '
-    .. 'fight)  Links with Carmine Eruca, Flame Eruca');
+    .. 'fight)  Links with Carmine Eruca (Sound), Flame Eruca (True Sound)');
 s.aggro.detection = false;
 check('Detection off', plain(s, THUG):find('^Aggro: Aggressive  Links with') ~= nil, plain(s, THUG));
+expect('and the link tags stay', plain(s, THUG), 'Aggro: Aggressive  Links with Goblin Digger (Sight), Goblin Fisher (Sight), '
+    .. 'Goblin Thug (Sight), Goblin Weaver (Sight)');
 check('and the notes stay', plain(s, ERUCA):find('^Aggro: Aggressive %(awake') ~= nil, plain(s, ERUCA));
 s.aggro.detection = true;
 s.aggro.max_links = 2;
-expect('the most names and "+N more" like drops', plain(s, THUG), 'Aggro: Aggressive (Sight)  Links with Goblin Digger, '
-    .. 'Goblin Fisher  +2 more');
+expect('the most names and "+N more" like drops', plain(s, THUG), 'Aggro: Aggressive (Sight)  Links with Goblin Digger '
+    .. '(Sight), Goblin Fisher (Sight)  +2 more');
 s.aggro.link_names = false;
-expect('names off says just Links', plain(s, THUG), 'Aggro: Aggressive (Sight)  Links');
+expect('names off says Links and how they link', plain(s, THUG), 'Aggro: Aggressive (Sight)  Links (Sight)');
 check('and Doesn\'t link stays', plain(s, AGGRESSIVE) == 'Aggro: Aggressive (Sight)  Doesn\'t link');
+s.aggro.link_how = false;
+expect('names off and Show how each one links off says just Links', plain(s, THUG), 'Aggro: Aggressive (Sight)  Links');
+s.aggro.link_how = true;
+s.aggro.max_links = 0;
+local MIXED = { links = { superlink = { 'S' }, sight = { 'B', 'D' }, sound = { 'B' }, true_sound = { 'A', 'C' },
+    magic = { 'M' }, neither = { 'C', 'N' } } };
+expect('names off with every kind of group', plain(s, MIXED), 'Aggro: Not aggressive  Links (Superlink, Sight, Sound, '
+    .. 'True Sound, Magic)');
+expect('names off with only a group with no words is just Links', plain(s, { links = { neither = { 'N' } } }),
+    'Aggro: Not aggressive  Links');
+s.aggro.link_names = true;
+expect('every name has its own tag, and one with no words has none', plain(s, MIXED), 'Aggro: Not aggressive  Links with '
+    .. 'A (True Sound), B (Sight or Sound), C (True Sound), D (Sight), M (Magic), N, S (Superlink)');
 s = settings();
 s.printout.parts.aggro.label = '';
 expect('an empty label leaves the value', plain(s, {}), 'Not aggressive  Doesn\'t link');
@@ -197,8 +266,8 @@ s = settings();
 s.printout.divider = 'pipe';
 check('the divider goes inside the part too', plain(s, THUG):find('^Aggro: Aggressive %(Sight%) | Links with ') ~= nil,
     plain(s, THUG));
-local names = { aggro = true, links = { 'Goblin\226\128\153s Pet' } };
-expect('link names are cleaned', plain(s, names), 'Aggro: Aggressive | Links with Goblins Pet');
+local names = { aggro = true, links = { sight = { 'Goblin\226\128\153s Pet' } } };
+expect('link names are cleaned', plain(s, names), 'Aggro: Aggressive | Links with Goblins Pet (Sight)');
 check('no row, no part', #printout.lines(s, { name = 'x' }) == 0);
 
 -- Colors. Color by threat paints the verdict red or green. The rest take the label, words and detail colors.
@@ -208,8 +277,18 @@ s.colors.aggro_label, s.colors.aggro_words, s.colors.aggro_detail = 3, 7, 67;
 local raw = line(s, THUG);
 check('Color by threat is on by default, aggressive in tomato', defaults.make().aggro.threat_colors == true
     and raw:find(color(3) .. 'Aggro' .. color(3) .. ': ' .. color(76) .. 'Aggressive' .. color(67) .. ' (Sight)'
-    .. color(67) .. ' | ' .. color(7) .. 'Links with ' .. color(7) .. 'Goblin Digger' .. color(67) .. ', ' .. color(7)
-    .. 'Goblin Fisher', 1, true) ~= nil, MOCK.plain(raw));
+    .. color(67) .. ' | ' .. color(7) .. 'Links with ' .. color(7) .. 'Goblin Digger' .. color(67) .. ' (Sight)'
+    .. color(67) .. ', ' .. color(7) .. 'Goblin Fisher', 1, true) ~= nil, MOCK.plain(raw));
+check('how each one links is in the detail color', raw:find(color(7) .. 'Goblin Weaver' .. color(67) .. ' (Sight)', 1, true)
+    ~= nil, MOCK.plain(raw));
+-- Show how each one links off gives back the same bytes as before it existed.
+s.aggro.link_how = false;
+raw = line(s, THUG);
+local before = color(3) .. 'Aggro' .. color(3) .. ': ' .. color(76) .. 'Aggressive' .. color(67) .. ' (Sight)' .. color(67)
+    .. ' | ' .. color(7) .. 'Links with ' .. color(7) .. 'Goblin Digger' .. color(67) .. ', ' .. color(7) .. 'Goblin Fisher'
+    .. color(67) .. ', ' .. color(7) .. 'Goblin Thug' .. color(67) .. ', ' .. color(7) .. 'Goblin Weaver';
+check('Show how each one links off is the old line to the byte', raw == color(s.colors.line) .. before, MOCK.plain(raw));
+s.aggro.link_how = true;
 check('too weak in green', line(s, THUG, { con = 0 }):find(color(2) .. 'Too weak', 1, true) ~= nil);
 check('not aggressive in green', line(s, {}):find(color(2) .. 'Not aggressive' .. color(67) .. ' | ' .. color(7)
     .. 'Doesn\'t link', 1, true) ~= nil);
@@ -218,13 +297,18 @@ check('a range in red', line(s, AGGRESSIVE, { low = 50, high = 60 }):find(color(
 s.colors.aggro_threat, s.colors.aggro_safe = 5, 83;
 check('the Threat and Safe colors are yours', line(s, THUG):find(color(5) .. 'Aggressive', 1, true) ~= nil
     and line(s, {}):find(color(83) .. 'Not aggressive', 1, true) ~= nil);
+check('Color by threat on leaves the link tags in Details', line(s, THUG):find(color(7) .. 'Goblin Weaver' .. color(67)
+    .. ' (Sight)', 1, true) ~= nil);
 s.aggro.threat_colors = false;
 check('Color by threat off paints the verdict in Words', line(s, THUG):find(color(7) .. 'Aggressive' .. color(67), 1, true)
     ~= nil and line(s, {}):find(color(7) .. 'Not aggressive', 1, true) ~= nil and not line(s, THUG):find(color(5), 1, true)
     and not line(s, {}):find(color(83), 1, true));
+check('and off leaves them there too', line(s, THUG):find(color(7) .. 'Goblin Weaver' .. color(67) .. ' (Sight)', 1, true)
+    ~= nil);
 s.aggro.threat_colors = true;
 s.aggro.max_links = 1;
-check('"+N more" in the detail color', line(s, THUG):find(color(67) .. ' | +3 more', 1, true) ~= nil, MOCK.plain(line(s, THUG)));
+check('"+N more" in the detail color', line(s, THUG):find('Goblin Digger' .. color(67) .. ' (Sight)' .. color(67)
+    .. ' | +3 more', 1, true) ~= nil, MOCK.plain(line(s, THUG)));
 local aggro_keys = {};
 for _, group in ipairs(printout.COLOR_GROUPS) do
     if (group.name == 'Aggro') then
@@ -247,12 +331,12 @@ check('every skin but Minimal and Colorblind safe has a red Threat and a green S
 
 -- Its place in the printout. After crit, on its own line by default.
 check('aggro comes after crit in the default order', printout.DEFAULT_ORDER == 'difficulty hit evade crit aggro magic immunities '
-    .. 'elements drops', printout.DEFAULT_ORDER);
+    .. 'elements drops pet', printout.DEFAULT_ORDER);
 local d = defaults.make();
 check('on by default, labeled Aggro, on its own line', d.printout.parts.aggro.on == true and d.printout.parts.aggro.label == 'Aggro'
     and d.printout.parts.aggro.new_line == true);
-check('its settings default to on, on, on and 5', d.aggro.threat_colors == true and d.aggro.detection == true
-    and d.aggro.link_names == true and d.aggro.max_links == 5);
+check('its settings default to on, on, on, 5 and on', d.aggro.threat_colors == true and d.aggro.detection == true
+    and d.aggro.link_names == true and d.aggro.max_links == 5 and d.aggro.link_how == true);
 s = defaults.make();
 s.printout.divider = 'spaces';
 for _, part in pairs(s.printout.parts) do part.on = true; end
@@ -302,29 +386,41 @@ local first;
 text, first = real(101, 146, 'Goblin Thug', 8, 4);
 check('East Ronfaure Goblin Thug prints the aggro line under the /check', first == '[checkmate] Goblin Thug (Lv 8)  Even Match',
     first);
-expect('East Ronfaure Goblin Thug', text, '[checkmate] Aggro: Aggressive (Sight)  Links with Goblin Digger, Goblin Fisher, '
-    .. 'Goblin Thug, Goblin Weaver');
+expect('East Ronfaure Goblin Thug', text, '[checkmate] Aggro: Aggressive (Sight)  Links with Goblin Digger (Sight), Goblin '
+    .. 'Fisher (Sight), Goblin Thug (Sight), Goblin Weaver (Sight)');
 expect('and too weak at con 0', real(101, 146, 'Goblin Thug', 3, 0), '[checkmate] Aggro: Too weak to aggro you unless you rest  '
-    .. 'Links with Goblin Digger, Goblin Fisher, Goblin Thug, Goblin Weaver');
+    .. 'Links with Goblin Digger (Sight), Goblin Fisher (Sight), Goblin Thug (Sight), Goblin Weaver (Sight)');
 expect('Goblin Digger, one spawn, doesn\'t list its own name', real(101, 404, 'Goblin Digger', 8, 4),
-    '[checkmate] Aggro: Aggressive (Sight)  Links with Goblin Fisher, Goblin Thug, Goblin Weaver');
+    '[checkmate] Aggro: Aggressive (Sight)  Links with Goblin Fisher (Sight), Goblin Thug (Sight), Goblin Weaver (Sight)');
 expect('Wild Rabbit', real(101, 6, 'Wild Rabbit', 1, 0), '[checkmate] Aggro: Not aggressive  Doesn\'t link');
 expect('Orcish Fodder sees you', real(101, 75, 'Orcish Fodder', 8, 4), '[checkmate] Aggro: Aggressive (Sight)  Links with '
-    .. 'Orcish Fodder, Orcish Grappler, Orcish Mesmerizer');
+    .. 'Orcish Fodder (Sight), Orcish Grappler (Sight), Orcish Mesmerizer (Sight)');
 expect('Zeruhn Mouse Bat links through the Ding Bats', real(172, 17, 'Mouse Bat', 3, 2),
-    '[checkmate] Aggro: Not aggressive  Links with Ding Bats, Mouse Bat');
-expect('Beady Beetle', real(192, 74, 'Beady Beetle', 14, 4), '[checkmate] Aggro: Aggressive (Sight)  Links with Beady Beetle');
+    '[checkmate] Aggro: Not aggressive  Links with Ding Bats (Sound), Mouse Bat (Sound)');
+expect('Beady Beetle', real(192, 74, 'Beady Beetle', 14, 4), '[checkmate] Aggro: Aggressive (Sight)  Links with Beady Beetle '
+    .. '(Sight)');
 expect('Carmine Eruca sleeps at night', real(51, 193, 'Carmine Eruca', 70, 4),
-    '[checkmate] Aggro: Aggressive (Sound) (awake 6:00-20:59)  Links with Carmine Eruca, Flame Eruca');
+    '[checkmate] Aggro: Aggressive (Sound) (awake 6:00-20:59)  Links with Carmine Eruca (Sound), Flame Eruca (True Sound)');
 expect('Jnun never wakes', real(79, 80, 'Jnun', 72, 5), '[checkmate] Aggro: Not aggressive (always asleep)  Doesn\'t link');
 expect('Wild Karakul', real(79, 70, 'Wild Karakul', 68, 4), '[checkmate] Aggro: Not aggressive (awake 6:00-19:59)  Doesn\'t link');
 expect('Orderly Imp sees you at night', real(79, 40, 'Orderly Imp', 65, 4), '[checkmate] Aggro: Aggressive (True Sight 18:00-5:59, '
-    .. 'True Sound)  Links with Dark Bugler, Heraldic Imp, Orderly Imp, Verdelet, Zikko');
-expect('Fomor Ninja needs fomor hate', real(24, 130, 'Fomor Ninja', 60, 4),
-    '[checkmate] Aggro: Aggressive (Sound, Low HP) (only if you have fomor hate)  Doesn\'t link');
+    .. 'True Sound)  Links with Dark Bugler (True Sight, True Sound), Heraldic Imp (True Sound), Orderly Imp (True Sound), '
+    .. 'Verdelet (True Sight, True Sound), Zikko (True Sight, True Sound)');
+-- Fomor Ninja 130 leads a patrol with a Fomor Monk and superlinks with it, and other Fomor Monks join by sound.
+-- Fomor Ninja 247 guards a campfire with its own party, so it has a row of its own.
+expect('Fomor Ninja needs fomor hate, and its party superlinks', real(24, 130, 'Fomor Ninja', 60, 4),
+    '[checkmate] Aggro: Aggressive (Sound, Low HP) (only if you have fomor hate)  Links with Fomor Bard (Sound), '
+    .. 'Fomor Monk (Superlink or Sound), Fomor Red Mage (Sound), Fomor Warrior (Sound)');
+expect('and Fomor Ninja 247 only with its campfire party', real(24, 247, 'Fomor Ninja', 60, 4),
+    '[checkmate] Aggro: Aggressive (Sound, Low HP) (only if you have fomor hate)  Links with Fomor Monk (Superlink), '
+    .. 'Fomor Samurai (Superlink), Fomor Thief (Superlink)');
+expect('a Fomor Paladin at Bluefell Falls links only with its guard', real(24, 145, 'Fomor Paladin', 80, 4),
+    '[checkmate] Aggro: Aggressive (Sound, Low HP) (only if you have fomor hate)  Links with Fomor Black Mage (Superlink), '
+    .. 'Fomor Dark Knight (Superlink), Fomor Dragoon (Superlink)');
 expect('Eoghrah', real(34, 1, 'Eoghrah', 76, 4),
     '[checkmate] Aggro: Aggressive (True Sound) (not in its ball form)  Doesn\'t link');
-expect('Eoeuvhi keeps its mouth shut', real(34, 10, 'Eoeuvhi', 75, 4), '[checkmate] Aggro: Not aggressive  Links with Eoeuvhi');
+expect('Eoeuvhi keeps its mouth shut', real(34, 10, 'Eoeuvhi', 75, 4), '[checkmate] Aggro: Not aggressive  Links with Eoeuvhi '
+    .. '(Sound)');
 expect('Zhayolm Apkallu', real(61, 148, 'Zhayolm Apkallu', 72, 4),
     '[checkmate] Aggro: Not aggressive (changes with the zone\'s apkallu hate)  Doesn\'t link');
 expect('Pond Sahagin gets no help', real(176, 17, 'Pond Sahagin', 37, 3), '[checkmate] Aggro: Aggressive (Sound)  Doesn\'t link');
@@ -337,10 +433,10 @@ expect('Faust aggroes at any level', real(178, 66, 'Faust', 0, nil, 249),
 expect('Morbolger too', real(193, 383, 'Morbolger', 0, nil, 249), '[checkmate] Aggro: Aggressive at any level (Sound)  '
     .. 'Doesn\'t link');
 expect('Morion Worm at 28 is too weak for you', real(173, 366, 'Morion Worm', 0, nil, 249),
-    '[checkmate] Aggro: Too weak to aggro you unless you rest (only above ground)  Links with Land Worm');
+    '[checkmate] Aggro: Too weak to aggro you unless you rest (only above ground)  Links with Land Worm (Sound)');
 MOCK.player.main_level = 30;
 expect('and aggroes a level 30', real(173, 366, 'Morion Worm', 0, nil, 249),
-    '[checkmate] Aggro: Aggressive (Sound) (only above ground)  Links with Land Worm');
+    '[checkmate] Aggro: Aggressive (Sound) (only above ground)  Links with Land Worm (Sound)');
 MOCK.player.main_level = 75;
 expect('Cactuar Cantautor at 55 to 59', real(125, 344, 'Cactuar Cantautor', 0, nil, 249),
     '[checkmate] Aggro: Aggressive if it\'s level 56 or higher (Sound)  Doesn\'t link');
@@ -353,25 +449,43 @@ expect('and at 58 aggressive', real(125, 344, 'Cactuar Cantautor', 0, nil, 249),
 expect('Al\'Taieu Aweuvhi never aggroes', real(33, 427, 'Aweuvhi', 0, nil, 249), '[checkmate] Aggro: Never aggressive  '
     .. 'Doesn\'t link');
 expect('Jailer of Justice links its Qn\'xzomit', real(33, 455, 'Jailer of Justice', 0, nil, 249),
-    '[checkmate] Aggro: Aggressive (True Sight)  Links with Qnxzomit');
+    '[checkmate] Aggro: Aggressive (True Sight)  Links with Qnxzomit (Superlink)');
 expect('Vanguard Liberator in Dynamis links the whole zone', real(134, 2, 'Vanguard Liberator', 0, nil, 249),
-    '[checkmate] Aggro: Aggressive (True Sight, True Sound)  Links with Adamantking Effigy, Angra Mainyu, Ascetox Ratgums, '
-    .. 'Avatar Icon, BeZhe Keeprazer  +147 more');
+    '[checkmate] Aggro: Aggressive (True Sight, True Sound)  Links with Adamantking Effigy (True Sight, True Sound), Angra '
+    .. 'Mainyu (True Sight, True Sound), Ascetox Ratgums (True Sight, True Sound), Avatar Icon (True Sight, True Sound), '
+    .. 'BeZhe Keeprazer (True Sight, True Sound)  +147 more');
 -- The level cap of a battlefield lowers your main level, and the server goes by that.
 MOCK.player.main_level = 40;
 expect('Horlais Peak Huntfly under its level 40 cap', real(139, 55, 'Huntfly', 0, nil, 249),
-    '[checkmate] Aggro: Aggressive (Sound)  Links with Houndfly');
+    '[checkmate] Aggro: Aggressive (Sound)  Links with Houndfly (Superlink)');
 MOCK.player.main_level = 75;
 expect('and too weak for a 75', real(139, 55, 'Huntfly', 0, nil, 249),
-    '[checkmate] Aggro: Too weak to aggro you unless you rest  Links with Houndfly');
+    '[checkmate] Aggro: Too weak to aggro you unless you rest  Links with Houndfly (Superlink)');
 text = real(37, 4, 'Goblin Slaughterman', 0, nil, 249);
 check('Temenos Goblin Slaughterman hears you and links its fight', text:find('^%[checkmate%] Aggro: Aggressive %(True '
-    .. 'Sound%)  Links with Beli, Cryptonberry Abductor, Cryptonberry Charmer, Cryptonberry Designator, Cryptonberry '
-    .. 'Skulker  %+22 more$') ~= nil, text);
+    .. 'Sound%)  Links with Beli %(True Sound%), Cryptonberry Abductor %(True Sound%), Cryptonberry Charmer %(True Sound%), '
+    .. 'Cryptonberry Designator %(True Sound%), Cryptonberry Skulker %(True Sound%)  %+22 more$') ~= nil, text);
 expect('Mineral Eater in Leujaoam', real(69, 24, 'Mineral Eater', 77, 4),
-    '[checkmate] Aggro: Aggressive (True Sound) (only above ground)  Links with Mineral Eater');
+    '[checkmate] Aggro: Aggressive (True Sound) (only above ground)  Links with Mineral Eater (True Sound)');
 expect('K23H1-LAMIA aggroes at any level', real(56, 162, 'K23H1-LAMIA', 71, 0),
-    '[checkmate] Aggro: Aggressive at any level (True Sight)  Links with K23H1-LAMIA');
+    '[checkmate] Aggro: Aggressive at any level (True Sight)  Links with K23H1-LAMIA (True Sight)');
+
+-- How each one links, from the real data.
+expect('Buburimu Peninsula Zu', real(118, 14, 'Zu', 20, 4),
+    '[checkmate] Aggro: Not aggressive  Links with Abyssdiver (Sight), Helldiver (Sight), Zu (Sound)');
+expect('Jailer of Love links through its superlink', real(33, 464, 'Jailer of Love', 0, nil, 249), '[checkmate] Aggro: Aggressive '
+    .. '(True Sound)  Links with Qnhpemde (Superlink), Qnxzomit (Superlink), Ruphuabo (Superlink)');
+expect('Carmine Dobsonfly superlinks its own and the Hawker hears', real(30, 134, 'Carmine Dobsonfly', 0, nil, 249),
+    '[checkmate] Aggro: Not aggressive  Links with Carmine Dobsonfly (Superlink), Hawker (Sound)');
+expect('a Hawker hears a Dobsonfly in, and that one superlinks the rest', real(30, 120, 'Hawker', 0, nil, 249),
+    '[checkmate] Aggro: Not aggressive  Links with Carmine Dobsonfly (Superlink or Sound), Hawker (Sound)');
+expect('a Memory Receptacle that hears and one that doesn\'t show once as Sound', real(23, 23, 'Memory Receptacle', 0, nil, 249),
+    '[checkmate] Aggro: Not aggressive  Links with Contemplator (True Sound), Ingurgitator (True Sound), Memory Receptacle '
+    .. '(Sound), Neoingurgitator (True Sound), Repiner (True Sound)');
+expect('one that only notices scent gets nothing after its name', real(16, 29, 'Memory Receptacle', 30, 4),
+    '[checkmate] Aggro: Not aggressive  Links with Memory Receptacle');
+expect('Tonberry\'s Elemental notices magic', real(159, 12, 'Tonberrys Elemental', 50, 4),
+    '[checkmate] Aggro: Aggressive (Magic)  Links with Clawberrys Elemental (Magic), Tonberrys Elemental (Magic)');
 
 -- A monster with no data has no aggro part.
 local plain_only = real(101, 2000, 'Nobody', 8, 4);
@@ -379,15 +493,24 @@ expect('no data, no aggro line', plain_only, '[checkmate] Nobody (Lv 8)  Even Ma
 
 -- The settings through the commands.
 MOCK.command('/checkmate detection off');
-expect('/checkmate detection off', real(101, 146, 'Goblin Thug', 8, 4), '[checkmate] Aggro: Aggressive  Links with Goblin Digger, '
-    .. 'Goblin Fisher, Goblin Thug, Goblin Weaver');
+expect('/checkmate detection off', real(101, 146, 'Goblin Thug', 8, 4), '[checkmate] Aggro: Aggressive  Links with Goblin Digger '
+    .. '(Sight), Goblin Fisher (Sight), Goblin Thug (Sight), Goblin Weaver (Sight)');
 MOCK.command('/checkmate detection on');
 MOCK.command('/checkmate maxlinks 2');
 expect('/checkmate maxlinks 2', real(101, 146, 'Goblin Thug', 8, 4), '[checkmate] Aggro: Aggressive (Sight)  Links with Goblin '
-    .. 'Digger, Goblin Fisher  +2 more');
+    .. 'Digger (Sight), Goblin Fisher (Sight)  +2 more');
 MOCK.command('/checkmate linknames off');
-expect('/checkmate linknames off', real(101, 146, 'Goblin Thug', 8, 4), '[checkmate] Aggro: Aggressive (Sight)  Links');
+expect('/checkmate linknames off', real(101, 146, 'Goblin Thug', 8, 4), '[checkmate] Aggro: Aggressive (Sight)  Links (Sight)');
+MOCK.command('/checkmate linkhow off');
+expect('and /checkmate linkhow off too says just Links', real(101, 146, 'Goblin Thug', 8, 4),
+    '[checkmate] Aggro: Aggressive (Sight)  Links');
 MOCK.command('/checkmate linknames on');
+MOCK.command('/checkmate maxlinks 5');
+expect('/checkmate linkhow off gives the names without how they link', real(101, 146, 'Goblin Thug', 8, 4),
+    '[checkmate] Aggro: Aggressive (Sight)  Links with Goblin Digger, Goblin Fisher, Goblin Thug, Goblin Weaver');
+MOCK.command('/checkmate linkhow on');
+expect('and on again', real(101, 146, 'Goblin Thug', 8, 4), '[checkmate] Aggro: Aggressive (Sight)  Links with Goblin Digger '
+    .. '(Sight), Goblin Fisher (Sight), Goblin Thug (Sight), Goblin Weaver (Sight)');
 MOCK.command('/checkmate maxlinks 5');
 real(101, 146, 'Goblin Thug', 8, 4);
 check('Color by threat reaches the chat bytes', MOCK.printed[#MOCK.printed]:find(color(76) .. 'Aggressive', 1, true) ~= nil);
@@ -407,6 +530,6 @@ n = #MOCK.printed;
 MOCK.command('/checkmate sample');
 lines = MOCK.printed_since(n);
 check('the sample has an aggro line', #lines == 2 and lines[2] == '[checkmate] Aggro: Aggressive (Sight)  Links with Goblin '
-    .. 'Butcher, Goblin Leecher, Goblin Tinkerer', table.concat(lines, ' / '));
+    .. 'Butcher (Sight), Goblin Leecher (Sight), Goblin Tinkerer (Sight)', table.concat(lines, ' / '));
 
 return MOCK.report();

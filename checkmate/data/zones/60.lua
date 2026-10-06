@@ -1,16 +1,16 @@
 -- The Ashu Talif (zone 60).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Yazquhl' },
-        [2] = { 'Gowam' },
-        [3] = { 'Ashu Talif Captain', 'Ashu Talif Crew' },
-        [4] = { 'Ashu Talif Crew' },
+        [1] = { true_sound = { 'Yazquhl' } },
+        [2] = { true_sound = { 'Gowam' } },
+        [3] = { sound = { 'Ashu Talif Captain', 'Ashu Talif Crew' } },
+        [4] = { sound = { 'Ashu Talif Crew' } },
     },
     monsters = {
         {

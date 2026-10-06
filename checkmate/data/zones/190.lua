@@ -1,21 +1,25 @@
 -- King Ranperres Tomb (zone 190).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Ding Bats', 'Dire Bat', 'Grave Bat', 'Mouse Bat', 'Plague Bats', 'Tomb Bat', 'Wind Bats' },
-        [2] = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger',
-                'Goblin Thug', 'Goblin Tinkerer', 'Goblin Weaver' },
-        [3] = { 'Airi' },
-        [4] = { 'Cemetery Cherry', 'Cherry Sapling' },
-        [5] = { 'Cherry Sapling' },
-        [6] = { 'Iruci', 'Pey' },
-        [7] = { 'Airi', 'Spook' },
-        [8] = { 'Locus Armet Beetle' },
+        [1] = {
+            sound = { 'Ding Bats', 'Dire Bat', 'Grave Bat', 'Mouse Bat', 'Plague Bats', 'Tomb Bat', 'Wind Bats' },
+        },
+        [2] = {
+            sight = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger',
+                      'Goblin Thug', 'Goblin Tinkerer', 'Goblin Weaver' },
+        },
+        [3] = { sound = { 'Airi' } },
+        [4] = { sound = { 'Cemetery Cherry', 'Cherry Sapling' } },
+        [5] = { sound = { 'Cherry Sapling' } },
+        [6] = { sound = { 'Iruci', 'Pey' } },
+        [7] = { sound = { 'Airi', 'Spook' } },
+        [8] = { sight = { 'Locus Armet Beetle' } },
     },
     monsters = {
         {
@@ -430,6 +434,7 @@ return {
                 [18] = { acc = 67, eva = 63, agi = 22, int = 15, mnd = 15, chr = 17 },
                 [19] = { acc = 71, eva = 67, agi = 24, int = 16, mnd = 16, chr = 18 },
             },
+            ph_for = { [211] = { 212 } },
             ranks  = { fire = -2, ice = -1, wind = -3, earth = -2, thunder = -2, water = -2, light = -3, dark = 6,
                        paralyze = -1, bind = -1, silence = -3, slow = -2, poison = -2, light_sleep = -3,
                        dark_sleep = 6, blind = 6, stun = -2, gravity = -3 },

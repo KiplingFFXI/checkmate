@@ -45,7 +45,7 @@ MIXIN_NOTES = {
 MIXINS_HELD = {
     # It sets aggressive from its spawn animation, and a fight puts that animation back when it ends.
     'families/euvhi',
-    # It superlinks the fomors of one patrol, which already share a link party.
+    # It superlinks the fomors of one patrol or guard, which links.py reads from it, and leaves aggro alone.
     'fomor_party',
 }
 

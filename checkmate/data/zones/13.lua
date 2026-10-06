@@ -1,35 +1,47 @@
 -- Mine Shaft 2716 (zone 13).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Bugbby', 'Chekochuk', 'Swipostik', 'Trikotrak' },
-        [2] = { 'Bugbby', 'Movamuq', 'Swipostik', 'Trikotrak' },
-        [3] = { 'Bugbby', 'Chekochuk', 'Movamuq', 'Swipostik' },
-        [4] = { 'Bugbby', 'Chekochuk', 'Movamuq', 'Trikotrak' },
-        [5] = { 'Chekochuk', 'Movamuq', 'Swipostik', 'Trikotrak' },
-        [6] = { 'Moblin Clergyman', 'Moblin Wisewoman' },
-        [7] = { 'Moblin Clergyman', 'Moblin Wisewoman', 'Twilotak' },
-        [8] = { 'Fantoccini', 'Fantoccini Automaton', 'Fantoccini Avatar', 'Fantoccini Monster',
-                'Fantoccini Wyvern' },
-        [9] = { 'Fantoccini Automaton', 'Fantoccini Avatar', 'Fantoccini Monster', 'Fantoccini Wyvern',
-                'Moblin Fantocciniman' },
-        [10] = { 'Fantoccini', 'Fantoccini Automaton', 'Fantoccini Avatar', 'Fantoccini Wyvern',
-                 'Moblin Fantocciniman' },
-        [11] = { 'Fantoccini', 'Fantoccini Automaton', 'Fantoccini Avatar', 'Fantoccini Monster',
-                 'Moblin Fantocciniman' },
-        [12] = { 'Fantoccini', 'Fantoccini Automaton', 'Fantoccini Monster', 'Fantoccini Wyvern',
-                 'Moblin Fantocciniman' },
-        [13] = { 'Fantoccini', 'Fantoccini Avatar', 'Fantoccini Monster', 'Fantoccini Wyvern',
-                 'Moblin Fantocciniman' },
-        [14] = { 'Gloom Phantom' },
-        [15] = { 'Awoken Vampyr Jarl' },
-        [16] = { 'Awoken Ariri Samariri' },
-        [17] = { 'Awoken Hildesvini' },
+        [1] = { superlink = { 'Bugbby', 'Chekochuk', 'Swipostik', 'Trikotrak' } },
+        [2] = { superlink = { 'Bugbby', 'Movamuq', 'Swipostik', 'Trikotrak' } },
+        [3] = { superlink = { 'Bugbby', 'Chekochuk', 'Movamuq', 'Swipostik' } },
+        [4] = { superlink = { 'Bugbby', 'Chekochuk', 'Movamuq', 'Trikotrak' } },
+        [5] = { superlink = { 'Chekochuk', 'Movamuq', 'Swipostik', 'Trikotrak' } },
+        [6] = { superlink = { 'Moblin Clergyman', 'Moblin Wisewoman' } },
+        [7] = { superlink = { 'Moblin Clergyman', 'Moblin Wisewoman', 'Twilotak' } },
+        [8] = {
+            superlink = { 'Fantoccini', 'Fantoccini Automaton', 'Fantoccini Avatar', 'Fantoccini Monster',
+                          'Fantoccini Wyvern' },
+        },
+        [9] = {
+            superlink = { 'Fantoccini Automaton', 'Fantoccini Avatar', 'Fantoccini Monster', 'Fantoccini Wyvern',
+                          'Moblin Fantocciniman' },
+        },
+        [10] = {
+            superlink = { 'Fantoccini', 'Fantoccini Automaton', 'Fantoccini Avatar', 'Fantoccini Wyvern',
+                          'Moblin Fantocciniman' },
+        },
+        [11] = {
+            superlink = { 'Fantoccini', 'Fantoccini Automaton', 'Fantoccini Avatar', 'Fantoccini Monster',
+                          'Moblin Fantocciniman' },
+        },
+        [12] = {
+            superlink = { 'Fantoccini', 'Fantoccini Automaton', 'Fantoccini Monster', 'Fantoccini Wyvern',
+                          'Moblin Fantocciniman' },
+        },
+        [13] = {
+            superlink = { 'Fantoccini', 'Fantoccini Avatar', 'Fantoccini Monster', 'Fantoccini Wyvern',
+                          'Moblin Fantocciniman' },
+        },
+        [14] = { true_sight = { 'Gloom Phantom' } },
+        [15] = { true_both = { 'Awoken Vampyr Jarl' } },
+        [16] = { true_sound = { 'Awoken Ariri Samariri' } },
+        [17] = { true_sight = { 'Awoken Hildesvini' } },
     },
     monsters = {
         {

@@ -1,21 +1,24 @@
 -- AlTaieu (zone 33).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Absolute Virtue', 'Omaern', 'Omaern bst', 'Omaern drg', 'Omaern smn', 'Ruaern', 'Ulaern' },
-        [2] = { 'Jailer of Prudence', 'Omhpemde', 'Ulhpemde' },
-        [3] = { 'Aerns Wynav' },
-        [4] = { 'Omxzomit' },
-        [5] = { 'Qnxzomit' },
-        [6] = { 'Jailer of Justice', 'Qnxzomit' },
-        [7] = { 'Qnhpemde', 'Qnxzomit', 'Ruphuabo' },
-        [8] = { 'Jailer of Love', 'Qnhpemde', 'Qnxzomit', 'Ruphuabo' },
-        [9] = { 'Omaern', 'Omaern bst', 'Omaern drg', 'Omaern smn', 'Ruaern', 'Ulaern' },
+        [1] = {
+            both = { 'Absolute Virtue', 'Omaern', 'Omaern bst', 'Omaern drg', 'Omaern smn', 'Ulaern' },
+            true_both = { 'Ruaern' },
+        },
+        [2] = { true_sound = { 'Jailer of Prudence', 'Omhpemde', 'Ulhpemde' } },
+        [3] = { sight = { 'Aerns Wynav' } },
+        [4] = { sight = { 'Omxzomit' } },
+        [5] = { superlink = { 'Qnxzomit' } },
+        [6] = { superlink = { 'Jailer of Justice', 'Qnxzomit' } },
+        [7] = { superlink = { 'Qnhpemde', 'Qnxzomit', 'Ruphuabo' } },
+        [8] = { superlink = { 'Jailer of Love', 'Qnhpemde', 'Qnxzomit', 'Ruphuabo' } },
+        [9] = { both = { 'Omaern', 'Omaern bst', 'Omaern drg', 'Omaern smn', 'Ulaern' }, true_both = { 'Ruaern' } },
     },
     monsters = {
         {

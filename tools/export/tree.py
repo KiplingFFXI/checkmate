@@ -22,6 +22,8 @@ TREE_PATHS = [
     'settings/default/map.lua',
     'sql',
     'src/map/utils/mobutils.cpp',
+    'src/map/utils/petutils.cpp',
+    'src/map/utils/petutils.h',
     # Zone regions.yaml files are about 55 MB and the exporter never reads them.
     ':(exclude)data/zones/*/regions.yaml',
 ]

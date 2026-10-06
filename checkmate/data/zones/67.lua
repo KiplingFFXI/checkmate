@@ -1,20 +1,38 @@
 -- Jade Sepulcher (zone 67).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Phantom Puk' },
-        [2] = { 'Blacktattoo Vedool Ja', 'Jasweem', 'Tiyaash', 'Wabjahl', 'Whitetattoo Rahool Ja' },
-        [3] = { 'Jasweem', 'Shadowhand Kajeel Ja', 'Tiyaash', 'Wabjahl', 'Whitetattoo Rahool Ja' },
-        [4] = { 'Blacktattoo Vedool Ja', 'Jasweem', 'Shadowhand Kajeel Ja', 'Tiyaash', 'Wabjahl' },
-        [5] = { 'Blacktattoo Vedool Ja', 'Jasweem', 'Shadowhand Kajeel Ja', 'Tiyaash', 'Whitetattoo Rahool Ja' },
-        [6] = { 'Blacktattoo Vedool Ja', 'Jasweem', 'Shadowhand Kajeel Ja', 'Wabjahl', 'Whitetattoo Rahool Ja' },
-        [7] = { 'Blacktattoo Vedool Ja', 'Shadowhand Kajeel Ja', 'Tiyaash', 'Wabjahl', 'Whitetattoo Rahool Ja' },
-        [8] = { 'Drakeweaver Hageel Ja', 'Fistweaver Mufaal Ja', 'Glyphweaver Sikool Ja', 'Riftweaver Pomaal Ja' },
+        [1] = { both = { 'Phantom Puk' } },
+        [2] = {
+            sight = { 'Jasweem', 'Tiyaash', 'Wabjahl', 'Whitetattoo Rahool Ja' },
+            true_sight = { 'Blacktattoo Vedool Ja' },
+        },
+        [3] = { sight = { 'Jasweem', 'Shadowhand Kajeel Ja', 'Tiyaash', 'Wabjahl', 'Whitetattoo Rahool Ja' } },
+        [4] = {
+            sight = { 'Jasweem', 'Shadowhand Kajeel Ja', 'Tiyaash', 'Wabjahl' },
+            true_sight = { 'Blacktattoo Vedool Ja' },
+        },
+        [5] = {
+            sight = { 'Jasweem', 'Shadowhand Kajeel Ja', 'Tiyaash', 'Whitetattoo Rahool Ja' },
+            true_sight = { 'Blacktattoo Vedool Ja' },
+        },
+        [6] = {
+            sight = { 'Jasweem', 'Shadowhand Kajeel Ja', 'Wabjahl', 'Whitetattoo Rahool Ja' },
+            true_sight = { 'Blacktattoo Vedool Ja' },
+        },
+        [7] = {
+            sight = { 'Shadowhand Kajeel Ja', 'Tiyaash', 'Wabjahl', 'Whitetattoo Rahool Ja' },
+            true_sight = { 'Blacktattoo Vedool Ja' },
+        },
+        [8] = {
+            true_sight = { 'Drakeweaver Hageel Ja', 'Glyphweaver Sikool Ja', 'Riftweaver Pomaal Ja' },
+            true_sound = { 'Fistweaver Mufaal Ja' },
+        },
     },
     monsters = {
         {

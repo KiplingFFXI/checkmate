@@ -16,6 +16,9 @@ local STAT_INDEX = { dex = 1, int = 4, mnd = 5, chr = 6 };
 -- instrument and blue magic.
 local MAGIC_SKILLS = { 32, 33, 35, 36, 37, 39, 40, 42, 43 };
 
+-- The Level Sync and Level Restriction buff ids.
+local LEVEL_SYNC, LEVEL_CAP = 269, 143;
+
 local memory    = AshitaCore:GetMemoryManager();
 local resources = AshitaCore:GetResourceManager();
 
@@ -61,6 +64,32 @@ local function equipped_id(slot)
     return item.Id;
 end
 
+-- Your pet as { index, id, name }, or nil with no pet out or one at 0 HP.
+function player.pet()
+    local me = GetPlayerEntity();
+    local index = me and me.PetTargetIndex or 0;
+    local entity = (index ~= 0) and GetEntity(index) or nil;
+    if (entity == nil or entity.HPPercent == 0 or entity.Name == nil or entity.Name == '') then
+        return nil;
+    end
+    return { index = index, id = entity.ServerId, name = entity.Name };
+end
+
+-- Your main job, main level, support job and support level. The levels follow level sync.
+function player.jobs()
+    local stats = memory:GetPlayer();
+    return stats:GetMainJob(), stats:GetMainJobLevel(), stats:GetSubJob(), stats:GetSubJobLevel();
+end
+
+-- The item ids of everything you have on, slots 0 to 15.
+function player.equipped_items()
+    local items = {};
+    for slot = 0, 15 do
+        items[#items + 1] = equipped_id(slot);
+    end
+    return items;
+end
+
 -- Your buffs as { [buff id] = true }. Slots 0 to 32 cover the list whether it starts at 0 or at 1.
 local function read_buffs(stats)
     local out = {};
@@ -75,6 +104,12 @@ local function read_buffs(stats)
         end
     end
     return out;
+end
+
+-- Whether a level sync holds you, and whether a level cap does.
+function player.synced()
+    local buffs = read_buffs(memory:GetPlayer());
+    return buffs[LEVEL_SYNC] == true, buffs[LEVEL_CAP] == true;
 end
 
 --[[

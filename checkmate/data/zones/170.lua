@@ -1,28 +1,46 @@
 -- Full Moon Fountain (zone 170).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Ace of Batons', 'Ace of Coins', 'Ace of Swords' },
-        [2] = { 'Ace of Coins', 'Ace of Cups', 'Ace of Swords' },
-        [3] = { 'Ace of Batons', 'Ace of Coins', 'Ace of Cups' },
-        [4] = { 'Ace of Batons', 'Ace of Cups', 'Ace of Swords' },
-        [5] = { 'Yali' },
-        [6] = { 'Tatzlwurm' },
-        [7] = { 'Carbuncle Prime', 'Garuda Prime', 'Ifrit Prime', 'Leviathan Prime', 'Ramuh Prime', 'Shiva Prime',
-                'Titan Prime' },
-        [8] = { 'Carbuncle Prime', 'Garuda Prime', 'Leviathan Prime', 'Ramuh Prime', 'Shiva Prime', 'Titan Prime' },
-        [9] = { 'Carbuncle Prime', 'Garuda Prime', 'Ifrit Prime', 'Leviathan Prime', 'Ramuh Prime', 'Titan Prime' },
-        [10] = { 'Carbuncle Prime', 'Ifrit Prime', 'Leviathan Prime', 'Ramuh Prime', 'Shiva Prime', 'Titan Prime' },
-        [11] = { 'Carbuncle Prime', 'Garuda Prime', 'Ifrit Prime', 'Leviathan Prime', 'Ramuh Prime',
-                 'Shiva Prime' },
-        [12] = { 'Carbuncle Prime', 'Garuda Prime', 'Ifrit Prime', 'Leviathan Prime', 'Shiva Prime',
-                 'Titan Prime' },
-        [13] = { 'Carbuncle Prime', 'Garuda Prime', 'Ifrit Prime', 'Ramuh Prime', 'Shiva Prime', 'Titan Prime' },
+        [1] = { superlink = { 'Ace of Batons', 'Ace of Coins', 'Ace of Swords' } },
+        [2] = { superlink = { 'Ace of Coins', 'Ace of Cups', 'Ace of Swords' } },
+        [3] = { superlink = { 'Ace of Batons', 'Ace of Coins', 'Ace of Cups' } },
+        [4] = { superlink = { 'Ace of Batons', 'Ace of Cups', 'Ace of Swords' } },
+        [5] = { superlink = { 'Yali' } },
+        [6] = { superlink = { 'Tatzlwurm' } },
+        [7] = {
+            superlink = { 'Carbuncle Prime', 'Garuda Prime', 'Ifrit Prime', 'Leviathan Prime', 'Ramuh Prime',
+                          'Shiva Prime', 'Titan Prime' },
+        },
+        [8] = {
+            superlink = { 'Carbuncle Prime', 'Garuda Prime', 'Leviathan Prime', 'Ramuh Prime', 'Shiva Prime',
+                          'Titan Prime' },
+        },
+        [9] = {
+            superlink = { 'Carbuncle Prime', 'Garuda Prime', 'Ifrit Prime', 'Leviathan Prime', 'Ramuh Prime',
+                          'Titan Prime' },
+        },
+        [10] = {
+            superlink = { 'Carbuncle Prime', 'Ifrit Prime', 'Leviathan Prime', 'Ramuh Prime', 'Shiva Prime',
+                          'Titan Prime' },
+        },
+        [11] = {
+            superlink = { 'Carbuncle Prime', 'Garuda Prime', 'Ifrit Prime', 'Leviathan Prime', 'Ramuh Prime',
+                          'Shiva Prime' },
+        },
+        [12] = {
+            superlink = { 'Carbuncle Prime', 'Garuda Prime', 'Ifrit Prime', 'Leviathan Prime', 'Shiva Prime',
+                          'Titan Prime' },
+        },
+        [13] = {
+            superlink = { 'Carbuncle Prime', 'Garuda Prime', 'Ifrit Prime', 'Ramuh Prime', 'Shiva Prime',
+                          'Titan Prime' },
+        },
     },
     monsters = {
         {

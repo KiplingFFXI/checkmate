@@ -1,31 +1,49 @@
 -- Castle Zvahl Keep (zone 162).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Baron Vapula', 'Baronet Romwe', 'Count Bifrons', 'Demon Knight', 'Demon Pawn', 'Demon Warlock',
-                'Demon Wizard', 'Viscount Morax' },
-        [2] = { 'Deadly Iris', 'Evil Eye', 'Morbid Eye' },
-        [3] = { 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter', 'Goblin Poacher', 'Goblin Reaper',
-                'Goblin Robber', 'Goblin Trader' },
-        [4] = { 'Orcish Bowshooter', 'Orcish Footsoldier', 'Orcish Gladiator', 'Orcish Predator', 'Orcish Trooper',
-                'Orcish Veteran', 'Orcish Warchief', 'Orcish Zerker' },
-        [5] = { 'Elder Quadav', 'Emerald Quadav', 'Gold Quadav', 'Iron Quadav', 'Mythril Quadav', 'Spinel Quadav',
-                'Steel Quadav', 'Topaz Quadav' },
-        [6] = { 'Yagudo Abbot', 'Yagudo Chanter', 'Yagudo Conquistador', 'Yagudo Inquisitor', 'Yagudo Lutenist',
-                'Yagudo Prior', 'Yagudo Sentinel', 'Yagudo Zealot' },
-        [7] = { 'Baronet Romwe', 'Count Bifrons', 'Demon Knight', 'Demon Pawn', 'Demon Warlock', 'Demon Wizard',
-                'Viscount Morax' },
-        [8] = { 'Baron Vapula', 'Baronet Romwe', 'Demon Knight', 'Demon Pawn', 'Demon Warlock', 'Demon Wizard',
-                'Viscount Morax' },
-        [9] = { 'Baron Vapula', 'Baronet Romwe', 'Count Bifrons', 'Demon Knight', 'Demon Pawn', 'Demon Warlock',
-                'Demon Wizard' },
-        [10] = { 'Baron Vapula', 'Count Bifrons', 'Demon Knight', 'Demon Pawn', 'Demon Warlock', 'Demon Wizard',
-                 'Viscount Morax' },
+        [1] = {
+            sight = { 'Demon Knight', 'Demon Pawn', 'Demon Warlock', 'Demon Wizard', 'Viscount Morax' },
+            true_sight = { 'Baron Vapula', 'Baronet Romwe', 'Count Bifrons' },
+        },
+        [2] = { both = { 'Deadly Iris', 'Evil Eye', 'Morbid Eye' } },
+        [3] = {
+            sight = { 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter', 'Goblin Poacher', 'Goblin Reaper',
+                      'Goblin Robber', 'Goblin Trader' },
+        },
+        [4] = {
+            sight = { 'Orcish Bowshooter', 'Orcish Footsoldier', 'Orcish Gladiator', 'Orcish Predator',
+                      'Orcish Trooper', 'Orcish Veteran', 'Orcish Warchief', 'Orcish Zerker' },
+        },
+        [5] = {
+            sound = { 'Elder Quadav', 'Emerald Quadav', 'Gold Quadav', 'Iron Quadav', 'Mythril Quadav',
+                      'Spinel Quadav', 'Steel Quadav', 'Topaz Quadav' },
+        },
+        [6] = {
+            sight = { 'Yagudo Abbot', 'Yagudo Chanter', 'Yagudo Conquistador', 'Yagudo Inquisitor',
+                      'Yagudo Lutenist', 'Yagudo Prior', 'Yagudo Sentinel', 'Yagudo Zealot' },
+        },
+        [7] = {
+            sight = { 'Demon Knight', 'Demon Pawn', 'Demon Warlock', 'Demon Wizard', 'Viscount Morax' },
+            true_sight = { 'Baronet Romwe', 'Count Bifrons' },
+        },
+        [8] = {
+            sight = { 'Demon Knight', 'Demon Pawn', 'Demon Warlock', 'Demon Wizard', 'Viscount Morax' },
+            true_sight = { 'Baron Vapula', 'Baronet Romwe' },
+        },
+        [9] = {
+            sight = { 'Demon Knight', 'Demon Pawn', 'Demon Warlock', 'Demon Wizard' },
+            true_sight = { 'Baron Vapula', 'Baronet Romwe', 'Count Bifrons' },
+        },
+        [10] = {
+            sight = { 'Demon Knight', 'Demon Pawn', 'Demon Warlock', 'Demon Wizard', 'Viscount Morax' },
+            true_sight = { 'Baron Vapula', 'Count Bifrons' },
+        },
     },
     monsters = {
         {
@@ -43,6 +61,7 @@ return {
                              [211] = { 52, 55 }, [212] = { 52, 55 }, [213] = { 52, 55 }, [214] = { 52, 55 },
                              [215] = { 52, 55 }, [216] = { 52, 55 }, [217] = { 52, 55 }, [221] = { 55, 56 },
                              [226] = { 55, 56 }, [235] = { 55, 56 } },
+            ph_for = { [217] = { 218 } },
             ranks  = { light = -2, light_sleep = -2 },
             magic_dmg = { all = -25 },
             drops  = {
@@ -84,6 +103,7 @@ return {
             },
             spawn_levels = { [5] = { 52, 55 }, [194] = { 52, 55 }, [196] = { 52, 55 }, [202] = { 52, 55 },
                              [222] = { 55, 56 }, [227] = { 55, 56 }, [236] = { 55, 56 }, [243] = { 55, 56 } },
+            ph_for = { [194] = { 195 } },
             ranks  = { light = -2, light_sleep = -2 },
             magic_dmg = { all = -25 },
             drops  = {
@@ -106,6 +126,7 @@ return {
             },
             spawn_levels = { [7] = { 52, 55 }, [191] = { 52, 55 }, [200] = { 52, 55 }, [204] = { 52, 55 },
                              [223] = { 55, 56 }, [228] = { 55, 56 }, [239] = { 55, 56 }, [242] = { 55, 56 } },
+            ph_for = { [200] = { 201 } },
             ranks  = { light = -2, light_sleep = -2 },
             magic_dmg = { all = -25 },
             drops  = {
@@ -131,6 +152,7 @@ return {
             },
             spawn_levels = { [9] = { 52, 55 }, [192] = { 52, 55 }, [198] = { 52, 55 }, [205] = { 52, 55 },
                              [224] = { 55, 56 }, [229] = { 55, 56 }, [237] = { 55, 56 }, [240] = { 55, 56 } },
+            ph_for = { [205] = { 207 } },
             ranks  = { light = -2, light_sleep = -2 },
             magic_dmg = { all = -25 },
             drops  = {

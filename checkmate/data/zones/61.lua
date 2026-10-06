@@ -1,42 +1,53 @@
 -- Mount Zhayolm (zone 61).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Sicklemoon Jagil' },
-        [2] = { 'Energetic Eruca', 'Magmatic Eruca' },
-        [3] = { 'Assassin Fly' },
-        [4] = { 'Brass Borer', 'Wamoura', 'Wamoura Prince' },
-        [5] = { 'Garfurlar the Rabid', 'Garharlor the Unruly', 'Garhorlur the Brutal', 'Hilltroll Dark Knight',
-                'Hilltroll Monk', 'Hilltroll Paladin', 'Hilltroll Puppetmaster', 'Hilltroll Ranger',
-                'Hilltroll Red Mage', 'Hilltroll Warrior', 'Khromasoul Bhurborlor', 'Troll Artilleryman',
-                'Troll Cuirasser', 'Troll Grenadier', 'Troll Hammersmith', 'Troll Speculator' },
-        [6] = { 'Volcanic Leech' },
-        [7] = { 'Dark Bugler', 'Elders Imp', 'Vanasarvik' },
-        [8] = { 'Dark Esquire' },
-        [9] = { 'Magmatic Eruca' },
-        [10] = { 'Garfurlar the Rabid', 'Garhorlur the Brutal', 'Hilltroll Dark Knight', 'Hilltroll Monk',
-                 'Hilltroll Paladin', 'Hilltroll Puppetmaster', 'Hilltroll Ranger', 'Hilltroll Red Mage',
-                 'Hilltroll Warrior', 'Khromasoul Bhurborlor', 'Troll Artilleryman', 'Troll Cuirasser',
-                 'Troll Grenadier', 'Troll Hammersmith', 'Troll Speculator' },
-        [11] = { 'Garharlor the Unruly', 'Garhorlur the Brutal', 'Hilltroll Dark Knight', 'Hilltroll Monk',
-                 'Hilltroll Paladin', 'Hilltroll Puppetmaster', 'Hilltroll Ranger', 'Hilltroll Red Mage',
-                 'Hilltroll Warrior', 'Khromasoul Bhurborlor', 'Troll Artilleryman', 'Troll Cuirasser',
-                 'Troll Grenadier', 'Troll Hammersmith', 'Troll Speculator' },
-        [12] = { 'Garfurlar the Rabid', 'Garharlor the Unruly', 'Hilltroll Dark Knight', 'Hilltroll Monk',
-                 'Hilltroll Paladin', 'Hilltroll Puppetmaster', 'Hilltroll Ranger', 'Hilltroll Red Mage',
-                 'Hilltroll Warrior', 'Khromasoul Bhurborlor', 'Troll Artilleryman', 'Troll Cuirasser',
-                 'Troll Grenadier', 'Troll Hammersmith', 'Troll Speculator' },
-        [13] = { 'Wamoura', 'Wamoura Prince' },
-        [14] = { 'Garfurlar the Rabid', 'Garharlor the Unruly', 'Garhorlur the Brutal', 'Hilltroll Dark Knight',
-                 'Hilltroll Monk', 'Hilltroll Paladin', 'Hilltroll Puppetmaster', 'Hilltroll Ranger',
-                 'Hilltroll Red Mage', 'Hilltroll Warrior', 'Troll Artilleryman', 'Troll Cuirasser',
-                 'Troll Grenadier', 'Troll Hammersmith', 'Troll Speculator' },
-        [15] = { 'Grand Grenade' },
+        [1] = { sound = { 'Sicklemoon Jagil' } },
+        [2] = { sound = { 'Energetic Eruca', 'Magmatic Eruca' } },
+        [3] = { sound = { 'Assassin Fly' } },
+        [4] = { sound = { 'Brass Borer', 'Wamoura Prince' }, true_sound = { 'Wamoura' } },
+        [5] = {
+            sight = { 'Hilltroll Dark Knight', 'Hilltroll Monk', 'Hilltroll Paladin', 'Hilltroll Puppetmaster',
+                      'Hilltroll Ranger', 'Hilltroll Red Mage', 'Hilltroll Warrior', 'Troll Artilleryman',
+                      'Troll Cuirasser', 'Troll Grenadier', 'Troll Hammersmith', 'Troll Speculator' },
+            true_sight = { 'Garfurlar the Rabid', 'Garharlor the Unruly', 'Garhorlur the Brutal',
+                           'Khromasoul Bhurborlor' },
+        },
+        [6] = { sound = { 'Volcanic Leech' } },
+        [7] = { both = { 'Vanasarvik' }, true_both = { 'Dark Bugler', 'Elders Imp' } },
+        [8] = { sight = { 'Dark Esquire' } },
+        [9] = { sound = { 'Magmatic Eruca' } },
+        [10] = {
+            sight = { 'Hilltroll Dark Knight', 'Hilltroll Monk', 'Hilltroll Paladin', 'Hilltroll Puppetmaster',
+                      'Hilltroll Ranger', 'Hilltroll Red Mage', 'Hilltroll Warrior', 'Troll Artilleryman',
+                      'Troll Cuirasser', 'Troll Grenadier', 'Troll Hammersmith', 'Troll Speculator' },
+            true_sight = { 'Garfurlar the Rabid', 'Garhorlur the Brutal', 'Khromasoul Bhurborlor' },
+        },
+        [11] = {
+            sight = { 'Hilltroll Dark Knight', 'Hilltroll Monk', 'Hilltroll Paladin', 'Hilltroll Puppetmaster',
+                      'Hilltroll Ranger', 'Hilltroll Red Mage', 'Hilltroll Warrior', 'Troll Artilleryman',
+                      'Troll Cuirasser', 'Troll Grenadier', 'Troll Hammersmith', 'Troll Speculator' },
+            true_sight = { 'Garharlor the Unruly', 'Garhorlur the Brutal', 'Khromasoul Bhurborlor' },
+        },
+        [12] = {
+            sight = { 'Hilltroll Dark Knight', 'Hilltroll Monk', 'Hilltroll Paladin', 'Hilltroll Puppetmaster',
+                      'Hilltroll Ranger', 'Hilltroll Red Mage', 'Hilltroll Warrior', 'Troll Artilleryman',
+                      'Troll Cuirasser', 'Troll Grenadier', 'Troll Hammersmith', 'Troll Speculator' },
+            true_sight = { 'Garfurlar the Rabid', 'Garharlor the Unruly', 'Khromasoul Bhurborlor' },
+        },
+        [13] = { sound = { 'Wamoura Prince' }, true_sound = { 'Wamoura' } },
+        [14] = {
+            sight = { 'Hilltroll Dark Knight', 'Hilltroll Monk', 'Hilltroll Paladin', 'Hilltroll Puppetmaster',
+                      'Hilltroll Ranger', 'Hilltroll Red Mage', 'Hilltroll Warrior', 'Troll Artilleryman',
+                      'Troll Cuirasser', 'Troll Grenadier', 'Troll Hammersmith', 'Troll Speculator' },
+            true_sight = { 'Garfurlar the Rabid', 'Garharlor the Unruly', 'Garhorlur the Brutal' },
+        },
+        [15] = { sight = { 'Grand Grenade' } },
     },
     monsters = {
         {
@@ -204,6 +215,7 @@ return {
                              [180] = { 72, 74 }, [181] = { 72, 74 }, [186] = { 72, 74 }, [187] = { 72, 74 },
                              [188] = { 72, 74 }, [189] = { 72, 74 }, [190] = { 72, 74 }, [201] = { 71, 73 },
                              [202] = { 71, 73 } },
+            ph_for = { [74] = { 394 } },
             ranks  = { fire = 1, ice = -1, wind = -1, thunder = -1, water = -2, dark = -1, paralyze = -1, bind = -1,
                        silence = -1, poison = -2, dark_sleep = -1, blind = -1, stun = -1, gravity = -1 },
             drops  = {

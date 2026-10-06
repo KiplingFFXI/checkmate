@@ -1,32 +1,47 @@
 -- Chamber of Oracles (zone 168).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Princeps V-XI', 'Triarius V-VIII' },
-        [2] = { 'Centurio V-III', 'Princeps V-XI' },
-        [3] = { 'Centurio V-III', 'Triarius V-VIII' },
-        [4] = { 'Maat' },
-        [5] = { 'Centurio XI-I', 'Hoplomachus XI-XXVI', 'Retiarius XI-XIX' },
-        [6] = { 'Centurio XI-I', 'Hoplomachus XI-XXVI', 'Secutor XI-XXXII' },
-        [7] = { 'Centurio XI-I', 'Retiarius XI-XIX', 'Secutor XI-XXXII' },
-        [8] = { 'Hoplomachus XI-XXVI', 'Retiarius XI-XIX', 'Secutor XI-XXXII' },
-        [9] = { 'Sabotender Amante' },
-        [10] = { 'Sabotender Amante', 'Sabotender Campeon' },
-        [11] = { 'Blizzard Wyvern', 'Chaos Wyvern', 'Lightning Wyvern' },
-        [12] = { 'Chaos Wyvern', 'Lightning Wyvern', 'Radiant Wyvern' },
-        [13] = { 'Blizzard Wyvern', 'Chaos Wyvern', 'Radiant Wyvern' },
-        [14] = { 'Blizzard Wyvern', 'Lightning Wyvern', 'Radiant Wyvern' },
-        [15] = { 'Bopa Greso', 'Cha Lebagta', 'Goblin Enforcer', 'Goblin Intimidator', 'Goblin Repossessor' },
-        [16] = { 'Bopa Greso', 'Goblin Enforcer', 'Goblin Intimidator', 'Goblin Repossessor', 'Nanaa Mihgo' },
-        [17] = { 'Cha Lebagta', 'Goblin Enforcer', 'Goblin Intimidator', 'Goblin Repossessor', 'Nanaa Mihgo' },
-        [18] = { 'Bopa Greso', 'Cha Lebagta', 'Goblin Enforcer', 'Goblin Intimidator', 'Nanaa Mihgo' },
-        [19] = { 'Bopa Greso', 'Cha Lebagta', 'Goblin Enforcer', 'Goblin Repossessor', 'Nanaa Mihgo' },
-        [20] = { 'Bopa Greso', 'Cha Lebagta', 'Goblin Intimidator', 'Goblin Repossessor', 'Nanaa Mihgo' },
+        [1] = { sound = { 'Princeps V-XI', 'Triarius V-VIII' } },
+        [2] = { sound = { 'Centurio V-III', 'Princeps V-XI' } },
+        [3] = { sound = { 'Centurio V-III', 'Triarius V-VIII' } },
+        [4] = { sight = { 'Maat' } },
+        [5] = { superlink = { 'Centurio XI-I', 'Hoplomachus XI-XXVI', 'Retiarius XI-XIX' } },
+        [6] = { superlink = { 'Centurio XI-I', 'Hoplomachus XI-XXVI', 'Secutor XI-XXXII' } },
+        [7] = { superlink = { 'Centurio XI-I', 'Retiarius XI-XIX', 'Secutor XI-XXXII' } },
+        [8] = { superlink = { 'Hoplomachus XI-XXVI', 'Retiarius XI-XIX', 'Secutor XI-XXXII' } },
+        [9] = { superlink = { 'Sabotender Amante' } },
+        [10] = { superlink = { 'Sabotender Amante', 'Sabotender Campeon' } },
+        [11] = { superlink = { 'Blizzard Wyvern', 'Chaos Wyvern', 'Lightning Wyvern' } },
+        [12] = { superlink = { 'Chaos Wyvern', 'Lightning Wyvern', 'Radiant Wyvern' } },
+        [13] = { superlink = { 'Blizzard Wyvern', 'Chaos Wyvern', 'Radiant Wyvern' } },
+        [14] = { superlink = { 'Blizzard Wyvern', 'Lightning Wyvern', 'Radiant Wyvern' } },
+        [15] = {
+            superlink = { 'Bopa Greso', 'Cha Lebagta', 'Goblin Enforcer', 'Goblin Intimidator',
+                          'Goblin Repossessor' },
+        },
+        [16] = {
+            superlink = { 'Bopa Greso', 'Goblin Enforcer', 'Goblin Intimidator', 'Goblin Repossessor',
+                          'Nanaa Mihgo' },
+        },
+        [17] = {
+            superlink = { 'Cha Lebagta', 'Goblin Enforcer', 'Goblin Intimidator', 'Goblin Repossessor',
+                          'Nanaa Mihgo' },
+        },
+        [18] = {
+            superlink = { 'Bopa Greso', 'Cha Lebagta', 'Goblin Enforcer', 'Goblin Intimidator', 'Nanaa Mihgo' },
+        },
+        [19] = {
+            superlink = { 'Bopa Greso', 'Cha Lebagta', 'Goblin Enforcer', 'Goblin Repossessor', 'Nanaa Mihgo' },
+        },
+        [20] = {
+            superlink = { 'Bopa Greso', 'Cha Lebagta', 'Goblin Intimidator', 'Goblin Repossessor', 'Nanaa Mihgo' },
+        },
     },
     monsters = {
         {

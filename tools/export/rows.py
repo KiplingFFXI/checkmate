@@ -1,6 +1,6 @@
 """
 One data row per monster kind. It holds the numbers at every level it can be, its resistance ranks, extra magic
-evasion, resist traits, magic damage, immunities, drops, aggro, links and flags.
+evasion, resist traits, magic damage, immunities, drops, aggro, links, the NMs its spawns can pop as PHs and flags.
 """
 from . import stats
 from .lua_source import ELEMENTS, STATUSES, RESIST_EFFECTS, LEVEL_MOD, MOD_ELEMENTS
@@ -14,6 +14,13 @@ MEVA_KEYS = [('all', 'meva')] + [(name, name + '_meva') for name in ELEMENTS + R
 
 # The row fields worked out from the mods at each level.
 LEVEL_EXTRAS = ('ranks', 'meva', 'resist', 'magic_dmg', 'absorb', 'nullify')
+
+# How a link name links, in the order a zone file writes its groups and a name with two lists them. links.py works
+# them out from CanLink (mob_entity.cpp): a superlink partner, then what the helper sees and hears, with true_ in
+# front when it has true detection. One that neither sees nor hears goes by the other senses aggro shows, like
+# magic, or neither when it has none of them. The addon knows what to print for each of these, so finish stops on
+# any other.
+LINK_WAYS = ['superlink', 'sight', 'true_sight', 'sound', 'true_sound', 'both', 'true_both', 'magic', 'neither']
 
 
 class Kind:
@@ -46,6 +53,8 @@ class Kind:
         self.spawn_levels = []
         # The levels each spawn index can be. The row keeps a spawn's own range when it's narrower than the row's.
         self.levels_by_index = {}
+        # The NM spawn indexes each of its spawns can pop as a placeholder, by spawn index. placeholders.py fills it in.
+        self.ph_for = {}
         self.assault_capped = False
         # False for an instance monster that only feeds the level bands.
         self.in_file = True
@@ -59,10 +68,10 @@ class Kind:
         # The values each magic damage mod gets from the battlefield groups that hold the monster.
         self.group_mods = {}
         # The aggro reader fills in the aggro fields and the monster's state once spawned. The link reader fills in
-        # the names of the monsters it links with.
+        # the names of the monsters it links with, by how each one links (LINK_WAYS).
         self.aggro = {}
         self.state = None
-        self.links = set()
+        self.links = {}
         # For a script split by id, True for the spawns below the split.
         self.split_below = None
 
@@ -172,6 +181,8 @@ def finish(kind, tables):
     ranges = spawn_ranges(kind)
     if ranges:
         row['spawn_levels'] = ranges
+    if kind.ph_for:
+        row['ph_for'] = {index: sorted(nms) for index, nms in kind.ph_for.items()}
     if kind.nm:
         row['nm'] = True
     if len(level_mods) != 1:
@@ -203,8 +214,14 @@ def finish(kind, tables):
     if kind.effects.element_runtime:
         kind.flags.add('scripted_elements')
     row.update(kind.aggro)
+    for way, names in kind.links.items():
+        if way not in LINK_WAYS:
+            raise RuntimeError('%s links with %s, which link by %s. The addon has no words for that yet. Add it to '
+                               'LINK_WAYS in tools\\export\\rows.py, and to LINK_WAYS and LINK_WORDS in '
+                               'checkmate\\core\\aggro.lua.'
+                               % (kind.name, ', '.join(sorted(names)), way))
     if kind.links:
-        row['links'] = sorted(kind.links)
+        row['links'] = {way: sorted(names) for way, names in kind.links.items()}
     if kind.flags:
         row['flags'] = sorted(kind.flags)
     return row

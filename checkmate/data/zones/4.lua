@@ -1,32 +1,40 @@
 -- Bibiki Bay (zone 4).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Coastal Opo-opo' },
-        [2] = { 'Alraune', 'Peerifool' },
-        [3] = { 'Island Rarab', 'Tropical Rarab' },
-        [4] = { 'Catoblepas', 'Marine Dhalmel' },
-        [5] = { 'Raven', 'Tragopan' },
-        [6] = { 'Eft', 'Intuila', 'Intulo', 'Tartarus Eft' },
-        [7] = { 'Goblin Pathfinder', 'Hobgoblin Alastor', 'Hobgoblin Angler', 'Hobgoblin Animalier',
-                'Hobgoblin Blagger', 'Hobgoblin Fascinator', 'Hobgoblin Martialist', 'Hobgoblin Physician',
-                'Hobgoblin Toreador', 'Hobgoblin Venerer' },
-        [8] = { 'Eft', 'Intuila', 'Tartarus Eft' },
-        [9] = { 'Goblin Shaman', 'Hobgoblin Alastor', 'Hobgoblin Angler', 'Hobgoblin Animalier',
-                'Hobgoblin Blagger', 'Hobgoblin Fascinator', 'Hobgoblin Martialist', 'Hobgoblin Physician',
-                'Hobgoblin Toreador', 'Hobgoblin Venerer' },
-        [10] = { 'Goblin Pathfinder', 'Goblin Shaman', 'Hobgoblin Alastor', 'Hobgoblin Angler',
-                 'Hobgoblin Animalier', 'Hobgoblin Blagger', 'Hobgoblin Fascinator', 'Hobgoblin Martialist',
-                 'Hobgoblin Physician', 'Hobgoblin Toreador', 'Hobgoblin Venerer' },
-        [11] = { 'Goblin Pathfinder', 'Goblin Shaman', 'Hobgoblin Alastor', 'Hobgoblin Animalier',
-                 'Hobgoblin Blagger', 'Hobgoblin Fascinator', 'Hobgoblin Martialist', 'Hobgoblin Physician',
-                 'Hobgoblin Toreador', 'Hobgoblin Venerer' },
-        [12] = { 'Shens Filtrate' },
+        [1] = { sight = { 'Coastal Opo-opo' } },
+        [2] = { sound = { 'Alraune', 'Peerifool' } },
+        [3] = { sight = { 'Island Rarab', 'Tropical Rarab' } },
+        [4] = { sight = { 'Catoblepas', 'Marine Dhalmel' } },
+        [5] = { sound = { 'Raven', 'Tragopan' } },
+        [6] = { sound = { 'Eft', 'Intuila', 'Intulo', 'Tartarus Eft' } },
+        [7] = {
+            sight = { 'Goblin Pathfinder', 'Hobgoblin Alastor', 'Hobgoblin Angler', 'Hobgoblin Animalier',
+                      'Hobgoblin Blagger', 'Hobgoblin Fascinator', 'Hobgoblin Martialist', 'Hobgoblin Physician',
+                      'Hobgoblin Toreador', 'Hobgoblin Venerer' },
+        },
+        [8] = { sound = { 'Eft', 'Intuila', 'Tartarus Eft' } },
+        [9] = {
+            sight = { 'Goblin Shaman', 'Hobgoblin Alastor', 'Hobgoblin Angler', 'Hobgoblin Animalier',
+                      'Hobgoblin Blagger', 'Hobgoblin Fascinator', 'Hobgoblin Martialist', 'Hobgoblin Physician',
+                      'Hobgoblin Toreador', 'Hobgoblin Venerer' },
+        },
+        [10] = {
+            sight = { 'Goblin Pathfinder', 'Goblin Shaman', 'Hobgoblin Alastor', 'Hobgoblin Angler',
+                      'Hobgoblin Animalier', 'Hobgoblin Blagger', 'Hobgoblin Fascinator', 'Hobgoblin Martialist',
+                      'Hobgoblin Physician', 'Hobgoblin Toreador', 'Hobgoblin Venerer' },
+        },
+        [11] = {
+            sight = { 'Goblin Pathfinder', 'Goblin Shaman', 'Hobgoblin Alastor', 'Hobgoblin Animalier',
+                      'Hobgoblin Blagger', 'Hobgoblin Fascinator', 'Hobgoblin Martialist', 'Hobgoblin Physician',
+                      'Hobgoblin Toreador', 'Hobgoblin Venerer' },
+        },
+        [12] = { magic = { 'Shens Filtrate' } },
     },
     monsters = {
         {
@@ -141,6 +149,7 @@ return {
                 [37] = { acc = 135, eva = 127, agi = 45, int = 31, mnd = 31, chr = 32 },
                 [38] = { acc = 138, eva = 130, agi = 45, int = 31, mnd = 31, chr = 35 },
             },
+            ph_for = { [45] = { 46 } },
             ranks  = { fire = -2, ice = -3, wind = -2, earth = -2, thunder = -3, water = 6, light = -2, dark = -2,
                        paralyze = -3, bind = -3, silence = -2, slow = -2, poison = 4, light_sleep = -2,
                        dark_sleep = -2, blind = -2, stun = -3, gravity = -2 },
@@ -372,6 +381,7 @@ return {
                 [34] = { acc = 124, eva = 116, agi = 39, int = 29, mnd = 29, chr = 32 },
                 [35] = { acc = 127, eva = 119, agi = 39, int = 29, mnd = 29, chr = 33 },
             },
+            ph_for = { [141] = { 142 } },
             ranks  = { fire = -1, ice = -2, wind = 2, earth = 2, thunder = -1, water = 2, light = -1, dark = -1,
                        paralyze = -2, bind = -2, silence = 2, slow = 2, poison = 2, light_sleep = -1,
                        dark_sleep = -1, blind = -1, stun = -1, gravity = 2 },

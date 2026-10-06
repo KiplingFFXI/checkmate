@@ -1,26 +1,34 @@
 -- La Theine Plateau (zone 102).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Steppe Hare' },
-        [2] = { 'Akbaba', 'Nihniknoovi' },
-        [3] = { 'Orcish Fodder', 'Orcish Grappler', 'Orcish Grunt', 'Orcish Mesmerizer', 'Orcish Neckchopper',
-                'Orcish Stonechucker' },
-        [4] = { 'Rock Eater' },
-        [5] = { 'Mad Sheep' },
-        [6] = { 'Goblin Ambusher', 'Goblin Archaeologist', 'Goblin Butcher', 'Goblin Digger', 'Goblin Fisher',
-                'Goblin Thug', 'Goblin Tinkerer', 'Goblin Weaver' },
-        [7] = { 'Acro Bat', 'Gale Bats', 'Plague Bats', 'Poison Bat' },
-        [8] = { 'Goblin Ambusher', 'Goblin Archaeologist', 'Goblin Butcher', 'Goblin Fisher', 'Goblin Thug',
-                'Goblin Tinkerer', 'Goblin Weaver' },
-        [9] = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Digger', 'Goblin Fisher', 'Goblin Thug',
-                'Goblin Tinkerer', 'Goblin Weaver' },
-        [10] = { 'Akbaba' },
+        [1] = { sight = { 'Steppe Hare' } },
+        [2] = { sight = { 'Nihniknoovi' }, sound = { 'Akbaba' } },
+        [3] = {
+            sight = { 'Orcish Fodder', 'Orcish Grappler', 'Orcish Grunt', 'Orcish Mesmerizer', 'Orcish Neckchopper',
+                      'Orcish Stonechucker' },
+        },
+        [4] = { sound = { 'Rock Eater' } },
+        [5] = { sight = { 'Mad Sheep' } },
+        [6] = {
+            sight = { 'Goblin Ambusher', 'Goblin Archaeologist', 'Goblin Butcher', 'Goblin Digger', 'Goblin Fisher',
+                      'Goblin Thug', 'Goblin Tinkerer', 'Goblin Weaver' },
+        },
+        [7] = { sound = { 'Acro Bat', 'Gale Bats', 'Plague Bats', 'Poison Bat' } },
+        [8] = {
+            sight = { 'Goblin Ambusher', 'Goblin Archaeologist', 'Goblin Butcher', 'Goblin Fisher', 'Goblin Thug',
+                      'Goblin Tinkerer', 'Goblin Weaver' },
+        },
+        [9] = {
+            sight = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Digger', 'Goblin Fisher', 'Goblin Thug',
+                      'Goblin Tinkerer', 'Goblin Weaver' },
+        },
+        [10] = { sound = { 'Akbaba' } },
     },
     monsters = {
         {
@@ -627,6 +635,7 @@ return {
                 [22] = { acc = 81, eva = 75, agi = 24, int = 18, mnd = 18, chr = 20 },
                 [23] = { acc = 84, eva = 78, agi = 24, int = 18, mnd = 18, chr = 20 },
             },
+            ph_for = { [135] = { 309 }, [308] = { 309 } },
             ranks  = { fire = -1, ice = 1, wind = -1, earth = -1, thunder = -2, water = -2, light = -1, dark = -1,
                        paralyze = 1, bind = 1, silence = -1, slow = -1, poison = -2, light_sleep = -1,
                        dark_sleep = -1, blind = -1, stun = -2, gravity = -1 },
@@ -651,6 +660,7 @@ return {
                 [14] = { acc = 54, eva = 50, agi = 18, int = 12, mnd = 13, chr = 14 },
                 [15] = { acc = 57, eva = 53, agi = 18, int = 13, mnd = 13, chr = 15 },
             },
+            ph_for = { [250] = { 251 } },
             ranks  = { fire = -2, ice = -2, wind = -2, earth = -2, thunder = -2, water = 4, light = -3, dark = 4,
                        paralyze = -2, bind = -2, silence = -2, slow = -2, poison = 4, light_sleep = -3,
                        dark_sleep = 4, blind = 6, stun = -2, gravity = -2 },
@@ -823,6 +833,7 @@ return {
                 [27] = { acc = 98, eva = 91, agi = 29, int = 21, mnd = 21, chr = 24 },
                 [28] = { acc = 101, eva = 94, agi = 29, int = 21, mnd = 21, chr = 25 },
             },
+            ph_for = { [309] = { 310 } },
             ranks  = { fire = -1, ice = 1, wind = -1, earth = -1, thunder = -2, water = -2, light = -1, dark = -1,
                        paralyze = 1, bind = 1, silence = -1, slow = -1, poison = -2, light_sleep = -1,
                        dark_sleep = -1, blind = -1, stun = -2, gravity = -1 },

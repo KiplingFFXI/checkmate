@@ -24,7 +24,7 @@ local defaults = {};
 defaults.PHOENIX_CHAT = {
     con_colors = true,
     tag_brackets = 81, tag_word = 6, line = 106, replies = 106,
-    name = 8, level = 8, level_range = 8,
+    name = 8, level = 8, level_range = 8, id = 8, ph = 8,
     difficulty = 106, too_weak = 67, incredibly_easy_prey = 106, easy_prey = 2, decent_challenge = 102,
     even_match = 8, tough = 68, very_tough = 76, incredibly_tough = 76, impossible_to_gauge = 5,
     reading = 106, reading_detail = 106,
@@ -36,6 +36,7 @@ defaults.PHOENIX_CHAT = {
     immunities_label = 106, immunities_name = 106, immunities_detail = 106,
     elements_label = 106, elements_weak = 2, elements_resist = 68, elements_detail = 106,
     drops_label = 106, drops_name = 106, drops_number = 106, drops_detail = 106,
+    pet_label = 106, pet_name = 106, pet_level = 106, pet_number = 106, pet_detail = 106,
     good = 2, ok = 104, bad = 68,
 };
 
@@ -59,7 +60,7 @@ local function immunities()
     return out;
 end
 
--- Every chat color, the Phoenix skin's. Ashita's merge and a profile load fill a missing color from these.
+-- Every chat color, the Phoenix skin's.
 local function colors()
     local out = T{};
     for _, key in ipairs(printout.COLOR_KEYS) do
@@ -80,6 +81,10 @@ function defaults.make()
             show_level   = true,                     -- The " (Lv 42)" after the name.
             show_range   = false,                    -- The range after a known level, " (Lv 42, range 40-44)".
             range_word   = 'range',                  -- The word before that range. Empty prints " (Lv 42, 40-44)".
+            show_id      = false,                    -- The monster's ID after its level, " (ID 17199202)".
+            id_word      = 'ID',                     -- The word before the ID. Empty prints " (17199202)".
+            show_ph      = false,                    -- The NM a placeholder can pop, " (PH for Valkurm Emperor)".
+            ph_word      = 'PH for',                 -- The word before that NM. Empty prints " (Valkurm Emperor)".
             number_style = 'range',                  -- 'range' prints 64-72%, 'midpoint' prints ~68%.
             con_colors   = defaults.PHOENIX_CHAT.con_colors,   -- Color by difficulty, in the con's color.
             defense_first = false,                   -- "(High Defense, High Evasion)" instead of evasion first.
@@ -97,10 +102,11 @@ function defaults.make()
                 immunities = part(false, 'Immune', true),
                 elements   = part(false, 'Elements', true),
                 drops      = part(false, 'Drops',  true),
+                pet        = part(false, 'Pet',    true),
             },
         },
         colors = colors(),                   -- Every chat color by key, as on the Colors tab.
-        -- Grade colors on the hit, evade and crit numbers, judged by the middle of a range.
+        -- Grade colors on the hit, evade, crit and pet numbers, judged by the middle of a range.
         grades = T{
             on         = true,
             hit_good   = 85,
@@ -113,8 +119,9 @@ function defaults.make()
         aggro = T{
             threat_colors = true,            -- Color by threat, aggressive in one color and the rest in another.
             detection     = true,            -- How it finds you, like "(Sight, Sound)".
-            link_names    = true,            -- The names it links with. Off says just "Links".
+            link_names    = true,            -- Its link names. Off says "Links", or "Links (Sight)" with link_how on.
             max_links     = 5,               -- 0 shows every name.
+            link_how      = true,            -- How each one links after its name, like "Goblin Thug (Sight)".
         },
         magic = T{
             extra_accuracy = 0,              -- Magic accuracy from gear and merits the client can't see.
@@ -134,6 +141,12 @@ function defaults.make()
             resist_word = 'Resists',         -- The word before the elements it resists.
             strength    = true,              -- How strong each one is, like "(half)", and the magic damage note.
         },
+        pet = T{
+            show_name  = true,               -- Your pet's name at the start of the pet part.
+            show_level = true,               -- Its level after the name, like "(Lv 75)".
+            hit_word   = 'Hit',              -- The word before how often it hits. Empty leaves it out.
+            evade_word = 'Evade',            -- The word before how often the monster misses it.
+        },
         look = T{
             skin      = 'phoenix',
             imgui     = T{},                 -- Filled by ui\skins.lua.
@@ -152,14 +165,15 @@ end
 
 --[[
     Puts your chat colors in a new table, each one checked against the palette, with a missing or
-    broken one from the defaults.
+    broken one from `chat`, your skin's chat colors. With no `chat` it comes from the Phoenix skin.
 ]]
-function defaults.fix_colors(s)
+function defaults.fix_colors(s, chat)
     local saved = type(s.colors) == 'table' and s.colors or {};
+    local fill = chat or defaults.PHOENIX_CHAT;
     local fixed = T{};
     for _, key in ipairs(printout.COLOR_KEYS) do
         local code = rawget(saved, key);
-        fixed[key] = printout.in_palette(code) and code or defaults.PHOENIX_CHAT[key];
+        fixed[key] = printout.in_palette(code) and code or fill[key];
     end
     s.colors = fixed;
 end

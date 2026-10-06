@@ -1,18 +1,21 @@
 -- Grand Palace of HuXzoi (zone 34).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Eoeuvhi' },
-        [2] = { 'Indoor aern blm', 'Indoor aern brd', 'Indoor aern bst', 'Indoor aern drg', 'Indoor aern drk',
-                'Indoor aern mnk', 'Indoor aern nin', 'Indoor aern pld', 'Indoor aern rdm', 'Indoor aern rng',
-                'Indoor aern sam', 'Indoor aern smn', 'Indoor aern thf', 'Indoor aern war', 'Indoor aern whm' },
-        [3] = { 'Qnaern' },
-        [4] = { 'Ixaern mnk', 'Qnaern' },
+        [1] = { sound = { 'Eoeuvhi' } },
+        [2] = {
+            both = { 'Indoor aern blm', 'Indoor aern brd', 'Indoor aern bst', 'Indoor aern drg', 'Indoor aern drk',
+                     'Indoor aern mnk', 'Indoor aern nin', 'Indoor aern pld', 'Indoor aern rdm', 'Indoor aern rng',
+                     'Indoor aern sam', 'Indoor aern smn', 'Indoor aern thf', 'Indoor aern war',
+                     'Indoor aern whm' },
+        },
+        [3] = { superlink = { 'Qnaern' } },
+        [4] = { superlink = { 'Ixaern mnk', 'Qnaern' } },
     },
     monsters = {
         {

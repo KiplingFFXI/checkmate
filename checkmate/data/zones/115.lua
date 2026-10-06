@@ -1,20 +1,24 @@
 -- West Sarutabaruta (zone 115).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Crawler' },
-        [2] = { 'Goblin Digger', 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' },
-        [3] = { 'Yagudo Acolyte', 'Yagudo Condottiere', 'Yagudo Follower', 'Yagudo Initiate', 'Yagudo Priest',
-                'Yagudo Scribe', 'Yagudo Theologist', 'Yagudo Votary' },
-        [4] = { 'Tom Tit Tat' },
-        [5] = { 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' },
-        [6] = { 'Yagudo Acolyte', 'Yagudo Follower', 'Yagudo Initiate', 'Yagudo Priest', 'Yagudo Scribe',
-                'Yagudo Theologist', 'Yagudo Votary' },
+        [1] = { sound = { 'Crawler' } },
+        [2] = { sight = { 'Goblin Digger', 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' } },
+        [3] = {
+            sight = { 'Yagudo Acolyte', 'Yagudo Condottiere', 'Yagudo Follower', 'Yagudo Initiate', 'Yagudo Priest',
+                      'Yagudo Scribe', 'Yagudo Theologist', 'Yagudo Votary' },
+        },
+        [4] = { sound = { 'Tom Tit Tat' } },
+        [5] = { sight = { 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' } },
+        [6] = {
+            sight = { 'Yagudo Acolyte', 'Yagudo Follower', 'Yagudo Initiate', 'Yagudo Priest', 'Yagudo Scribe',
+                      'Yagudo Theologist', 'Yagudo Votary' },
+        },
     },
     monsters = {
         {
@@ -230,6 +234,7 @@ return {
                              [238] = { 5, 6 }, [258] = { 4, 5 }, [259] = { 4, 5 }, [260] = { 4, 5 },
                              [277] = { 5, 6 }, [278] = { 5, 6 }, [297] = { 5, 6 }, [298] = { 5, 6 },
                              [314] = { 4, 5 }, [315] = { 4, 5 }, [340] = { 4, 5 } },
+            ph_for = { [260] = { 261 } },
             ranks  = { fire = -2, ice = -3, thunder = -2, water = -2, light = -2, dark = -2, paralyze = -3,
                        bind = -3, poison = -2, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -2 },
             drops  = {
@@ -318,6 +323,7 @@ return {
                 [4] = { acc = 21, eva = 16, agi = 7, int = 7, mnd = 9, chr = 8 },
                 [5] = { acc = 24, eva = 20, agi = 8, int = 7, mnd = 9, chr = 9 },
             },
+            ph_for = { [211] = { 212 }, [229] = { 230 } },
             ranks  = { fire = -3, ice = -3, wind = -3, thunder = -3, dark = -3, paralyze = -3, bind = -3,
                        silence = -3, dark_sleep = -3, blind = -3, stun = -3, gravity = -3 },
             drops  = {

@@ -1,28 +1,37 @@
 -- Newton Movalpolos (zone 12).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Bugbear Deathsman', 'Bugbear Matman', 'Bugbear Trashman', 'Bugbear Watchman', 'Goblin Collector',
-                'Goblin Fireman', 'Goblin Foreman', 'Goblin Hangman', 'Goblin Headman', 'Goblin Junkman',
-                'Goblin Lengthman', 'Goblin Marksman', 'Goblin Packman', 'Goblin Swordsman', 'Moblin Aidman',
-                'Moblin Draftsman', 'Moblin Engineman', 'Moblin Groundman', 'Moblin Roadman', 'Moblin Scalpelman',
-                'Moblin Tankman', 'Moblin Topsman', 'Moblin Workman', 'Moblin Yardman', 'Swashstox Beadblinker' },
-        [2] = { 'Dire Bat', 'Nightmare Bats', 'Purgatory Bat', 'Succubus Bats' },
-        [3] = { 'Bugbear Deathsman', 'Bugbear Matman', 'Bugbear Trashman', 'Bugbear Watchman', 'Goblin Fireman',
-                'Goblin Foreman', 'Goblin Hangman', 'Goblin Headman', 'Goblin Junkman', 'Goblin Lengthman',
-                'Goblin Marksman', 'Goblin Packman', 'Goblin Swordsman', 'Moblin Aidman', 'Moblin Draftsman',
-                'Moblin Engineman', 'Moblin Groundman', 'Moblin Roadman', 'Moblin Scalpelman', 'Moblin Tankman',
-                'Moblin Topsman', 'Moblin Workman', 'Moblin Yardman', 'Swashstox Beadblinker' },
-        [4] = { 'Bugbear Deathsman', 'Bugbear Trashman', 'Bugbear Watchman', 'Goblin Collector', 'Goblin Fireman',
-                'Goblin Foreman', 'Goblin Hangman', 'Goblin Headman', 'Goblin Junkman', 'Goblin Lengthman',
-                'Goblin Marksman', 'Goblin Packman', 'Goblin Swordsman', 'Moblin Aidman', 'Moblin Draftsman',
-                'Moblin Engineman', 'Moblin Groundman', 'Moblin Roadman', 'Moblin Scalpelman', 'Moblin Tankman',
-                'Moblin Topsman', 'Moblin Workman', 'Moblin Yardman', 'Swashstox Beadblinker' },
+        [1] = {
+            sight = { 'Bugbear Deathsman', 'Bugbear Matman', 'Bugbear Trashman', 'Bugbear Watchman',
+                      'Goblin Collector', 'Goblin Fireman', 'Goblin Foreman', 'Goblin Hangman', 'Goblin Headman',
+                      'Goblin Junkman', 'Goblin Lengthman', 'Goblin Marksman', 'Goblin Packman', 'Goblin Swordsman',
+                      'Moblin Aidman', 'Moblin Draftsman', 'Moblin Engineman', 'Moblin Groundman', 'Moblin Roadman',
+                      'Moblin Scalpelman', 'Moblin Tankman', 'Moblin Topsman', 'Moblin Workman', 'Moblin Yardman',
+                      'Swashstox Beadblinker' },
+        },
+        [2] = { sound = { 'Dire Bat', 'Nightmare Bats', 'Purgatory Bat', 'Succubus Bats' } },
+        [3] = {
+            sight = { 'Bugbear Deathsman', 'Bugbear Matman', 'Bugbear Trashman', 'Bugbear Watchman',
+                      'Goblin Fireman', 'Goblin Foreman', 'Goblin Hangman', 'Goblin Headman', 'Goblin Junkman',
+                      'Goblin Lengthman', 'Goblin Marksman', 'Goblin Packman', 'Goblin Swordsman', 'Moblin Aidman',
+                      'Moblin Draftsman', 'Moblin Engineman', 'Moblin Groundman', 'Moblin Roadman',
+                      'Moblin Scalpelman', 'Moblin Tankman', 'Moblin Topsman', 'Moblin Workman', 'Moblin Yardman',
+                      'Swashstox Beadblinker' },
+        },
+        [4] = {
+            sight = { 'Bugbear Deathsman', 'Bugbear Trashman', 'Bugbear Watchman', 'Goblin Collector',
+                      'Goblin Fireman', 'Goblin Foreman', 'Goblin Hangman', 'Goblin Headman', 'Goblin Junkman',
+                      'Goblin Lengthman', 'Goblin Marksman', 'Goblin Packman', 'Goblin Swordsman', 'Moblin Aidman',
+                      'Moblin Draftsman', 'Moblin Engineman', 'Moblin Groundman', 'Moblin Roadman',
+                      'Moblin Scalpelman', 'Moblin Tankman', 'Moblin Topsman', 'Moblin Workman', 'Moblin Yardman',
+                      'Swashstox Beadblinker' },
+        },
     },
     monsters = {
         {
@@ -638,6 +647,7 @@ return {
             levels = {
                 [78] = { acc = 335, eva = 318, agi = 85, int = 60, mnd = 60, chr = 68 },
             },
+            ph_for = { [139] = { 142 }, [146] = { 149 } },
             ranks  = { fire = -2, ice = -2, wind = -2, earth = -2, thunder = -2, water = -2, light = -3,
                        paralyze = -2, bind = -2, silence = -2, slow = -2, poison = -2, light_sleep = -3, stun = -2,
                        gravity = -2 },

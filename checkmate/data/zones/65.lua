@@ -1,32 +1,37 @@
 -- Mamook (zone 65).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Mamool Ja', 'Mamool Ja Blusterer', 'Mamool Ja Bounder', 'Mamool Ja Conservator',
-                'Mamool Ja Infiltrator', 'Mamool Ja Lurker', 'Mamool Ja Mimer', 'Mamool Ja Mimicker',
-                'Mamool Ja Philosopher', 'Mamool Ja Pikeman', 'Mamool Ja Savant', 'Mamool Ja Sophist',
-                'Mamool Ja Spearman', 'Mamool Ja Stabler', 'Mamool Ja Strapper', 'Mamool Ja Zenist' },
-        [2] = { 'Carriage Lizard' },
-        [3] = { 'Mamool Ja Diver', 'Mamool Ja Frogman' },
-        [4] = { 'Poroggo' },
-        [5] = { 'Qiqirn Goldsmith' },
-        [6] = { 'Qiqirn Poulterer' },
-        [7] = { 'Spinner' },
-        [8] = { 'Nipper' },
-        [9] = { 'Mamool Ja Blusterer', 'Mamool Ja Bounder', 'Mamool Ja Conservator', 'Mamool Ja Infiltrator',
-                'Mamool Ja Lurker', 'Mamool Ja Mimer', 'Mamool Ja Mimicker', 'Mamool Ja Philosopher',
-                'Mamool Ja Pikeman', 'Mamool Ja Savant', 'Mamool Ja Sophist', 'Mamool Ja Spearman',
-                'Mamool Ja Stabler', 'Mamool Ja Strapper', 'Mamool Ja Zenist' },
-        [10] = { 'Mikiluru', 'Mikirulu', 'Mikiruru', 'Nikilulu' },
-        [11] = { 'Mikilulu', 'Mikiluru', 'Mikirulu', 'Nikilulu' },
-        [12] = { 'Mikilulu', 'Mikiluru', 'Mikirulu', 'Mikiruru' },
-        [13] = { 'Mikilulu', 'Mikirulu', 'Mikiruru', 'Nikilulu' },
-        [14] = { 'Mikilulu', 'Mikiluru', 'Mikiruru', 'Nikilulu' },
+        [1] = {
+            sight = { 'Mamool Ja', 'Mamool Ja Bounder', 'Mamool Ja Conservator', 'Mamool Ja Mimicker',
+                      'Mamool Ja Savant', 'Mamool Ja Sophist', 'Mamool Ja Spearman', 'Mamool Ja Strapper',
+                      'Mamool Ja Zenist' },
+            true_sight = { 'Mamool Ja Blusterer', 'Mamool Ja Infiltrator', 'Mamool Ja Lurker', 'Mamool Ja Mimer',
+                           'Mamool Ja Philosopher', 'Mamool Ja Pikeman', 'Mamool Ja Stabler' },
+        },
+        [2] = { sound = { 'Carriage Lizard' } },
+        [3] = { sound = { 'Mamool Ja Diver', 'Mamool Ja Frogman' } },
+        [4] = { true_sound = { 'Poroggo' } },
+        [5] = { sight = { 'Qiqirn Goldsmith' } },
+        [6] = { sight = { 'Qiqirn Poulterer' } },
+        [7] = { sound = { 'Spinner' } },
+        [8] = { sound = { 'Nipper' } },
+        [9] = {
+            sight = { 'Mamool Ja Bounder', 'Mamool Ja Conservator', 'Mamool Ja Mimicker', 'Mamool Ja Savant',
+                      'Mamool Ja Sophist', 'Mamool Ja Spearman', 'Mamool Ja Strapper', 'Mamool Ja Zenist' },
+            true_sight = { 'Mamool Ja Blusterer', 'Mamool Ja Infiltrator', 'Mamool Ja Lurker', 'Mamool Ja Mimer',
+                           'Mamool Ja Philosopher', 'Mamool Ja Pikeman', 'Mamool Ja Stabler' },
+        },
+        [10] = { sound = { 'Mikiluru', 'Mikirulu', 'Mikiruru', 'Nikilulu' } },
+        [11] = { sound = { 'Mikilulu', 'Mikiluru', 'Mikirulu', 'Nikilulu' } },
+        [12] = { sound = { 'Mikilulu', 'Mikiluru', 'Mikirulu', 'Mikiruru' } },
+        [13] = { sound = { 'Mikilulu', 'Mikirulu', 'Mikiruru', 'Nikilulu' } },
+        [14] = { sound = { 'Mikilulu', 'Mikiluru', 'Mikiruru', 'Nikilulu' } },
     },
     monsters = {
         {
@@ -285,6 +290,7 @@ return {
                              [101] = { 76, 77 }, [102] = { 76, 77 }, [104] = { 76, 77 }, [105] = { 76, 77 },
                              [106] = { 76, 77 }, [107] = { 76, 77 }, [108] = { 76, 77 }, [369] = { 77, 78 },
                              [372] = { 77, 78 }, [380] = { 77, 78 } },
+            ph_for = { [97] = { 98 } },
             ranks  = { fire = -1, ice = -1, wind = -2, earth = 2, thunder = 2, water = -1, light = -1, dark = -1,
                        paralyze = -1, bind = -1, silence = -2, slow = 2, poison = -1, light_sleep = -1,
                        dark_sleep = -1, blind = -1, stun = 2, gravity = -2 },

@@ -75,7 +75,7 @@ skins.LIST = {
         chat = {
             con_colors = true,
             tag_brackets = 81, tag_word = 6, line = 106, replies = 106,
-            name = 7, level = 106, level_range = 106,
+            name = 7, level = 106, level_range = 106, id = 106, ph = 106,
             difficulty = 106, too_weak = 67, incredibly_easy_prey = 106, easy_prey = 2, decent_challenge = 102,
             even_match = 8, tough = 68, very_tough = 76, incredibly_tough = 76, impossible_to_gauge = 5,
             reading = 106, reading_detail = 67,
@@ -87,6 +87,7 @@ skins.LIST = {
             immunities_label = 7, immunities_name = 106, immunities_detail = 67,
             elements_label = 7, elements_weak = 83, elements_resist = 76, elements_detail = 67,
             drops_label = 7, drops_name = 106, drops_number = 1, drops_detail = 67,
+            pet_label = 7, pet_name = 106, pet_level = 106, pet_number = 1, pet_detail = 67,
             good = 83, ok = 96, bad = 76,
         },
         imgui = {
@@ -132,7 +133,7 @@ skins.LIST = {
         chat = {
             con_colors = true,
             tag_brackets = 1, tag_word = 69, line = 1, replies = 1,
-            name = 69, level = 1, level_range = 1,
+            name = 69, level = 1, level_range = 1, id = 1, ph = 1,
             difficulty = 1, too_weak = 67, incredibly_easy_prey = 1, easy_prey = 79, decent_challenge = 82,
             even_match = 8, tough = 68, very_tough = 76, incredibly_tough = 76, impossible_to_gauge = 5,
             reading = 1, reading_detail = 92,
@@ -144,6 +145,7 @@ skins.LIST = {
             immunities_label = 82, immunities_name = 1, immunities_detail = 92,
             elements_label = 82, elements_weak = 79, elements_resist = 76, elements_detail = 92,
             drops_label = 82, drops_name = 1, drops_number = 1, drops_detail = 92,
+            pet_label = 82, pet_name = 1, pet_level = 1, pet_number = 1, pet_detail = 92,
             good = 79, ok = 69, bad = 76,
         },
         imgui = {
@@ -170,7 +172,7 @@ skins.LIST = {
         chat = {
             con_colors = true,
             tag_brackets = 85, tag_word = 8, line = 7, replies = 7,
-            name = 76, level = 85, level_range = 85,
+            name = 76, level = 85, level_range = 85, id = 85, ph = 85,
             difficulty = 78, too_weak = 67, incredibly_easy_prey = 78, easy_prey = 2, decent_challenge = 102,
             even_match = 8, tough = 68, very_tough = 76, incredibly_tough = 76, impossible_to_gauge = 5,
             reading = 78, reading_detail = 85,
@@ -182,6 +184,7 @@ skins.LIST = {
             immunities_label = 78, immunities_name = 96, immunities_detail = 85,
             elements_label = 78, elements_weak = 80, elements_resist = 68, elements_detail = 85,
             drops_label = 78, drops_name = 96, drops_number = 7, drops_detail = 85,
+            pet_label = 78, pet_name = 96, pet_level = 85, pet_number = 7, pet_detail = 85,
             good = 80, ok = 69, bad = 68,
         },
         imgui = {
@@ -214,7 +217,7 @@ skins.LIST = {
         chat = {
             con_colors = true,
             tag_brackets = 81, tag_word = 6, line = 106, replies = 106,
-            name = 1, level = 1, level_range = 1,
+            name = 1, level = 1, level_range = 1, id = 1, ph = 1,
             difficulty = 106, too_weak = 67, incredibly_easy_prey = 71, easy_prey = 71, decent_challenge = 92,
             even_match = 106, tough = 69, very_tough = 8, incredibly_tough = 8, impossible_to_gauge = 105,
             reading = 106, reading_detail = 67,
@@ -226,6 +229,7 @@ skins.LIST = {
             immunities_label = 106, immunities_name = 106, immunities_detail = 67,
             elements_label = 106, elements_weak = 6, elements_resist = 8, elements_detail = 67,
             drops_label = 106, drops_name = 106, drops_number = 1, drops_detail = 67,
+            pet_label = 106, pet_name = 106, pet_level = 1, pet_number = 1, pet_detail = 67,
             good = 6, ok = 69, bad = 8,
         },
         -- Okabe and Ito's sky blue for done messages and their orange for problems and highlights.

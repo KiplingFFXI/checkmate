@@ -1,38 +1,59 @@
 -- Den of Rancor (zone 160).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Bistre-hearted Malberry', 'Carmine-tailed Janberry', 'Celeste-eyed Tozberry', 'Sozu Bliberry',
-                'Tawny-fingered Mugberry', 'Tonberry Beleaguerer', 'Tonberry Decapitator', 'Tonberry Imprecator',
-                'Tonberry Pontifex', 'Tonberry Slasher', 'Tonberry Tracker', 'Tonberry Trailer' },
-        [2] = { 'Dire Bat', 'Succubus Bats' },
-        [3] = { 'Bistre-hearted Malberry', 'Carmine-tailed Janberry', 'Celeste-eyed Tozberry',
-                'Tawny-fingered Mugberry', 'Tonberry Beleaguerer', 'Tonberry Decapitator', 'Tonberry Imprecator',
-                'Tonberry Pontifex', 'Tonberry Slasher', 'Tonberry Tracker', 'Tonberry Trailer' },
-        [4] = { 'Bistre-hearted Malberry', 'Carmine-tailed Janberry', 'Sozu Bliberry', 'Tawny-fingered Mugberry',
-                'Tonberry Beleaguerer', 'Tonberry Decapitator', 'Tonberry Imprecator', 'Tonberry Pontifex',
-                'Tonberry Slasher', 'Tonberry Tracker', 'Tonberry Trailer' },
-        [5] = { 'Cave Worm' },
-        [6] = { 'Bistre-hearted Malberry', 'Celeste-eyed Tozberry', 'Sozu Bliberry', 'Tawny-fingered Mugberry',
-                'Tonberry Beleaguerer', 'Tonberry Decapitator', 'Tonberry Imprecator', 'Tonberry Pontifex',
-                'Tonberry Slasher', 'Tonberry Tracker', 'Tonberry Trailer' },
-        [7] = { 'Tormentor' },
-        [8] = { 'Puck' },
-        [9] = { 'Bullbeggar' },
-        [10] = { 'Bistre-hearted Malberry', 'Carmine-tailed Janberry', 'Celeste-eyed Tozberry', 'Sozu Bliberry',
-                 'Tonberry Beleaguerer', 'Tonberry Decapitator', 'Tonberry Imprecator', 'Tonberry Pontifex',
-                 'Tonberry Slasher', 'Tonberry Tracker', 'Tonberry Trailer' },
-        [11] = { 'Carmine-tailed Janberry', 'Celeste-eyed Tozberry', 'Sozu Bliberry', 'Tawny-fingered Mugberry',
-                 'Tonberry Beleaguerer', 'Tonberry Decapitator', 'Tonberry Imprecator', 'Tonberry Pontifex',
-                 'Tonberry Slasher', 'Tonberry Tracker', 'Tonberry Trailer' },
-        [12] = { 'Bistre-hearted Malberry', 'Carmine-tailed Janberry', 'Celeste-eyed Tozberry', 'Sozu Bliberry',
-                 'Tawny-fingered Mugberry', 'Tonberry Beleaguerer', 'Tonberry Decapitator', 'Tonberry Imprecator',
-                 'Tonberry Slasher', 'Tonberry Tracker', 'Tonberry Trailer' },
+        [1] = {
+            sight = { 'Bistre-hearted Malberry', 'Carmine-tailed Janberry', 'Celeste-eyed Tozberry',
+                      'Sozu Bliberry', 'Tawny-fingered Mugberry', 'Tonberry Beleaguerer', 'Tonberry Imprecator',
+                      'Tonberry Slasher', 'Tonberry Trailer' },
+            true_sight = { 'Tonberry Decapitator', 'Tonberry Pontifex', 'Tonberry Tracker' },
+        },
+        [2] = { sound = { 'Dire Bat', 'Succubus Bats' } },
+        [3] = {
+            sight = { 'Bistre-hearted Malberry', 'Carmine-tailed Janberry', 'Celeste-eyed Tozberry',
+                      'Tawny-fingered Mugberry', 'Tonberry Beleaguerer', 'Tonberry Imprecator', 'Tonberry Slasher',
+                      'Tonberry Trailer' },
+            true_sight = { 'Tonberry Decapitator', 'Tonberry Pontifex', 'Tonberry Tracker' },
+        },
+        [4] = {
+            sight = { 'Bistre-hearted Malberry', 'Carmine-tailed Janberry', 'Sozu Bliberry',
+                      'Tawny-fingered Mugberry', 'Tonberry Beleaguerer', 'Tonberry Imprecator', 'Tonberry Slasher',
+                      'Tonberry Trailer' },
+            true_sight = { 'Tonberry Decapitator', 'Tonberry Pontifex', 'Tonberry Tracker' },
+        },
+        [5] = { sound = { 'Cave Worm' } },
+        [6] = {
+            sight = { 'Bistre-hearted Malberry', 'Celeste-eyed Tozberry', 'Sozu Bliberry',
+                      'Tawny-fingered Mugberry', 'Tonberry Beleaguerer', 'Tonberry Imprecator', 'Tonberry Slasher',
+                      'Tonberry Trailer' },
+            true_sight = { 'Tonberry Decapitator', 'Tonberry Pontifex', 'Tonberry Tracker' },
+        },
+        [7] = { sound = { 'Tormentor' } },
+        [8] = { sound = { 'Puck' } },
+        [9] = { sight = { 'Bullbeggar' } },
+        [10] = {
+            sight = { 'Bistre-hearted Malberry', 'Carmine-tailed Janberry', 'Celeste-eyed Tozberry',
+                      'Sozu Bliberry', 'Tonberry Beleaguerer', 'Tonberry Imprecator', 'Tonberry Slasher',
+                      'Tonberry Trailer' },
+            true_sight = { 'Tonberry Decapitator', 'Tonberry Pontifex', 'Tonberry Tracker' },
+        },
+        [11] = {
+            sight = { 'Carmine-tailed Janberry', 'Celeste-eyed Tozberry', 'Sozu Bliberry',
+                      'Tawny-fingered Mugberry', 'Tonberry Beleaguerer', 'Tonberry Imprecator', 'Tonberry Slasher',
+                      'Tonberry Trailer' },
+            true_sight = { 'Tonberry Decapitator', 'Tonberry Pontifex', 'Tonberry Tracker' },
+        },
+        [12] = {
+            sight = { 'Bistre-hearted Malberry', 'Carmine-tailed Janberry', 'Celeste-eyed Tozberry',
+                      'Sozu Bliberry', 'Tawny-fingered Mugberry', 'Tonberry Beleaguerer', 'Tonberry Imprecator',
+                      'Tonberry Slasher', 'Tonberry Trailer' },
+            true_sight = { 'Tonberry Decapitator', 'Tonberry Tracker' },
+        },
     },
     monsters = {
         {
@@ -146,6 +167,7 @@ return {
                 [64] = { acc = 263, eva = 298, agi = 80, int = 64, mnd = 42, chr = 46 },
                 [65] = { acc = 269, eva = 303, agi = 80, int = 65, mnd = 43, chr = 46 },
             },
+            ph_for = { [46] = { 48 } },
             ranks  = { fire = -1, ice = -3, wind = -1, thunder = -2, water = 1, light = 4, paralyze = -3, bind = -3,
                        silence = -1, poison = 1, light_sleep = 4, stun = -2, gravity = -1 },
             resist = { gravity = 15 },
@@ -211,6 +233,7 @@ return {
                 [63] = { acc = 252, eva = 220, agi = 73, int = 75, mnd = 52, chr = 60 },
                 [64] = { acc = 258, eva = 226, agi = 75, int = 75, mnd = 52, chr = 62 },
             },
+            ph_for = { [86] = { 83 }, [95] = { 83 } },
             ranks  = { fire = -1, ice = -3, wind = -1, thunder = -2, water = 1, light = 4, paralyze = -3, bind = -3,
                        silence = -1, poison = 1, light_sleep = 4, stun = -2, gravity = -1 },
             drops  = {
@@ -288,6 +311,7 @@ return {
                              [353] = { 67, 69 }, [378] = { 67, 69 }, [379] = { 67, 69 }, [380] = { 67, 69 },
                              [383] = { 67, 69 }, [388] = { 67, 69 }, [404] = { 69, 71 }, [407] = { 69, 71 },
                              [408] = { 69, 71 }, [416] = { 69, 71 }, [421] = { 69, 71 }, [422] = { 69, 71 } },
+            ph_for = { [211] = { 222 } },
             ranks  = { fire = -1, ice = -3, wind = -1, thunder = -2, water = 1, light = 4, paralyze = -3, bind = -3,
                        silence = -1, poison = 1, light_sleep = 4, stun = -2, gravity = -1 },
             drops  = {
@@ -324,6 +348,7 @@ return {
                              [348] = { 66, 69 }, [360] = { 66, 69 }, [381] = { 66, 69 }, [385] = { 66, 69 },
                              [389] = { 66, 69 }, [405] = { 69, 72 }, [409] = { 69, 72 }, [411] = { 69, 72 },
                              [423] = { 69, 72 } },
+            ph_for = { [244] = { 269 } },
             ranks  = { fire = -1, ice = -3, wind = -1, thunder = -2, water = 1, light = 4, paralyze = -3, bind = -3,
                        silence = -1, poison = 1, light_sleep = 4, stun = -2, gravity = -1 },
             resist = { slow = 20 },
@@ -364,6 +389,7 @@ return {
                 [69] = { acc = 284, eva = 269, agi = 72, int = 51, mnd = 54, chr = 65 },
                 [70] = { acc = 289, eva = 274, agi = 73, int = 51, mnd = 55, chr = 65 },
             },
+            ph_for = { [62] = { 64 } },
             ranks  = { fire = -3, ice = 4, wind = 4, earth = 4, thunder = 4, water = 4, light = 4, dark = 4,
                        paralyze = 4, bind = 4, silence = 4, slow = 4, poison = 4, light_sleep = 4, dark_sleep = 4,
                        blind = 4, stun = 4, gravity = 4 },
@@ -635,6 +661,7 @@ return {
                 [77] = { acc = 326, eva = 311, agi = 80, int = 60, mnd = 56, chr = 71 },
                 [78] = { acc = 331, eva = 316, agi = 80, int = 60, mnd = 57, chr = 73 },
             },
+            ph_for = { [397] = { 398 }, [403] = { 398 } },
             ranks  = { fire = -2, ice = 3, water = 2, light = -2, dark = 8, paralyze = 3, bind = 3, poison = 2,
                        light_sleep = -2, dark_sleep = 8, blind = 8 },
             undead = true,

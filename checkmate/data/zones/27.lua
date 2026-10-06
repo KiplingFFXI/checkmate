@@ -1,20 +1,62 @@
 -- Phomiuna Aqueducts (zone 27).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Mahisha', 'Minotaur', 'Stegotaur', 'Taurus' },
-        [2] = { 'Canal Bats', 'Hell Bat', 'Tres Duendes', 'Vampire Bat' },
-        [3] = { 'Duendes Amoroso', 'Fomor Ranger', 'Fomor Thief', 'Fomor Warrior' },
-        [4] = { 'Minotaur', 'Stegotaur', 'Taurus' },
-        [5] = { 'Mahisha', 'Stegotaur', 'Taurus' },
-        [6] = { 'Canal Bats', 'Hell Bat', 'Vampire Bat' },
-        [7] = { 'Fomor Ranger', 'Fomor Thief', 'Fomor Warrior' },
-        [8] = { 'Duendes Amoroso', 'Fomor Thief', 'Fomor Warrior' },
+        [1] = { true_sight = { 'Mahisha', 'Minotaur', 'Stegotaur', 'Taurus' } },
+        [2] = { sound = { 'Canal Bats', 'Hell Bat', 'Tres Duendes', 'Vampire Bat' } },
+        [3] = { superlink = { 'Fomor Ninja' } },
+        [4] = { superlink = { 'Fomor Dragoon' } },
+        [5] = {
+            superlink = { 'Fomor Summoner', 'Fomor Thief' },
+            sound = { 'Duendes Amoroso', 'Fomor Ranger', 'Fomor Thief' },
+        },
+        [6] = {
+            superlink = { 'Fomor Summoner', 'Fomor Warrior' },
+            sound = { 'Duendes Amoroso', 'Fomor Ranger', 'Fomor Thief' },
+        },
+        [7] = {
+            superlink = { 'Fomor Thief', 'Fomor Warrior' },
+            sound = { 'Duendes Amoroso', 'Fomor Ranger', 'Fomor Thief' },
+        },
+        [8] = { true_sight = { 'Minotaur', 'Stegotaur', 'Taurus' } },
+        [9] = { true_sight = { 'Mahisha', 'Stegotaur', 'Taurus' } },
+        [10] = { superlink = { 'Fomor Dark Knight', 'Fomor Ninja', 'Fomor Ranger' } },
+        [11] = { superlink = { 'Fomor Dark Knight', 'Fomor Ninja', 'Fomor Samurai' } },
+        [12] = { superlink = { 'Fomor Ninja', 'Fomor Ranger', 'Fomor Samurai' } },
+        [13] = { superlink = { 'Fomor Dark Knight', 'Fomor Ranger', 'Fomor Samurai' } },
+        [14] = { sound = { 'Canal Bats', 'Hell Bat', 'Vampire Bat' } },
+        [15] = {
+            superlink = { 'Fomor Summoner', 'Fomor Thief', 'Fomor Warrior' },
+            sound = { 'Fomor Ranger', 'Fomor Summoner', 'Fomor Thief', 'Fomor Warrior' },
+        },
+        [16] = { superlink = { 'Fomor Red Mage', 'Fomor Samurai' } },
+        [17] = { superlink = { 'Fomor Paladin', 'Fomor Red Mage' } },
+        [18] = { superlink = { 'Fomor Paladin', 'Fomor Samurai' } },
+        [19] = {
+            superlink = { 'Fomor Summoner', 'Fomor Thief', 'Fomor Warrior' },
+            sound = { 'Duendes Amoroso', 'Fomor Ranger', 'Fomor Summoner', 'Fomor Thief', 'Fomor Warrior' },
+        },
+        [20] = {
+            superlink = { 'Fomor Summoner', 'Fomor Thief', 'Fomor Warrior' },
+            sound = { 'Duendes Amoroso', 'Fomor Summoner', 'Fomor Thief', 'Fomor Warrior' },
+        },
+        [21] = { superlink = { 'Fomor Dark Knight', 'Fomor Warrior' } },
+        [22] = { superlink = { 'Fomor Black Mage', 'Fomor Dark Knight' } },
+        [23] = { superlink = { 'Fomor Black Mage', 'Fomor Warrior' } },
+        [24] = { superlink = { 'Fomor Bard' } },
+        [25] = { superlink = { 'Fomor Ranger' } },
+        [26] = { superlink = { 'Fomor Paladin' } },
+        [27] = { superlink = { 'Fomor Black Mage' } },
+        [28] = { superlink = { 'Fomor Red Mage' } },
+        [29] = { superlink = { 'Fomor Monk' } },
+        [30] = { superlink = { 'Fomor Samurai' } },
+        [31] = { superlink = { 'Fomor Warrior' } },
+        [32] = { superlink = { 'Fomor Thief' } },
     },
     monsters = {
         {
@@ -360,16 +402,13 @@ return {
         },
         {
             name   = 'Fomor Dragoon',
-            ids    = { 47, 136 },
+            ids    = { 47 },
             levels = {
                 [41] = { acc = 157, eva = 142, agi = 42, int = 35, mnd = 39, chr = 50 },
                 [42] = { acc = 160, eva = 144, agi = 42, int = 35, mnd = 39, chr = 50 },
                 [43] = { acc = 163, eva = 147, agi = 42, int = 35, mnd = 39, chr = 50 },
                 [44] = { acc = 167, eva = 151, agi = 45, int = 36, mnd = 40, chr = 52 },
-                [45] = { acc = 170, eva = 154, agi = 45, int = 37, mnd = 42, chr = 52 },
-                [46] = { acc = 173, eva = 157, agi = 45, int = 37, mnd = 42, chr = 55 },
             },
-            spawn_levels = { [47] = { 41, 44 }, [136] = { 44, 46 } },
             ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4 },
             undead = true,
@@ -381,6 +420,7 @@ return {
             aggro  = true,
             detects = { 'sound', 'low_hp' },
             aggro_note = 'fomor_hate',
+            links  = 3,
         },
         {
             name   = 'Fomors Wyvern',
@@ -401,16 +441,13 @@ return {
         },
         {
             name   = 'Fomor Ninja',
-            ids    = { 49, 98, 142, 154 },
+            ids    = { 49 },
             levels = {
                 [41] = { acc = 151, eva = 151, agi = 50, int = 42, mnd = 32, chr = 38 },
                 [42] = { acc = 154, eva = 154, agi = 50, int = 42, mnd = 32, chr = 38 },
                 [43] = { acc = 157, eva = 157, agi = 50, int = 42, mnd = 32, chr = 38 },
                 [44] = { acc = 161, eva = 161, agi = 52, int = 45, mnd = 33, chr = 39 },
-                [45] = { acc = 164, eva = 164, agi = 52, int = 45, mnd = 33, chr = 40 },
-                [46] = { acc = 168, eva = 168, agi = 54, int = 45, mnd = 34, chr = 41 },
             },
-            spawn_levels = { [49] = { 41, 44 }, [98] = { 44, 46 }, [142] = { 44, 46 }, [154] = { 44, 46 } },
             ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4 },
             undead = true,
@@ -424,6 +461,7 @@ return {
             aggro  = true,
             detects = { 'sound', 'low_hp' },
             aggro_note = 'fomor_hate',
+            links  = 4,
         },
         {
             name   = 'Oil Spill',
@@ -445,16 +483,13 @@ return {
         },
         {
             name   = 'Fomor Warrior',
-            ids    = { 56, 159, 185, 188, 189, 192 },
+            ids    = { 56 },
             levels = {
                 [44] = { acc = 159, eva = 149, agi = 49, int = 36, mnd = 36, chr = 43 },
                 [45] = { acc = 162, eva = 152, agi = 49, int = 37, mnd = 37, chr = 45 },
                 [46] = { acc = 166, eva = 156, agi = 51, int = 37, mnd = 37, chr = 46 },
                 [47] = { acc = 170, eva = 159, agi = 52, int = 38, mnd = 38, chr = 46 },
-                [48] = { acc = 173, eva = 162, agi = 52, int = 38, mnd = 38, chr = 47 },
             },
-            spawn_levels = { [56] = { 44, 47 }, [159] = { 44, 47 }, [185] = { 47, 48 }, [188] = { 47, 48 },
-                             [189] = { 47, 48 }, [192] = { 47, 48 } },
             ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4 },
             undead = true,
@@ -465,20 +500,17 @@ return {
             aggro  = true,
             detects = { 'sound', 'low_hp' },
             aggro_note = 'fomor_hate',
-            links  = 3,
+            links  = 5,
         },
         {
             name   = 'Fomor Thief',
-            ids    = { 57, 140, 196, 197, 200, 201 },
+            ids    = { 57 },
             levels = {
                 [44] = { acc = 163, eva = 183, agi = 52, int = 49, mnd = 33, chr = 36 },
                 [45] = { acc = 167, eva = 186, agi = 52, int = 49, mnd = 33, chr = 36 },
                 [46] = { acc = 170, eva = 190, agi = 54, int = 51, mnd = 34, chr = 38 },
                 [47] = { acc = 174, eva = 193, agi = 55, int = 52, mnd = 35, chr = 38 },
-                [48] = { acc = 177, eva = 197, agi = 56, int = 52, mnd = 35, chr = 38 },
             },
-            spawn_levels = { [57] = { 44, 47 }, [140] = { 44, 46 }, [196] = { 47, 48 }, [197] = { 47, 48 },
-                             [200] = { 47, 48 }, [201] = { 47, 48 } },
             ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4 },
             undead = true,
@@ -492,18 +524,17 @@ return {
             aggro  = true,
             detects = { 'sound', 'low_hp' },
             aggro_note = 'fomor_hate',
-            links  = 3,
+            links  = 6,
         },
         {
             name   = 'Fomor Summoner',
-            ids    = { 58, 151 },
+            ids    = { 58 },
             levels = {
                 [44] = { acc = 155, eva = 133, agi = 45, int = 52, mnd = 52, chr = 55 },
                 [45] = { acc = 159, eva = 136, agi = 45, int = 52, mnd = 52, chr = 55 },
                 [46] = { acc = 162, eva = 138, agi = 45, int = 54, mnd = 54, chr = 58 },
                 [47] = { acc = 165, eva = 142, agi = 47, int = 55, mnd = 55, chr = 58 },
             },
-            spawn_levels = { [151] = { 44, 46 } },
             ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4 },
             undead = true,
@@ -515,6 +546,7 @@ return {
             aggro  = true,
             detects = { 'sound', 'low_hp' },
             aggro_note = 'fomor_hate',
+            links  = 7,
         },
         {
             name   = 'Fomors Elemental',
@@ -551,15 +583,13 @@ return {
         },
         {
             name   = 'Fomor Paladin',
-            ids    = { 75, 112, 169, 170 },
+            ids    = { 75 },
             levels = {
                 [44] = { acc = 155, eva = 141, agi = 33, int = 33, mnd = 49, chr = 52 },
                 [45] = { acc = 159, eva = 144, agi = 33, int = 33, mnd = 49, chr = 52 },
                 [46] = { acc = 162, eva = 148, agi = 34, int = 34, mnd = 51, chr = 55 },
                 [47] = { acc = 165, eva = 150, agi = 35, int = 35, mnd = 52, chr = 55 },
-                [48] = { acc = 169, eva = 153, agi = 35, int = 35, mnd = 52, chr = 55 },
             },
-            spawn_levels = { [75] = { 44, 47 }, [112] = { 44, 46 }, [169] = { 47, 48 }, [170] = { 47, 48 } },
             ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4 },
             undead = true,
@@ -574,16 +604,13 @@ return {
         },
         {
             name   = 'Fomor Bard',
-            ids    = { 76, 165, 166, 195, 198, 199, 202 },
+            ids    = { 76 },
             levels = {
                 [44] = { acc = 157, eva = 138, agi = 36, int = 45, mnd = 45, chr = 55 },
                 [45] = { acc = 160, eva = 140, agi = 37, int = 45, mnd = 45, chr = 55 },
                 [46] = { acc = 163, eva = 143, agi = 37, int = 45, mnd = 45, chr = 58 },
                 [47] = { acc = 167, eva = 147, agi = 38, int = 47, mnd = 47, chr = 58 },
-                [48] = { acc = 170, eva = 149, agi = 38, int = 47, mnd = 47, chr = 59 },
             },
-            spawn_levels = { [76] = { 44, 47 }, [165] = { 47, 48 }, [166] = { 47, 48 }, [195] = { 47, 48 },
-                             [198] = { 47, 48 }, [199] = { 47, 48 }, [202] = { 47, 48 } },
             ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4 },
             undead = true,
@@ -612,7 +639,7 @@ return {
             aggro  = true,
             true_detect = true,
             detects = { 'sight' },
-            links  = 4,
+            links  = 8,
         },
         {
             name   = 'Minotaur',
@@ -629,7 +656,7 @@ return {
             aggro  = true,
             true_detect = true,
             detects = { 'sight' },
-            links  = 5,
+            links  = 9,
         },
         {
             name   = 'Air Elemental',
@@ -688,16 +715,13 @@ return {
         },
         {
             name   = 'Fomor Monk',
-            ids    = { 94, 102, 104, 179, 180 },
+            ids    = { 94, 102, 104 },
             levels = {
                 [44] = { acc = 161, eva = 147, agi = 36, int = 33, mnd = 45, chr = 43 },
                 [45] = { acc = 164, eva = 150, agi = 37, int = 33, mnd = 45, chr = 45 },
                 [46] = { acc = 168, eva = 153, agi = 37, int = 34, mnd = 45, chr = 46 },
-                [47] = { acc = 171, eva = 157, agi = 38, int = 35, mnd = 47, chr = 46 },
-                [48] = { acc = 175, eva = 160, agi = 38, int = 35, mnd = 47, chr = 47 },
             },
-            spawn_levels = { [94] = { 44, 45 }, [102] = { 44, 46 }, [104] = { 44, 46 }, [179] = { 47, 48 },
-                             [180] = { 47, 48 } },
+            spawn_levels = { [94] = { 44, 45 } },
             ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4 },
             undead = true,
@@ -712,15 +736,11 @@ return {
         },
         {
             name   = 'Fomor Samurai',
-            ids    = { 95, 113, 186, 187 },
+            ids    = { 95 },
             levels = {
                 [44] = { acc = 159, eva = 151, agi = 45, int = 40, mnd = 40, chr = 48 },
                 [45] = { acc = 162, eva = 154, agi = 45, int = 42, mnd = 42, chr = 48 },
-                [46] = { acc = 166, eva = 157, agi = 45, int = 42, mnd = 42, chr = 49 },
-                [47] = { acc = 170, eva = 161, agi = 47, int = 43, mnd = 43, chr = 50 },
-                [48] = { acc = 173, eva = 164, agi = 47, int = 44, mnd = 44, chr = 50 },
             },
-            spawn_levels = { [95] = { 44, 45 }, [113] = { 44, 46 }, [186] = { 47, 48 }, [187] = { 47, 48 } },
             ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4 },
             undead = true,
@@ -734,19 +754,16 @@ return {
             aggro  = true,
             detects = { 'sound', 'low_hp' },
             aggro_note = 'fomor_hate',
+            links  = 10,
         },
         {
             name   = 'Fomor Ranger',
-            ids    = { 96, 164, 167, 168, 171, 190, 191 },
+            ids    = { 96 },
             levels = {
                 [44] = { acc = 179, eva = 139, agi = 57, int = 40, mnd = 45, chr = 43 },
                 [45] = { acc = 182, eva = 143, agi = 58, int = 42, mnd = 45, chr = 45 },
                 [46] = { acc = 185, eva = 145, agi = 58, int = 42, mnd = 45, chr = 46 },
-                [47] = { acc = 189, eva = 149, agi = 61, int = 43, mnd = 47, chr = 46 },
-                [48] = { acc = 192, eva = 151, agi = 61, int = 44, mnd = 47, chr = 47 },
             },
-            spawn_levels = { [96] = { 44, 46 }, [164] = { 47, 48 }, [167] = { 47, 48 }, [168] = { 47, 48 },
-                             [171] = { 47, 48 }, [190] = { 47, 48 }, [191] = { 47, 48 } },
             ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4 },
             undead = true,
@@ -760,17 +777,15 @@ return {
             aggro  = true,
             detects = { 'sound', 'low_hp' },
             aggro_note = 'fomor_hate',
+            links  = 11,
         },
         {
             name   = 'Fomor Dark Knight',
-            ids    = { 97, 153, 160 },
+            ids    = { 97 },
             levels = {
                 [44] = { acc = 159, eva = 147, agi = 45, int = 49, mnd = 33, chr = 36 },
                 [45] = { acc = 162, eva = 150, agi = 45, int = 49, mnd = 33, chr = 36 },
-                [46] = { acc = 166, eva = 153, agi = 45, int = 51, mnd = 34, chr = 38 },
-                [47] = { acc = 170, eva = 156, agi = 47, int = 52, mnd = 35, chr = 38 },
             },
-            spawn_levels = { [97] = { 44, 45 }, [153] = { 44, 46 } },
             ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4 },
             undead = true,
@@ -782,18 +797,38 @@ return {
             aggro  = true,
             detects = { 'sound', 'low_hp' },
             aggro_note = 'fomor_hate',
+            links  = 12,
+        },
+        {
+            name   = 'Fomor Ninja',
+            ids    = { 98 },
+            levels = {
+                [44] = { acc = 161, eva = 161, agi = 52, int = 45, mnd = 33, chr = 39 },
+                [45] = { acc = 164, eva = 164, agi = 52, int = 45, mnd = 33, chr = 40 },
+                [46] = { acc = 168, eva = 168, agi = 54, int = 45, mnd = 34, chr = 41 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15376 },  -- taurus subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1738 },  -- shakudo ingot
+                { rate = 100, item = 1738 },  -- shakudo ingot
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 13,
         },
         {
             name   = 'Fomor Black Mage',
-            ids    = { 99, 158, 175, 176 },
+            ids    = { 99 },
             levels = {
-                [44] = { acc = 159, eva = 135, agi = 49, int = 57, mnd = 40, chr = 48 },
                 [45] = { acc = 162, eva = 138, agi = 49, int = 58, mnd = 42, chr = 48 },
                 [46] = { acc = 166, eva = 141, agi = 51, int = 58, mnd = 42, chr = 49 },
-                [47] = { acc = 170, eva = 145, agi = 52, int = 61, mnd = 43, chr = 50 },
-                [48] = { acc = 173, eva = 147, agi = 52, int = 61, mnd = 44, chr = 50 },
             },
-            spawn_levels = { [99] = { 45, 46 }, [158] = { 44, 47 }, [175] = { 47, 48 }, [176] = { 47, 48 } },
             ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4 },
             undead = true,
@@ -826,7 +861,7 @@ return {
             aggro  = true,
             any_level = true,
             detects = { 'sound' },
-            links  = 6,
+            links  = 14,
         },
         {
             name   = 'Duendes Amoroso',
@@ -840,20 +875,60 @@ return {
             aggro  = true,
             detects = { 'sound', 'low_hp' },
             aggro_note = 'fomor_hate',
-            links  = 7,
+            links  = 15,
+        },
+        {
+            name   = 'Fomor Paladin',
+            ids    = { 112 },
+            levels = {
+                [44] = { acc = 155, eva = 141, agi = 33, int = 33, mnd = 49, chr = 52 },
+                [45] = { acc = 159, eva = 144, agi = 33, int = 33, mnd = 49, chr = 52 },
+                [46] = { acc = 162, eva = 148, agi = 34, int = 34, mnd = 51, chr = 55 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15386 },  -- pisces subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 16,
+        },
+        {
+            name   = 'Fomor Samurai',
+            ids    = { 113 },
+            levels = {
+                [44] = { acc = 159, eva = 151, agi = 45, int = 40, mnd = 40, chr = 48 },
+                [45] = { acc = 162, eva = 154, agi = 45, int = 42, mnd = 42, chr = 48 },
+                [46] = { acc = 166, eva = 157, agi = 45, int = 42, mnd = 42, chr = 49 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15378 },  -- cancer subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1738 },  -- shakudo ingot
+                { rate = 100, item = 1738 },  -- shakudo ingot
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 17,
         },
         {
             name   = 'Fomor Red Mage',
-            ids    = { 114, 174, 177, 178, 181 },
+            ids    = { 114 },
             levels = {
                 [44] = { acc = 157, eva = 140, agi = 40, int = 49, mnd = 49, chr = 48 },
                 [45] = { acc = 160, eva = 143, agi = 42, int = 49, mnd = 49, chr = 48 },
                 [46] = { acc = 163, eva = 146, agi = 42, int = 51, mnd = 51, chr = 49 },
-                [47] = { acc = 167, eva = 149, agi = 43, int = 52, mnd = 52, chr = 50 },
-                [48] = { acc = 170, eva = 152, agi = 44, int = 52, mnd = 52, chr = 50 },
             },
-            spawn_levels = { [114] = { 44, 46 }, [174] = { 47, 48 }, [177] = { 47, 48 }, [178] = { 47, 48 },
-                             [181] = { 47, 48 } },
             ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4 },
             undead = true,
@@ -865,6 +940,50 @@ return {
             aggro  = true,
             detects = { 'sound', 'low_hp' },
             aggro_note = 'fomor_hate',
+            links  = 18,
+        },
+        {
+            name   = 'Fomor Dragoon',
+            ids    = { 136 },
+            levels = {
+                [44] = { acc = 167, eva = 151, agi = 45, int = 36, mnd = 40, chr = 52 },
+                [45] = { acc = 170, eva = 154, agi = 45, int = 37, mnd = 42, chr = 52 },
+                [46] = { acc = 173, eva = 157, agi = 45, int = 37, mnd = 42, chr = 55 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15379 },  -- leo subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+        },
+        {
+            name   = 'Fomor Thief',
+            ids    = { 140 },
+            levels = {
+                [44] = { acc = 163, eva = 183, agi = 52, int = 49, mnd = 33, chr = 36 },
+                [45] = { acc = 167, eva = 186, agi = 52, int = 49, mnd = 33, chr = 36 },
+                [46] = { acc = 170, eva = 190, agi = 54, int = 51, mnd = 34, chr = 38 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15377 },  -- gemini subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 19,
         },
         {
             name   = 'Fomor Ranger',
@@ -887,7 +1006,29 @@ return {
             aggro  = true,
             detects = { 'sound', 'low_hp' },
             aggro_note = 'fomor_hate',
-            links  = 8,
+            links  = 20,
+        },
+        {
+            name   = 'Fomor Ninja',
+            ids    = { 142, 154 },
+            levels = {
+                [44] = { acc = 161, eva = 161, agi = 52, int = 45, mnd = 33, chr = 39 },
+                [45] = { acc = 164, eva = 164, agi = 52, int = 45, mnd = 33, chr = 40 },
+                [46] = { acc = 168, eva = 168, agi = 54, int = 45, mnd = 34, chr = 41 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15376 },  -- taurus subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1738 },  -- shakudo ingot
+                { rate = 100, item = 1738 },  -- shakudo ingot
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
         },
         {
             name   = 'Eba',
@@ -906,6 +1047,768 @@ return {
             },
             aggro  = true,
             detects = { 'sound', 'low_hp' },
+        },
+        {
+            name   = 'Fomor Summoner',
+            ids    = { 151 },
+            levels = {
+                [44] = { acc = 155, eva = 133, agi = 45, int = 52, mnd = 52, chr = 55 },
+                [45] = { acc = 159, eva = 136, agi = 45, int = 52, mnd = 52, chr = 55 },
+                [46] = { acc = 162, eva = 138, agi = 45, int = 54, mnd = 54, chr = 58 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15384 },  -- capricornus subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+        },
+        {
+            name   = 'Fomor Dark Knight',
+            ids    = { 153 },
+            levels = {
+                [44] = { acc = 159, eva = 147, agi = 45, int = 49, mnd = 33, chr = 36 },
+                [45] = { acc = 162, eva = 150, agi = 45, int = 49, mnd = 33, chr = 36 },
+                [46] = { acc = 166, eva = 153, agi = 45, int = 51, mnd = 34, chr = 38 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15383 },  -- sagittarius subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+        },
+        {
+            name   = 'Fomor Black Mage',
+            ids    = { 158 },
+            levels = {
+                [44] = { acc = 159, eva = 135, agi = 49, int = 57, mnd = 40, chr = 48 },
+                [45] = { acc = 162, eva = 138, agi = 49, int = 58, mnd = 42, chr = 48 },
+                [46] = { acc = 166, eva = 141, agi = 51, int = 58, mnd = 42, chr = 49 },
+                [47] = { acc = 170, eva = 145, agi = 52, int = 61, mnd = 43, chr = 50 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15375 },  -- aries subligar
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 21,
+        },
+        {
+            name   = 'Fomor Warrior',
+            ids    = { 159 },
+            levels = {
+                [44] = { acc = 159, eva = 149, agi = 49, int = 36, mnd = 36, chr = 43 },
+                [45] = { acc = 162, eva = 152, agi = 49, int = 37, mnd = 37, chr = 45 },
+                [46] = { acc = 166, eva = 156, agi = 51, int = 37, mnd = 37, chr = 46 },
+                [47] = { acc = 170, eva = 159, agi = 52, int = 38, mnd = 38, chr = 46 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 22,
+        },
+        {
+            name   = 'Fomor Dark Knight',
+            ids    = { 160 },
+            levels = {
+                [44] = { acc = 159, eva = 147, agi = 45, int = 49, mnd = 33, chr = 36 },
+                [45] = { acc = 162, eva = 150, agi = 45, int = 49, mnd = 33, chr = 36 },
+                [46] = { acc = 166, eva = 153, agi = 45, int = 51, mnd = 34, chr = 38 },
+                [47] = { acc = 170, eva = 156, agi = 47, int = 52, mnd = 35, chr = 38 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15383 },  -- sagittarius subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 23,
+        },
+        {
+            name   = 'Fomor Ranger',
+            ids    = { 164 },
+            levels = {
+                [47] = { acc = 189, eva = 149, agi = 61, int = 43, mnd = 47, chr = 46 },
+                [48] = { acc = 192, eva = 151, agi = 61, int = 44, mnd = 47, chr = 47 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15380 },  -- virgo subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 24,
+        },
+        {
+            name   = 'Fomor Bard',
+            ids    = { 165 },
+            levels = {
+                [47] = { acc = 167, eva = 147, agi = 38, int = 47, mnd = 47, chr = 58 },
+                [48] = { acc = 170, eva = 149, agi = 38, int = 47, mnd = 47, chr = 59 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15381 },  -- libra subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 25,
+        },
+        {
+            name   = 'Fomor Bard',
+            ids    = { 166 },
+            levels = {
+                [47] = { acc = 167, eva = 147, agi = 38, int = 47, mnd = 47, chr = 58 },
+                [48] = { acc = 170, eva = 149, agi = 38, int = 47, mnd = 47, chr = 59 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15381 },  -- libra subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 25,
+        },
+        {
+            name   = 'Fomor Ranger',
+            ids    = { 167 },
+            levels = {
+                [47] = { acc = 189, eva = 149, agi = 61, int = 43, mnd = 47, chr = 46 },
+                [48] = { acc = 192, eva = 151, agi = 61, int = 44, mnd = 47, chr = 47 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15380 },  -- virgo subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 24,
+        },
+        {
+            name   = 'Fomor Ranger',
+            ids    = { 168 },
+            levels = {
+                [47] = { acc = 189, eva = 149, agi = 61, int = 43, mnd = 47, chr = 46 },
+                [48] = { acc = 192, eva = 151, agi = 61, int = 44, mnd = 47, chr = 47 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15380 },  -- virgo subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 26,
+        },
+        {
+            name   = 'Fomor Paladin',
+            ids    = { 169 },
+            levels = {
+                [47] = { acc = 165, eva = 150, agi = 35, int = 35, mnd = 52, chr = 55 },
+                [48] = { acc = 169, eva = 153, agi = 35, int = 35, mnd = 52, chr = 55 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15386 },  -- pisces subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 25,
+        },
+        {
+            name   = 'Fomor Paladin',
+            ids    = { 170 },
+            levels = {
+                [47] = { acc = 165, eva = 150, agi = 35, int = 35, mnd = 52, chr = 55 },
+                [48] = { acc = 169, eva = 153, agi = 35, int = 35, mnd = 52, chr = 55 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15386 },  -- pisces subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 25,
+        },
+        {
+            name   = 'Fomor Ranger',
+            ids    = { 171 },
+            levels = {
+                [47] = { acc = 189, eva = 149, agi = 61, int = 43, mnd = 47, chr = 46 },
+                [48] = { acc = 192, eva = 151, agi = 61, int = 44, mnd = 47, chr = 47 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15380 },  -- virgo subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 26,
+        },
+        {
+            name   = 'Fomor Red Mage',
+            ids    = { 174 },
+            levels = {
+                [47] = { acc = 167, eva = 149, agi = 43, int = 52, mnd = 52, chr = 50 },
+                [48] = { acc = 170, eva = 152, agi = 44, int = 52, mnd = 52, chr = 50 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15382 },  -- scorpius subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 27,
+        },
+        {
+            name   = 'Fomor Black Mage',
+            ids    = { 175 },
+            levels = {
+                [47] = { acc = 170, eva = 145, agi = 52, int = 61, mnd = 43, chr = 50 },
+                [48] = { acc = 173, eva = 147, agi = 52, int = 61, mnd = 44, chr = 50 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15375 },  -- aries subligar
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 28,
+        },
+        {
+            name   = 'Fomor Black Mage',
+            ids    = { 176 },
+            levels = {
+                [47] = { acc = 170, eva = 145, agi = 52, int = 61, mnd = 43, chr = 50 },
+                [48] = { acc = 173, eva = 147, agi = 52, int = 61, mnd = 44, chr = 50 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15375 },  -- aries subligar
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 28,
+        },
+        {
+            name   = 'Fomor Red Mage',
+            ids    = { 177 },
+            levels = {
+                [47] = { acc = 167, eva = 149, agi = 43, int = 52, mnd = 52, chr = 50 },
+                [48] = { acc = 170, eva = 152, agi = 44, int = 52, mnd = 52, chr = 50 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15382 },  -- scorpius subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 27,
+        },
+        {
+            name   = 'Fomor Red Mage',
+            ids    = { 178 },
+            levels = {
+                [47] = { acc = 167, eva = 149, agi = 43, int = 52, mnd = 52, chr = 50 },
+                [48] = { acc = 170, eva = 152, agi = 44, int = 52, mnd = 52, chr = 50 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15382 },  -- scorpius subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 29,
+        },
+        {
+            name   = 'Fomor Monk',
+            ids    = { 179 },
+            levels = {
+                [47] = { acc = 171, eva = 157, agi = 38, int = 35, mnd = 47, chr = 46 },
+                [48] = { acc = 175, eva = 160, agi = 38, int = 35, mnd = 47, chr = 47 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15385 },  -- aquarius subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 28,
+        },
+        {
+            name   = 'Fomor Monk',
+            ids    = { 180 },
+            levels = {
+                [47] = { acc = 171, eva = 157, agi = 38, int = 35, mnd = 47, chr = 46 },
+                [48] = { acc = 175, eva = 160, agi = 38, int = 35, mnd = 47, chr = 47 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15385 },  -- aquarius subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 28,
+        },
+        {
+            name   = 'Fomor Red Mage',
+            ids    = { 181 },
+            levels = {
+                [47] = { acc = 167, eva = 149, agi = 43, int = 52, mnd = 52, chr = 50 },
+                [48] = { acc = 170, eva = 152, agi = 44, int = 52, mnd = 52, chr = 50 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15382 },  -- scorpius subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 29,
+        },
+        {
+            name   = 'Fomor Warrior',
+            ids    = { 185 },
+            levels = {
+                [47] = { acc = 170, eva = 159, agi = 52, int = 38, mnd = 38, chr = 46 },
+                [48] = { acc = 173, eva = 162, agi = 52, int = 38, mnd = 38, chr = 47 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 30,
+        },
+        {
+            name   = 'Fomor Samurai',
+            ids    = { 186 },
+            levels = {
+                [47] = { acc = 170, eva = 161, agi = 47, int = 43, mnd = 43, chr = 50 },
+                [48] = { acc = 173, eva = 164, agi = 47, int = 44, mnd = 44, chr = 50 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15378 },  -- cancer subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1738 },  -- shakudo ingot
+                { rate = 100, item = 1738 },  -- shakudo ingot
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 31,
+        },
+        {
+            name   = 'Fomor Samurai',
+            ids    = { 187 },
+            levels = {
+                [47] = { acc = 170, eva = 161, agi = 47, int = 43, mnd = 43, chr = 50 },
+                [48] = { acc = 173, eva = 164, agi = 47, int = 44, mnd = 44, chr = 50 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15378 },  -- cancer subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1738 },  -- shakudo ingot
+                { rate = 100, item = 1738 },  -- shakudo ingot
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 31,
+        },
+        {
+            name   = 'Fomor Warrior',
+            ids    = { 188 },
+            levels = {
+                [47] = { acc = 170, eva = 159, agi = 52, int = 38, mnd = 38, chr = 46 },
+                [48] = { acc = 173, eva = 162, agi = 52, int = 38, mnd = 38, chr = 47 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 30,
+        },
+        {
+            name   = 'Fomor Warrior',
+            ids    = { 189 },
+            levels = {
+                [47] = { acc = 170, eva = 159, agi = 52, int = 38, mnd = 38, chr = 46 },
+                [48] = { acc = 173, eva = 162, agi = 52, int = 38, mnd = 38, chr = 47 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 25,
+        },
+        {
+            name   = 'Fomor Ranger',
+            ids    = { 190 },
+            levels = {
+                [47] = { acc = 189, eva = 149, agi = 61, int = 43, mnd = 47, chr = 46 },
+                [48] = { acc = 192, eva = 151, agi = 61, int = 44, mnd = 47, chr = 47 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15380 },  -- virgo subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 31,
+        },
+        {
+            name   = 'Fomor Ranger',
+            ids    = { 191 },
+            levels = {
+                [47] = { acc = 189, eva = 149, agi = 61, int = 43, mnd = 47, chr = 46 },
+                [48] = { acc = 192, eva = 151, agi = 61, int = 44, mnd = 47, chr = 47 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15380 },  -- virgo subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 31,
+        },
+        {
+            name   = 'Fomor Warrior',
+            ids    = { 192 },
+            levels = {
+                [47] = { acc = 170, eva = 159, agi = 52, int = 38, mnd = 38, chr = 46 },
+                [48] = { acc = 173, eva = 162, agi = 52, int = 38, mnd = 38, chr = 47 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 25,
+        },
+        {
+            name   = 'Fomor Bard',
+            ids    = { 195 },
+            levels = {
+                [47] = { acc = 167, eva = 147, agi = 38, int = 47, mnd = 47, chr = 58 },
+                [48] = { acc = 170, eva = 149, agi = 38, int = 47, mnd = 47, chr = 59 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15381 },  -- libra subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 32,
+        },
+        {
+            name   = 'Fomor Thief',
+            ids    = { 196 },
+            levels = {
+                [47] = { acc = 174, eva = 193, agi = 55, int = 52, mnd = 35, chr = 38 },
+                [48] = { acc = 177, eva = 197, agi = 56, int = 52, mnd = 35, chr = 38 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15377 },  -- gemini subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 24,
+        },
+        {
+            name   = 'Fomor Thief',
+            ids    = { 197 },
+            levels = {
+                [47] = { acc = 174, eva = 193, agi = 55, int = 52, mnd = 35, chr = 38 },
+                [48] = { acc = 177, eva = 197, agi = 56, int = 52, mnd = 35, chr = 38 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15377 },  -- gemini subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 24,
+        },
+        {
+            name   = 'Fomor Bard',
+            ids    = { 198 },
+            levels = {
+                [47] = { acc = 167, eva = 147, agi = 38, int = 47, mnd = 47, chr = 58 },
+                [48] = { acc = 170, eva = 149, agi = 38, int = 47, mnd = 47, chr = 59 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15381 },  -- libra subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 32,
+        },
+        {
+            name   = 'Fomor Bard',
+            ids    = { 199 },
+            levels = {
+                [47] = { acc = 167, eva = 147, agi = 38, int = 47, mnd = 47, chr = 58 },
+                [48] = { acc = 170, eva = 149, agi = 38, int = 47, mnd = 47, chr = 59 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15381 },  -- libra subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 32,
+        },
+        {
+            name   = 'Fomor Thief',
+            ids    = { 200 },
+            levels = {
+                [47] = { acc = 174, eva = 193, agi = 55, int = 52, mnd = 35, chr = 38 },
+                [48] = { acc = 177, eva = 197, agi = 56, int = 52, mnd = 35, chr = 38 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15377 },  -- gemini subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 24,
+        },
+        {
+            name   = 'Fomor Thief',
+            ids    = { 201 },
+            levels = {
+                [47] = { acc = 174, eva = 193, agi = 55, int = 52, mnd = 35, chr = 38 },
+                [48] = { acc = 177, eva = 197, agi = 56, int = 52, mnd = 35, chr = 38 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15377 },  -- gemini subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 100, item = 1739 },  -- square of balloon cloth
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 24,
+        },
+        {
+            name   = 'Fomor Bard',
+            ids    = { 202 },
+            levels = {
+                [47] = { acc = 167, eva = 147, agi = 38, int = 47, mnd = 47, chr = 58 },
+                [48] = { acc = 170, eva = 149, agi = 38, int = 47, mnd = 47, chr = 59 },
+            },
+            ranks  = { fire = -2, ice = 4, light = -2, dark = 4, paralyze = 4, bind = 4, light_sleep = -2,
+                       dark_sleep = 4, blind = 4 },
+            undead = true,
+            drops  = {
+                { rate = 150, item = 15381 },  -- libra subligar
+                { rate = 50, item = 1660 },  -- bronze key
+                { rate = 10, item = 940 },  -- revival tree root
+            },
+            aggro  = true,
+            detects = { 'sound', 'low_hp' },
+            aggro_note = 'fomor_hate',
+            links  = 32,
         },
     },
     by_name = {},

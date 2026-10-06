@@ -1,23 +1,29 @@
 -- Halvung (zone 62).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Qiqirn Diamantaire', 'Qiqirn Mercenary' },
-        [2] = { 'Qiqirn Mercenary' },
-        [3] = { 'Purgatory Bat', 'Volcanic Bats' },
-        [4] = { 'Hilltroll Mirror Guard', 'Troll Artilleryman', 'Troll Cameist', 'Troll Combatant',
-                'Troll Cuirasser', 'Troll Engraver', 'Troll Gemologist', 'Troll Grenadier', 'Troll Ironworker',
-                'Troll Lapidarist', 'Troll Machinist', 'Troll Mythril Guard', 'Troll Scrimer', 'Troll Smelter',
-                'Troll Stoneworker', 'Troll Targeteer', 'Woodtroll Mirror Guard' },
-        [5] = { 'Achamoth', 'Achamoth Nympha', 'Achamothcampa', 'Wamoura', 'Wamouracampa' },
-        [6] = { 'Magmatic Eruca' },
-        [7] = { 'Moblin Billionaire', 'Moblin Millionaire' },
-        [8] = { 'Achamoth Nympha', 'Achamothcampa', 'Wamoura', 'Wamouracampa' },
+        [1] = { sight = { 'Qiqirn Diamantaire', 'Qiqirn Mercenary' } },
+        [2] = { sight = { 'Qiqirn Mercenary' } },
+        [3] = { sound = { 'Purgatory Bat', 'Volcanic Bats' } },
+        [4] = {
+            sight = { 'Hilltroll Mirror Guard', 'Troll Cameist', 'Troll Cuirasser', 'Troll Engraver',
+                      'Troll Gemologist', 'Troll Ironworker', 'Troll Lapidarist', 'Troll Mythril Guard',
+                      'Troll Smelter', 'Troll Stoneworker', 'Woodtroll Mirror Guard' },
+            true_sight = { 'Troll Artilleryman', 'Troll Combatant', 'Troll Grenadier', 'Troll Machinist',
+                           'Troll Scrimer', 'Troll Targeteer' },
+        },
+        [5] = {
+            sound = { 'Achamothcampa', 'Wamouracampa' },
+            true_sound = { 'Achamoth', 'Achamoth Nympha', 'Wamoura' },
+        },
+        [6] = { sound = { 'Magmatic Eruca' } },
+        [7] = { sight = { 'Moblin Billionaire', 'Moblin Millionaire' } },
+        [8] = { sound = { 'Achamothcampa', 'Wamouracampa' }, true_sound = { 'Achamoth Nympha', 'Wamoura' } },
     },
     monsters = {
         {

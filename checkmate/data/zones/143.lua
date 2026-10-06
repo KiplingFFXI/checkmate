@@ -1,30 +1,40 @@
 -- Palborough Mines (zone 143).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Amber Quadav', 'Amethyst Quadav', 'Brass Quadav', 'BuGhi Howlblade', 'Copper Quadav',
-                'Greater Quadav', 'NiGhu Nestfender', 'NoMho Crimsonarmor', 'Old Quadav', 'Onyx Quadav',
-                'Veteran Quadav', 'Young Quadav', 'ZiGhi Boneeater' },
-        [2] = { 'Pit Hare', 'Rabid Rat' },
-        [3] = { 'Cave Funguar' },
-        [4] = { 'Copper Beetle' },
-        [5] = { 'Amber Quadav', 'Amethyst Quadav', 'Brass Quadav', 'Copper Quadav', 'Greater Quadav',
-                'NiGhu Nestfender', 'NoMho Crimsonarmor', 'Old Quadav', 'Onyx Quadav', 'Veteran Quadav',
-                'Young Quadav', 'ZiGhi Boneeater' },
-        [6] = { 'Amber Quadav', 'Amethyst Quadav', 'Brass Quadav', 'BuGhi Howlblade', 'Copper Quadav',
-                'Greater Quadav', 'NiGhu Nestfender', 'NoMho Crimsonarmor', 'Old Quadav', 'Onyx Quadav',
-                'Veteran Quadav', 'Young Quadav' },
-        [7] = { 'Amber Quadav', 'Amethyst Quadav', 'Brass Quadav', 'BuGhi Howlblade', 'Copper Quadav',
-                'Greater Quadav', 'NiGhu Nestfender', 'Old Quadav', 'Onyx Quadav', 'Veteran Quadav', 'Young Quadav',
-                'ZiGhi Boneeater' },
-        [8] = { 'Amber Quadav', 'Amethyst Quadav', 'Brass Quadav', 'BuGhi Howlblade', 'Copper Quadav',
-                'Greater Quadav', 'NoMho Crimsonarmor', 'Old Quadav', 'Onyx Quadav', 'Veteran Quadav',
-                'Young Quadav', 'ZiGhi Boneeater' },
+        [1] = {
+            sound = { 'Amber Quadav', 'Amethyst Quadav', 'Brass Quadav', 'BuGhi Howlblade', 'Copper Quadav',
+                      'Greater Quadav', 'NiGhu Nestfender', 'NoMho Crimsonarmor', 'Old Quadav', 'Onyx Quadav',
+                      'Veteran Quadav', 'Young Quadav', 'ZiGhi Boneeater' },
+        },
+        [2] = { sight = { 'Pit Hare', 'Rabid Rat' } },
+        [3] = { sound = { 'Cave Funguar' } },
+        [4] = { sight = { 'Copper Beetle' } },
+        [5] = {
+            sound = { 'Amber Quadav', 'Amethyst Quadav', 'Brass Quadav', 'Copper Quadav', 'Greater Quadav',
+                      'NiGhu Nestfender', 'NoMho Crimsonarmor', 'Old Quadav', 'Onyx Quadav', 'Veteran Quadav',
+                      'Young Quadav', 'ZiGhi Boneeater' },
+        },
+        [6] = {
+            sound = { 'Amber Quadav', 'Amethyst Quadav', 'Brass Quadav', 'BuGhi Howlblade', 'Copper Quadav',
+                      'Greater Quadav', 'NiGhu Nestfender', 'NoMho Crimsonarmor', 'Old Quadav', 'Onyx Quadav',
+                      'Veteran Quadav', 'Young Quadav' },
+        },
+        [7] = {
+            sound = { 'Amber Quadav', 'Amethyst Quadav', 'Brass Quadav', 'BuGhi Howlblade', 'Copper Quadav',
+                      'Greater Quadav', 'NiGhu Nestfender', 'Old Quadav', 'Onyx Quadav', 'Veteran Quadav',
+                      'Young Quadav', 'ZiGhi Boneeater' },
+        },
+        [8] = {
+            sound = { 'Amber Quadav', 'Amethyst Quadav', 'Brass Quadav', 'BuGhi Howlblade', 'Copper Quadav',
+                      'Greater Quadav', 'NoMho Crimsonarmor', 'Old Quadav', 'Onyx Quadav', 'Veteran Quadav',
+                      'Young Quadav', 'ZiGhi Boneeater' },
+        },
     },
     monsters = {
         {
@@ -286,6 +296,7 @@ return {
                              [298] = { 14, 18 }, [301] = { 14, 18 }, [304] = { 14, 18 }, [309] = { 14, 18 },
                              [317] = { 14, 18 }, [322] = { 14, 18 }, [327] = { 14, 18 }, [330] = { 14, 18 },
                              [333] = { 14, 18 }, [336] = { 14, 18 }, [341] = { 14, 18 } },
+            ph_for = { [261] = { 264 } },
             ranks  = { ice = -2, wind = -2, earth = -2, thunder = -3, light = -2, dark = -2, paralyze = -2,
                        bind = -2, silence = -2, slow = -2, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -3,
                        gravity = -2 },
@@ -400,6 +411,7 @@ return {
                 [11] = { acc = 43, eva = 38, agi = 11, int = 11, mnd = 16, chr = 16 },
                 [12] = { acc = 46, eva = 40, agi = 11, int = 11, mnd = 16, chr = 16 },
             },
+            ph_for = { [236] = { 237 } },
             ranks  = { ice = -3, light = -3, paralyze = -3, bind = -3, light_sleep = -3 },
             drops  = {
                 { rate = 50, item = 846 },  -- insect wing

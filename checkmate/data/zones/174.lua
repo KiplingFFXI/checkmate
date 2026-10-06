@@ -1,20 +1,23 @@
 -- Kuftal Tunnel (zone 174).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Amemet', 'Sand Lizard' },
-        [2] = { 'Cave Worm', 'Kuftal Digger', 'Phantom Worm', 'Specter Worm' },
-        [3] = { 'Arachne', 'Recluse Spider' },
-        [4] = { 'Sand Lizard' },
-        [5] = { 'Bloodthirster Madkix', 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Mercenary', 'Goblin Tamer' },
-        [6] = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Mercenary', 'Goblin Tamer' },
-        [7] = { 'Recluse Spider' },
-        [8] = { 'Cave Worm', 'Kuftal Digger', 'Specter Worm' },
+        [1] = { sound = { 'Amemet', 'Sand Lizard' } },
+        [2] = { sound = { 'Cave Worm', 'Kuftal Digger', 'Phantom Worm', 'Specter Worm' } },
+        [3] = { sound = { 'Arachne', 'Recluse Spider' } },
+        [4] = { sound = { 'Sand Lizard' } },
+        [5] = {
+            sight = { 'Bloodthirster Madkix', 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Mercenary',
+                      'Goblin Tamer' },
+        },
+        [6] = { sight = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Mercenary', 'Goblin Tamer' } },
+        [7] = { sound = { 'Recluse Spider' } },
+        [8] = { sound = { 'Cave Worm', 'Kuftal Digger', 'Specter Worm' } },
     },
     monsters = {
         {
@@ -128,6 +131,7 @@ return {
                 [63] = { acc = 252, eva = 237, agi = 66, int = 49, mnd = 49, chr = 55 },
                 [64] = { acc = 258, eva = 243, agi = 68, int = 50, mnd = 50, chr = 56 },
             },
+            ph_for = { [82] = { 96 }, [95] = { 96 } },
             ranks  = { ice = -3, wind = -3, water = -2, light = -2, dark = -2, paralyze = -3, bind = -3,
                        silence = -3, poison = -2, light_sleep = -2, dark_sleep = -2, blind = -2, gravity = -3 },
             drops  = {
@@ -251,6 +255,7 @@ return {
                 [67] = { acc = 271, eva = 258, agi = 57, int = 44, mnd = 61, chr = 63 },
             },
             spawn_levels = { [57] = { 65, 67 } },
+            ph_for = { [59] = { 60 }, [66] = { 60 } },
             ranks  = { fire = -2, ice = -3, thunder = -2, water = 4, light = 4, dark = -3, paralyze = -3, bind = -3,
                        poison = 4, light_sleep = 4, dark_sleep = -3, blind = -3, stun = -2 },
             drops  = {
@@ -294,6 +299,7 @@ return {
                 [65] = { acc = 264, eva = 248, agi = 68, int = 56, mnd = 56, chr = 51 },
                 [66] = { acc = 271, eva = 253, agi = 70, int = 57, mnd = 57, chr = 51 },
             },
+            ph_for = { [292] = { 297 }, [296] = { 297 }, [300] = { 297 } },
             ranks  = { ice = -3, thunder = -1, water = -1, paralyze = -3, bind = -3, poison = -1, stun = -1 },
             drops  = {
                 { rate = 50, item = 1051 },  -- kuftal coffer key
@@ -368,6 +374,7 @@ return {
                 [79] = { acc = 335, eva = 322, agi = 82, int = 61, mnd = 61, chr = 69 },
                 [80] = { acc = 340, eva = 327, agi = 82, int = 61, mnd = 61, chr = 69 },
             },
+            ph_for = { [180] = { 181 } },
             ranks  = { fire = -2, ice = -2, wind = -3, earth = 2, thunder = 2, water = -2, light = -2, dark = -2,
                        paralyze = -2, bind = -2, silence = -3, slow = 2, poison = -2, light_sleep = -2,
                        dark_sleep = -2, blind = -2, stun = 2, gravity = -3 },
@@ -433,6 +440,7 @@ return {
                 [67] = { acc = 271, eva = 260, agi = 75, int = 53, mnd = 53, chr = 59 },
                 [68] = { acc = 276, eva = 265, agi = 75, int = 53, mnd = 53, chr = 60 },
             },
+            ph_for = { [281] = { 284 }, [283] = { 284 } },
             ranks  = { wind = -2, earth = -2, thunder = -2, water = -3, light = -2, dark = -2, silence = -2,
                        slow = -2, poison = -3, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -2,
                        gravity = -2 },
@@ -452,6 +460,7 @@ return {
                 [68] = { acc = 280, eva = 265, agi = 75, int = 53, mnd = 53, chr = 60 },
                 [69] = { acc = 286, eva = 271, agi = 77, int = 54, mnd = 54, chr = 60 },
             },
+            ph_for = { [238] = { 239 } },
             ranks  = { fire = -2, ice = -2, wind = -2, earth = -2, thunder = -2, water = -2, light = -3,
                        paralyze = -2, bind = -2, silence = -2, slow = -2, poison = -2, light_sleep = -3, stun = -2,
                        gravity = -2 },

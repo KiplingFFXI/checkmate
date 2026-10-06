@@ -1,21 +1,28 @@
 -- East Sarutabaruta (zone 116).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Crawler', 'Prickly Pitriv', 'Spiny Spipi' },
-        [2] = { 'Yagudo Acolyte', 'Yagudo Centurion', 'Yagudo Initiate', 'Yagudo Scribe', 'Yagudo Underling',
-                'Yagudo Vicar' },
-        [3] = { 'Sharp-Eared Ropipi' },
-        [4] = { 'Goblin Digger', 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' },
-        [5] = { 'Crawler', 'Prickly Pitriv' },
-        [6] = { 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' },
-        [7] = { 'Yagudo Acolyte', 'Yagudo Centurion', 'Yagudo Initiate', 'Yagudo Scribe', 'Yagudo Underling' },
-        [8] = { 'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Scribe', 'Yagudo Underling', 'Yagudo Vicar' },
+        [1] = { sound = { 'Crawler', 'Prickly Pitriv', 'Spiny Spipi' } },
+        [2] = {
+            sight = { 'Yagudo Acolyte', 'Yagudo Centurion', 'Yagudo Initiate', 'Yagudo Scribe', 'Yagudo Underling',
+                      'Yagudo Vicar' },
+        },
+        [3] = { sight = { 'Sharp-Eared Ropipi' } },
+        [4] = { sight = { 'Goblin Digger', 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' } },
+        [5] = { sound = { 'Crawler', 'Prickly Pitriv' } },
+        [6] = { sight = { 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' } },
+        [7] = {
+            sight = { 'Yagudo Acolyte', 'Yagudo Centurion', 'Yagudo Initiate', 'Yagudo Scribe',
+                      'Yagudo Underling' },
+        },
+        [8] = {
+            sight = { 'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Scribe', 'Yagudo Underling', 'Yagudo Vicar' },
+        },
     },
     monsters = {
         {
@@ -162,6 +169,7 @@ return {
                              [366] = { 4, 5 }, [387] = { 4, 5 }, [388] = { 4, 5 }, [399] = { 4, 5 },
                              [400] = { 4, 5 }, [420] = { 4, 5 }, [421] = { 4, 5 }, [434] = { 4, 5 },
                              [435] = { 4, 5 }, [449] = { 4, 5 }, [450] = { 4, 5 } },
+            ph_for = { [136] = { 137 } },
             ranks  = { fire = -2, ice = -1, wind = -2, earth = -1, thunder = -3, water = -3, light = -1, dark = -3,
                        paralyze = -1, bind = -1, silence = -2, slow = -1, poison = -3, light_sleep = -1,
                        dark_sleep = -3, blind = -3, stun = -3, gravity = -2 },
@@ -191,6 +199,7 @@ return {
                              [396] = { 5, 6 }, [397] = { 5, 6 }, [398] = { 5, 6 }, [416] = { 5, 6 },
                              [417] = { 5, 6 }, [418] = { 5, 6 }, [419] = { 5, 6 }, [432] = { 5, 6 },
                              [433] = { 5, 6 }, [447] = { 5, 6 }, [448] = { 5, 6 } },
+            ph_for = { [304] = { 305 } },
             ranks  = { fire = -2, ice = -3, wind = -2, thunder = -3, water = -2, dark = -3, paralyze = -3,
                        bind = -3, silence = -2, poison = -2, dark_sleep = -3, blind = -3, stun = -3, gravity = -2 },
             drops  = {

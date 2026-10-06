@@ -23,7 +23,7 @@ draws every tab to ../out/, each in its own run of preview.py. These are the fil
   <Tab>_end.png      the same as _full, scrolled to the bottom, for the tabs taller than that
                      (Printout, Colors, Look)
   <Tab>_wide.png     the window 1028 wide, just wide enough for two columns, 1300 tall, for the
-                     tabs with sections (all but Numbers and Immunities)
+                     tabs with sections (all but Immunities)
   skin_<id>.png      the Printout tab in each skin
   Profiles_saved.png the Profiles tab with three saved profiles and two job links, one of them to a
                      profile that's gone

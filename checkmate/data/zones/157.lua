@@ -1,37 +1,51 @@
 -- Middle Delkfutts Tower (zone 157).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Big Bat', 'Mold Bats', 'Stirge', 'Tower Bats' },
-        [2] = { 'Goblin Furrier', 'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy' },
-        [3] = { 'Eurytos', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Jailer',
-                'Gigas Kettlemaster', 'Gigas Quarrier', 'Gigas Wallwatcher', 'Ogygos', 'Ophion', 'Polybotes',
-                'Rhoikos', 'Rhoitos' },
-        [4] = { 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Jailer',
-                'Gigas Kettlemaster', 'Gigas Quarrier', 'Gigas Wallwatcher', 'Ogygos', 'Ophion', 'Polybotes',
-                'Rhoikos', 'Rhoitos' },
-        [5] = { 'Eurytos', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Jailer',
-                'Gigas Kettlemaster', 'Gigas Quarrier', 'Gigas Wallwatcher', 'Ogygos', 'Ophion', 'Rhoikos',
-                'Rhoitos' },
-        [6] = { 'Eurytos', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Jailer',
-                'Gigas Kettlemaster', 'Gigas Quarrier', 'Gigas Wallwatcher', 'Ogygos', 'Ophion', 'Polybotes',
-                'Rhoikos' },
-        [7] = { 'Eurytos', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Jailer',
-                'Gigas Kettlemaster', 'Gigas Quarrier', 'Gigas Wallwatcher', 'Ogygos', 'Polybotes', 'Rhoikos',
-                'Rhoitos' },
-        [8] = { 'Eurytos', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Jailer',
-                'Gigas Kettlemaster', 'Gigas Quarrier', 'Gigas Wallwatcher', 'Ogygos', 'Ophion', 'Polybotes',
-                'Rhoitos' },
-        [9] = { 'Eurytos', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Jailer',
-                'Gigas Kettlemaster', 'Gigas Quarrier', 'Gigas Wallwatcher', 'Ophion', 'Polybotes', 'Rhoikos',
-                'Rhoitos' },
-        [10] = { 'Scythe Victim blm' },
-        [11] = { 'Scythe Victim war' },
+        [1] = { sound = { 'Big Bat', 'Mold Bats', 'Stirge', 'Tower Bats' } },
+        [2] = { sight = { 'Goblin Furrier', 'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy' } },
+        [3] = {
+            sight = { 'Eurytos', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Jailer',
+                      'Gigas Kettlemaster', 'Gigas Quarrier', 'Gigas Wallwatcher', 'Ogygos', 'Ophion', 'Polybotes',
+                      'Rhoikos', 'Rhoitos' },
+        },
+        [4] = {
+            sight = { 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Jailer',
+                      'Gigas Kettlemaster', 'Gigas Quarrier', 'Gigas Wallwatcher', 'Ogygos', 'Ophion', 'Polybotes',
+                      'Rhoikos', 'Rhoitos' },
+        },
+        [5] = {
+            sight = { 'Eurytos', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Jailer',
+                      'Gigas Kettlemaster', 'Gigas Quarrier', 'Gigas Wallwatcher', 'Ogygos', 'Ophion', 'Rhoikos',
+                      'Rhoitos' },
+        },
+        [6] = {
+            sight = { 'Eurytos', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Jailer',
+                      'Gigas Kettlemaster', 'Gigas Quarrier', 'Gigas Wallwatcher', 'Ogygos', 'Ophion', 'Polybotes',
+                      'Rhoikos' },
+        },
+        [7] = {
+            sight = { 'Eurytos', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Jailer',
+                      'Gigas Kettlemaster', 'Gigas Quarrier', 'Gigas Wallwatcher', 'Ogygos', 'Polybotes', 'Rhoikos',
+                      'Rhoitos' },
+        },
+        [8] = {
+            sight = { 'Eurytos', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Jailer',
+                      'Gigas Kettlemaster', 'Gigas Quarrier', 'Gigas Wallwatcher', 'Ogygos', 'Ophion', 'Polybotes',
+                      'Rhoitos' },
+        },
+        [9] = {
+            sight = { 'Eurytos', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Jailer',
+                      'Gigas Kettlemaster', 'Gigas Quarrier', 'Gigas Wallwatcher', 'Ophion', 'Polybotes', 'Rhoikos',
+                      'Rhoitos' },
+        },
+        [10] = { sound = { 'Scythe Victim blm' } },
+        [11] = { sound = { 'Scythe Victim war' } },
     },
     monsters = {
         {
@@ -228,6 +242,7 @@ return {
                 [31] = { acc = 114, eva = 105, agi = 32, int = 20, mnd = 24, chr = 31 },
                 [32] = { acc = 117, eva = 107, agi = 32, int = 20, mnd = 24, chr = 31 },
             },
+            ph_for = { [37] = { 36 }, [95] = { 94 } },
             ranks  = { earth = -2, thunder = 4, slow = -2, stun = 4 },
             resist = { virus = 10 },
             drops  = {
@@ -245,6 +260,7 @@ return {
                 [31] = { acc = 115, eva = 103, agi = 23, int = 19, mnd = 30, chr = 31 },
                 [32] = { acc = 118, eva = 105, agi = 23, int = 19, mnd = 30, chr = 31 },
             },
+            ph_for = { [38] = { 36 }, [131] = { 129 } },
             ranks  = { earth = -2, thunder = 4, slow = -2, stun = 4 },
             drops  = {
                 { rate = 10, item = 1538 },  -- ram leather missive
@@ -532,6 +548,7 @@ return {
                 [33] = { acc = 121, eva = 110, agi = 32, int = 22, mnd = 26, chr = 31 },
                 [34] = { acc = 125, eva = 114, agi = 34, int = 22, mnd = 26, chr = 32 },
             },
+            ph_for = { [305] = { 304 } },
             ranks  = { earth = -2, thunder = 4, slow = -2, stun = 4 },
             resist = { virus = 10 },
             aggro  = true,
@@ -559,6 +576,7 @@ return {
                 [33] = { acc = 121, eva = 107, agi = 26, int = 24, mnd = 28, chr = 40 },
                 [34] = { acc = 125, eva = 110, agi = 27, int = 24, mnd = 28, chr = 41 },
             },
+            ph_for = { [239] = { 241 } },
             ranks  = { earth = -2, thunder = 4, slow = -2, stun = 4 },
             resist = { virus = 10, slow = 10 },
             aggro  = true,
@@ -586,6 +604,7 @@ return {
                 [33] = { acc = 142, eva = 112, agi = 37, int = 24, mnd = 30, chr = 31 },
                 [34] = { acc = 145, eva = 116, agi = 38, int = 24, mnd = 30, chr = 32 },
             },
+            ph_for = { [268] = { 267 } },
             ranks  = { earth = -2, thunder = 4, slow = -2, stun = 4 },
             resist = { poison = 10, virus = 10 },
             aggro  = true,

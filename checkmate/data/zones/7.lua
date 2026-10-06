@@ -1,36 +1,39 @@
 -- Attohwa Chasm (zone 7).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Alastor Antlion', 'Ambusher Antlion', 'Burrow Antlion', 'Cave Antlion', 'Executioner Antlion',
-                'Feeler Antlion', 'Hunter Antlion', 'Lioumere', 'Pit Antlion', 'Tracer Antlion', 'Tracker Antlion',
-                'Trench Antlion' },
-        [2] = { 'Gallinipper', 'Monarch Ogrefly', 'Ogrefly' },
-        [3] = { 'Goblin Furrier', 'Goblin Pathfinder', 'Goblin Poacher', 'Goblin Reaper', 'Goblin Robber',
-                'Goblin Shaman', 'Goblin Smithy', 'Goblin Trader' },
-        [4] = { 'Doom Scorpion' },
-        [5] = { 'Bane Lizard', 'Chasm Lizard', 'Sand Lizard' },
-        [6] = { 'Alastor Antlion', 'Ambusher Antlion', 'Burrow Antlion', 'Cave Antlion', 'Executioner Antlion',
-                'Feeler Antlion', 'Hunter Antlion', 'Pit Antlion', 'Tracer Antlion', 'Tracker Antlion',
-                'Trench Antlion' },
-        [7] = { 'Flesh Eater' },
-        [8] = { 'Muut', 'Xolotl' },
-        [9] = { 'Citipati', 'Muut' },
-        [10] = { 'Alastor Antlion', 'Ambusher Antlion', 'Burrow Antlion', 'Cave Antlion', 'Executioner Antlion',
-                 'Hunter Antlion', 'Lioumere', 'Pit Antlion', 'Tracer Antlion', 'Tracker Antlion',
-                 'Trench Antlion' },
-        [11] = { 'Ambusher Antlion', 'Burrow Antlion', 'Cave Antlion', 'Executioner Antlion', 'Feeler Antlion',
-                 'Hunter Antlion', 'Lioumere', 'Pit Antlion', 'Tracer Antlion', 'Tracker Antlion',
-                 'Trench Antlion' },
-        [12] = { 'Alastor Antlion', 'Burrow Antlion', 'Cave Antlion', 'Executioner Antlion', 'Feeler Antlion',
-                 'Hunter Antlion', 'Lioumere', 'Pit Antlion', 'Tracer Antlion', 'Tracker Antlion',
-                 'Trench Antlion' },
-        [13] = { 'Citipati', 'Xolotl' },
+        [1] = {
+            sound = { 'Alastor Antlion', 'Executioner Antlion', 'Feeler Antlion', 'Hunter Antlion', 'Lioumere',
+                      'Tracer Antlion', 'Tracker Antlion' },
+        },
+        [2] = { sound = { 'Gallinipper', 'Monarch Ogrefly', 'Ogrefly' } },
+        [3] = {
+            sight = { 'Goblin Furrier', 'Goblin Pathfinder', 'Goblin Poacher', 'Goblin Reaper', 'Goblin Robber',
+                      'Goblin Shaman', 'Goblin Smithy', 'Goblin Trader' },
+        },
+        [4] = { sound = { 'Doom Scorpion' } },
+        [5] = { sound = { 'Bane Lizard', 'Chasm Lizard', 'Sand Lizard' } },
+        [6] = {
+            sound = { 'Alastor Antlion', 'Executioner Antlion', 'Feeler Antlion', 'Hunter Antlion',
+                      'Tracer Antlion', 'Tracker Antlion' },
+        },
+        [7] = { sound = { 'Flesh Eater' } },
+        [8] = { sound = { 'Xolotl' }, true_sound = { 'Muut' } },
+        [9] = { sound = { 'Citipati' }, true_sound = { 'Muut' } },
+        [10] = {
+            sound = { 'Alastor Antlion', 'Executioner Antlion', 'Hunter Antlion', 'Lioumere', 'Tracer Antlion',
+                      'Tracker Antlion' },
+        },
+        [11] = {
+            sound = { 'Executioner Antlion', 'Feeler Antlion', 'Hunter Antlion', 'Lioumere', 'Tracer Antlion',
+                      'Tracker Antlion' },
+        },
+        [12] = { sound = { 'Citipati', 'Xolotl' } },
     },
     monsters = {
         {
@@ -677,6 +680,7 @@ return {
                 [70] = { acc = 287, eva = 274, agi = 73, int = 55, mnd = 55, chr = 61 },
                 [71] = { acc = 293, eva = 279, agi = 75, int = 55, mnd = 55, chr = 63 },
             },
+            ph_for = { [283] = { 361 } },
             ranks  = { wind = -2, earth = 3, light = -3, dark = 3, silence = -2, slow = 3, light_sleep = -3,
                        dark_sleep = 3, blind = 3, gravity = -2 },
             drops  = {
@@ -793,6 +797,7 @@ return {
                 [66] = { acc = 267, eva = 235, agi = 75, int = 80, mnd = 58, chr = 55 },
                 [67] = { acc = 271, eva = 239, agi = 75, int = 83, mnd = 59, chr = 57 },
             },
+            ph_for = { [273] = { 274 } },
             ranks  = { fire = -2, ice = 2, wind = -1, earth = 2, thunder = -1, water = -1, light = -3, dark = 3,
                        paralyze = 2, bind = 2, silence = -1, slow = 2, poison = -1, light_sleep = -3,
                        dark_sleep = 3, blind = 3, stun = -1, gravity = -1 },
@@ -1041,7 +1046,7 @@ return {
             aggro  = true,
             ambush = true,
             detects = { 'sound' },
-            links  = 12,
+            links  = 1,
         },
         {
             name   = 'Fjalar',
@@ -1082,7 +1087,7 @@ return {
             aggro  = true,
             true_detect = true,
             detects = { 'sound', 'low_hp' },
-            links  = 13,
+            links  = 12,
         },
         {
             name   = 'Muuts Hound Warrior',

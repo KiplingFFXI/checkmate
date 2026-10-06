@@ -1,49 +1,71 @@
 -- Horlais Peak (zone 139).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Spotter' },
-        [2] = { 'Dread Dragon' },
-        [3] = { 'Derakbak of Clan Wolf', 'Jagidbod of Clan Reaper', 'Reaper Clan Warmachine',
-                'Wolf Clan Warmachine' },
-        [4] = { 'Darokbok of Clan Reaper', 'Derakbak of Clan Wolf', 'Reaper Clan Warmachine',
-                'Wolf Clan Warmachine' },
-        [5] = { 'Darokbok of Clan Reaper', 'Jagidbod of Clan Reaper', 'Reaper Clan Warmachine',
-                'Wolf Clan Warmachine' },
-        [6] = { 'Darokbok of Clan Reaper', 'Derakbak of Clan Wolf', 'Jagidbod of Clan Reaper',
-                'Wolf Clan Warmachine' },
-        [7] = { 'Darokbok of Clan Reaper', 'Derakbak of Clan Wolf', 'Jagidbod of Clan Reaper',
-                'Reaper Clan Warmachine' },
-        [8] = { 'Archer Pugil' },
-        [9] = { 'Archer Pugil', 'Sniper Pugil' },
-        [10] = { 'Bisan' },
-        [11] = { 'Pilwiz' },
-        [12] = { 'Houndfly' },
-        [13] = { 'Houndfly', 'Huntfly' },
-        [14] = { 'Cottontail' },
-        [15] = { 'Cottontail', 'Helltail Harry' },
-        [16] = { 'Compound Eyes' },
-        [17] = { 'Compound Eyes', 'Sobbing Eyes' },
-        [18] = { 'Fighting Sheep' },
-        [19] = { 'Invulnerable Mazzgozz', 'Keeneyed Aufwuf', 'Longarmed Gottditt', 'Minds-eyed Klugwug',
-                 'Undefeatable Sappdapp' },
-        [20] = { 'Armsmaster Dekbuk', 'Invulnerable Mazzgozz', 'Keeneyed Aufwuf', 'Minds-eyed Klugwug',
-                 'Undefeatable Sappdapp' },
-        [21] = { 'Armsmaster Dekbuk', 'Invulnerable Mazzgozz', 'Longarmed Gottditt', 'Minds-eyed Klugwug',
-                 'Undefeatable Sappdapp' },
-        [22] = { 'Armsmaster Dekbuk', 'Keeneyed Aufwuf', 'Longarmed Gottditt', 'Minds-eyed Klugwug',
-                 'Undefeatable Sappdapp' },
-        [23] = { 'Armsmaster Dekbuk', 'Invulnerable Mazzgozz', 'Keeneyed Aufwuf', 'Longarmed Gottditt',
-                 'Minds-eyed Klugwug' },
-        [24] = { 'Armsmaster Dekbuk', 'Invulnerable Mazzgozz', 'Keeneyed Aufwuf', 'Longarmed Gottditt',
-                 'Undefeatable Sappdapp' },
-        [25] = { 'Dragonian Minstrel' },
-        [26] = { 'Dragonian Berzerker' },
+        [1] = { superlink = { 'Spotter' } },
+        [2] = { superlink = { 'Dread Dragon' } },
+        [3] = {
+            superlink = { 'Derakbak of Clan Wolf', 'Jagidbod of Clan Reaper', 'Reaper Clan Warmachine',
+                          'Wolf Clan Warmachine' },
+        },
+        [4] = {
+            superlink = { 'Darokbok of Clan Reaper', 'Derakbak of Clan Wolf', 'Reaper Clan Warmachine',
+                          'Wolf Clan Warmachine' },
+        },
+        [5] = {
+            superlink = { 'Darokbok of Clan Reaper', 'Jagidbod of Clan Reaper', 'Reaper Clan Warmachine',
+                          'Wolf Clan Warmachine' },
+        },
+        [6] = {
+            superlink = { 'Darokbok of Clan Reaper', 'Derakbak of Clan Wolf', 'Jagidbod of Clan Reaper',
+                          'Wolf Clan Warmachine' },
+        },
+        [7] = {
+            superlink = { 'Darokbok of Clan Reaper', 'Derakbak of Clan Wolf', 'Jagidbod of Clan Reaper',
+                          'Reaper Clan Warmachine' },
+        },
+        [8] = { superlink = { 'Archer Pugil' } },
+        [9] = { superlink = { 'Archer Pugil', 'Sniper Pugil' } },
+        [10] = { superlink = { 'Bisan' } },
+        [11] = { superlink = { 'Pilwiz' } },
+        [12] = { superlink = { 'Houndfly' } },
+        [13] = { superlink = { 'Houndfly', 'Huntfly' } },
+        [14] = { superlink = { 'Cottontail' } },
+        [15] = { superlink = { 'Cottontail', 'Helltail Harry' } },
+        [16] = { superlink = { 'Compound Eyes' } },
+        [17] = { superlink = { 'Compound Eyes', 'Sobbing Eyes' } },
+        [18] = { superlink = { 'Fighting Sheep' } },
+        [19] = {
+            superlink = { 'Invulnerable Mazzgozz', 'Keeneyed Aufwuf', 'Longarmed Gottditt', 'Minds-eyed Klugwug',
+                          'Undefeatable Sappdapp' },
+        },
+        [20] = {
+            superlink = { 'Armsmaster Dekbuk', 'Invulnerable Mazzgozz', 'Keeneyed Aufwuf', 'Minds-eyed Klugwug',
+                          'Undefeatable Sappdapp' },
+        },
+        [21] = {
+            superlink = { 'Armsmaster Dekbuk', 'Invulnerable Mazzgozz', 'Longarmed Gottditt', 'Minds-eyed Klugwug',
+                          'Undefeatable Sappdapp' },
+        },
+        [22] = {
+            superlink = { 'Armsmaster Dekbuk', 'Keeneyed Aufwuf', 'Longarmed Gottditt', 'Minds-eyed Klugwug',
+                          'Undefeatable Sappdapp' },
+        },
+        [23] = {
+            superlink = { 'Armsmaster Dekbuk', 'Invulnerable Mazzgozz', 'Keeneyed Aufwuf', 'Longarmed Gottditt',
+                          'Minds-eyed Klugwug' },
+        },
+        [24] = {
+            superlink = { 'Armsmaster Dekbuk', 'Invulnerable Mazzgozz', 'Keeneyed Aufwuf', 'Longarmed Gottditt',
+                          'Undefeatable Sappdapp' },
+        },
+        [25] = { superlink = { 'Dragonian Minstrel' } },
+        [26] = { superlink = { 'Dragonian Berzerker' } },
     },
     monsters = {
         {

@@ -1,9 +1,9 @@
 -- Ship bound for Selbina (zone 220).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     link_lists = {},
     monsters = {
@@ -167,6 +167,7 @@ return {
                 [28] = { acc = 101, eva = 94, agi = 29, int = 21, mnd = 21, chr = 25 },
                 [29] = { acc = 104, eva = 98, agi = 30, int = 22, mnd = 22, chr = 25 },
             },
+            ph_for = { [10] = { 14 } },
             ranks  = { fire = -1, ice = -2, wind = -1, earth = -1, thunder = -2, water = 6, light = -1, dark = -1,
                        paralyze = -2, bind = -2, silence = -1, slow = -1, poison = 6, light_sleep = -1,
                        dark_sleep = -1, blind = -1, stun = -2, gravity = -1 },

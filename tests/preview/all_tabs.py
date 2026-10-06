@@ -33,7 +33,7 @@ FULL_NARROW = ['--size', '1600', '1359', '--window-size', '700', '1300']
 # The tabs whose sections sit side by side in a wide window, and the narrowest window that does it: two
 # 480 px columns 24 apart and 44 for the window's edges, at 18 px and at 24 px. The screen for 24 px is
 # wider so the whole window fits.
-WIDE_TABS = ['Printout', 'Colors', 'Aggro', 'Magic', 'Drops', 'Look', 'Profiles']
+WIDE_TABS = ['Printout', 'Colors', 'Numbers', 'Aggro', 'Magic', 'Drops', 'Look', 'Profiles']
 WIDE = ['--size', '1600', '1359', '--window-size', '1028', '1300']
 WIDE_24 = ['--size', '1500', '1359', '--window-size', '1348', '1300']
 

@@ -1,28 +1,43 @@
 -- FeiYin (zone 204).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Camazotz', 'Undead Bats', 'Underworld Bats', 'Vampire Bat' },
-        [2] = { 'Australis Shadow', 'Borealis Shadow', 'Eastern Shadow', 'Northern Shadow', 'Occidentalis Shadow',
-                'Orientalis Shadow', 'Shadow', 'Southern Shadow', 'Specter', 'Western Shadow' },
-        [3] = { 'Altedour I Tavnazia', 'Australis Shadow', 'Borealis Shadow', 'Eastern Shadow', 'Northern Shadow',
-                'Occidentalis Shadow', 'Orientalis Shadow', 'Shadow', 'Southern Shadow', 'Specter',
-                'Western Shadow' },
-        [4] = { 'Altedour I Tavnazia', 'Australis Shadow', 'Borealis Shadow', 'Eastern Shadow', 'Northern Shadow',
-                'Occidentalis Shadow', 'Orientalis Shadow', 'Shadow', 'Southern Shadow', 'Specter' },
-        [5] = { 'Altedour I Tavnazia', 'Australis Shadow', 'Borealis Shadow', 'Eastern Shadow',
-                'Occidentalis Shadow', 'Orientalis Shadow', 'Shadow', 'Southern Shadow', 'Specter',
-                'Western Shadow' },
-        [6] = { 'Altedour I Tavnazia', 'Australis Shadow', 'Borealis Shadow', 'Northern Shadow',
-                'Occidentalis Shadow', 'Orientalis Shadow', 'Shadow', 'Southern Shadow', 'Specter',
-                'Western Shadow' },
-        [7] = { 'Altedour I Tavnazia', 'Australis Shadow', 'Borealis Shadow', 'Eastern Shadow', 'Northern Shadow',
-                'Occidentalis Shadow', 'Orientalis Shadow', 'Shadow', 'Specter', 'Western Shadow' },
+        [1] = { sound = { 'Camazotz', 'Undead Bats', 'Underworld Bats', 'Vampire Bat' } },
+        [2] = {
+            sound = { 'Australis Shadow', 'Borealis Shadow', 'Eastern Shadow', 'Northern Shadow',
+                      'Occidentalis Shadow', 'Orientalis Shadow', 'Shadow', 'Southern Shadow', 'Specter',
+                      'Western Shadow' },
+        },
+        [3] = {
+            sound = { 'Altedour I Tavnazia', 'Australis Shadow', 'Borealis Shadow', 'Eastern Shadow',
+                      'Northern Shadow', 'Occidentalis Shadow', 'Orientalis Shadow', 'Shadow', 'Southern Shadow',
+                      'Specter', 'Western Shadow' },
+        },
+        [4] = {
+            sound = { 'Altedour I Tavnazia', 'Australis Shadow', 'Borealis Shadow', 'Eastern Shadow',
+                      'Northern Shadow', 'Occidentalis Shadow', 'Orientalis Shadow', 'Shadow', 'Southern Shadow',
+                      'Specter' },
+        },
+        [5] = {
+            sound = { 'Altedour I Tavnazia', 'Australis Shadow', 'Borealis Shadow', 'Eastern Shadow',
+                      'Occidentalis Shadow', 'Orientalis Shadow', 'Shadow', 'Southern Shadow', 'Specter',
+                      'Western Shadow' },
+        },
+        [6] = {
+            sound = { 'Altedour I Tavnazia', 'Australis Shadow', 'Borealis Shadow', 'Northern Shadow',
+                      'Occidentalis Shadow', 'Orientalis Shadow', 'Shadow', 'Southern Shadow', 'Specter',
+                      'Western Shadow' },
+        },
+        [7] = {
+            sound = { 'Altedour I Tavnazia', 'Australis Shadow', 'Borealis Shadow', 'Eastern Shadow',
+                      'Northern Shadow', 'Occidentalis Shadow', 'Orientalis Shadow', 'Shadow', 'Specter',
+                      'Western Shadow' },
+        },
     },
     monsters = {
         {
@@ -375,6 +390,7 @@ return {
             },
             spawn_levels = { [188] = { 55, 57 }, [214] = { 55, 57 }, [219] = { 55, 57 }, [224] = { 55, 57 },
                              [291] = { 56, 58 }, [298] = { 56, 58 }, [305] = { 56, 58 }, [316] = { 56, 58 } },
+            ph_for = { [298] = { 302 } },
             ranks  = { fire = -3, ice = 2, light = -3, dark = 2, paralyze = 2, bind = 2, light_sleep = -3,
                        dark_sleep = 2, blind = 2 },
             undead = true,
@@ -399,6 +415,7 @@ return {
             },
             spawn_levels = { [189] = { 55, 57 }, [215] = { 55, 57 }, [220] = { 55, 57 }, [225] = { 55, 57 },
                              [292] = { 56, 58 }, [299] = { 56, 58 }, [306] = { 56, 58 }, [317] = { 56, 58 } },
+            ph_for = { [317] = { 320 } },
             ranks  = { fire = -3, ice = 2, light = -3, dark = 2, paralyze = 2, bind = 2, light_sleep = -3,
                        dark_sleep = 2, blind = 2 },
             undead = true,
@@ -423,6 +440,7 @@ return {
             },
             spawn_levels = { [190] = { 55, 57 }, [216] = { 55, 57 }, [221] = { 55, 57 }, [226] = { 55, 57 },
                              [293] = { 56, 58 }, [300] = { 56, 58 }, [307] = { 56, 58 }, [318] = { 56, 58 } },
+            ph_for = { [293] = { 295 } },
             ranks  = { fire = -3, ice = 2, light = -3, dark = 2, paralyze = 2, bind = 2, light_sleep = -3,
                        dark_sleep = 2, blind = 2 },
             undead = true,
@@ -447,6 +465,7 @@ return {
             },
             spawn_levels = { [191] = { 55, 57 }, [217] = { 55, 57 }, [222] = { 55, 57 }, [227] = { 55, 57 },
                              [294] = { 56, 58 }, [301] = { 56, 58 }, [308] = { 56, 58 }, [319] = { 56, 58 } },
+            ph_for = { [308] = { 309 } },
             ranks  = { fire = -3, ice = 2, light = -3, dark = 2, paralyze = 2, bind = 2, light_sleep = -3,
                        dark_sleep = 2, blind = 2 },
             undead = true,
@@ -468,6 +487,8 @@ return {
                 [57] = { acc = 220, eva = 204, agi = 58, int = 50, mnd = 50, chr = 54 },
                 [58] = { acc = 225, eva = 209, agi = 59, int = 50, mnd = 50, chr = 56 },
             },
+            ph_for = { [244] = { 245 }, [246] = { 245 }, [248] = { 245 }, [249] = { 245 }, [250] = { 245 },
+                       [252] = { 245 }, [254] = { 245 } },
             ranks  = { fire = 2, ice = 2, wind = 2, earth = 2, thunder = 2, water = 2, light = 2, dark = 2,
                        paralyze = 2, bind = 2, silence = 2, slow = 2, poison = 2, light_sleep = 2, dark_sleep = 2,
                        blind = 2, stun = 2, gravity = 2 },

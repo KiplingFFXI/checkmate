@@ -101,8 +101,20 @@ local PAIRS = {
     { 'the range word', type_in('Printout/Range word', 'spawns'), '/checkmate rangeword spawns',
         function (s) return s.printout.range_word; end, release = true,
         setup = function (s) s.printout.show_range = true; end },
+    { 'Show its ID', click('Printout/Show its ID'), '/checkmate id on',
+        function (s) return s.printout.show_id; end },
+    { 'the ID word', type_in('Printout/ID word', 'Mob'), '/checkmate idword Mob',
+        function (s) return s.printout.id_word; end, release = true,
+        setup = function (s) s.printout.show_id = true; end },
+    { 'Show if it\'s a PH', click('Printout/Show if it\'s a PH'), '/checkmate ph on',
+        function (s) return s.printout.show_ph; end },
+    { 'the PH word', type_in('Printout/PH word', 'PH:'), '/checkmate phword PH:',
+        function (s) return s.printout.ph_word; end, release = true,
+        setup = function (s) s.printout.show_ph = true; end },
     { 'a part\'s On box', click('Printout/drops/##on'), '/checkmate show drops',
         function (s) return s.printout.parts.drops.on; end },
+    { 'the Pet part\'s On box', click('Printout/pet/##on'), '/checkmate show pet',
+        function (s) return s.printout.parts.pet.on; end },
     { 'a part\'s label', type_in('Printout/hit/##label', 'Acc'), '/checkmate label hit Acc',
         function (s) return s.printout.parts.hit.label; end, release = true },
     { 'a cleared label', type_in('Printout/aggro/##label', ''), '/checkmate label aggro ""',
@@ -147,20 +159,32 @@ local PAIRS = {
         function (s) return s.printout.con_colors; end },
     { 'Color by threat', click('Colors/Color by threat'), '/checkmate threatcolors off',
         function (s) return s.aggro.threat_colors; end },
-    { 'grade colors', click('Colors/Color the hit rate, evade and crit numbers'), '/checkmate grades off',
+    { 'grade colors', click('Colors/Color the hit, evade, crit and pet numbers'), '/checkmate grades off',
         function (s) return s.grades.on; end },
     { 'a chat color', pick('Colors/##hit_label', 'Coral'), '/checkmate color hit_label coral',
         function (s) return s.colors.hit_label; end },
+    { 'a pet chat color', pick('Colors/##pet_name', 'Coral'), '/checkmate color pet_name coral',
+        function (s) return s.colors.pet_name; end },
 
     -- Numbers tab.
     { 'a Good cutoff', slide('Numbers/##hit_good', 90), '/checkmate cutoff hit good 90',
         function (s) return s.grades.hit_good; end, release = true },
     { 'an OK cutoff', slide('Numbers/##crit_ok', 6), '/checkmate cutoff crit ok 6',
         function (s) return s.grades.crit_ok; end, release = true },
+    { 'Show its name', click('Numbers/Show its name'), '/checkmate petname off',
+        function (s) return s.pet.show_name; end },
+    { 'Show its level', click('Numbers/Show its level'), '/checkmate petlevel off',
+        function (s) return s.pet.show_level; end },
+    { 'the pet\'s Hit word', type_in('Numbers/Hit word', 'Acc'), '/checkmate pethitword Acc',
+        function (s) return s.pet.hit_word; end, release = true },
+    { 'a cleared Evade word', type_in('Numbers/Evade word', ''), '/checkmate petevadeword ""',
+        function (s) return s.pet.evade_word; end, release = true },
 
     -- Aggro tab.
     { 'Show how it finds you', click('Aggro/Show how it finds you'), '/checkmate detection off',
         function (s) return s.aggro.detection; end },
+    { 'Show how each one links', click('Aggro/Show how each one links'), '/checkmate linkhow off',
+        function (s) return s.aggro.link_how; end },
     { 'Show the names it links with', click('Aggro/Show the names it links with'), '/checkmate linknames off',
         function (s) return s.aggro.link_names; end },
     { 'Most names shown', slide('Aggro/Most names shown', 0), '/checkmate maxlinks 0',
@@ -267,7 +291,7 @@ for _, pair in ipairs(PAIRS) do
         ('before %s, window %s saved %s, command %s saved %s%s'):format(show(before), show(window_value),
         show(window_saved), show(command_value), show(command_saved), used and '' or ', an input found no control'));
 end
-check('every pair ran', #PAIRS == 61, #PAIRS);
+check('every pair ran', #PAIRS == 72, #PAIRS);
 
 -- Print a sample on both tabs prints the same lines as /checkmate sample.
 reset();
@@ -293,8 +317,8 @@ MOCK.command('/checkmate divider custom ++');
 frame();
 check('the window shows what the commands set', MOCK.gui.previews['Printout/Number ranges'] == 'Middle ~68%'
     and MOCK.gui.previews['Magic/enfeebling/##spell'] == 'Paralyze' and MOCK.gui.previews['Drops/Order'] == 'By name'
-    and MOCK.gui.disabled['Printout/drops/##down'] == nil and MOCK.gui.disabled['Printout/elements/##down'] == true
-    and MOCK.gui.paths['Printout/Custom text'] == 'InputText');
+    and MOCK.gui.disabled['Printout/drops/##down'] == nil and MOCK.gui.disabled['Printout/elements/##down'] == nil
+    and MOCK.gui.disabled['Printout/pet/##down'] == true and MOCK.gui.paths['Printout/Custom text'] == 'InputText');
 
 -- A profile keeps everything these commands set, and loading it brings it all back.
 reset();
@@ -304,6 +328,7 @@ local PROFILE_COMMANDS = {
     '/checkmate cutoff crit ok 6', '/checkmate spell enfeebling sleep', '/checkmate macc 25', '/checkmate maxitems 0',
     '/checkmate minchance 2.5', '/checkmate sort name', '/checkmate thlabel off', '/checkmate dropnotes off',
     '/checkmate immunity sleep off', '/checkmate immunitylabel bind Bnd', '/checkmate rounding 9', '/checkmate spacing 10',
+    '/checkmate petlevel off', '/checkmate pethitword Acc',
 };
 for _, command in ipairs(PROFILE_COMMANDS) do
     MOCK.command(command);
@@ -315,12 +340,13 @@ local function profile_values(s)
         p.number_style, s.grades.hit_good, s.grades.crit_ok, s.magic.schools.enfeebling.spell, s.magic.extra_accuracy,
         s.drops.max_items, s.drops.min_chance, s.drops.sort, s.drops.th_in_label, s.drops.notes,
         s.immunities.dark_sleep.on, s.immunities.bind.label, s.look.imgui.rounding, s.look.imgui.spacing,
+        s.pet.show_level, s.pet.hit_word,
     };
 end
 local set = profile_values(cur());
 check('the commands set every value', same(set, { 'Mob', 'Acc', true, 'difficulty evade hit crit aggro magic immunities '
-    .. 'elements drops', false, 'custom', ' | ', 'midpoint', 90, 6, 'sleep', 25, 0, 2.5, 'name', false, false, false, 'Bnd',
-    9, 10 }), show(set));
+    .. 'elements drops pet', false, 'custom', ' | ', 'midpoint', 90, 6, 'sleep', 25, 0, 2.5, 'name', false, false, false,
+    'Bnd', 9, 10, false, 'Acc' }), show(set));
 MOCK.command('/checkmate profile save Everything');
 MOCK.command('/checkmate joblink war Everything');
 local f = assert(io.open(MOCK_INSTALL_PATH .. '\\config\\addons\\checkmate\\profiles.json', 'r'));
@@ -330,7 +356,8 @@ local everything = saved.Everything;
 check('profiles.json holds them', everything.printout.parts.name.label == 'Mob' and everything.printout.header == false
     and everything.printout.separator == ' | ' and everything.grades.hit_good == 90 and everything.drops.min_chance == 2.5
     and everything.magic.schools.enfeebling.spell == 'sleep' and everything.immunities.bind.label == 'Bnd'
-    and everything.look.imgui.rounding == 9 and everything.job_links == nil);
+    and everything.look.imgui.rounding == 9 and everything.pet.show_level == false and everything.pet.hit_word == 'Acc'
+    and everything.job_links == nil);
 MOCK.command('/checkmate label name Other');
 MOCK.command('/checkmate rounding 2');
 MOCK.command('/checkmate profile load Everything');

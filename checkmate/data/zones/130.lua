@@ -1,13 +1,13 @@
 -- RuAun Gardens (zone 130).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Aellos Handmaiden' },
+        [1] = { true_sight = { 'Aellos Handmaiden' } },
     },
     monsters = {
         {
@@ -232,6 +232,10 @@ return {
                 [77] = { acc = 328, eva = 309, agi = 76, int = 60, mnd = 60, chr = 71 },
                 [78] = { acc = 333, eva = 314, agi = 77, int = 60, mnd = 60, chr = 73 },
             },
+            ph_for = { [242] = { 258 }, [243] = { 258 }, [244] = { 258 }, [245] = { 258 }, [246] = { 258 },
+                       [247] = { 258 }, [248] = { 258 }, [249] = { 258 }, [250] = { 258 }, [251] = { 258 },
+                       [252] = { 258 }, [253] = { 258 }, [254] = { 258 }, [255] = { 258 }, [256] = { 258 },
+                       [257] = { 258 } },
             ranks  = { fire = 2, ice = 2, wind = 2, earth = 2, thunder = -3, water = 2, light = 2, dark = 2,
                        paralyze = 2, bind = 2, silence = 2, slow = 2, poison = 2, light_sleep = 2, dark_sleep = 2,
                        blind = 2, stun = -3, gravity = 2 },

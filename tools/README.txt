@@ -8,12 +8,14 @@ loads.
   checkmate\data\zones\<zone id>.lua   one file per zone with monsters
   checkmate\data\bands.lua             typical accuracy, evasion and AGI by level, for monsters with no row
   checkmate\data\too_weak.lua          the highest monster level that checks Too Weak, by your main level
+  checkmate\data\pets.lua              each jug pet's highest level, the avatars' names, the gear that narrows a
+                                       jug pet's level and the Beast Affinity merit
 
 It never changes the Phoenix repo. Every run copies the files it needs from the commit into a new temp folder
 with git archive, reads that copy, and deletes it at the end. Nothing is reused from an earlier run.
 
-The other scripts here show what changed between two builds of the data and get a new version ready for Phoenix
-staff. A weekly job on GitHub runs them for you and opens a pull request when Phoenix changed a monster.
+The other scripts here show what changed between two builds of the data and get a new version ready to release.
+A weekly job on GitHub runs them for you and opens a pull request when Phoenix changed a monster.
 
 
 Setup (once)
@@ -41,8 +43,8 @@ Run it from the project folder. Fetch Phoenix first, so phoenix/live is the newe
   python tools\export_data.py
 
 It takes about a minute. At the end it prints the commit it read, how many zone files and rows it wrote, their
-total size and the biggest file, the level 75 row of bands.lua, where too_weak.lua came from, how the LuaJIT
-load check went and how long the run took.
+total size and the biggest file, the level 75 row of bands.lua, where too_weak.lua came from, how many jug pets
+and avatars pets.lua has and what Beast Affinity adds, how the LuaJIT load check went and how long the run took.
 
 Every argument is optional.
 
@@ -87,16 +89,31 @@ What goes into a row
 - Links the way the server builds link parties when a zone loads: family among linkers, sublink, superlink, and
   force-linking in Dynamis and for battlefield monsters. A battlefield's groups in scripts/battlefields make new
   parties per arena when it starts, and a monster that several battlefields use gets the partners from each. The
-  list follows the chain of helpers each helper calls in turn. Pets never help, monsters with NO_LINK help only
-  their superlink partners, and a one-way linker calls no one. An arena monster no battlefield names never
-  spawns, so it links with no one. A pet is the monster a setMobPet or setPet call names at a fixed offset, one
-  that TABLE_PETS pairs through two ID tables, or a Dynamis master's.
+  list follows the chain of helpers each helper calls in turn. Pets never help, monsters with NO_LINK and antlions
+  waiting underground help only their superlink partners, and a one-way linker calls no one. An arena monster no
+  battlefield names never spawns, so it links with no one. A pet is the monster a setMobPet or setPet call names
+  at a fixed offset, one that TABLE_PETS pairs through two ID tables, or a Dynamis master's. Each name keeps how
+  it links (mob_entity.cpp CanLink): superlink when it shares the superlink of the monster calling it, or else
+  sight, sound or both from its DETECTION once spawned, with true_ in front when it has true detection. One that
+  neither sees nor hears goes by the other senses aggro shows instead, like magic, or neither when it has none of
+  them, like a monster that only notices scent. An imp counts as hearing, since seeing too at night doesn't change
+  how it links. The fomor patrols and guards in scripts/mixins/fomor_party.lua superlink each fomor of one with
+  its leader, so each patrol or guard gets its own row.
 - Link names are the names players see: the template's display_name or name, less a suffix the spawn's script
   name doesn't have, so Heraldic_Imp_CM with the script Heraldic_Imp is Heraldic Imp.
 - Magic damage from the same chain: the dmg_magic block of the YAML resists, the sdt columns of mob_resistances
   for an instance monster, the mods a battlefield group sets when its fight starts, and the literal calls on the
   damage taken, absorb and null mods at the top of onMobInitialize and onMobSpawn. The row holds what they come
   to the way damage_multipliers.lua and damage_spell.lua use them on a damage spell.
+- Placeholders the way xi.mob.phOnDespawn in scripts/globals/mobs.lua finds them. A spawn is a PH when its own
+  onMobDespawn calls phOnDespawn for an NM and that NM's phList holds the spawn's id. The NM it can pop is the one
+  the list gives for it. Both halves count, since a few list entries only keep one NM from popping while another
+  is up, and a call does nothing when the list doesn't hold the spawn. The PH, the NM its despawn rolls for and
+  the NM that pops all have to be monsters the server makes, so an NM whose content is off isn't one. No Dynamis
+  monster is a PH, since Phoenix's Dynamis replaces their onMobDespawn. A loaded module can wrap a PH's
+  onMobDespawn, or swap it for one that calls phOnDespawn for the same NMs the way pxi_nm_spawn_points.lua does.
+  A module that touches a phList, or changes onMobDespawn or phOnDespawn any other way, stops the export. NMs that
+  pop some other way, like one that grows out of a monster or comes after enough kills, have no PHs here.
 
 A monster whose script or mixin changes its numbers, ranks or immunities during a fight gets scripted_stats.
 One whose script or mixin changes its magic damage, absorb or null mods during a fight, or picks them when it
@@ -111,8 +128,8 @@ The data files
 --------------
 
 Each zone file returns built, content, link_lists, monsters and by_name. link_lists holds each list of link
-names once, numbered from 1, because many rows share the same list. A row in monsters has these fields. Only
-name, ids and levels are always there.
+names once, grouped by how each one links and numbered from 1, because many rows share the same list. A row in
+monsters has these fields. Only name, ids and levels are always there.
 
   name        the monster's name, for people reading the file
   ids         the spawn indexes (id & 0xFFF) that share the row
@@ -124,6 +141,9 @@ name, ids and levels are always there.
               row's, like { 17, 18 } for one Goblin Tinkerer in a row that runs 17 to 20. A spawn that isn't
               there spawns over the row's whole range. An Assault spawn's range takes in its levels under all
               four level caps.
+  ph_for      [spawn index] = { NM spawn indexes } for each of its spawns that's a placeholder, the NMs that
+              spawn can pop. Each NM is a row in the same file, so the addon takes its name from there. Absent
+              when none of its spawns is a PH.
   level_mod   what its script adds to the level /check shows
   ranks       nonzero resistance ranks by element and status name
   meva        extra magic evasion. all is the plain MEVA mod over the level's base, the rest are by element or
@@ -149,9 +169,16 @@ name, ids and levels are always there.
   aggro_hours { first, last } awake hour for sleeps, so { 6, 20 } is awake from 6:00 to 20:59. Absent when the
               monster never wakes.
   links       the number of its list in link_lists. The list holds the names of the monsters that can end up
-              in its fight, sorted. Its own name is there only when other monsters of its kind can join. Absent
-              when nothing links with it. core\monsters.lua puts the names in place when it loads the file, so
-              the addon reads links as the names.
+              in its fight, in groups by how each one links: superlink (it shares the superlink of this monster
+              or of another one in its fight, and joins from anywhere), sight (sees but doesn't hear, so it has
+              to face the fight), sound (hears but doesn't see), both, magic (neither sees nor hears, but notices
+              magic) and neither (notices none of what aggro shows, like a monster that only notices scent).
+              sight, sound and both have true_ in front for a monster with true detection. The groups are written
+              in the order superlink, sight, true_sight, sound, true_sound, both, true_both, magic, neither, and
+              each one is sorted. A name is in two groups when monsters with that name link two ways. Its own
+              name is there only when other monsters of its kind can join. Absent when nothing links with it.
+              core\monsters.lua puts the groups in place when it loads the file, so the addon reads links as the
+              groups.
   flags       scripted_drops, exp_only, scripted_stats, scripted_aggro and scripted_elements, when they apply
 
 When a monster's level range crosses a job trait's level, its resist values change with the level. Then resist
@@ -163,6 +190,15 @@ too_weak.lua returns built, content and highest. highest[your main level] is the
 level_mod that checks Too Weak to you, the way charutils.cpp CheckMob works it out. It runs the experience table
 and /check curve the server loads: the pre-2011 ones in modules/era/lua/globals/toau_experience_points.lua when
 content is restricted and WotG is off, and the stock ones otherwise.
+
+pets.lua returns built, content, jugs, avatars, jug_range_items and beast_affinity. jugs[name] is each jug pet's
+own highest level, by the name the game shows, from the pet_list rows with a time, which are the ones the server
+makes a jug pet. avatars holds the names of a summoner's avatars and spirits, the pet ids LoadPet in petutils.cpp
+types as an avatar, since those never get the pet part. jug_range_items[item id] holds cut, how many levels that
+item takes off how far under its highest level a jug pet can come out, from the JUG_LEVEL_RANGE mod in item_mods,
+and level, the item's own level from item_equipment, since it only counts at that level or higher.
+beast_affinity holds the merit's id in the merit list the server sends, the levels each merit adds and the most
+merits you can have, from data/merits.yaml with the module overlays merged in.
 
 
 When it stops with an error
@@ -178,9 +214,20 @@ It stops instead of guessing. The message says what it couldn't read.
   monster. Add the file to HAND in export\outside.py with what it does.
 - "The Dynamis reader needs updating" or "The launch reader needs updating" means a Phoenix module changed
   shape. Look at export\dynamis.py or export\launch.py.
-- An SQL module that changes skill caps or the instance tables stops it too. See export\tables.py.
+- An SQL module that changes skill caps, the instance tables or pet_list stops it too. See export\tables.py.
+- "The pet reader needs updating", or another message from export\pets.py, means the jug pets, the avatars,
+  JUG_LEVEL_RANGE or Beast Affinity changed shape on Phoenix. item_mods and item_equipment aren't guarded, since
+  that would stop the weekly job for any item change, but the reader stops on any item_mods INSERT line it can't
+  read, when Monster Gloves lose JUG_LEVEL_RANGE and when an item with it has no level in item_equipment.
+- "The addon has no words for that yet" means a monster links by senses LINK_WAYS doesn't list, like
+  magic_low_hp. Add it to LINK_WAYS in export\rows.py, and to LINK_WAYS and LINK_WORDS in
+  checkmate\core\aggro.lua.
 - "can't read these link changes" means a script changes links at spawn in a way the reader can't follow. If it
-  changes no names, or its effect is known, add it to KNOWN_LINK_SCRIPTS or KNOWN_LINK_HELPERS in export\links.py.
+  changes neither the names nor how each one links, or its effect is known, add it to KNOWN_LINK_SCRIPTS or
+  KNOWN_LINK_HELPERS in export\links.py. A superlink also needs a reader, like fomor_superlinks, since it can
+  leave every name the same and still turn a tag into (Superlink).
+- "The fomor party reader needs updating", or another message about fomor_party.lua or onPartySpawn, means the
+  fomor patrols and guards changed shape on Phoenix. Look at fomor_superlinks in export\links.py.
 - "sets a pet the exporter can't read" means a monster script makes a pet some other way. Add it to TABLE_PETS
   in export\links.py when it pairs pets through ID tables, or to KNOWN_PET_SCRIPTS when its pet depends on the
   fight or is one the reader already has.
@@ -192,6 +239,11 @@ It stops instead of guessing. The message says what it couldn't read.
   group's mods table changed shape. Look at read_group in export\battlefields.py and group_damage_mods in
   export\zones.py.
 - A changed sleep_at_night table or experience curve stops it too. See export\aggro.py.
+- "The PH reader needs updating" means a monster script, a zone's IDs.lua or a loaded module sets up a
+  placeholder in a way export\placeholders.py can't follow, a module changes which NMs a placeholder can pop, or
+  an NM a placeholder can pop has a row name that isn't the one players see, like one from a template with a
+  suffix. The message names the file or the zone. Teach the reader the new form, rebuild, and check the
+  placeholders that changed with data_report.py.
 
 The few cases the exporter can't read from source sit in short hand lists, each entry with its reason.
 They are KNOWN_UNREADABLE in export\mobscripts.py, HAND in export\outside.py, ID_SPLITS in export\zones.py,
@@ -215,8 +267,10 @@ The first line deletes the copy from last time, so each run starts fresh.
 It names the Phoenix build each copy came from, then goes zone by zone through every monster that's new, gone or
 changed, and says which fields changed. When a monster's drops changed, it shows each item's chance before and
 after at TH 0 to 4, worked out with the addon's own core\drops.lua. Link lists are compared by the names in
-them, so a list that only got a new number isn't a change. The build stamp in every file isn't a change either.
-When nothing else changed, it says so and writes nothing.
+them and how each one links, in the addon's words, so a list that only got a new number isn't a change. A
+placeholder is compared by its spawn index and the names of the NMs it can pop, like "330 for Valkurm Emperor", so
+an NM that only moved to a new spawn index isn't a change. It also says when pets.lua changed, but not what in it.
+The build stamp in every file isn't a change either. When nothing else changed, it says so and writes nothing.
 
   --report FILE    writes the report to a file instead of printing it
   --bullets FILE   writes a few lines for CHANGELOG.md too
@@ -231,7 +285,8 @@ so the exporter reads phoenix/live there the same way it does here. Then it runs
 new data with what's on main using data_report.py.
 
 If no monster changed, it stops there and the run shows green. A Phoenix commit that doesn't touch monster data
-only changes the build stamp, so it doesn't count.
+only changes the build stamp, so it doesn't count. A change to bands.lua, too_weak.lua or pets.lua counts the
+same as a changed monster.
 
 If a monster changed, it gets a new version ready. It adds one to the last number of addon.version in
 checkmate\checkmate.lua, so 1.0.0 becomes 1.0.1. It puts a section for that version at the top of CHANGELOG.md
@@ -292,27 +347,12 @@ Ashita's addons folder. It also puts LICENSE from the project folder in there as
 of the addon carries the license.
 
 
-Sending it to Phoenix staff
----------------------------
+Publishing the release
+----------------------
 
-Phoenix staff review every version under Rule 9 before players can use it. Staff can't see a draft, so publish
-it as a pre-release while they look at it. On the repo's Releases page, click the pencil on the draft, put a line
-like "Waiting for Phoenix staff approval. Don't use this on Phoenix yet." at the top of the notes, tick Set as a
-pre-release and click Publish release. When you publish it, GitHub makes the tag v<version> on the commit the
-zip was built from.
-
-The zip's SHA-256 is in the run's log under the "Build the zip" step, and you can work it out yourself in
-PowerShell from the zip on the release.
-
-  Get-FileHash checkmate-1.0.1.zip
-
-Get-FileHash prints the hash in capital letters, and it's the same hash. Send staff the release's link and that
-hash. A zip you build on your PC has a different hash even when the files inside match, so always send the hash of
-the zip on the release.
-
-Once staff approve it, click the pencil on the release to edit it. Take the waiting line out of the notes, untick
-Set as a pre-release, tick Set as the latest release and click Update release. Don't change the zip, because
-staff approved that exact file.
+On the repo's Releases page, click the pencil on the draft, read over the notes and click Publish release. Leave
+Set as the latest release ticked. When you publish it, GitHub makes the tag v<version> on the commit the zip was
+built from.
 
 
 Running a job by hand
@@ -357,10 +397,12 @@ What's here
   export\instances.py     rows for Assault, The Ashu Talif and the Nyzul Isle mission fights, from SQL
   export\drops.py         loot rolls
   export\aggro.py         aggro fields and the Too Weak table
-  export\links.py         link parties and the names a monster links with
+  export\links.py         link parties, the names a monster links with and how each one links
   export\battlefields.py  the groups each battlefield puts its monsters in
+  export\placeholders.py  which spawns are placeholders and the NMs each one can pop
   export\rows.py          the finished row for each monster kind
   export\bands.py         the level-band fallback
+  export\pets.py          the jug pets, avatars, jug level gear and Beast Affinity for pets.lua
   export\lua_writer.py    writes the Lua files
   data_report.py          what changed between two data folders, as markdown
   bump_version.py         the next addon.version and its CHANGELOG.md section

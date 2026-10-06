@@ -13,14 +13,14 @@
 local printout = {};
 
 -- Parts after the name, in their default order.
-printout.PARTS = { 'difficulty', 'hit', 'evade', 'crit', 'aggro', 'magic', 'immunities', 'elements', 'drops' };
+printout.PARTS = { 'difficulty', 'hit', 'evade', 'crit', 'aggro', 'magic', 'immunities', 'elements', 'drops', 'pet' };
 printout.DEFAULT_ORDER = table.concat(printout.PARTS, ' ');
 
 -- The color each part's label and label divider print in.
 local LABEL_COLORS = {
     name = 'name', difficulty = 'difficulty', hit = 'hit_label', evade = 'evade_label', crit = 'crit_label',
     aggro = 'aggro_label', magic = 'magic_label', immunities = 'immunities_label', elements = 'elements_label',
-    drops = 'drops_label',
+    drops = 'drops_label', pet = 'pet_label',
 };
 
 -- Parts the /check reply itself answers, and the reading when it prints on its own. Every other part
@@ -31,7 +31,8 @@ local CHECK_PARTS = { name = true, difficulty = true, reading = true };
 -- line when it's hidden and nothing else prints, or the monster can't be gauged.
 local PLAIN_LINE = { 'name', 'difficulty' };
 
--- Parts whose numbers wait for the /checkparam reply.
+-- Parts whose numbers wait for the /checkparam <me> reply. The pet part waits for its own reply, which
+-- never holds up another line.
 local WAITING_PARTS = { hit = true, evade = true };
 
 -- Immunities in the order they print, with their default labels.
@@ -121,6 +122,8 @@ printout.COLOR_GROUPS = {
             { key = 'name',        label = 'Name' },
             { key = 'level',       label = 'Level' },
             { key = 'level_range', label = 'Range' },
+            { key = 'id',          label = 'ID' },
+            { key = 'ph',          label = 'PH' },
         },
     },
     {
@@ -215,6 +218,16 @@ printout.COLOR_GROUPS = {
         },
     },
     {
+        name   = 'Pet',
+        colors = {
+            { key = 'pet_label',  label = 'Label' },
+            { key = 'pet_name',   label = 'Name' },
+            { key = 'pet_level',  label = 'Level' },
+            { key = 'pet_number', label = 'Numbers' },
+            { key = 'pet_detail', label = 'Details' },
+        },
+    },
+    {
         name   = 'Grades',
         colors = {
             { key = 'good', label = 'Good' },
@@ -293,7 +306,7 @@ printout.LABEL_DIVIDER_IDS = table.concat(label_divider_ids, ', ');
 -- Longest custom divider or custom label divider, in characters.
 printout.SEPARATOR_MAX = 8;
 
--- Longest label or range word, in characters.
+-- Longest label or word setting, in characters.
 printout.LABEL_MAX = 32;
 
 -- Anything outside the palette prints in cream.
@@ -407,7 +420,8 @@ local function label_divider_text(ps)
 end
 
 -- Keeps known part ids once each, in your order. A part added in a newer version goes right after the
--- part before it in the default order, or first when there isn't one.
+-- part before it in the default order, or first when there isn't one. One added at the end of the default
+-- order goes last.
 function printout.clean_order(order)
     local known, seen, ids = {}, {}, {};
     for _, id in ipairs(printout.PARTS) do
@@ -426,6 +440,9 @@ function printout.clean_order(order)
                 if (each == printout.PARTS[index - 1]) then
                     at = place + 1;
                 end
+            end
+            if (index == #printout.PARTS) then
+                at = #ids + 1;
             end
             table.insert(ids, at, id);
         end
@@ -511,11 +528,30 @@ local function level_text(result)
     return ('%d-%d'):format(result.low, result.high);
 end
 
--- "range 40-44" with your range word in printable ASCII, or "40-44" when the word is empty.
+-- Your `word` in printable ASCII, a space and `text`, or `text` alone when the word is empty.
+local function after_word(word, text)
+    word = printout.clean_text(word):match('^%s*(.-)%s*$');
+    return (word == '') and text or (word .. ' ' .. text);
+end
+
+-- "range 40-44" with your range word, or "40-44" when the word is empty.
 function printout.range_text(ps, low, high)
-    local word = printout.clean_text(ps.range_word):match('^%s*(.-)%s*$');
-    local range = ('%d-%d'):format(low, high);
-    return (word == '') and range or (word .. ' ' .. range);
+    return after_word(ps.range_word, ('%d-%d'):format(low, high));
+end
+
+-- "ID 17199202" with your ID word, or "17199202" when the word is empty.
+function printout.id_text(ps, id)
+    return after_word(ps.id_word, ('%d'):format(id));
+end
+
+-- "PH for Valkurm Emperor" with your PH word, or the NM's name alone when the word is empty.
+-- Two NMs read "Rhoitos and Polybotes", and three "Rhoitos, Polybotes and Eurytos".
+function printout.ph_text(ps, names)
+    local list = names[#names];
+    if (#names > 1) then
+        list = table.concat(names, ', ', 1, #names - 1) .. ' and ' .. list;
+    end
+    return after_word(ps.ph_word, printout.clean_text(list));
 end
 
 --[[
@@ -542,9 +578,9 @@ end
     the " (TH 2)" in "Drops (TH 2)".
 ]]
 
--- Hit, evade or crit. The number is in its grade color with grades on, and in the part's number color
--- with them off.
-local function number_value(s, id, range, scripted)
+-- Hit, evade, crit or a pet number. The number is in its grade color with grades on, and in the part's
+-- number color with them off. `cutoffs` is the part whose grade cutoffs it goes by, `id` when it's nil.
+local function number_value(s, id, range, scripted, cutoffs)
     local detail = id .. '_detail';
     if (range == nil) then
         return { text = paint(s, detail, UNKNOWN) };
@@ -552,7 +588,8 @@ local function number_value(s, id, range, scripted)
     local grades = s.grades;
     local color = id .. '_number';
     if (grades.on) then
-        color = grade(range, grades[id .. '_good'], grades[id .. '_ok']);
+        cutoffs = cutoffs or id;
+        color = grade(range, grades[cutoffs .. '_good'], grades[cutoffs .. '_ok']);
     end
     return { text = paint(s, color, number_text(range, s.printout.number_style))
         .. scripted_mark(s, detail, scripted) };
@@ -682,16 +719,29 @@ local function drops_value(s, result, sep)
     return { text = text, label_after = th };
 end
 
--- "Links with Goblin Thug, Goblin Weaver", just "Links" with the names off, or "Doesn't link".
+--[[
+    "Links with Goblin Thug (Sight), Goblin Weaver (Sight), Giant Bat (Sound)", just "Links" with the
+    names off, or "Doesn't link". Each name is followed by how it links, unless it has no words for
+    that. With the names off, how they link all together follows, like "Links (Sight, Sound)".
+]]
 local function links_text(s, a, sep)
     if (not a.links) then
         return paint(s, 'aggro_words', 'Doesn\'t link');
     elseif (a.names == nil) then
-        return paint(s, 'aggro_words', 'Links');
+        local text = paint(s, 'aggro_words', 'Links');
+        if (a.senses ~= nil and #a.senses > 0) then
+            text = text .. paint(s, 'aggro_detail', (' (%s)'):format(table.concat(a.senses, ', ')));
+        end
+        return text;
     end
     local names = {};
-    for _, name in ipairs(a.names) do
-        names[#names + 1] = paint(s, 'aggro_words', printout.clean_text(name));
+    for index, name in ipairs(a.names) do
+        local text = paint(s, 'aggro_words', printout.clean_text(name));
+        local tag = a.tags and a.tags[index] or '';
+        if (tag ~= '') then
+            text = text .. paint(s, 'aggro_detail', (' (%s)'):format(tag));
+        end
+        names[#names + 1] = text;
     end
     local text = paint(s, 'aggro_words', 'Links with ') .. table.concat(names, paint(s, 'aggro_detail', ', '));
     if (a.more > 0) then
@@ -721,10 +771,54 @@ local function aggro_value(s, result, sep)
     return { text = text .. paint(s, 'aggro_detail', sep) .. links_text(s, a, sep) };
 end
 
+-- The pet part's two numbers, each with its word's setting. Each one grades by the cutoffs of the same name.
+local PET_NUMBERS = {
+    { id = 'hit',   word = 'hit_word' },
+    { id = 'evade', word = 'evade_word' },
+};
+
+--[[
+    "Wyvern (Lv 75) * Hit: 88% * Evade: 31%". The name is in the pet name color and the level in the pet level
+    color. Each number follows its word and the label divider in the pet label color, and grades by the hit rate
+    or evade cutoffs. An empty word leaves the word and its label divider out. With Show its name off, the name
+    and level are left out.
+]]
+local function pet_value(s, result, sep, label_sep)
+    local p = result.pet;
+    if (p == nil) then
+        return nil;
+    end
+    local pieces = {};
+    if (s.pet.show_name) then
+        local text = paint(s, 'pet_name', printout.clean_text(p.name));
+        if (s.pet.show_level) then
+            text = text .. paint(s, 'pet_level', (' (Lv %s)'):format(level_text(p)));
+        end
+        pieces[#pieces + 1] = text;
+    end
+    for _, entry in ipairs(PET_NUMBERS) do
+        local text = number_value(s, 'pet', p[entry.id], p.scripted, entry.id).text;
+        local word = printout.clean_text(s.pet[entry.word]):match('^%s*(.-)%s*$');
+        if (word ~= '') then
+            text = paint(s, 'pet_label', word .. label_sep) .. text;
+        end
+        pieces[#pieces + 1] = text;
+    end
+    return { text = table.concat(pieces, paint(s, 'pet_detail', sep)) };
+end
+
+-- The name, then its level, then " (ID 17199202)" in the ID color with Show its ID on, then the PH note, like
+-- " (PH for Valkurm Emperor)", in the PH color with Show if it's a PH on and the monster a placeholder.
 local function name_value(s, result, show_level)
     local text = paint(s, 'name', printout.clean_text(result.name));
     if (show_level) then
         text = text .. level_value(s, result);
+    end
+    if (s.printout.show_id) then
+        text = text .. paint(s, 'id', (' (%s)'):format(printout.id_text(s.printout, result.id)));
+    end
+    if (s.printout.show_ph and result.ph_for ~= nil) then
+        text = text .. paint(s, 'ph', (' (%s)'):format(printout.ph_text(s.printout, result.ph_for)));
     end
     return { text = text };
 end
@@ -778,6 +872,7 @@ local function all_values(s, result, sep, label_sep)
         immunities = immunities_value(s, result),
         elements   = elements_value(s, result, sep, label_sep),
         drops      = drops_value(s, result, sep),
+        pet        = pet_value(s, result, sep, label_sep),
     };
 end
 
@@ -806,19 +901,22 @@ end
 
 --[[
     Builds the chat lines for one /check. `s` is the settings table and `result` the readout.
-    { name, low, high, range_low, range_high, cant_gauge, con, impossible, reading, defense, scripted,
-    hit, evade, signet, crit, aggro, magic, immune, elements, drops }
+    { name, id, ph_for, low, high, range_low, range_high, cant_gauge, con, impossible, reading, defense,
+    scripted, hit, evade, signet, crit, aggro, magic, immune, elements, drops, pet }
+    id is the monster's server id from the /check reply.
+    ph_for is the names of the NMs it can pop as a placeholder, or nil when it isn't one.
     range_low and range_high are the levels the monster spawns at around its known level, or nil.
     con is the /check con 0 to 7, and impossible is true for "impossible to gauge". reading and
     defense are the /check evasion and defense readings. aggro is what aggro.readout returns, and
-    elements what elements.readout returns.
+    elements what elements.readout returns. pet is your pet's { name, low, high, hit, evade, scripted }.
     The reading follows the difficulty, or the name when the difficulty doesn't print, joined by a
     space. With neither it stands where the name goes.
     With the game's own /check line hidden, a /check that would print nothing, or can't be gauged,
     still prints the name with its level, the difficulty and the reading.
-    Returns three things. The first is the lines ready to print, without the [checkmate] tag. The
+    Returns five things. The first is the lines ready to print, without the [checkmate] tag. The
     second is the number of the first line holding hit or evade, or nil when neither prints. The third
-    is a table that's true at the number of every line holding them.
+    is a table that's true at the number of every line holding them. The fourth is the number of the
+    line holding the pet part, or nil, and the fifth is true when nothing else shares that line.
 ]]
 function printout.lines(s, result)
     local ps = s.printout;
@@ -828,9 +926,13 @@ function printout.lines(s, result)
     local values = all_values(s, result, sep, label_sep);
     local lines, line, last, waits_at, host = {}, {}, nil, nil, nil;
     local holding = {};
+    local pet_at, pet_alone;
 
     local function end_line()
         if (#line > 0) then
+            if (#lines + 1 == pet_at) then
+                pet_alone = #line == 1;
+            end
             lines[#lines + 1] = line_color .. table.concat(line, line_color .. sep);
             line = {};
         end
@@ -868,6 +970,9 @@ function printout.lines(s, result)
             holding[#lines + 1] = true;
             waits_at = waits_at or #lines + 1;
         end
+        if (id == 'pet') then
+            pet_at = #lines + 1;
+        end
     end
 
     if (not result.cant_gauge) then
@@ -893,7 +998,7 @@ function printout.lines(s, result)
         local name = printout.clean_text(result.name);
         lines[#lines + 1] = line_color .. ('%s can\'t be gauged. Widescan it first for its numbers.'):format(name);
     end
-    return lines, waits_at, holding;
+    return lines, waits_at, holding, pet_at, pet_alone;
 end
 
 return printout;

@@ -1,18 +1,18 @@
 -- Bostaunieux Oubliette (zone 167).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Mousse' },
-        [2] = { 'Arioch', 'Funnel Bats', 'Werebat' },
-        [3] = { 'Phanduron the Condemned' },
-        [4] = { 'Drexerion the Condemned' },
-        [5] = { 'Funnel Bats', 'Werebat' },
-        [6] = { 'Bloodsucker' },
+        [1] = { sound = { 'Mousse' } },
+        [2] = { sound = { 'Arioch', 'Funnel Bats', 'Werebat' } },
+        [3] = { sound = { 'Phanduron the Condemned' } },
+        [4] = { sound = { 'Drexerion the Condemned' } },
+        [5] = { sound = { 'Funnel Bats', 'Werebat' } },
+        [6] = { sound = { 'Bloodsucker' } },
     },
     monsters = {
         {
@@ -132,6 +132,7 @@ return {
                 [58] = { acc = 223, eva = 212, agi = 65, int = 46, mnd = 46, chr = 52 },
                 [59] = { acc = 229, eva = 218, agi = 67, int = 47, mnd = 47, chr = 53 },
             },
+            ph_for = { [184] = { 185 } },
             ranks  = { fire = -2, ice = -1, wind = -3, earth = -2, thunder = -2, water = -2, light = -3, dark = 6,
                        paralyze = -1, bind = -1, silence = -3, slow = -2, poison = -2, light_sleep = -3,
                        dark_sleep = 6, blind = 6, stun = -2, gravity = -3 },
@@ -173,6 +174,7 @@ return {
                 [65] = { acc = 261, eva = 248, agi = 68, int = 52, mnd = 49, chr = 62 },
                 [66] = { acc = 267, eva = 253, agi = 70, int = 52, mnd = 49, chr = 63 },
             },
+            ph_for = { [62] = { 67 }, [66] = { 67 } },
             ranks  = { fire = -3, ice = 4, wind = -2, thunder = -2, water = -2, light = -3, dark = 4, paralyze = 4,
                        bind = 4, silence = -2, poison = -2, light_sleep = -3, dark_sleep = 4, blind = 4, stun = -2,
                        gravity = -2 },
@@ -214,6 +216,7 @@ return {
                 [61] = { acc = 240, eva = 225, agi = 63, int = 49, mnd = 53, chr = 55 },
                 [62] = { acc = 245, eva = 230, agi = 63, int = 49, mnd = 53, chr = 55 },
             },
+            ph_for = { [58] = { 59 } },
             ranks  = { fire = -3, ice = -2, wind = -2, earth = -2, thunder = -2, water = -2, light = -2, dark = -2,
                        paralyze = -2, bind = -2, silence = -2, slow = -2, poison = -2, light_sleep = -2,
                        dark_sleep = -2, blind = -2, stun = -2, gravity = -2 },
@@ -314,6 +317,7 @@ return {
                 [69] = { acc = 282, eva = 269, agi = 72, int = 69, mnd = 53, chr = 67 },
                 [70] = { acc = 287, eva = 274, agi = 73, int = 69, mnd = 53, chr = 67 },
             },
+            ph_for = { [222] = { 223 }, [229] = { 223 } },
             ranks  = { fire = -3, ice = 4, wind = -2, thunder = -2, water = -2, light = -3, dark = 4, paralyze = 5,
                        bind = 5, silence = -2, poison = -2, light_sleep = -3, dark_sleep = 4, blind = 5, stun = -2,
                        gravity = -2 },

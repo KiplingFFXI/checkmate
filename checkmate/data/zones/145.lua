@@ -1,46 +1,62 @@
 -- Giddeus (zone 145).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Hoo Mjuu the Torrent', 'Juu Duzu the Whirlwind', 'Vaa Huja the Erudite', 'Vuu Puqu the Beguiler',
-                'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Lookout', 'Yagudo Mendicant', 'Yagudo Persecutor',
-                'Yagudo Piper', 'Yagudo Priest', 'Yagudo Scribe', 'Yagudo Theologist', 'Yagudo Votary',
-                'Zhuu Buxu the Silent' },
-        [2] = { 'Eyy Mon the Ironbreaker', 'Hoo Mjuu the Torrent', 'Juu Duzu the Whirlwind', 'Vaa Huja the Erudite',
-                'Vuu Puqu the Beguiler', 'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Lookout', 'Yagudo Mendicant',
-                'Yagudo Persecutor', 'Yagudo Piper', 'Yagudo Priest', 'Yagudo Scribe', 'Yagudo Theologist',
-                'Yagudo Votary' },
-        [3] = { 'Eyy Mon the Ironbreaker', 'Hoo Mjuu the Torrent', 'Juu Duzu the Whirlwind', 'Vaa Huja the Erudite',
-                'Vuu Puqu the Beguiler', 'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Lookout', 'Yagudo Mendicant',
-                'Yagudo Persecutor', 'Yagudo Piper', 'Yagudo Priest', 'Yagudo Scribe', 'Yagudo Theologist',
-                'Yagudo Votary', 'Zhuu Buxu the Silent' },
-        [4] = { 'Digger Wasp', 'Giddeus Bee' },
-        [5] = { 'Eyy Mon the Ironbreaker', 'Hoo Mjuu the Torrent', 'Vaa Huja the Erudite', 'Vuu Puqu the Beguiler',
-                'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Lookout', 'Yagudo Mendicant', 'Yagudo Persecutor',
-                'Yagudo Piper', 'Yagudo Priest', 'Yagudo Scribe', 'Yagudo Theologist', 'Yagudo Votary',
-                'Zhuu Buxu the Silent' },
-        [6] = { 'Earth Eater' },
-        [7] = { 'Eyy Mon the Ironbreaker', 'Juu Duzu the Whirlwind', 'Vaa Huja the Erudite',
-                'Vuu Puqu the Beguiler', 'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Lookout', 'Yagudo Mendicant',
-                'Yagudo Persecutor', 'Yagudo Piper', 'Yagudo Priest', 'Yagudo Scribe', 'Yagudo Theologist',
-                'Yagudo Votary', 'Zhuu Buxu the Silent' },
-        [8] = { 'Eyy Mon the Ironbreaker', 'Hoo Mjuu the Torrent', 'Juu Duzu the Whirlwind', 'Vaa Huja the Erudite',
-                'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Lookout', 'Yagudo Mendicant', 'Yagudo Persecutor',
-                'Yagudo Piper', 'Yagudo Priest', 'Yagudo Scribe', 'Yagudo Theologist', 'Yagudo Votary',
-                'Zhuu Buxu the Silent' },
-        [9] = { 'Eyy Mon the Ironbreaker', 'Hoo Mjuu the Torrent', 'Juu Duzu the Whirlwind',
-                'Vuu Puqu the Beguiler', 'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Lookout', 'Yagudo Mendicant',
-                'Yagudo Persecutor', 'Yagudo Piper', 'Yagudo Priest', 'Yagudo Scribe', 'Yagudo Theologist',
-                'Yagudo Votary', 'Zhuu Buxu the Silent' },
-        [10] = { 'Eyy Mon the Ironbreaker', 'Hoo Mjuu the Torrent', 'Juu Duzu the Whirlwind',
-                 'Vaa Huja the Erudite', 'Vuu Puqu the Beguiler', 'Yagudo Acolyte', 'Yagudo Initiate',
-                 'Yagudo Mendicant', 'Yagudo Persecutor', 'Yagudo Piper', 'Yagudo Priest', 'Yagudo Scribe',
-                 'Yagudo Theologist', 'Yagudo Votary', 'Zhuu Buxu the Silent' },
+        [1] = {
+            sight = { 'Hoo Mjuu the Torrent', 'Juu Duzu the Whirlwind', 'Vaa Huja the Erudite',
+                      'Vuu Puqu the Beguiler', 'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Lookout',
+                      'Yagudo Mendicant', 'Yagudo Persecutor', 'Yagudo Piper', 'Yagudo Priest', 'Yagudo Scribe',
+                      'Yagudo Theologist', 'Yagudo Votary', 'Zhuu Buxu the Silent' },
+        },
+        [2] = {
+            sight = { 'Eyy Mon the Ironbreaker', 'Hoo Mjuu the Torrent', 'Juu Duzu the Whirlwind',
+                      'Vaa Huja the Erudite', 'Vuu Puqu the Beguiler', 'Yagudo Acolyte', 'Yagudo Initiate',
+                      'Yagudo Lookout', 'Yagudo Mendicant', 'Yagudo Persecutor', 'Yagudo Piper', 'Yagudo Priest',
+                      'Yagudo Scribe', 'Yagudo Theologist', 'Yagudo Votary' },
+        },
+        [3] = {
+            sight = { 'Eyy Mon the Ironbreaker', 'Hoo Mjuu the Torrent', 'Juu Duzu the Whirlwind',
+                      'Vaa Huja the Erudite', 'Vuu Puqu the Beguiler', 'Yagudo Acolyte', 'Yagudo Initiate',
+                      'Yagudo Lookout', 'Yagudo Mendicant', 'Yagudo Persecutor', 'Yagudo Piper', 'Yagudo Priest',
+                      'Yagudo Scribe', 'Yagudo Theologist', 'Yagudo Votary', 'Zhuu Buxu the Silent' },
+        },
+        [4] = { sight = { 'Digger Wasp', 'Giddeus Bee' } },
+        [5] = {
+            sight = { 'Eyy Mon the Ironbreaker', 'Hoo Mjuu the Torrent', 'Vaa Huja the Erudite',
+                      'Vuu Puqu the Beguiler', 'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Lookout',
+                      'Yagudo Mendicant', 'Yagudo Persecutor', 'Yagudo Piper', 'Yagudo Priest', 'Yagudo Scribe',
+                      'Yagudo Theologist', 'Yagudo Votary', 'Zhuu Buxu the Silent' },
+        },
+        [6] = { sound = { 'Earth Eater' } },
+        [7] = {
+            sight = { 'Eyy Mon the Ironbreaker', 'Juu Duzu the Whirlwind', 'Vaa Huja the Erudite',
+                      'Vuu Puqu the Beguiler', 'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Lookout',
+                      'Yagudo Mendicant', 'Yagudo Persecutor', 'Yagudo Piper', 'Yagudo Priest', 'Yagudo Scribe',
+                      'Yagudo Theologist', 'Yagudo Votary', 'Zhuu Buxu the Silent' },
+        },
+        [8] = {
+            sight = { 'Eyy Mon the Ironbreaker', 'Hoo Mjuu the Torrent', 'Juu Duzu the Whirlwind',
+                      'Vaa Huja the Erudite', 'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Lookout',
+                      'Yagudo Mendicant', 'Yagudo Persecutor', 'Yagudo Piper', 'Yagudo Priest', 'Yagudo Scribe',
+                      'Yagudo Theologist', 'Yagudo Votary', 'Zhuu Buxu the Silent' },
+        },
+        [9] = {
+            sight = { 'Eyy Mon the Ironbreaker', 'Hoo Mjuu the Torrent', 'Juu Duzu the Whirlwind',
+                      'Vuu Puqu the Beguiler', 'Yagudo Acolyte', 'Yagudo Initiate', 'Yagudo Lookout',
+                      'Yagudo Mendicant', 'Yagudo Persecutor', 'Yagudo Piper', 'Yagudo Priest', 'Yagudo Scribe',
+                      'Yagudo Theologist', 'Yagudo Votary', 'Zhuu Buxu the Silent' },
+        },
+        [10] = {
+            sight = { 'Eyy Mon the Ironbreaker', 'Hoo Mjuu the Torrent', 'Juu Duzu the Whirlwind',
+                      'Vaa Huja the Erudite', 'Vuu Puqu the Beguiler', 'Yagudo Acolyte', 'Yagudo Initiate',
+                      'Yagudo Mendicant', 'Yagudo Persecutor', 'Yagudo Piper', 'Yagudo Priest', 'Yagudo Scribe',
+                      'Yagudo Theologist', 'Yagudo Votary', 'Zhuu Buxu the Silent' },
+        },
     },
     monsters = {
         {
@@ -345,6 +361,7 @@ return {
                              [346] = { 12, 15 }, [350] = { 12, 15 }, [354] = { 12, 15 }, [362] = { 12, 15 },
                              [368] = { 14, 18 }, [372] = { 14, 18 }, [377] = { 12, 15 }, [380] = { 14, 18 },
                              [386] = { 14, 18 }, [390] = { 14, 18 }, [394] = { 14, 18 } },
+            ph_for = { [377] = { 379 } },
             ranks  = { fire = -2, ice = -3, thunder = -2, water = -2, light = -2, dark = -2, paralyze = -3,
                        bind = -3, poison = -2, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -2 },
             drops  = {
@@ -400,6 +417,7 @@ return {
                              [358] = { 12, 15 }, [364] = { 12, 15 }, [370] = { 14, 18 }, [374] = { 14, 18 },
                              [382] = { 14, 18 }, [388] = { 14, 18 }, [392] = { 14, 18 }, [396] = { 14, 18 },
                              [398] = { 14, 18 }, [441] = { 14, 18 } },
+            ph_for = { [441] = { 442 } },
             ranks  = { fire = -2, ice = -3, thunder = -2, water = -2, light = -2, dark = -2, paralyze = -3,
                        bind = -3, poison = -2, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -2 },
             resist = { silence = 10 },
@@ -442,6 +460,7 @@ return {
                              [342] = { 12, 15 }, [349] = { 12, 15 }, [353] = { 12, 15 }, [357] = { 12, 15 },
                              [359] = { 12, 15 }, [365] = { 12, 15 }, [366] = { 12, 15 }, [371] = { 14, 18 },
                              [383] = { 14, 18 }, [389] = { 14, 18 }, [393] = { 14, 18 }, [397] = { 14, 18 } },
+            ph_for = { [160] = { 164 } },
             ranks  = { fire = -2, ice = -3, thunder = -2, water = -2, light = -2, dark = -2, paralyze = -3,
                        bind = -3, poison = -2, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -2 },
             resist = { blind = 10 },

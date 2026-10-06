@@ -1,28 +1,37 @@
 -- Sauromugue Champaign (zone 120).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Hill Lizard' },
-        [2] = { 'Midnight Wings', 'Moon Bat' },
-        [3] = { 'Yagudo Drummer', 'Yagudo Herald', 'Yagudo Interrogator', 'Yagudo Oracle', 'Yagudo Priest',
-                'Yagudo Theologist', 'Yagudo Votary' },
-        [4] = { 'Climbpix Highrise', 'Dribblix Greasemaw', 'Goblin Bounty Hunter', 'Goblin Digger',
-                'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger', 'Goblin Pathfinder',
-                'Goblin Shaman', 'Goblin Smithy' },
-        [5] = { 'Diving Beetle' },
-        [6] = { 'Old Sabertooth', 'Sabertooth Tiger' },
-        [7] = { 'Sabertooth Tiger' },
-        [8] = { 'Climbpix Highrise', 'Dribblix Greasemaw', 'Goblin Bounty Hunter', 'Goblin Furrier',
-                'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger', 'Goblin Pathfinder', 'Goblin Shaman',
-                'Goblin Smithy' },
-        [9] = { 'Climbpix Highrise', 'Goblin Bounty Hunter', 'Goblin Digger', 'Goblin Furrier', 'Goblin Gambler',
-                'Goblin Leecher', 'Goblin Mugger', 'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy' },
-        [10] = { 'Arke' },
+        [1] = { sound = { 'Hill Lizard' } },
+        [2] = { sound = { 'Midnight Wings', 'Moon Bat' } },
+        [3] = {
+            sight = { 'Yagudo Drummer', 'Yagudo Herald', 'Yagudo Interrogator', 'Yagudo Oracle', 'Yagudo Priest',
+                      'Yagudo Theologist', 'Yagudo Votary' },
+        },
+        [4] = {
+            sight = { 'Climbpix Highrise', 'Dribblix Greasemaw', 'Goblin Bounty Hunter', 'Goblin Digger',
+                      'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger', 'Goblin Pathfinder',
+                      'Goblin Shaman', 'Goblin Smithy' },
+        },
+        [5] = { sight = { 'Diving Beetle' } },
+        [6] = { sight = { 'Old Sabertooth', 'Sabertooth Tiger' } },
+        [7] = { sight = { 'Sabertooth Tiger' } },
+        [8] = {
+            sight = { 'Climbpix Highrise', 'Dribblix Greasemaw', 'Goblin Bounty Hunter', 'Goblin Furrier',
+                      'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger', 'Goblin Pathfinder', 'Goblin Shaman',
+                      'Goblin Smithy' },
+        },
+        [9] = {
+            sight = { 'Climbpix Highrise', 'Goblin Bounty Hunter', 'Goblin Digger', 'Goblin Furrier',
+                      'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger', 'Goblin Pathfinder', 'Goblin Shaman',
+                      'Goblin Smithy' },
+        },
+        [10] = { sight = { 'Arke' } },
     },
     monsters = {
         {
@@ -431,6 +440,7 @@ return {
                 [36] = { acc = 129, eva = 122, agi = 38, int = 28, mnd = 28, chr = 32 },
                 [37] = { acc = 132, eva = 124, agi = 38, int = 29, mnd = 29, chr = 32 },
             },
+            ph_for = { [113] = { 115 } },
             ranks  = { fire = -2, ice = -2, wind = -3, earth = 2, thunder = 2, water = -2, light = -2, dark = -2,
                        paralyze = -2, bind = -2, silence = -3, slow = 2, poison = -2, light_sleep = -2,
                        dark_sleep = -2, blind = -2, stun = 2, gravity = -3 },

@@ -1,26 +1,40 @@
 -- Altar Room (zone 152).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Duu Masa the Onecut', 'Fee Jugu the Ramfist', 'Goo Pake the Bloodhound', 'Kee Taw the Nightingale',
-                'Laa Yaku the Austere', 'Poo Yozo the Babbler' },
-        [2] = { 'Duu Masa the Onecut', 'Fee Jugu the Ramfist', 'Goo Pake the Bloodhound', 'Kee Taw the Nightingale',
-                'Poo Yozo the Babbler', 'Yagudo Avatar' },
-        [3] = { 'Fee Jugu the Ramfist', 'Goo Pake the Bloodhound', 'Kee Taw the Nightingale',
-                'Laa Yaku the Austere', 'Poo Yozo the Babbler', 'Yagudo Avatar' },
-        [4] = { 'Duu Masa the Onecut', 'Goo Pake the Bloodhound', 'Kee Taw the Nightingale', 'Laa Yaku the Austere',
-                'Poo Yozo the Babbler', 'Yagudo Avatar' },
-        [5] = { 'Duu Masa the Onecut', 'Fee Jugu the Ramfist', 'Goo Pake the Bloodhound', 'Kee Taw the Nightingale',
-                'Laa Yaku the Austere', 'Yagudo Avatar' },
-        [6] = { 'Duu Masa the Onecut', 'Fee Jugu the Ramfist', 'Goo Pake the Bloodhound', 'Laa Yaku the Austere',
-                'Poo Yozo the Babbler', 'Yagudo Avatar' },
-        [7] = { 'Duu Masa the Onecut', 'Fee Jugu the Ramfist', 'Kee Taw the Nightingale', 'Laa Yaku the Austere',
-                'Poo Yozo the Babbler', 'Yagudo Avatar' },
+        [1] = {
+            true_sight = { 'Duu Masa the Onecut', 'Fee Jugu the Ramfist', 'Goo Pake the Bloodhound',
+                           'Kee Taw the Nightingale', 'Laa Yaku the Austere', 'Poo Yozo the Babbler' },
+        },
+        [2] = {
+            true_sight = { 'Duu Masa the Onecut', 'Fee Jugu the Ramfist', 'Goo Pake the Bloodhound',
+                           'Kee Taw the Nightingale', 'Poo Yozo the Babbler', 'Yagudo Avatar' },
+        },
+        [3] = {
+            true_sight = { 'Fee Jugu the Ramfist', 'Goo Pake the Bloodhound', 'Kee Taw the Nightingale',
+                           'Laa Yaku the Austere', 'Poo Yozo the Babbler', 'Yagudo Avatar' },
+        },
+        [4] = {
+            true_sight = { 'Duu Masa the Onecut', 'Goo Pake the Bloodhound', 'Kee Taw the Nightingale',
+                           'Laa Yaku the Austere', 'Poo Yozo the Babbler', 'Yagudo Avatar' },
+        },
+        [5] = {
+            true_sight = { 'Duu Masa the Onecut', 'Fee Jugu the Ramfist', 'Goo Pake the Bloodhound',
+                           'Kee Taw the Nightingale', 'Laa Yaku the Austere', 'Yagudo Avatar' },
+        },
+        [6] = {
+            true_sight = { 'Duu Masa the Onecut', 'Fee Jugu the Ramfist', 'Goo Pake the Bloodhound',
+                           'Laa Yaku the Austere', 'Poo Yozo the Babbler', 'Yagudo Avatar' },
+        },
+        [7] = {
+            true_sight = { 'Duu Masa the Onecut', 'Fee Jugu the Ramfist', 'Kee Taw the Nightingale',
+                           'Laa Yaku the Austere', 'Poo Yozo the Babbler', 'Yagudo Avatar' },
+        },
     },
     monsters = {
         {

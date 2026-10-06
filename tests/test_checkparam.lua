@@ -71,6 +71,9 @@ check('prints on the frame after the last line', #lines == 1 and lines[1]:find('
 -- The same lines with nothing waiting are the player's own /checkparam.
 check('a /checkparam you type shows', MOCK.reply(300, 250) == 0);
 check('another player\'s reply shows', MOCK.reply(300, 250, 2002) == 0);
+MOCK.summon('Azure');
+check('a reply about your pet with nothing waiting shows', MOCK.pet_reply(150, 140) == 0);
+MOCK.dismiss();
 
 -- A reply about you that comes before checkmate sends its own request is used and still shown. advcheck
 -- sends its own 0.99 s after a /check and hides the reply itself.

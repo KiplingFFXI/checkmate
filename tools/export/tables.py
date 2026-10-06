@@ -22,7 +22,7 @@ UPDATED_TABLES = ('traits', 'skill_ranks')
 
 # Tables no module may change without the exporter learning about it.
 GUARDED_TABLES = ('skill_caps', 'mob_pools', 'mob_groups', 'mob_spawn_points', 'instance_entities',
-                  'instance_list', 'mob_droplist')
+                  'instance_list', 'mob_droplist', 'pet_list')
 
 # Module SQL the exporter knows is safe to skip, with why.
 KNOWN_SQL = {

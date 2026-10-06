@@ -131,7 +131,8 @@ def build(ctx, zone_id, script_dir):
         first = {}
         for mob_id, kind in placed:
             first[kind.script] = min(first.get(kind.script, mob_id), mob_id)
-        links.zone_names(ctx, placed, False, [], script_dir, links.Ids(ctx.tree, script_dir, first))
+        ids = links.Ids(ctx.tree, script_dir, first)
+        links.zone_names(ctx, placed, False, [], script_dir, ids, links.fomor_superlinks(ctx.tree, ids))
     return list(kinds.values())
 
 

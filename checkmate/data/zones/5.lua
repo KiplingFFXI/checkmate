@@ -1,20 +1,22 @@
 -- Uleguerand Range (zone 5).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Uleguerand Tiger' },
-        [2] = { 'Esbat', 'Nightmare Bats', 'Succubus Bats' },
-        [3] = { 'Glacier Eater', 'Mountain Worm', 'Mountain Worm NM' },
-        [4] = { 'Brontotaur', 'Dread Demon', 'Gore Demon', 'Judicator Demon', 'Kindred Black Mage',
-                'Kindred Dark Knight', 'Kindred Summoner', 'Kindred Warrior', 'Molech', 'Stygian Demon',
-                'Tyrannotaur' },
-        [5] = { 'Glacier Eater', 'Mountain Worm' },
-        [6] = { 'Isarukitsck', 'Little Wingman' },
+        [1] = { sight = { 'Uleguerand Tiger' } },
+        [2] = { sound = { 'Esbat', 'Nightmare Bats', 'Succubus Bats' } },
+        [3] = { sound = { 'Glacier Eater', 'Mountain Worm', 'Mountain Worm NM' } },
+        [4] = {
+            sight = { 'Dread Demon', 'Gore Demon', 'Judicator Demon', 'Kindred Black Mage', 'Kindred Dark Knight',
+                      'Kindred Summoner', 'Kindred Warrior', 'Stygian Demon' },
+            true_sight = { 'Brontotaur', 'Molech', 'Tyrannotaur' },
+        },
+        [5] = { sound = { 'Glacier Eater', 'Mountain Worm' } },
+        [6] = { true_both = { 'Isarukitsck', 'Little Wingman' } },
     },
     monsters = {
         {
@@ -104,6 +106,7 @@ return {
                 [64] = { acc = 250, eva = 232, agi = 46, int = 46, mnd = 68, chr = 68 },
                 [65] = { acc = 256, eva = 237, agi = 46, int = 46, mnd = 68, chr = 68 },
             },
+            ph_for = { [359] = { 360 } },
             ranks  = { fire = -1, ice = 2, wind = -1, earth = -1, thunder = -1, water = -2, light = -1, dark = -1,
                        paralyze = 2, bind = 2, silence = -1, slow = -1, poison = -2, light_sleep = -1,
                        dark_sleep = -1, blind = -1, stun = -1, gravity = -1 },

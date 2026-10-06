@@ -3,7 +3,8 @@ Monster rows for the zones the server builds from YAML (zoneutils.cpp InsertMobs
 battlefields, Limbus and Dynamis.
 
 A spawn becomes a monster only when it names a template, is placed (at, region, path or circuit) and its
-template's content is on. Spawns that share a template, script and spawn attributes share a row.
+template's content is on. Spawns that share a template, script, spawn attributes and fomor patrol or guard
+share a row.
 """
 import json
 import os
@@ -69,6 +70,8 @@ def build(ctx, dir_name, script_dir, in_dynamis):
     spawns = document.get('spawns') or {}
     tables = id_tables(spawns)
     first = {script: ids[0] for script, ids in tables.items()}
+    ids = links.Ids(ctx.tree, script_dir, first, tables)
+    fomors = links.fomor_superlinks(ctx.tree, ids)
     kinds = {}
     placed_spawns = []
     for spawn_id, spawn in sorted(spawns.items()):
@@ -90,7 +93,9 @@ def build(ctx, dir_name, script_dir, in_dynamis):
         is_extra = extra is not None and extra[0] <= index <= extra[1]
         split = ID_SPLITS.get((script_dir, script))
         below = split is not None and spawn_id < first[split[0]]
-        key = (name, script, is_extra, below, spawn_key(spawn))
+        # A fomor's patrol or guard decides who it superlinks with, so each one gets its own row.
+        party = fomors[spawn_id] if spawn_id in fomors and links.calls_fomor_party(ctx, script_dir, script) else None
+        key = (name, script, is_extra, below, spawn_key(spawn), party)
         kind = kinds.get(key)
         if kind is None:
             kind = new_kind(ctx, dir_name, script_dir, template, name, script, spawn)
@@ -107,7 +112,8 @@ def build(ctx, dir_name, script_dir, in_dynamis):
         kind.levels_by_index[index] = set(spawn_levels(spawn))
         placed_spawns.append((spawn_id, kind))
     kinds = list(kinds.values())
-    aggro_and_links(ctx, dir_name, script_dir, in_dynamis, kinds, placed_spawns, first, tables)
+    aggro_and_links(ctx, dir_name, script_dir, in_dynamis, kinds, placed_spawns, ids, fomors)
+    ctx.placeholders.mark(dir_name, script_dir, tables, placed_spawns)
     return kinds
 
 
@@ -145,12 +151,11 @@ def apply_group_mods(kind):
     kind.effects.init_ops += [('set', name, min(values)) for name, values in sorted(kind.group_mods.items())]
 
 
-def aggro_and_links(ctx, dir_name, script_dir, in_dynamis, kinds, placed_spawns, first, tables):
+def aggro_and_links(ctx, dir_name, script_dir, in_dynamis, kinds, placed_spawns, ids, fomors):
     """
     Works out each kind's aggro fields and the names it links with. A battlefield group's aggro and link mob mods,
     its mixins and its magic damage mods count for every monster the group holds.
     """
-    ids = links.Ids(ctx.tree, script_dir, first, tables)
     zone_fights = ctx.fights.get(dir_name, [])
     crates = crate_ids(ctx, dir_name) if zone_fights else []
     fights = [links.fight_members(fight, ids, placed_spawns, crates) for fight in zone_fights]
@@ -169,7 +174,7 @@ def aggro_and_links(ctx, dir_name, script_dir, in_dynamis, kinds, placed_spawns,
     for kind in kinds:
         apply_group_mods(kind)
         kind.aggro, kind.state = ctx.aggro.fields(kind, script_dir, ctx.tables.zones[dir_name])
-    links.zone_names(ctx, placed_spawns, in_dynamis, fights, script_dir, ids)
+    links.zone_names(ctx, placed_spawns, in_dynamis, fights, script_dir, ids, fomors)
 
 
 def apply_split(kind, split, below):

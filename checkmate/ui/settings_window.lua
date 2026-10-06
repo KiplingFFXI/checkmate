@@ -132,7 +132,7 @@ settings_window.SWATCHES = SWATCHES;
 -- What each part is called in the parts table, and the reading's row under Difficulty.
 local PART_NAMES = {
     difficulty = 'Difficulty', hit = 'Hit rate', evade = 'Evade', crit = 'Crit', aggro = 'Aggro', magic = 'Magic',
-    immunities = 'Immunities', elements = 'Elements', drops = 'Drops',
+    immunities = 'Immunities', elements = 'Elements', drops = 'Drops', pet = 'Pet',
 };
 local READING_NAME = 'Evasion and defense';
 
@@ -160,19 +160,25 @@ local CUTOFFS = { { 'Hit rate', 'hit' }, { 'Evade', 'evade' }, { 'Crit', 'crit' 
 ]]
 
 local TIPS = {
-    show_name     = 'Shows the monster\'s name. Turn it off to leave the name and level out while the other parts '
-        .. 'still print.',
+    show_name     = 'Shows the monster\'s name. Turn it off to leave the name, level, ID and PH note out while the '
+        .. 'other parts still print.',
     name_label    = 'A word before the name, empty at first. The label divider follows it.',
     show_level    = 'Adds the level after the name, like (Lv 42), or (Lv 38-40) when checkmate only knows the range.',
     show_range    = 'Once the monster\'s exact level is known, adds the levels it can spawn at, like (Lv 42, range '
         .. '40-44). A monster that only spawns at one level just shows its level. It needs Show level on.',
     range_word    = 'The word before that range. Clear it to get (Lv 42, 40-44).',
+    show_id       = 'Adds the monster\'s ID after its name and level, like (ID 17199202). It\'s the number the server '
+        .. 'knows that monster by, so two with the same name have different IDs.',
+    id_word       = 'The word before the ID. Clear it to get (17199202).',
+    show_ph       = 'Adds the NM a placeholder can pop after its level and ID, like (PH for Valkurm Emperor). It only '
+        .. 'says the monster is a PH, not when the NM can pop again, the chance it pops or whether it\'s up.',
+    ph_word       = 'The word before the NM. Clear it to get (Valkurm Emperor).',
     parts         = 'Parts print after the name, top to bottom, and the arrows move them. Type your own word in a '
         .. 'part\'s Label box, like Acc instead of Hit, or clear it for no label. A label can only use plain '
         .. 'letters, numbers, spaces and symbols. New line starts a new chat line before that part.',
-    extras        = 'With this on, hit, evade, crit, aggro, magic, immunities, elements and drops never share a line '
-        .. 'with the name and difficulty. With it off, they carry on along the same line unless their New line is '
-        .. 'on.',
+    extras        = 'With this on, hit, evade, crit, aggro, magic, immunities, elements, drops and pet never share a '
+        .. 'line with the name and difficulty. With it off, they carry on along the same line unless their New line '
+        .. 'is on.',
     header        = 'Starts each /check line with [checkmate]. checkmate\'s answers to your commands always have it.',
     divider       = 'What goes between parts. It also goes between magic schools, between the aggro answer and its '
         .. 'links, and before a count like "+2 more". The star, diamond, circle, dot, note and arrow are symbols '
@@ -183,7 +189,8 @@ local TIPS = {
         .. 'Aggressive". A part with no label doesn\'t get one.',
     custom_label  = 'Your own text right after each label, with a space after it. It can only use plain letters, '
         .. 'numbers, spaces and symbols.',
-    number_style  = 'How a range prints for hit rate, evade, crit and magic, as 64-72% or as its middle, ~68%.',
+    number_style  = 'How a range prints for hit rate, evade, crit, magic and the pet numbers, as 64-72% or as its '
+        .. 'middle, ~68%.',
     replace       = 'Hides the game\'s own line for your /check, and checkmate\'s lines take its place. If none of '
         .. 'your parts would print anything, checkmate still prints the name, level, difficulty and the evasion and '
         .. 'defense reading. With it off, you see the game\'s line too, unless checker is loaded. checker hides '
@@ -196,12 +203,22 @@ local TIPS = {
         .. 'label on Difficulty always uses One color.',
     threat_colors = 'With this on, Aggressive answers print in Threat, and Too weak, Not aggressive and Never '
         .. 'aggressive print in Safe. With it off, they all print in Words.',
-    grades        = 'With this on, the hit rate, evade and crit numbers use the Good, OK and Bad colors, going by '
-        .. 'the cutoffs on the Numbers tab. With it off, they use each part\'s Number color.',
+    grades        = 'With this on, the hit rate, evade, crit and pet numbers use the Good, OK and Bad colors, going '
+        .. 'by the cutoffs on the Numbers tab. With it off, they use each part\'s Number color.',
 
     cutoffs       = 'The number prints in the Good color at or above the first cutoff, and in the OK color at or '
         .. 'above the second. Anything lower is Bad. A range like 64-72% goes by its middle. The three colors are '
-        .. 'on the Colors tab.',
+        .. 'on the Colors tab. The pet part\'s Hit and Evade go by the Hit rate and Evade rows.',
+    pet           = 'The Pet part shows how often your pet hits the monster you /check and how often that monster '
+        .. 'misses your pet. It works for a jug pet, a charmed monster, a wyvern and an automaton, but only one '
+        .. 'that\'s out when your /check comes back. For all but a charmed monster, checkmate asks the game with a '
+        .. '/checkparam, so the Pet line prints a moment after the rest.',
+    pet_name      = 'Shows your pet\'s name at the start of the Pet part. Turn it off to leave its name and level out.',
+    pet_level     = 'Adds your pet\'s level after its name, like (Lv 75). The game picks a jug pet\'s level at random '
+        .. 'when you call it, so it shows the levels it can be, like (Lv 73-75). A wyvern keeps its level when you '
+        .. 'level up, so it can show a range then until you call it again. Its numbers can be a range too.',
+    pet_hit_word  = 'The word before how often your pet hits the monster. Clear it to leave the word out.',
+    pet_evade_word = 'The word before how often the monster misses your pet. Clear it to leave the word out.',
 
     aggressive    = 'checkmate\'s data says whether a monster is aggressive, and your /check says whether it\'s too '
         .. 'weak to aggro you at your level. One that checks Too Weak won\'t aggro you unless you rest or sit. If '
@@ -212,10 +229,21 @@ local TIPS = {
         .. 'you when your HP is under 75%. Ability means it notices your job abilities and weapon skills. Nothing '
         .. 'stops those three. True Sight sees through Invisible and True Sound hears through Sneak. Ambush means '
         .. 'it aggroes you within 3 yalms unless you have Sneak on. Times like 18:00-5:59 are Vana\'diel time.',
+    link_how      = 'Adds how each monster it links with joins the fight, like Goblin Thug (Sight). Every one but a '
+        .. 'Superlink has to be near a monster in the fight, with nothing in the way. Sight means it sees but '
+        .. 'doesn\'t hear, so it also has to be facing that monster. Sound, or Sight, Sound, means it hears and '
+        .. 'joins from any side. One that neither sees nor hears says what it notices instead, like (Magic), and '
+        .. 'joins from any side too. One that only notices scent gets nothing after its name. Superlink means it '
+        .. 'shares a superlink with the monster you checked or with another one in the fight, and joins from '
+        .. 'anywhere in the zone. A name can show two when some of its monsters join one way and some the other, '
+        .. 'like Fomor Monk (Superlink or Sound). True Sight and True Sound tell you it sees through Invisible or '
+        .. 'hears through Sneak, but a link never cares about those. With the names off, it says how they link all '
+        .. 'together, like Links (Sight, Sound).',
     link_names    = 'Names every kind of monster that can end up in the fight when you pull it. A monster joins '
-        .. 'when it\'s idle and near any monster already in the fight, so one helper can bring in more. If its own '
-        .. 'name is in the list, others of its kind help it. With this off, it just says "Links" or "Doesn\'t '
-        .. 'link".',
+        .. 'when it\'s idle and near any monster already in the fight, or from anywhere when it shares that '
+        .. 'monster\'s superlink, so one helper can bring in more. If its own name is in the list, others of its kind '
+        .. 'help it. With this off, it just says "Links" or "Doesn\'t link", and Show how each one links adds how '
+        .. 'they link, like "Links (Sight)".',
     max_links     = 'The most link names shown. The rest show as "+2 more". All shows every name, and a Dynamis '
         .. 'monster can link with over 150 kinds.',
 
@@ -288,6 +316,11 @@ local PART_TIPS = {
     elements   = 'The elements the monster is weak to and the ones it resists. The Magic tab has its options.',
     drops      = 'What the monster drops and the chance of each, at your Treasure Hunter. The Drops tab has its '
         .. 'options.',
+    pet        = 'How often your pet hits the monster and how often the monster misses it, with your pet\'s name '
+        .. 'and level. Except for a charmed monster, checkmate needs a /checkparam for your pet, so this line '
+        .. 'prints about two seconds after your /check, or about three and a half with Hit rate or Evade on. It '
+        .. 'never holds up the other lines, so if it shares your /check line, that line prints after the ones '
+        .. 'under it. The Numbers tab has its options.',
 };
 
 -- What each magic school's row covers.
@@ -328,6 +361,8 @@ local COLOR_TIPS = {
     name              = 'The monster\'s name.',
     level             = 'The level after the name, like (Lv 42).',
     level_range       = 'The range after a known level, like "range 40-44".',
+    id                = 'The ID after the name and level, like (ID 17199202).',
+    ph                = 'The PH note after the name, level and ID, like (PH for Valkurm Emperor).',
     difficulty        = 'Every con while Color by difficulty is off, and a label on Difficulty either way.',
     reading           = 'The evasion and defense words, like High Evasion.',
     reading_detail    = 'The parentheses around the reading and the comma inside them.',
@@ -343,8 +378,8 @@ local COLOR_TIPS = {
     aggro_label       = LABEL_TIP,
     aggro_words       = 'The answer while Color by threat is off, and "Links with", "Links", "Doesn\'t link" and the '
         .. 'names.',
-    aggro_detail      = 'How it notices you, like "(Sight, Sound)", the notes, the commas, the dividers and the '
-        .. '"+2 more" count.',
+    aggro_detail      = 'How it notices you, like "(Sight, Sound)", how the monsters it links with join, like '
+        .. '"(Sound)", the notes, the commas, the dividers and the "+2 more" count.',
     aggro_threat      = 'Aggressive while Color by threat is on.',
     aggro_safe        = 'Too weak, Not aggressive and Never aggressive while Color by threat is on.',
     magic_label       = LABEL_TIP,
@@ -363,7 +398,12 @@ local COLOR_TIPS = {
     drops_name        = 'The item names.',
     drops_number      = 'Each item\'s chance.',
     drops_detail      = 'The small extras, like "(TH 2)", the commas, "+2 more" and the drop notes.',
-    good              = 'Hit rate, evade and crit numbers at or above the good cutoff on the Numbers tab.',
+    pet_label         = 'The label, its label divider, and the Hit and Evade words with their label dividers.',
+    pet_name          = 'Your pet\'s name.',
+    pet_level         = 'Your pet\'s level after its name, like (Lv 75).',
+    pet_number        = 'Your pet\'s numbers while grade colors are off. With them on, the Grades colors paint them.',
+    pet_detail        = 'The dividers inside the part, "unknown" and the "?" after a number.',
+    good              = 'Hit rate, evade, crit and pet numbers at or above the good cutoff on the Numbers tab.',
     ok                = 'Numbers at or above the OK cutoff but under the good one.',
     bad               = 'Numbers under the OK cutoff.',
 };
@@ -737,6 +777,12 @@ local function draw_name_section(ps)
     if (stacked) then
         imgui.Unindent(indent);
     end
+    checkbox('Show its ID', ps, 'show_id', TIPS.show_id);
+    beside(SECOND_COLUMN);
+    text_box('ID word', ps, 'id_word', px(LABEL_WIDTH), LABEL_MAX, TIPS.id_word, not ps.show_id);
+    checkbox('Show if it\'s a PH', ps, 'show_ph', TIPS.show_ph);
+    beside(SECOND_COLUMN);
+    text_box('PH word', ps, 'ph_word', px(LABEL_WIDTH), LABEL_MAX, TIPS.ph_word, not ps.show_ph);
 end
 
 -- The Up and Down arrows of one part. The first can't go up and the last can't go down.
@@ -896,7 +942,7 @@ end
 local COLOR_SWITCHES = {
     ['Difficulty'] = { 'Color by difficulty', 'printout', 'con_colors', TIPS.con_colors },
     ['Aggro']      = { 'Color by threat', 'aggro', 'threat_colors', TIPS.threat_colors },
-    ['Grades']     = { 'Color the hit rate, evade and crit numbers', 'grades', 'on', TIPS.grades },
+    ['Grades']     = { 'Color the hit, evade, crit and pet numbers', 'grades', 'on', TIPS.grades },
 };
 
 -- How wide a color's swatch, list and (?) are, with a gap after them so the next color's name stands
@@ -954,7 +1000,7 @@ end
     Numbers tab.
 ]]
 
-local function draw_numbers_tab(settings)
+local function draw_cutoffs_section(settings)
     local grades = settings.grades;
     heading('CUTOFFS');
     local off = not grades.on;
@@ -982,6 +1028,28 @@ local function draw_numbers_tab(settings)
     end
 end
 
+local function draw_pet_section(settings)
+    local p = settings.pet;
+    heading('PET', TIPS.pet);
+    part_off_note(settings, 'pet');
+    checkbox('Show its name', p, 'show_name', TIPS.pet_name);
+    beside(SECOND_COLUMN);
+    checkbox('Show its level', p, 'show_level', TIPS.pet_level, not p.show_name);
+    text_box('Hit word', p, 'hit_word', px(LABEL_WIDTH), LABEL_MAX, TIPS.pet_hit_word);
+    beside();
+    text_box('Evade word', p, 'evade_word', px(LABEL_WIDTH), LABEL_MAX, TIPS.pet_evade_word);
+end
+
+local function draw_numbers_tab(settings)
+    if (begin_sections('##numbers_sections')) then
+        imgui.TableNextColumn();
+        draw_cutoffs_section(settings);
+        imgui.TableNextColumn();
+        draw_pet_section(settings);
+        imgui.EndTable();
+    end
+end
+
 --[[
     Aggro tab.
 ]]
@@ -995,6 +1063,8 @@ local function draw_aggro_tab(settings)
         checkbox('Show how it finds you', a, 'detection', TIPS.detection);
         imgui.TableNextColumn();
         heading('LINKS');
+        -- First, so it sits next to Show how it finds you.
+        checkbox('Show how each one links', a, 'link_how', TIPS.link_how);
         checkbox('Show the names it links with', a, 'link_names', TIPS.link_names);
         slider(imgui.SliderInt, 'Most names shown', a, 'max_links', 0, aggro.MAX_LINKS,
             a.max_links == 0 and 'All' or '%d', TIPS.max_links, not a.link_names);

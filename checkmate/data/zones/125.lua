@@ -1,22 +1,28 @@
 -- Western Altepa Desert (zone 125).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Desert Spider' },
-        [2] = { 'Celphie', 'Desert Dhalmel' },
-        [3] = { 'Antican Eques', 'Antican Essedarius', 'Antican Hoplomachus', 'Antican Lanista',
-                'Antican Retiarius', 'Antican Secutor' },
-        [4] = { 'Desert Beetle' },
-        [5] = { 'Desert Dhalmel' },
-        [6] = { 'Goblin Bouncer', 'Goblin Digger', 'Goblin Enchanter', 'Goblin Hunter', 'Goblin Welldigger' },
-        [7] = { 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter', 'Goblin Welldigger' },
-        [8] = { 'Cactuar', 'Cactuar Cantautor', 'Sabotender Campeador', 'Sabotender Enamorado',
-                'Sabotender Mercenario' },
+        [1] = { sound = { 'Desert Spider' } },
+        [2] = { sight = { 'Celphie', 'Desert Dhalmel' } },
+        [3] = {
+            sound = { 'Antican Eques', 'Antican Essedarius', 'Antican Hoplomachus', 'Antican Lanista',
+                      'Antican Retiarius', 'Antican Secutor' },
+        },
+        [4] = { sight = { 'Desert Beetle' } },
+        [5] = { sight = { 'Desert Dhalmel' } },
+        [6] = {
+            sight = { 'Goblin Bouncer', 'Goblin Digger', 'Goblin Enchanter', 'Goblin Hunter', 'Goblin Welldigger' },
+        },
+        [7] = { sight = { 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter', 'Goblin Welldigger' } },
+        [8] = {
+            sound = { 'Cactuar', 'Cactuar Cantautor', 'Sabotender Enamorado', 'Sabotender Mercenario' },
+            true_sound = { 'Sabotender Campeador' },
+        },
     },
     monsters = {
         {
@@ -112,6 +118,7 @@ return {
                 [47] = { acc = 168, eva = 156, agi = 46, int = 37, mnd = 37, chr = 41 },
                 [48] = { acc = 172, eva = 160, agi = 48, int = 37, mnd = 37, chr = 42 },
             },
+            ph_for = { [236] = { 237 } },
             ranks  = { fire = -2, wind = -3, thunder = -3, water = -2, light = -2, dark = -2, silence = -3,
                        poison = -2, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -3, gravity = -3 },
             drops  = {
@@ -214,6 +221,7 @@ return {
                              [328] = { 49, 53 }, [336] = { 49, 53 }, [342] = { 48, 52 }, [343] = { 48, 52 },
                              [354] = { 49, 53 }, [362] = { 49, 53 }, [373] = { 49, 53 }, [412] = { 49, 53 },
                              [419] = { 49, 53 } },
+            ph_for = { [343] = { 344 } },
             ranks  = { fire = -2, ice = -3, thunder = -2, water = 4, light = 4, dark = -3, paralyze = -3, bind = -3,
                        poison = 4, light_sleep = 4, dark_sleep = -3, blind = -3, stun = -2 },
             drops  = {

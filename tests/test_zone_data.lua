@@ -1,11 +1,13 @@
 -- Tests the real generated monster data. Every zone file has to load and have the shape the addon
--- reads, with each link list written once. Rows worked out by hand for the open world, NMs,
--- battlefields, Limbus, Dynamis and Assault have to match, magic damage included, and a /check of
--- real monsters has to print through the addon.
+-- reads, with each link list written once, grouped by how each one links, and each placeholder naming
+-- an NM in the same file. Rows worked out by hand for the open world, NMs, placeholders, battlefields,
+-- Limbus, Dynamis and Assault have to match, magic damage included, and a /check of real monsters has
+-- to print through the addon. The pet data has to load too.
 local bands    = require('data.bands');
 local drops    = require('core.drops');
 local monsters = require('core.monsters');
 local printout = require('core.printout');
+local aggro    = require('core.aggro');
 
 -- Every zone file ------------------------------------------------------------------------------
 
@@ -18,7 +20,7 @@ local FLAGS = { scripted_stats = true, scripted_drops = true, exp_only = true, s
 local ROW_KEYS = { name = true, ids = true, nm = true, levels = true, spawn_levels = true, level_mod = true, ranks = true, meva = true,
     resist = true, magic_dmg = true, absorb = true, nullify = true, undead = true, immune = true, drops = true, flags = true,
     aggro = true, any_level = true, no_aggro = true, detects = true, true_detect = true, ambush = true, aggro_note = true,
-    aggro_hours = true, links = true };
+    aggro_hours = true, links = true, ph_for = true };
 -- magic_dmg is a percent change from -100 to +200. absorb and nullify are chances up to 100. Each has
 -- 'all' for every element and the eight elements.
 local MAGIC_RANGES = { magic_dmg = { -100, 200 }, absorb = { 0, 100 }, nullify = { 0, 100 } };
@@ -61,6 +63,25 @@ local function magic_problem(t)
     return nil;
 end
 
+local LINK_WAY = {};
+for _, way in ipairs(aggro.LINK_WAYS) do LINK_WAY[way] = true; end
+
+-- The first problem with a list of link groups, or nil. It's keyed by how they link, and each group is
+-- names sorted and each once.
+local function groups_problem(list)
+    if (type(list) ~= 'table' or next(list) == nil) then return 'no groups'; end
+    for way, names in pairs(list) do
+        if (not LINK_WAY[way]) then return 'a group called ' .. tostring(way); end
+        if (type(names) ~= 'table' or #names == 0) then return 'an empty ' .. way .. ' group'; end
+        local before = '';
+        for _, name in ipairs(names) do
+            if (type(name) ~= 'string' or name <= before) then return way .. ' names not sorted, distinct names'; end
+            before = name;
+        end
+    end
+    return nil;
+end
+
 -- The first problem with a file's link lists, or nil. Each list is written once, numbered from 1,
 -- and is some row's.
 local function link_lists_problem(file)
@@ -73,10 +94,16 @@ local function link_lists_problem(file)
         end
     end
     local count = 0;
-    for number, names in pairs(lists) do
+    for number, list in pairs(lists) do
         count = count + 1;
-        if (type(names) ~= 'table' or not used[number]) then return 'list ' .. tostring(number) .. ' is no row\'s'; end
-        local key = table.concat(names, '|');
+        if (type(list) ~= 'table' or not used[number]) then return 'list ' .. tostring(number) .. ' is no row\'s'; end
+        local problem = groups_problem(list);
+        if (problem) then return 'list ' .. number .. ': ' .. problem; end
+        local key = {};
+        for _, way in ipairs(aggro.LINK_WAYS) do
+            if (list[way] ~= nil) then key[#key + 1] = way .. ':' .. table.concat(list[way], '|'); end
+        end
+        key = table.concat(key, ' ');
         if (seen[key]) then return 'list ' .. number .. ' is written twice'; end
         seen[key] = true;
     end
@@ -106,12 +133,8 @@ local function aggro_problem(row)
         or not whole(hours[2], 0, 23))) then
         return 'bad aggro_hours';
     end
-    if (row.links ~= nil and (type(row.links) ~= 'table' or #row.links == 0)) then return 'empty links'; end
-    local before = '';
-    for _, name in ipairs(row.links or {}) do
-        if (type(name) ~= 'string' or name <= before) then return 'links not sorted, distinct names'; end
-        before = name;
-    end
+    if (row.links ~= nil and (type(row.links) ~= 'table' or next(row.links) == nil)) then return 'empty links'; end
+    if (row.links ~= nil and groups_problem(row.links)) then return 'links: ' .. groups_problem(row.links); end
     return nil;
 end
 
@@ -133,6 +156,24 @@ local function spawn_levels_problem(row)
         if (range[1] == low and range[2] == high) then return 'a spawn range that is the row\'s whole range'; end
     end
     if (count == 0) then return 'empty spawn_levels'; end
+    return nil;
+end
+
+-- The first problem with a row's ph_for, or nil. Each entry is one of its spawns, and each NM it names is the
+-- spawn index of another monster in the same file. by_index is the file's rows by spawn index.
+local function ph_for_problem(row, by_index)
+    if (row.ph_for == nil) then return nil; end
+    local ids, count = {}, 0;
+    for _, id in ipairs(row.ids) do ids[id] = true; end
+    for index, nms in pairs(row.ph_for) do
+        count = count + 1;
+        if (not ids[index]) then return 'a PH index not in ids'; end
+        if (type(nms) ~= 'table' or #nms == 0) then return 'no NM for PH ' .. tostring(index); end
+        for _, nm in ipairs(nms) do
+            if (nm == index or by_index[nm] == nil) then return ('PH %d names %s, which is no row\'s'):format(index, tostring(nm)); end
+        end
+    end
+    if (count == 0) then return 'empty ph_for'; end
     return nil;
 end
 
@@ -194,7 +235,8 @@ end
 
 local files, rows, problems, taken = 0, 0, {}, {};
 local ranged_rows, spawn_ranges, lists, linked_rows = 0, 0, 0, 0;
-local zones = {};
+local ph_rows, ph_spawns, ph_zones = 0, 0, {};
+local zones, ways_used = {}, {};
 for _, path in ipairs(ADDON_FILES) do
     local zone = tonumber(path:match('^data/zones/(%d+)%.lua$'));
     if (zone ~= nil) then
@@ -212,12 +254,18 @@ for _, path in ipairs(ADDON_FILES) do
             local problem = link_lists_problem(file);
             if (problem) then problems[#problems + 1] = path .. ': ' .. problem; end
             lists = lists + #(file.link_lists or {});
+            for _, list in ipairs(file.link_lists or {}) do
+                for way in pairs(list) do ways_used[way] = true; end
+            end
             for _, row in ipairs(file.monsters) do linked_rows = linked_rows + (row.links and 1 or 0); end
             monsters.resolve_links(file);
-            local seen = {};
+            local seen, by_index = {}, {};
+            for _, row in ipairs(file.monsters) do
+                for _, id in ipairs(row.ids or {}) do by_index[id] = row; end
+            end
             for number, row in ipairs(file.monsters) do
                 rows = rows + 1;
-                local problem = row_problem(row);
+                local problem = row_problem(row) or ph_for_problem(row, by_index);
                 if (problem) then
                     problems[#problems + 1] = ('%s row %d (%s): %s'):format(path, number, tostring(row.name), problem);
                 end
@@ -229,6 +277,10 @@ for _, path in ipairs(ADDON_FILES) do
                     ranged_rows = ranged_rows + 1;
                     for _ in pairs(row.spawn_levels) do spawn_ranges = spawn_ranges + 1; end
                 end
+                if (type(row.ph_for) == 'table') then
+                    ph_rows, ph_zones[zone] = ph_rows + 1, true;
+                    for _ in pairs(row.ph_for) do ph_spawns = ph_spawns + 1; end
+                end
             end
         end
     end
@@ -239,8 +291,22 @@ check('about 6,000 rows', rows >= 6000, rows);
 check('about 700 rows keep about 11,000 spawns\' own ranges', ranged_rows >= 650 and spawn_ranges >= 10000,
     ranged_rows .. ' rows, ' .. spawn_ranges .. ' spawns');
 check('no spawn index is in two rows of one zone', #taken == 0, table.concat(taken, ', ', 1, math.min(#taken, 10)));
-check('about 3,800 rows link, through about 1,900 link lists', linked_rows >= 3700 and lists <= 2000,
+-- 283 placeholder spawns in 182 rows at 465ac4c076. Too many means the reader took list entries Phoenix never rolls.
+check('about 180 rows hold about 280 placeholders', ph_rows >= 170 and ph_rows <= 200 and ph_spawns >= 270
+    and ph_spawns <= 300, ph_rows .. ' rows, ' .. ph_spawns .. ' spawns');
+local dynamis_ph = {};
+for _, zone in ipairs({ 39, 40, 41, 42, 134, 135, 185, 186, 187, 188 }) do
+    if (ph_zones[zone]) then dynamis_ph[#dynamis_ph + 1] = zone; end
+end
+check('no Dynamis monster is a placeholder, since Phoenix\'s Dynamis replaces its despawn', #dynamis_ph == 0,
+    table.concat(dynamis_ph, ', '));
+check('about 3,800 rows link, through about 2,000 link lists', linked_rows >= 3700 and lists <= 2100,
     linked_rows .. ' rows, ' .. lists .. ' lists');
+local unused = {};
+for _, way in ipairs(aggro.LINK_WAYS) do
+    if (not ways_used[way]) then unused[#unused + 1] = way; end
+end
+check('every way of linking shows up somewhere in the data', #unused == 0, table.concat(unused, ', '));
 
 local not_ascii = {};
 for _, path in ipairs(ADDON_FILES) do
@@ -258,6 +324,32 @@ check('bands has 86 levels', #bands.rows == 86, #bands.rows);
 local b75;
 for _, row in ipairs(bands.rows) do if (row[1] == 75) then b75 = row; end end
 check('the level 75 band', b75 and table.concat(b75, ',') == '75,313,321,279,304,66,82');
+
+-- The pet file.
+local pets = require('data.pets');
+check('pets has the data\'s stamp', pets.built == bands.built and pets.content == bands.content);
+local jug_count, jug_levels = 0, true;
+for _, level in pairs(pets.jugs) do
+    jug_count = jug_count + 1;
+    jug_levels = jug_levels and whole(level, 1, 255);
+end
+check('98 jug pets, each with a whole level', jug_count == 98 and jug_levels, jug_count);
+check('CourierCarrie tops out at 75 and FunguarFamiliar at 65', pets.jugs['CourierCarrie'] == 75
+    and pets.jugs['FunguarFamiliar'] == 65);
+local avatar_count, both = 0, {};
+for name in pairs(pets.avatars) do
+    avatar_count = avatar_count + 1;
+    if (pets.jugs[name] ~= nil) then both[#both + 1] = name; end
+end
+check('22 avatars and spirits, none named like a jug pet', avatar_count == 22 and #both == 0,
+    avatar_count .. ' ' .. table.concat(both, ', '));
+check('Carbuncle, Ifrit, FireSpirit, Cait Sith and Siren among them', pets.avatars['Carbuncle'] and pets.avatars['Ifrit']
+    and pets.avatars['FireSpirit'] and pets.avatars['Cait Sith'] and pets.avatars['Siren']);
+local gloves, gloves_plus = pets.jug_range_items[15110], pets.jug_range_items[14917];
+check('Monster Gloves and Monster Gloves +1 each narrow a jug pet\'s level by one, from level 75', gloves.cut == 1
+    and gloves.level == 75 and gloves_plus.cut == 1 and gloves_plus.level == 75);
+check('Beast Affinity is merit 2564, 2 levels a merit, up to 3 merits', pets.beast_affinity.id == 2564
+    and pets.beast_affinity.per_merit == 2 and pets.beast_affinity.most == 3);
 
 -- Rows worked out by hand ------------------------------------------------------------------------
 
@@ -337,9 +429,9 @@ end
 row = find(103, 'Goblin Tinkerer', 32);
 check('each Valkurm Dunes Goblin Tinkerer spawns at 17-18, 18-19 or 19-20', levels_of(row) == '17,18,19,20'
     and spawn_levels_of(row) == '32=17-18 98=18-19 143=17-18 163=17-18 164=17-18 173=17-18 202=19-20 263=19-20', spawn_levels_of(row));
-row = find(24, 'Fomor Warrior', 212);
-check('the Lufaise Meadows Fomor Warriors spawn at 42-44 and 80-82', spawn_levels_of(row) == '141=80-82 212=42-44',
-    spawn_levels_of(row));
+check('Lufaise Meadows Fomor Warriors 141 and 212 are in different parties, so each has its own row and levels',
+    levels_of(find(24, 'Fomor Warrior', 141)) == '80,81,82' and levels_of(find(24, 'Fomor Warrior', 212)) == '42,43,44'
+    and find(24, 'Fomor Warrior', 141) ~= find(24, 'Fomor Warrior', 212));
 row = find(4, 'Goblins Rarab', 147);
 check('one Bibiki Bay Goblins Rarab spawns at 29-31 and three at 66-69', spawn_levels_of(row)
     == '147=29-31 152=66-69 178=66-69 198=66-69', spawn_levels_of(row));
@@ -348,6 +440,47 @@ check('Promyvion-Holla Strays spawn at 20-21, 23-24 or 26-27', row and table.con
     and table.concat(row.spawn_levels[90], '-') == '23-24' and table.concat(row.spawn_levels[137], '-') == '26-27');
 row = find(107, 'Leaping Lizzy', 380);
 check('both Leaping Lizzy spawns are 10-11, the row\'s range', levels_of(row) == '10,11' and row.spawn_levels == nil);
+
+-- Placeholders, from each PH's own onMobDespawn and the phList in the NM's script. Each entry shows as
+-- "PH index=NM indexes".
+local function phs_of(row)
+    local list = {};
+    for index, nms in pairs(row and row.ph_for or {}) do list[#list + 1] = { index, table.concat(nms, ',') }; end
+    table.sort(list, function (a, b) return a[1] < b[1]; end);
+    for i, entry in ipairs(list) do list[i] = entry[1] .. '=' .. entry[2]; end
+    return table.concat(list, ' ');
+end
+local function rows_with_ph(zone)
+    local count = 0;
+    for _, each in ipairs((zones[zone] or {}).monsters or {}) do count = count + (each.ph_for and 1 or 0); end
+    return count;
+end
+row = find(103, 'Damselfly', 330);
+check('one Valkurm Dunes Damselfly is the PH for Valkurm Emperor', phs_of(row) == '330=334'
+    and find(103, 'Valkurm Emperor', 334) ~= nil, phs_of(row));
+check('and one Giant Bat for Golden Bat', phs_of(find(103, 'Giant Bat', 458)) == '458=460'
+    and find(103, 'Golden Bat', 460) ~= nil, phs_of(find(103, 'Giant Bat', 458)));
+row = find(107, 'Ornery Sheep', 124);
+check('a South Gustaberg Ornery Sheep can pop either Carnero', phs_of(row) == '124=125,138'
+    and find(107, 'Carnero', 125) == find(107, 'Carnero', 138), phs_of(row));
+row = find(157, 'Giant Gatekeeper', 37);
+check('two Middle Delkfutt\'s Tower Giant Gatekeepers are PHs for two different NMs', phs_of(row) == '37=36 95=94'
+    and find(157, 'Eurytos', 36) ~= nil and find(157, 'Polybotes', 94) ~= nil, phs_of(row));
+check('Tremor Rams pop Rampaging Ram, an NM that is the PH for Steelfleece Baldarich', phs_of(find(108, 'Tremor Ram', 301))
+    == '301=302 403=302' and phs_of(find(108, 'Rampaging Ram', 302)) == '302=303', phs_of(find(108, 'Tremor Ram', 301)));
+check('Lumbering Lambert is the PH for Bloodtear Baldurf, and Bloodtear\'s list entry that only keeps him down while '
+    .. 'Lambert is up makes him no PH', phs_of(find(102, 'Lumbering Lambert', 309)) == '309=310'
+    and find(102, 'Bloodtear Baldurf', 310).ph_for == nil);
+check('Quicksand Caves Helm Beetles only roll in a sandstorm and are still PHs', phs_of(find(208, 'Helm Beetle', 249))
+    == '249=246 252=246 255=246 258=246 262=246', phs_of(find(208, 'Helm Beetle', 249)));
+check('Fei\'Yin Specters keep their Shadows through the era module\'s own despawn', phs_of(find(204, 'Specter war', 298))
+    == '298=302' and find(204, 'Northern Shadow', 302) ~= nil, phs_of(find(204, 'Specter war', 298)));
+check('Ru\'Aun Gardens has 16 Groundskeepers for Despot', select(2, phs_of(find(130, 'Groundskeeper', 242)):gsub('=258', ''))
+    == 16, phs_of(find(130, 'Groundskeeper', 242)));
+check('no Oldton Movalpolos monster is a PH, since Bugbear Strongman\'s PH spawns run a script that isn\'t there',
+    rows_with_ph(11) == 0);
+check('a Batallia Downs Evil Weapon isn\'t one, since Prankster Maverix is WotG content', find(105, 'Evil Weapon', 339).ph_for
+    == nil and phs_of(find(105, 'Stalking Sapling', 153)) == '153=180');
 
 -- Battlefields and Limbus.
 row = find(144, 'Queen Jelly');
@@ -369,9 +502,15 @@ check('Adamantking Effigy at 65', stats_are(row, 65, 272, 259, 90, 74, 74, 80)
 row = find(135, 'Dynamis Lord');
 check('Dynamis Lord at 90', stats_are(row, 90, 419, 356, 110, 117, 87, 87) and row.resist.paralyze == 25 and #row.immune == 10);
 
--- Links. Each Dynamis-Beaucedine list is written once, and its rows share them.
+-- Links. Each Dynamis-Beaucedine list is written once, and its rows share them. Each group shows as
+-- "way: names", in the order the data writes them.
 local function links_of(row)
-    return table.concat(row and row.links or {}, ', ');
+    local groups = {};
+    for _, way in ipairs(aggro.LINK_WAYS) do
+        local names = row and row.links and row.links[way];
+        if (names ~= nil) then groups[#groups + 1] = way .. ': ' .. table.concat(names, ', '); end
+    end
+    return table.concat(groups, ' / ');
 end
 local beaucedine = loadfile(ADDON_DIR .. '/data/zones/134.lua')();
 local beaucedine_rows = 0;
@@ -379,20 +518,62 @@ for _, each in ipairs(beaucedine.monsters) do beaucedine_rows = beaucedine_rows 
 check('Dynamis-Beaucedine writes 78 link lists for its 165 linked rows', #beaucedine.link_lists == 78 and beaucedine_rows == 165,
     #beaucedine.link_lists .. ' lists, ' .. beaucedine_rows .. ' rows');
 row = find(134, 'Vanguard Liberator', 2);
-check('and a row there gets its names back', row and #row.links > 100 and row.links[1] < row.links[2], row and #row.links);
+local liberator = row and row.links.true_both;
+check('and a row there gets its names back', liberator ~= nil and #liberator > 100 and liberator[1] < liberator[2],
+    liberator and #liberator);
 row = find(8, 'Shikaree Y', 101);
 check('Shikaree Y links with its partners from both Boneyard Gully fights', links_of(row)
-    == 'Shikaree X, Shikaree Xs Rabbit, Shikaree Z, Shikaree Zs Wyvern', links_of(row));
+    == 'superlink: Shikaree X, Shikaree Xs Rabbit, Shikaree Z, Shikaree Zs Wyvern', links_of(row));
 row = find(29, 'Tiamat');
 check('Tiamat links with the battlefield-typed wyrms in its superlink group', links_of(row)
-    == 'Airi, Bahamut, Iruci, Jormungand, Ouryu, Pey, Vrtra', links_of(row));
+    == 'superlink: Airi, Bahamut, Iruci, Jormungand, Ouryu, Pey, Vrtra', links_of(row));
 row = find(25, 'Tavnazian Sheep');
-check('the Gigas Warwolves\' sheep are pets, so no other sheep links', links_of(row) == 'Tavnazian Sheep', links_of(row));
+check('the Gigas Warwolves\' sheep are pets, so no other sheep links', links_of(row) == 'sight: Tavnazian Sheep', links_of(row));
 row = find(66, 'Mamool Ja\'s Lizard');
 check('every Mamool Ja\'s Lizard is a Warder\'s pet', row ~= nil and row.links == nil);
 row = find(79, 'Orderly Imp');
-check('a link name drops the template\'s zone suffix', links_of(row) == 'Dark Bugler, Heraldic Imp, Orderly Imp, Verdelet, Zikko',
+check('a link name drops the template\'s zone suffix', links_of(row) == 'true_sound: Heraldic Imp, Orderly Imp / '
+    .. 'true_both: Dark Bugler, Verdelet, Zikko', links_of(row));
+
+-- How each one links, worked out by hand from CanLink and each helper's senses.
+row = find(33, 'Jailer of Love', 464);
+check('Jailer of Love shares a superlink with its pets', links_of(row) == 'superlink: Qnhpemde, Qnxzomit, Ruphuabo',
     links_of(row));
+row = find(118, 'Zu', 14);
+check('Buburimu Peninsula Zu: the birds see and the Zu hear', links_of(row) == 'sight: Abyssdiver, Helldiver / sound: Zu',
+    links_of(row));
+row = find(30, 'Carmine Dobsonfly', 134);
+check('Riverne Carmine Dobsonflies share a superlink and the Hawker hears', links_of(row)
+    == 'superlink: Carmine Dobsonfly / sound: Hawker', links_of(row));
+row = find(30, 'Hawker', 120);
+check('a Hawker hears a Dobsonfly in, and it superlinks the rest from anywhere', links_of(row)
+    == 'superlink: Carmine Dobsonfly / sound: Carmine Dobsonfly, Hawker', links_of(row));
+row = find(7, 'Tracer Antlion', 1);
+check('Attohwa Chasm antlions hiding underground never link', links_of(row):find('Ambusher Antlion') == nil
+    and links_of(row):find('Pit Antlion') == nil and links_of(row):find('Hunter Antlion') ~= nil, links_of(row));
+row = find(8, 'Tuchulcha', 17);
+check('so Tuchulcha\'s hunters don\'t either', row ~= nil and row.links == nil, links_of(row));
+row = find(23, 'Memory Receptacle', 23);
+check('Spire of Vahzl Memory Receptacles hear or only smell', links_of(row) == 'sound: Memory Receptacle / true_sound: '
+    .. 'Contemplator, Ingurgitator, Neoingurgitator, Repiner / neither: Memory Receptacle', links_of(row));
+row = find(16, 'Memory Receptacle', 29);
+check('the Promyvion-Holla ones only smell', links_of(row) == 'neither: Memory Receptacle', links_of(row));
+row = find(159, 'Tonberrys Elemental', 12);
+check('Temple of Uggalepih elementals notice magic', links_of(row) == 'magic: Clawberrys Elemental, Tonberrys Elemental',
+    links_of(row));
+-- The fomor patrols and guards in fomor_party.lua superlink, and each one gets its own row. Sacrarium Fomor
+-- Warrior 130 leads a patrol with a Fomor Dragoon, 124 follows a Fomor Monk, and 63 is in neither.
+check('Sacrarium Fomor Warriors superlink only with their own patrols', links_of(find(28, 'Fomor Warrior', 130))
+    == 'superlink: Fomor Dragoon' and links_of(find(28, 'Fomor Warrior', 124)) == 'superlink: Fomor Monk',
+    links_of(find(28, 'Fomor Warrior', 130)) .. ' and ' .. links_of(find(28, 'Fomor Warrior', 124)));
+row = find(28, 'Fomor Warrior', 63);
+check('and one with no patrol gets the fomors that join by sound', links_of(row) == 'sound: Fomor Ranger, Fomor Thief, '
+    .. 'Fomor Warrior', links_of(row));
+row = find(24, 'Fomor Dark Knight LM', 148);
+check('the Fomor Dark Knight at Bluefell Falls superlinks only with its guard', links_of(row) == 'superlink: Fomor Black Mage, '
+    .. 'Fomor Dragoon, Fomor Paladin', links_of(row));
+check('Spire of Vahzl and Riverne-Site A01 split a list where names match but how they link doesn\'t',
+    #zones[23].link_lists == 7 and #zones[30].link_lists == 5, #zones[23].link_lists .. ' and ' .. #zones[30].link_lists);
 
 -- Magic damage, absorb and nullify.
 local function pairs_of(t)
@@ -519,7 +700,8 @@ check('Leujaoam Worm under the level 50 cap', lines[1] == '[checkmate] Leujaoam 
 check('an Assault monster has no drops part', #lines == 4 and not table.concat(lines, ' / '):find('Drops', 1, true),
     table.concat(lines, ' / '));
 check('and its elements', lines[4] == '[checkmate] Elements: Weak: Wind, Light', lines[4]);
-check('and its aggro from the instance tables', lines[2] == '[checkmate] Aggro: Not aggressive  Links with Leujaoam Worm', lines[2]);
+check('and its aggro from the instance tables', lines[2] == '[checkmate] Aggro: Not aggressive  Links with Leujaoam Worm '
+    .. '(Sound)', lines[2]);
 lines = readout(63, 19, 'Brittle Rock', 0, nil, 249);
 check('Brittle Rock can\'t be gauged but has its levels', lines[1]:find('^%[checkmate%] Brittle Rock %(Lv 50%-75%)  '
     .. 'Impossible to Gauge  Hit: 95%%') ~= nil, lines[1]);
@@ -535,6 +717,11 @@ MOCK.command('/checkmate levelrange on');
 lines = readout(103, 98, 'Goblin Tinkerer', 19, 3);
 check('Goblin Tinkerer with its spawn\'s level range', lines[1]:find('^%[checkmate%] Goblin Tinkerer %(Lv 19, range 18%-19%)  '
     .. 'Decent Challenge  Hit: %d+%%') ~= nil, lines[1]);
+MOCK.command('/checkmate id on');
+lines = readout(103, 98, 'Goblin Tinkerer', 19, 3);
+check('and its ID after that', lines[1]:find('^%[checkmate%] Goblin Tinkerer %(Lv 19, range 18%-19%) %(ID 17199202%)  '
+    .. 'Decent Challenge  Hit: %d+%%') ~= nil, lines[1]);
+MOCK.command('/checkmate id off');
 lines = readout(103, 32, 'Goblin Tinkerer', 19, 3);
 check('a level 19 at the spawn of 17 to 18 shows its level alone', lines[1]:find('^%[checkmate%] Goblin Tinkerer %(Lv 19%)  '
     .. 'Decent Challenge') ~= nil, lines[1]);
@@ -574,5 +761,36 @@ check('and its level and range once widescanned', (MOCK.printed_since(n)[1] or '
 lines = readout(77, 540, 'Alexander', 0, nil, 249);
 check('Alexander spawns only at 80, so no range', lines[1]:find('^%[checkmate%] Alexander %(Lv 80%)  Impossible to Gauge') ~= nil,
     lines[1]);
+
+-- The PH note through a real /check. In Valkurm Dunes the Damselfly at index 330 is Valkurm Emperor's only PH and
+-- spawns at 21 to 22, and the one at 331 isn't a PH. The Ornery Sheep at 124 in South Gustaberg can pop either
+-- Carnero, and Rampaging Ram in Konschtat Highlands is an NM and the PH for Steelfleece Baldarich.
+MOCK.command('/checkmate ph on');
+lines = readout(103, 330, 'Damselfly', 21, 0);
+check('the Damselfly at 330 is the PH for Valkurm Emperor', lines[1]:find('^%[checkmate%] Damselfly %(Lv 21, range 21%-22%) '
+    .. '%(PH for Valkurm Emperor%)  Too Weak') ~= nil, lines[1]);
+MOCK.command('/checkmate id on');
+lines = readout(103, 330, 'Damselfly', 21, 0);
+check('after its ID', lines[1]:find('^%[checkmate%] Damselfly %(Lv 21, range 21%-22%) %(ID 17199434%) %(PH for Valkurm '
+    .. 'Emperor%)  Too Weak') ~= nil, lines[1]);
+MOCK.command('/checkmate id off');
+lines = readout(103, 331, 'Damselfly', 21, 0);
+check('the one at 331 isn\'t a PH', lines[1]:find('^%[checkmate%] Damselfly %(Lv 21, range 21%-22%)  Too Weak') ~= nil,
+    lines[1]);
+-- A Damselfly a script spawns mid-game has an index of 0x800 or more and no row, so it gets nothing.
+lines = readout(103, 0x805, 'Damselfly', 21, 0);
+check('nor is one a script spawned', lines[1]:find('^%[checkmate%] Damselfly %(Lv 21%)  Too Weak') ~= nil, lines[1]);
+check('and nothing with no row, or an NM with no row', monsters.ph_for(nil, 330) == nil
+    and monsters.ph_for({ ph_for = { [330] = { 4095 } } }, 330) == nil);
+lines = readout(107, 124, 'Ornery Sheep', 7, 0);
+check('a PH for both Carnero names it once', lines[1]:find('^%[checkmate%] Ornery Sheep %(Lv 7, range 7%-8%) %(PH for '
+    .. 'Carnero%)  Too Weak') ~= nil, lines[1]);
+lines = readout(108, 302, 'Rampaging Ram', 0, nil, 249);
+check('an NM can be a PH too', lines[1]:find('^%[checkmate%] Rampaging Ram %(Lv 27%-28%) %(PH for Steelfleece Baldarich%)  '
+    .. 'Impossible to Gauge') ~= nil, lines[1]);
+MOCK.command('/checkmate ph off');
+lines = readout(103, 330, 'Damselfly', 21, 0);
+check('with it off the Damselfly at 330 prints as before', lines[1]:find('^%[checkmate%] Damselfly %(Lv 21, range 21%-22%)  '
+    .. 'Too Weak') ~= nil, lines[1]);
 
 return MOCK.report();

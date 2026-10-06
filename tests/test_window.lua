@@ -107,7 +107,7 @@ end
 check('and every (?) shows a tip in plain text that ends a sentence', #bad_tips == 0, table.concat(bad_tips, ', '));
 
 -- How many (?) marks each tab has with the default settings.
-local TIP_COUNTS = { Printout = 23, Colors = 55, Numbers = 3, Aggro = 4, Magic = 14, Drops = 6, Immunities = 17, Look = 48,
+local TIP_COUNTS = { Printout = 28, Colors = 62, Numbers = 8, Aggro = 5, Magic = 14, Drops = 6, Immunities = 17, Look = 48,
     Profiles = 8 };
 for tab, want in pairs(TIP_COUNTS) do
     local count = 0;
@@ -153,17 +153,22 @@ local s = cur();
 check('the name part has Show level and no arrows', MOCK.gui.paths['Printout/Show level'] == 'Checkbox'
     and MOCK.gui.paths['Printout/name/##up'] == nil);
 check('the first part can\'t go up, the last can\'t go down', MOCK.gui.disabled['Printout/difficulty/##up']
-    and MOCK.gui.disabled['Printout/drops/##down'] and not MOCK.gui.disabled['Printout/difficulty/##down']);
+    and MOCK.gui.disabled['Printout/pet/##down'] and not MOCK.gui.disabled['Printout/difficulty/##down']
+    and not MOCK.gui.disabled['Printout/drops/##down']);
 local drawn = {};
 for _, text in ipairs(MOCK.gui.texts) do drawn[text] = true; end
 check('the parts table names the parts and the reading', drawn['Difficulty'] and drawn['Evasion and defense']);
 check('Aggro has its row after Crit, on', drawn['Aggro'] and MOCK.gui.paths['Printout/aggro/##on'] == 'Checkbox'
     and MOCK.gui.paths['Printout/aggro/##label'] == 'InputText' and MOCK.gui.paths['Printout/aggro/##new_line'] == 'Checkbox'
     and cur().printout.parts.aggro.on == true);
+check('Pet has the last row, off, on its own line', drawn['Pet'] and MOCK.gui.paths['Printout/pet/##on'] == 'Checkbox'
+    and MOCK.gui.paths['Printout/pet/##label'] == 'InputText' and MOCK.gui.paths['Printout/pet/##new_line'] == 'Checkbox'
+    and cur().printout.parts.pet.on == false and cur().printout.parts.pet.new_line == true
+    and cur().printout.parts.pet.label == 'Pet' and cur().printout.order:find(' pet$') ~= nil);
 local saves = MOCK.saved;
 MOCK.clicks['Printout/evade/##up'] = true;
 frame();
-check('Up moves a part', s.printout.order == 'difficulty evade hit crit aggro magic immunities elements drops',
+check('Up moves a part', s.printout.order == 'difficulty evade hit crit aggro magic immunities elements drops pet',
     s.printout.order);
 check('and saves at once', MOCK.saved == saves + 1);
 MOCK.clicks['Printout/evade/##up'] = true;
@@ -323,6 +328,88 @@ MOCK.typing[WORD] = 'range';
 frame();
 check('and back', s.printout.show_level == true and s.printout.show_range == false and s.printout.range_word == 'range');
 
+-- Show its ID sits under the range word, with its own word box beside it.
+local SHOW_ID, ID_WORD = 'Printout/Show its ID', 'Printout/ID word';
+frame();
+check('Show its ID is a box, off, with a greyed word box', MOCK.gui.paths[SHOW_ID] == 'Checkbox'
+    and s.printout.show_id == false and not MOCK.gui.disabled[SHOW_ID] and MOCK.gui.paths[ID_WORD] == 'InputText'
+    and MOCK.gui.disabled[ID_WORD] == true);
+tip = tips();
+check('with their tips', has(tip[SHOW_ID], 'like (ID 17199202).') and has(tip[ID_WORD], 'Clear it to get (17199202).'));
+check('and Show the name\'s tip says the ID and PH note go with it', has(tip['Printout/Show the name##name'],
+    'the name, level, ID and PH note'));
+saves = MOCK.saved;
+MOCK.clicks[SHOW_ID] = true;
+frame();
+check('it turns on and saves at once', s.printout.show_id == true and MOCK.saved == saves + 1
+    and MOCK.last_save.printout.show_id == true);
+frame();
+check('and the word box is live', not MOCK.gui.disabled[ID_WORD]);
+saves = MOCK.saved;
+MOCK.typing[ID_WORD] = ' M\195\169ob ID ';
+frame();
+check('the word keeps printable ASCII only and doesn\'t save while typed', s.printout.id_word == ' Mob ID '
+    and MOCK.saved == saves, s.printout.id_word);
+MOCK.deactivate = true;
+frame();
+MOCK.deactivate = false;
+check('letting go of the word box saves it', MOCK.saved == saves + 1 and MOCK.last_save.printout.id_word == ' Mob ID ');
+n = #MOCK.printed;
+MOCK.clicks['Printout/Print a sample'] = true;
+frame();
+check('the sample shows the ID with the word trimmed', (MOCK.printed_since(n)[1] or ''):find('^%[checkmate%] Sample Goblin '
+    .. '%(Lv 42%) %(Mob ID 17199202%)') ~= nil, MOCK.printed_since(n)[1]);
+MOCK.clicks['Printout/Show level'] = true;
+frame();
+frame();
+check('Show level off leaves both live', s.printout.show_level == false and not MOCK.gui.disabled[SHOW_ID]
+    and not MOCK.gui.disabled[ID_WORD]);
+n = #MOCK.printed;
+MOCK.clicks['Printout/Print a sample'] = true;
+frame();
+check('and the sample shows the ID right after the name', (MOCK.printed_since(n)[1] or ''):find('^%[checkmate%] Sample '
+    .. 'Goblin %(Mob ID 17199202%)') ~= nil, MOCK.printed_since(n)[1]);
+MOCK.clicks['Printout/Show level'] = true;
+MOCK.clicks[SHOW_ID] = true;
+MOCK.typing[ID_WORD] = 'ID';
+frame();
+check('and back', s.printout.show_level == true and s.printout.show_id == false and s.printout.id_word == 'ID');
+
+-- Show if it's a PH sits under Show its ID, with its own word box beside it.
+local SHOW_PH, PH_WORD = 'Printout/Show if it\'s a PH', 'Printout/PH word';
+frame();
+check('Show if it\'s a PH is a box, off, with a greyed word box', MOCK.gui.paths[SHOW_PH] == 'Checkbox'
+    and s.printout.show_ph == false and not MOCK.gui.disabled[SHOW_PH] and MOCK.gui.paths[PH_WORD] == 'InputText'
+    and MOCK.gui.disabled[PH_WORD] == true);
+tip = tips();
+check('with their tips', has(tip[SHOW_PH], 'like (PH for Valkurm Emperor).')
+    and has(tip[PH_WORD], 'Clear it to get (Valkurm Emperor).'));
+saves = MOCK.saved;
+MOCK.clicks[SHOW_PH] = true;
+frame();
+check('it turns on and saves at once', s.printout.show_ph == true and MOCK.saved == saves + 1
+    and MOCK.last_save.printout.show_ph == true);
+frame();
+check('and the word box is live', not MOCK.gui.disabled[PH_WORD]);
+saves = MOCK.saved;
+MOCK.typing[PH_WORD] = ' P\195\169H: ';
+frame();
+check('the word keeps printable ASCII only and doesn\'t save while typed', s.printout.ph_word == ' PH: '
+    and MOCK.saved == saves, s.printout.ph_word);
+MOCK.deactivate = true;
+frame();
+MOCK.deactivate = false;
+check('letting go of the word box saves it', MOCK.saved == saves + 1 and MOCK.last_save.printout.ph_word == ' PH: ');
+n = #MOCK.printed;
+MOCK.clicks['Printout/Print a sample'] = true;
+frame();
+check('the sample shows the PH note with the word trimmed', (MOCK.printed_since(n)[1] or ''):find('^%[checkmate%] Sample '
+    .. 'Goblin %(Lv 42%) %(PH: Valkurm Emperor%)') ~= nil, MOCK.printed_since(n)[1]);
+MOCK.clicks[SHOW_PH] = true;
+MOCK.typing[PH_WORD] = 'PH for';
+frame();
+check('and back', s.printout.show_ph == false and s.printout.ph_word == 'PH for');
+
 MOCK.open['Printout/Number ranges'] = true;
 MOCK.clicks['Printout/Number ranges/Middle ~68%'] = true;
 frame();
@@ -343,12 +430,13 @@ frame();
 local lines = MOCK.printed_since(n);
 check('Print a sample prints in the new order and labels', #lines == 4 and lines[1] == '[checkmate] Sample Goblin (Lv 42)  '
     .. 'Decent Challenge (Low Defense)' and lines[2] == '[checkmate] Evade: 31% with Signet  Ht!: ~68%'
-    and lines[3] == '[checkmate] Aggro: Aggressive (Sight)  Links with Goblin Butcher, Goblin Leecher, Goblin Tinkerer'
+    and lines[3] == '[checkmate] Aggro: Aggressive (Sight)  Links with Goblin Butcher (Sight), Goblin Leecher (Sight), '
+    .. 'Goblin Tinkerer (Sight)'
     and lines[4]:find('^%[checkmate%] Drops') ~= nil, table.concat(lines, ' / '));
 
 check('Put the extras on their own line is a box under the parts', MOCK.gui.paths['Printout/Put the extras on their own line']
     == 'Checkbox' and has(tips()['Printout/Put the extras on their own line'], 'With this on, hit, evade, crit, aggro, magic, '
-    .. 'immunities, elements and drops never share a line with the name and difficulty.'));
+    .. 'immunities, elements, drops and pet never share a line with the name and difficulty.'));
 saves = MOCK.saved;
 MOCK.clicks['Printout/Put the extras on their own line'] = true;
 frame();
@@ -382,7 +470,7 @@ local lists = 0;
 for _, key in ipairs(printout.COLOR_KEYS) do
     if (MOCK.gui.paths['Colors/##' .. key] == 'BeginCombo') then lists = lists + 1; end
 end
-check('a list for every color setting', lists == #printout.COLOR_KEYS and lists == 51, lists);
+check('a list for every color setting', lists == #printout.COLOR_KEYS and lists == 58, lists);
 local elsewhere = {};
 for path, widget in pairs(MOCK.gui.paths) do
     if (widget == 'BeginCombo' and not path:find('^Colors/') and MOCK.gui.previews[path] == 'Cream') then
@@ -391,10 +479,11 @@ for path, widget in pairs(MOCK.gui.paths) do
 end
 check('no chat color list on any other tab', #elsewhere == 0, table.concat(elsewhere, ', '));
 check('each list shows its color\'s name', MOCK.gui.previews['Colors/##name'] == 'Coral'
-    and MOCK.gui.previews['Colors/##level_range'] == 'Coral'
+    and MOCK.gui.previews['Colors/##level_range'] == 'Coral' and MOCK.gui.previews['Colors/##id'] == 'Coral'
+    and MOCK.gui.previews['Colors/##ph'] == 'Coral'
     and MOCK.gui.previews['Colors/##decent_challenge'] == 'Light blue' and MOCK.gui.previews['Colors/##tag_word'] == 'Cyan');
 for _, heading in ipairs({ 'TAG AND LINES', 'NAME AND LEVEL', 'DIFFICULTY', 'EVASION AND DEFENSE', 'HIT RATE', 'EVADE', 'CRIT',
-    'AGGRO', 'MAGIC', 'IMMUNITIES', 'ELEMENTS', 'DROPS', 'GRADES' }) do
+    'AGGRO', 'MAGIC', 'IMMUNITIES', 'ELEMENTS', 'DROPS', 'PET', 'GRADES' }) do
     check('the ' .. heading .. ' heading', MOCK.drew(heading));
 end
 
@@ -440,12 +529,12 @@ frame();
 check('and back on, and the Safe color', s.aggro.threat_colors == true and s.colors.aggro_safe == 83);
 MOCK.open['Colors/##aggro_safe'] = nil;
 
-MOCK.clicks['Colors/Color the hit rate, evade and crit numbers'] = true;
+MOCK.clicks['Colors/Color the hit, evade, crit and pet numbers'] = true;
 frame();
 check('grade colors off', s.grades.on == false);
 frame();
 check('the cutoffs grey out', MOCK.gui.disabled['Numbers/##hit_good'] == true);
-MOCK.clicks['Colors/Color the hit rate, evade and crit numbers'] = true;
+MOCK.clicks['Colors/Color the hit, evade, crit and pet numbers'] = true;
 MOCK.open['Colors/##good'] = true;
 MOCK.clicks['Colors/##good/Lime'] = true;
 frame();
@@ -465,19 +554,73 @@ MOCK.slide['Numbers/##crit_ok'] = 6;
 frame();
 check('the cutoff sliders', s.grades.hit_good == 90 and s.grades.crit_ok == 6);
 check('and no grade colors there', MOCK.gui.paths['Numbers/Good'] == nil
-    and MOCK.gui.paths['Numbers/Color the hit rate, evade and crit numbers'] == nil);
+    and MOCK.gui.paths['Numbers/Color the hit, evade, crit and pet numbers'] == nil);
+
+-- The PET section beside the cutoffs edits the pet part's settings.
+local PET_NAME, PET_LEVEL = 'Numbers/Show its name', 'Numbers/Show its level';
+check('the Numbers tab has a PET section with its four controls', MOCK.drew('PET') and MOCK.gui.paths[PET_NAME] == 'Checkbox'
+    and MOCK.gui.paths[PET_LEVEL] == 'Checkbox' and MOCK.gui.paths['Numbers/Hit word'] == 'InputText'
+    and MOCK.gui.paths['Numbers/Evade word'] == 'InputText' and not MOCK.gui.disabled[PET_LEVEL]);
+check('and a note while the Pet part is off', MOCK.drew('The Pet part is off, so turn it on in the Printout tab.'));
+tip = tips();
+check('and its tips', has(tip['Numbers/PET'], 'It works for a jug pet, a charmed monster, a wyvern and an automaton')
+    and has(tip[PET_LEVEL], 'like (Lv 73-75)') and has(tip['Numbers/Evade word'], 'Clear it to leave the word out.'));
+saves = MOCK.saved;
+MOCK.clicks[PET_NAME] = true;
+frame();
+check('Show its name turns off and saves', s.pet.show_name == false and MOCK.saved == saves + 1);
+frame();
+check('and greys out Show its level', MOCK.gui.disabled[PET_LEVEL] == true);
+MOCK.clicks[PET_NAME] = true;
+frame();
+MOCK.clicks[PET_LEVEL] = true;
+frame();
+check('Show its level turns off by itself', s.pet.show_name == true and s.pet.show_level == false);
+MOCK.clicks[PET_LEVEL] = true;
+frame();
+saves = MOCK.saved;
+MOCK.typing['Numbers/Hit word'] = 'Acc\226\128\148';
+frame();
+check('the Hit word keeps printable ASCII only and doesn\'t save while typed', s.pet.hit_word == 'Acc'
+    and s.pet.show_level == true and MOCK.saved == saves, s.pet.hit_word);
+MOCK.deactivate = true;
+frame();
+MOCK.deactivate = false;
+check('letting go of the box saves it', MOCK.saved == saves + 1 and MOCK.last_save.pet.hit_word == 'Acc');
+MOCK.typing['Numbers/Evade word'] = '';
+frame();
+check('the Evade word clears', s.pet.evade_word == '');
+MOCK.clicks['Printout/pet/##on'] = true;
+frame();
+check('the note goes once the Pet part is on', s.printout.parts.pet.on == true and not MOCK.drew('The Pet part is off'));
+n = #MOCK.printed;
+MOCK.clicks['Printout/Print a sample'] = true;
+frame();
+lines = MOCK.printed_since(n);
+check('the sample ends with the pet part in your words', lines[#lines] == '[checkmate] Pet: Wyvern (Lv 42)  Acc: 88%  27%',
+    table.concat(lines, ' / '));
+MOCK.typing['Numbers/Hit word'] = 'Hit';
+MOCK.typing['Numbers/Evade word'] = 'Evade';
+MOCK.clicks['Printout/pet/##on'] = true;
+frame();
+check('and back', s.pet.hit_word == 'Hit' and s.pet.evade_word == 'Evade' and s.printout.parts.pet.on == false);
 
 -- Aggro tab -------------------------------------------------------------------------------------
 
 local DETECTION = 'Aggro/Show how it finds you';
+local HOW = 'Aggro/Show how each one links';
 local NAMES = 'Aggro/Show the names it links with';
 check('the Aggro tab has its boxes and slider', MOCK.gui.paths[DETECTION] == 'Checkbox' and MOCK.gui.paths[NAMES] == 'Checkbox'
     and MOCK.gui.paths['Aggro/Most names shown'] == 'Slider' and MOCK.gui.formats['Aggro/Most names shown'] == '%d'
     and not MOCK.gui.disabled['Aggro/Most names shown']);
+check('Show how each one links is a box, on', MOCK.gui.paths[HOW] == 'Checkbox' and s.aggro.link_how == true
+    and not MOCK.gui.disabled[HOW]);
 tip = tips();
 check('and its tips', has(tip['Aggro/AGGRESSIVE'], 'One that checks Too Weak won\'t aggro you unless you rest or sit.')
     and has(tip[DETECTION], 'True Sight sees through Invisible and True Sound hears through Sneak.')
-    and has(tip[NAMES], 'With this off, it just says "Links"'));
+    and has(tip[NAMES], 'With this off, it just says "Links"') and has(tip[HOW], 'a link never cares about those.')
+    and has(tip[HOW], 'A name can show two when some of its monsters join one way and some the other, like Fomor Monk '
+    .. '(Superlink or Sound).'));
 saves = MOCK.saved;
 MOCK.clicks[DETECTION] = true;
 frame();
@@ -487,10 +630,35 @@ frame();
 frame();
 check('the names turn off and grey out the slider', s.aggro.link_names == false
     and MOCK.gui.disabled['Aggro/Most names shown'] == true);
+check('but not Show how each one links', not MOCK.gui.disabled[HOW]);
+n = #MOCK.printed;
+MOCK.clicks['Printout/Print a sample'] = true;
+frame();
+check('so the sample says how they link without the names', MOCK.printed_since(n)[3] == '[checkmate] Aggro: Aggressive  '
+    .. 'Links (Sight)', MOCK.printed_since(n)[3]);
+saves = MOCK.saved;
+MOCK.clicks[HOW] = true;
+frame();
+check('Show how each one links turns off and saves', s.aggro.link_how == false and MOCK.saved == saves + 1
+    and MOCK.last_save.aggro.link_how == false);
+n = #MOCK.printed;
+MOCK.clicks['Printout/Print a sample'] = true;
+frame();
+check('and the sample just says Links', MOCK.printed_since(n)[3] == '[checkmate] Aggro: Aggressive  Links',
+    MOCK.printed_since(n)[3]);
 MOCK.clicks[DETECTION] = true;
 MOCK.clicks[NAMES] = true;
 frame();
 check('and back on', s.aggro.detection == true and s.aggro.link_names == true);
+n = #MOCK.printed;
+MOCK.clicks['Printout/Print a sample'] = true;
+frame();
+check('with the names back and Show how each one links still off, the sample has no tags', MOCK.printed_since(n)[3]
+    == '[checkmate] Aggro: Aggressive (Sight)  Links with Goblin Butcher, Goblin Leecher, Goblin Tinkerer',
+    MOCK.printed_since(n)[3]);
+MOCK.clicks[HOW] = true;
+frame();
+check('Show how each one links back on', s.aggro.link_how == true);
 saves = MOCK.saved;
 MOCK.slide['Aggro/Most names shown'] = 0;
 frame();
@@ -505,14 +673,14 @@ n = #MOCK.printed;
 MOCK.clicks['Printout/Print a sample'] = true;
 frame();
 check('the sample follows the aggro settings', MOCK.printed_since(n)[3] == '[checkmate] Aggro: Aggressive (Sight)  Links with '
-    .. 'Goblin Butcher, Goblin Leecher, Goblin Tinkerer', MOCK.printed_since(n)[3]);
+    .. 'Goblin Butcher (Sight), Goblin Leecher (Sight), Goblin Tinkerer (Sight)', MOCK.printed_since(n)[3]);
 MOCK.slide['Aggro/Most names shown'] = 1;
 frame();
 n = #MOCK.printed;
 MOCK.clicks['Colors/Print a sample'] = true;
 frame();
 check('with the most names shown', MOCK.printed_since(n)[3] == '[checkmate] Aggro: Aggressive (Sight)  Links with '
-    .. 'Goblin Butcher  +2 more', MOCK.printed_since(n)[3]);
+    .. 'Goblin Butcher (Sight)  +2 more', MOCK.printed_since(n)[3]);
 MOCK.slide['Aggro/Most names shown'] = 5;
 frame();
 
@@ -875,9 +1043,9 @@ reopen();
 
 -- Two columns ----------------------------------------------------------------------------------
 
--- The tables that hold each tab's sections. Numbers and Immunities have one section.
-local SECTIONS = { '##printout_sections', '##color_sections', '##aggro_sections', '##magic_sections', '##drops_sections',
-    '##look_sections', '##profile_sections' };
+-- The tables that hold each tab's sections. Immunities has one section.
+local SECTIONS = { '##printout_sections', '##color_sections', '##numbers_sections', '##aggro_sections', '##magic_sections',
+    '##drops_sections', '##look_sections', '##profile_sections' };
 local function columns()
     local counts = {};
     for _, id in ipairs(SECTIONS) do

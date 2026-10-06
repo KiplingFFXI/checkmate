@@ -114,6 +114,16 @@ local range_as_level = true;
 for _, skin in ipairs(skins.LIST) do range_as_level = range_as_level and skin.chat.level_range == skin.chat.level; end
 check('every skin paints the level range in its level color', range_as_level);
 
+-- And the ID the same way.
+local id_as_level = true;
+for _, skin in ipairs(skins.LIST) do id_as_level = id_as_level and skin.chat.id == skin.chat.level; end
+check('every skin paints the ID in its level color', id_as_level);
+
+-- And the PH note too.
+local ph_as_level = true;
+for _, skin in ipairs(skins.LIST) do ph_as_level = ph_as_level and skin.chat.ph == skin.chat.level; end
+check('every skin paints the PH note in its level color', ph_as_level);
+
 -- Minimal prints in one chat color, the tag, difficulty and reading included.
 local minimal = defaults.make();
 skins.apply(minimal, 'minimal');
@@ -301,7 +311,7 @@ check('without touching the defaults Ashita keeps', next(kept.look.imgui) == nil
 MOCK.command('/checkmate skin classic');
 check('the skin command copies it in', cur.look.skin == 'classic' and is_hex(cur.look.imgui.background, '0b1a3d')
     and cur.colors.line == 106 and cur.colors.name == 7 and cur.colors.hit_label == 7);
-check('without touching the default colors Ashita keeps', kept.colors.name == 8 and kept.colors.hit_label == 106);
+check('without touching the default colors Ashita keeps', next(kept.colors) == nil);
 local saved_all = true;
 for _, entry in ipairs(skins.WINDOW_COLORS) do
     local c = MOCK.last_save.look.imgui[entry.key];
@@ -408,5 +418,24 @@ check('help says what reset puts back', said:find('[checkmate] /checkmate reset 
 said = run('/checkmate help look');
 check('help look names skin undo', said:find('[checkmate] /checkmate skin undo  takes back your last skin pick or Reset to '
     .. 'skin. It only goes back one step.', 1, true) ~= nil, said);
+
+-- A Classic settings file from before the pet, ID and PH colors gets them from Classic, so it's still Classic.
+local classic = skins.find('classic');
+local old_colors = {};
+for _, key in ipairs(printout.COLOR_KEYS) do
+    if (not key:find('^pet_') and key ~= 'id' and key ~= 'ph') then old_colors[key] = classic.chat[key]; end
+end
+MOCK.settings.switch_character({ look = { skin = 'classic' }, colors = old_colors,
+    printout = { con_colors = classic.chat.con_colors } });
+cur = MOCK.settings.current;
+local pet_colors = {};
+for _, key in ipairs({ 'pet_label', 'pet_name', 'pet_level', 'pet_number', 'pet_detail' }) do
+    pet_colors[#pet_colors + 1] = tostring(cur.colors[key]);
+end
+check('a Classic settings file without the pet colors fills them from Classic', table.concat(pet_colors, ',')
+    == '7,106,106,1,67', table.concat(pet_colors, ','));
+check('and the ID color from Classic too', cur.colors.id == 106, cur.colors.id);
+check('and the PH color', cur.colors.ph == 106, cur.colors.ph);
+check('and it\'s still Classic', cur.look.skin == 'classic' and skins.current(cur) == classic);
 
 return MOCK.report();

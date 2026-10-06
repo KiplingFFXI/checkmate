@@ -1,18 +1,18 @@
 -- South Gustaberg (zone 107).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Ding Bats', 'Fledermaus' },
-        [2] = { 'Carnero', 'Ornery Sheep' },
-        [3] = { 'Goblin Digger', 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' },
-        [4] = { 'Bounding Belinda', 'Leaping Lizzy', 'Rock Lizard' },
-        [5] = { 'Amber Quadav', 'Amethyst Quadav', 'Young Quadav' },
-        [6] = { 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' },
+        [1] = { sound = { 'Ding Bats', 'Fledermaus' } },
+        [2] = { sight = { 'Carnero', 'Ornery Sheep' } },
+        [3] = { sight = { 'Goblin Digger', 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' } },
+        [4] = { sound = { 'Bounding Belinda', 'Leaping Lizzy', 'Rock Lizard' } },
+        [5] = { sound = { 'Amber Quadav', 'Amethyst Quadav', 'Young Quadav' } },
+        [6] = { sight = { 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' } },
     },
     monsters = {
         {
@@ -255,6 +255,7 @@ return {
                              [113] = { 5, 6 }, [123] = { 7, 8 }, [124] = { 7, 8 }, [136] = { 7, 8 },
                              [137] = { 7, 8 }, [150] = { 7, 8 }, [157] = { 7, 8 }, [158] = { 7, 8 },
                              [160] = { 7, 8 }, [161] = { 7, 8 }, [291] = { 5, 6 }, [292] = { 5, 6 } },
+            ph_for = { [124] = { 125, 138 } },
             ranks  = { fire = -2, wind = -2, earth = -2, thunder = -3, water = -3, light = -2, dark = -2,
                        silence = -2, slow = -2, poison = -3, light_sleep = -2, dark_sleep = -2, blind = -2,
                        stun = -3, gravity = -2 },
@@ -449,6 +450,7 @@ return {
                              [396] = { 7, 8 }, [397] = { 7, 8 }, [398] = { 7, 8 }, [399] = { 7, 8 },
                              [411] = { 7, 8 }, [412] = { 7, 8 }, [413] = { 7, 8 }, [414] = { 7, 8 },
                              [415] = { 7, 8 } },
+            ph_for = { [379] = { 380, 400 } },
             ranks  = { ice = -3, wind = -3, water = -2, light = -2, dark = -2, paralyze = -3, bind = -3,
                        silence = -3, poison = -2, light_sleep = -2, dark_sleep = -2, blind = -2, gravity = -3 },
             drops  = {

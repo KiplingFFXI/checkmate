@@ -1,49 +1,92 @@
 -- Qufim Island (zone 126).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Ancient Bat', 'Dark Bats', 'Glow Bat', 'Seeker Bats' },
-        [2] = { 'Echion', 'Giant Ascetic', 'Giant Beastmaster', 'Giant High Ranger', 'Giant Hunter', 'Giant Monk',
-                'Giant Ranger', 'Giant Trapper', 'Giant Warrior', 'Hunting Chief' },
-        [3] = { 'Acrophies' },
-        [4] = { 'Greater Pugil' },
-        [5] = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight',
-                'Hobgoblin Ranger', 'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin White Mage' },
-        [6] = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight',
-                'Hobgoblin Ranger', 'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin Warrior' },
-        [7] = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger',
-                'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
-        [8] = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight',
-                'Hobgoblin Ranger', 'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
-        [9] = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight',
-                'Hobgoblin Ranger', 'Hobgoblin Red Mage', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
-        [10] = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Ranger',
-                 'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
-        [11] = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight',
-                 'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
-        [12] = { 'Goblin Bounty Hunter', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger',
-                 'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
-        [13] = { 'Echion', 'Giant Ascetic', 'Giant Beastmaster', 'Giant High Ranger', 'Giant Hunter', 'Giant Monk',
-                 'Giant Ranger', 'Giant Trapper', 'Hunting Chief' },
-        [14] = { 'Echion', 'Giant Ascetic', 'Giant Beastmaster', 'Giant High Ranger', 'Giant Hunter',
-                 'Giant Ranger', 'Giant Trapper', 'Giant Warrior', 'Hunting Chief' },
-        [15] = { 'Echion', 'Giant Ascetic', 'Giant High Ranger', 'Giant Hunter', 'Giant Monk', 'Giant Ranger',
-                 'Giant Trapper', 'Giant Warrior', 'Hunting Chief' },
-        [16] = { 'Echion', 'Giant Ascetic', 'Giant Beastmaster', 'Giant Hunter', 'Giant Monk', 'Giant Ranger',
-                 'Giant Trapper', 'Giant Warrior', 'Hunting Chief' },
-        [17] = { 'Echion', 'Giant Ascetic', 'Giant Beastmaster', 'Giant High Ranger', 'Giant Hunter', 'Giant Monk',
-                 'Giant Ranger', 'Giant Trapper', 'Giant Warrior' },
-        [18] = { 'Seed Mandragora' },
-        [19] = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight',
-                 'Hobgoblin Ranger', 'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin Warrior',
-                 'Hobgoblin White Mage' },
-        [20] = { 'Giant Ascetic', 'Giant Beastmaster', 'Giant High Ranger', 'Giant Hunter', 'Giant Monk',
-                 'Giant Ranger', 'Giant Trapper', 'Giant Warrior', 'Hunting Chief' },
+        [1] = { sound = { 'Ancient Bat', 'Dark Bats', 'Glow Bat', 'Seeker Bats' } },
+        [2] = {
+            sight = { 'Giant Ascetic', 'Giant Beastmaster', 'Giant High Ranger', 'Giant Hunter', 'Giant Monk',
+                      'Giant Ranger', 'Giant Trapper', 'Giant Warrior', 'Hunting Chief' },
+            true_sight = { 'Echion' },
+        },
+        [3] = { sound = { 'Acrophies' } },
+        [4] = { sound = { 'Greater Pugil' } },
+        [5] = {
+            sight = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage',
+                      'Hobgoblin Dark Knight', 'Hobgoblin Ranger', 'Hobgoblin Red Mage', 'Hobgoblin Thief',
+                      'Hobgoblin White Mage' },
+        },
+        [6] = {
+            sight = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage',
+                      'Hobgoblin Dark Knight', 'Hobgoblin Ranger', 'Hobgoblin Red Mage', 'Hobgoblin Thief',
+                      'Hobgoblin Warrior' },
+        },
+        [7] = {
+            sight = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger',
+                      'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
+        },
+        [8] = {
+            sight = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage',
+                      'Hobgoblin Dark Knight', 'Hobgoblin Ranger', 'Hobgoblin Thief', 'Hobgoblin Warrior',
+                      'Hobgoblin White Mage' },
+        },
+        [9] = {
+            sight = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage',
+                      'Hobgoblin Dark Knight', 'Hobgoblin Ranger', 'Hobgoblin Red Mage', 'Hobgoblin Warrior',
+                      'Hobgoblin White Mage' },
+        },
+        [10] = {
+            sight = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Ranger',
+                      'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
+        },
+        [11] = {
+            sight = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage',
+                      'Hobgoblin Dark Knight', 'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin Warrior',
+                      'Hobgoblin White Mage' },
+        },
+        [12] = {
+            sight = { 'Goblin Bounty Hunter', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger',
+                      'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
+        },
+        [13] = {
+            sight = { 'Giant Ascetic', 'Giant Beastmaster', 'Giant High Ranger', 'Giant Hunter', 'Giant Monk',
+                      'Giant Ranger', 'Giant Trapper', 'Hunting Chief' },
+            true_sight = { 'Echion' },
+        },
+        [14] = {
+            sight = { 'Giant Ascetic', 'Giant Beastmaster', 'Giant High Ranger', 'Giant Hunter', 'Giant Ranger',
+                      'Giant Trapper', 'Giant Warrior', 'Hunting Chief' },
+            true_sight = { 'Echion' },
+        },
+        [15] = {
+            sight = { 'Giant Ascetic', 'Giant High Ranger', 'Giant Hunter', 'Giant Monk', 'Giant Ranger',
+                      'Giant Trapper', 'Giant Warrior', 'Hunting Chief' },
+            true_sight = { 'Echion' },
+        },
+        [16] = {
+            sight = { 'Giant Ascetic', 'Giant Beastmaster', 'Giant Hunter', 'Giant Monk', 'Giant Ranger',
+                      'Giant Trapper', 'Giant Warrior', 'Hunting Chief' },
+            true_sight = { 'Echion' },
+        },
+        [17] = {
+            sight = { 'Giant Ascetic', 'Giant Beastmaster', 'Giant High Ranger', 'Giant Hunter', 'Giant Monk',
+                      'Giant Ranger', 'Giant Trapper', 'Giant Warrior' },
+            true_sight = { 'Echion' },
+        },
+        [18] = { sound = { 'Seed Mandragora' } },
+        [19] = {
+            sight = { 'Goblin Bounty Hunter', 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage',
+                      'Hobgoblin Dark Knight', 'Hobgoblin Ranger', 'Hobgoblin Red Mage', 'Hobgoblin Thief',
+                      'Hobgoblin Warrior', 'Hobgoblin White Mage' },
+        },
+        [20] = {
+            sight = { 'Giant Ascetic', 'Giant Beastmaster', 'Giant High Ranger', 'Giant Hunter', 'Giant Monk',
+                      'Giant Ranger', 'Giant Trapper', 'Giant Warrior', 'Hunting Chief' },
+        },
     },
     monsters = {
         {
@@ -152,6 +195,7 @@ return {
                 [28] = { acc = 102, eva = 94, agi = 29, int = 27, mnd = 21, chr = 29 },
                 [29] = { acc = 106, eva = 98, agi = 30, int = 29, mnd = 22, chr = 29 },
             },
+            ph_for = { [224] = { 225 } },
             ranks  = { fire = -3, wind = -2, earth = -2, thunder = -2, water = -2, light = -3, silence = -2,
                        slow = -2, poison = -2, light_sleep = -3, stun = -2, gravity = -2 },
             magic_dmg = { all = -12.5 },

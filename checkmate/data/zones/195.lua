@@ -1,18 +1,18 @@
 -- The Eldieme Necropolis (zone 195).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Dark Stalker', 'Ka', 'Shade', 'Spriggan' },
-        [2] = { 'Dog Guardian', 'Owl Guardian' },
-        [3] = { 'Owl Guardian', 'Yum Kimil' },
-        [4] = { 'Dog Guardian', 'Yum Kimil' },
-        [5] = { 'Trombe' },
-        [6] = { 'Taifun' },
+        [1] = { sound = { 'Dark Stalker', 'Ka', 'Shade', 'Spriggan' } },
+        [2] = { sound = { 'Dog Guardian', 'Owl Guardian' } },
+        [3] = { sound = { 'Owl Guardian', 'Yum Kimil' } },
+        [4] = { sound = { 'Dog Guardian', 'Yum Kimil' } },
+        [5] = { sight = { 'Trombe' } },
+        [6] = { sight = { 'Taifun' } },
     },
     monsters = {
         {
@@ -312,6 +312,7 @@ return {
                 [54] = { acc = 202, eva = 190, agi = 58, int = 43, mnd = 40, chr = 52 },
                 [55] = { acc = 207, eva = 195, agi = 58, int = 43, mnd = 41, chr = 53 },
             },
+            ph_for = { [117] = { 118 } },
             ranks  = { fire = -3, ice = 4, wind = -2, thunder = -2, water = -2, light = -3, dark = 4, paralyze = 4,
                        bind = 4, silence = -2, poison = -2, light_sleep = -3, dark_sleep = 4, blind = 4, stun = -2,
                        gravity = -2 },

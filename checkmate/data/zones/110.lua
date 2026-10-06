@@ -1,26 +1,34 @@
 -- Rolanberry Fields (zone 110).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Berry Grub' },
-        [2] = { 'Death Wasp' },
-        [3] = { 'Black Triple Stars', 'Midnight Wings', 'Moon Bat' },
-        [4] = { 'Berry Grub', 'Silk Caterpillar' },
-        [5] = { 'Brass Quadav', 'Bronze Quadav', 'Copper Quadav', 'Garnet Quadav', 'Old Quadav', 'Silver Quadav',
-                'Zircon Quadav' },
-        [6] = { 'Chuglix Berrypaws', 'Goblin Digger', 'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher',
-                'Goblin Mugger', 'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy' },
-        [7] = { 'Poison Leech' },
-        [8] = { 'Chuglix Berrypaws', 'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger',
-                'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy' },
-        [9] = { 'Goblin Digger', 'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger',
-                'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy' },
-        [10] = { 'Yatagarasu' },
+        [1] = { sound = { 'Berry Grub' } },
+        [2] = { sight = { 'Death Wasp' } },
+        [3] = { sound = { 'Black Triple Stars', 'Midnight Wings', 'Moon Bat' } },
+        [4] = { sound = { 'Berry Grub', 'Silk Caterpillar' } },
+        [5] = {
+            sound = { 'Brass Quadav', 'Bronze Quadav', 'Copper Quadav', 'Garnet Quadav', 'Old Quadav',
+                      'Silver Quadav', 'Zircon Quadav' },
+        },
+        [6] = {
+            sight = { 'Chuglix Berrypaws', 'Goblin Digger', 'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher',
+                      'Goblin Mugger', 'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy' },
+        },
+        [7] = { sound = { 'Poison Leech' } },
+        [8] = {
+            sight = { 'Chuglix Berrypaws', 'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger',
+                      'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy' },
+        },
+        [9] = {
+            sight = { 'Goblin Digger', 'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger',
+                      'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy' },
+        },
+        [10] = { true_sight = { 'Yatagarasu' } },
     },
     monsters = {
         {
@@ -395,6 +403,7 @@ return {
                 [36] = { acc = 132, eva = 122, agi = 38, int = 28, mnd = 26, chr = 32 },
                 [37] = { acc = 135, eva = 124, agi = 38, int = 29, mnd = 27, chr = 32 },
             },
+            ph_for = { [459] = { 460 } },
             ranks  = { fire = -3, ice = -2, wind = -2, earth = -2, thunder = -2, water = 4, light = -2, dark = 4,
                        paralyze = -2, bind = -2, silence = -2, slow = -2, poison = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4, stun = -2, gravity = -2 },
@@ -417,6 +426,7 @@ return {
                 [22] = { acc = 81, eva = 76, agi = 26, int = 18, mnd = 18, chr = 20 },
                 [23] = { acc = 84, eva = 79, agi = 26, int = 18, mnd = 18, chr = 20 },
             },
+            ph_for = { [192] = { 196 }, [212] = { 216 } },
             ranks  = { fire = -2, ice = -1, wind = -3, earth = -2, thunder = -2, water = -2, light = -3, dark = 6,
                        paralyze = -1, bind = -1, silence = -3, slow = -2, poison = -2, light_sleep = -3,
                        dark_sleep = 6, blind = 6, stun = -2, gravity = -3 },

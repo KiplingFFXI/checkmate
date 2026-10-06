@@ -1,37 +1,57 @@
 -- Caedarva Mire (zone 79).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Llamhigyn Y Dwr' },
-        [2] = { 'Marsh Murre' },
-        [3] = { 'Mature Treant', 'Treant Sapling' },
-        [4] = { 'Caedarva Leech' },
-        [5] = { 'Dark Bugler', 'Heraldic Imp', 'Orderly Imp', 'Verdelet', 'Zikko' },
-        [6] = { 'Experimental Lamia', 'Lamia Chaukidar', 'Lamia Fatedealer', 'Lamia Necromancer', 'Lamia No27',
-                'Lamia Toxophilite', 'Merrow Shadowdancer', 'Merrow Typhoondancer' },
-        [7] = { 'Spongilla Fly' },
-        [8] = { 'Elder Treant' },
-        [9] = { 'Qiqirn Mireguide', 'Qiqirn Rock Hound' },
-        [10] = { 'Guard Skeleton' },
-        [11] = { 'Experimental Lamia', 'Lamia Chaukidar', 'Lamia Fatedealer', 'Lamia No27', 'Lamia Toxophilite',
-                 'Merrow Shadowdancer', 'Merrow Typhoondancer' },
-        [12] = { 'Dark Esquire' },
-        [13] = { 'Dark Bugler', 'Heraldic Imp', 'Orderly Imp', 'Verdelet' },
-        [14] = { 'Experimental Lamia', 'Lamia Chaukidar', 'Lamia Fatedealer', 'Lamia Necromancer',
-                 'Lamia Toxophilite', 'Merrow Shadowdancer', 'Merrow Typhoondancer' },
-        [15] = { 'Dark Bugler', 'Heraldic Imp', 'Orderly Imp', 'Zikko' },
-        [16] = { 'Arisen Soulflayer', 'Descended Winebibber', 'Soulflayer' },
-        [17] = { 'Lamia Chaukidar', 'Lamia Fatedealer', 'Lamia Necromancer', 'Lamia No27', 'Lamia Toxophilite',
-                 'Merrow Shadowdancer', 'Merrow Typhoondancer' },
-        [18] = { 'Experimental Lamia', 'Lamia Chaukidar', 'Lamia Fatedealer', 'Lamia Necromancer', 'Lamia No27',
-                 'Lamia Toxophilite', 'Merrow Typhoondancer' },
-        [19] = { 'Descended Winebibber', 'Mahjlaef the Paintorn', 'Soulflayer' },
-        [20] = { 'Arisen Soulflayer', 'Descended Winebibber', 'Mahjlaef the Paintorn', 'Soulflayer' },
+        [1] = { true_sound = { 'Llamhigyn Y Dwr' } },
+        [2] = { sound = { 'Marsh Murre' } },
+        [3] = { sound = { 'Mature Treant', 'Treant Sapling' } },
+        [4] = { sound = { 'Caedarva Leech' } },
+        [5] = {
+            true_sound = { 'Heraldic Imp', 'Orderly Imp' },
+            true_both = { 'Dark Bugler', 'Verdelet', 'Zikko' },
+        },
+        [6] = {
+            sight = { 'Lamia Chaukidar', 'Lamia Fatedealer', 'Lamia Necromancer', 'Lamia Toxophilite',
+                      'Merrow Shadowdancer', 'Merrow Typhoondancer' },
+            true_sight = { 'Experimental Lamia', 'Lamia No27' },
+        },
+        [7] = { sound = { 'Spongilla Fly' } },
+        [8] = { sound = { 'Elder Treant' } },
+        [9] = { sight = { 'Qiqirn Mireguide', 'Qiqirn Rock Hound' } },
+        [10] = { sound = { 'Guard Skeleton' } },
+        [11] = {
+            sight = { 'Lamia Chaukidar', 'Lamia Fatedealer', 'Lamia Toxophilite', 'Merrow Shadowdancer',
+                      'Merrow Typhoondancer' },
+            true_sight = { 'Experimental Lamia', 'Lamia No27' },
+        },
+        [12] = { sight = { 'Dark Esquire' } },
+        [13] = { true_sound = { 'Heraldic Imp', 'Orderly Imp' }, true_both = { 'Dark Bugler', 'Verdelet' } },
+        [14] = {
+            sight = { 'Lamia Chaukidar', 'Lamia Fatedealer', 'Lamia Necromancer', 'Lamia Toxophilite',
+                      'Merrow Shadowdancer', 'Merrow Typhoondancer' },
+            true_sight = { 'Experimental Lamia' },
+        },
+        [15] = { true_sound = { 'Heraldic Imp', 'Orderly Imp' }, true_both = { 'Dark Bugler', 'Zikko' } },
+        [16] = { true_sound = { 'Arisen Soulflayer', 'Descended Winebibber', 'Soulflayer' } },
+        [17] = {
+            sight = { 'Lamia Chaukidar', 'Lamia Fatedealer', 'Lamia Necromancer', 'Lamia Toxophilite',
+                      'Merrow Shadowdancer', 'Merrow Typhoondancer' },
+            true_sight = { 'Lamia No27' },
+        },
+        [18] = {
+            sight = { 'Lamia Chaukidar', 'Lamia Fatedealer', 'Lamia Necromancer', 'Lamia Toxophilite',
+                      'Merrow Typhoondancer' },
+            true_sight = { 'Experimental Lamia', 'Lamia No27' },
+        },
+        [19] = { true_sound = { 'Descended Winebibber', 'Mahjlaef the Paintorn', 'Soulflayer' } },
+        [20] = {
+            true_sound = { 'Arisen Soulflayer', 'Descended Winebibber', 'Mahjlaef the Paintorn', 'Soulflayer' },
+        },
     },
     monsters = {
         {
@@ -264,6 +284,7 @@ return {
                 [69] = { acc = 282, eva = 269, agi = 72, int = 51, mnd = 54, chr = 60 },
                 [70] = { acc = 287, eva = 274, agi = 73, int = 51, mnd = 55, chr = 61 },
             },
+            ph_for = { [73] = { 343 } },
             ranks  = { fire = -1, ice = 1, wind = -1, earth = 1, thunder = -2, water = -2, light = -1, dark = -1,
                        paralyze = 1, bind = 1, silence = -1, slow = 1, poison = -2, light_sleep = -1,
                        dark_sleep = -1, blind = -1, stun = -2, gravity = -1 },

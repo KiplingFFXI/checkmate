@@ -1,21 +1,35 @@
 -- LaLoff Amphitheater (zone 180).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Ark Angel EV', 'Ark Angel GK', 'Ark Angel MR', 'Ark Angel TT' },
-        [2] = { 'Ark Angel EV', 'Ark Angel GK', 'Ark Angel HM', 'Ark Angel TT', 'Ark Angels Mandragora',
-                'Ark Angels Tiger' },
-        [3] = { 'Ark Angel MR', 'Ark Angels Mandragora', 'Ark Angels Wyvern' },
-        [4] = { 'Ark Angel MR', 'Ark Angels Tiger', 'Ark Angels Wyvern' },
-        [5] = { 'Ark Angel GK', 'Ark Angel HM', 'Ark Angel MR', 'Ark Angel TT' },
-        [6] = { 'Ark Angel EV', 'Ark Angel GK', 'Ark Angel HM', 'Ark Angel MR' },
-        [7] = { 'Ark Angel EV', 'Ark Angel HM', 'Ark Angel MR', 'Ark Angel TT', 'Ark Angels Wyvern' },
-        [8] = { 'Ark Angel GK', 'Ark Angels Mandragora', 'Ark Angels Tiger' },
+        [1] = { superlink = { 'Ark Angel EV', 'Ark Angel GK', 'Ark Angel MR', 'Ark Angel TT' } },
+        [2] = {
+            superlink = { 'Ark Angel EV', 'Ark Angel GK', 'Ark Angel HM', 'Ark Angel TT' },
+            sight = { 'Ark Angels Tiger' },
+            sound = { 'Ark Angels Mandragora' },
+        },
+        [3] = {
+            sight = { 'Ark Angels Wyvern' },
+            true_sight = { 'Ark Angel MR' },
+            sound = { 'Ark Angels Mandragora' },
+        },
+        [4] = { sight = { 'Ark Angels Tiger', 'Ark Angels Wyvern' }, true_sight = { 'Ark Angel MR' } },
+        [5] = { superlink = { 'Ark Angel GK', 'Ark Angel HM', 'Ark Angel MR', 'Ark Angel TT' } },
+        [6] = { superlink = { 'Ark Angel EV', 'Ark Angel GK', 'Ark Angel HM', 'Ark Angel MR' } },
+        [7] = {
+            superlink = { 'Ark Angel EV', 'Ark Angel HM', 'Ark Angel MR', 'Ark Angel TT' },
+            sight = { 'Ark Angels Wyvern' },
+        },
+        [8] = {
+            sight = { 'Ark Angels Tiger' },
+            true_sight = { 'Ark Angel GK' },
+            sound = { 'Ark Angels Mandragora' },
+        },
     },
     monsters = {
         {

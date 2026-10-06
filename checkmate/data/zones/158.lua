@@ -1,29 +1,39 @@
 -- Upper Delkfutts Tower (zone 158).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Alkyoneus', 'Enkelados', 'Gigas Bonecutter', 'Gigas Spirekeeper', 'Gigas Stonemason',
-                'Gigas Torturer', 'Jotunn Gatekeeper', 'Jotunn Hallkeeper', 'Jotunn Wallkeeper',
-                'Jotunn Wildkeeper', 'Mimas', 'Pallas', 'Porphyrion' },
-        [2] = { 'Dire Bat', 'Incubus Bats' },
-        [3] = { 'Alkyoneus', 'Enkelados', 'Gigas Bonecutter', 'Gigas Spirekeeper', 'Gigas Stonemason',
-                'Gigas Torturer', 'Jotunn Gatekeeper', 'Jotunn Hallkeeper', 'Jotunn Wallkeeper',
-                'Jotunn Wildkeeper', 'Pallas', 'Porphyrion' },
-        [4] = { 'Alkyoneus', 'Enkelados', 'Gigas Bonecutter', 'Gigas Spirekeeper', 'Gigas Stonemason',
-                'Gigas Torturer', 'Jotunn Gatekeeper', 'Jotunn Hallkeeper', 'Jotunn Wallkeeper',
-                'Jotunn Wildkeeper', 'Mimas', 'Pallas' },
-        [5] = { 'Alkyoneus', 'Enkelados', 'Gigas Bonecutter', 'Gigas Spirekeeper', 'Gigas Stonemason',
-                'Gigas Torturer', 'Jotunn Gatekeeper', 'Jotunn Hallkeeper', 'Jotunn Wallkeeper',
-                'Jotunn Wildkeeper', 'Mimas', 'Porphyrion' },
-        [6] = { 'Ixtab' },
-        [7] = { 'Enkelados', 'Gigas Bonecutter', 'Gigas Spirekeeper', 'Gigas Stonemason', 'Gigas Torturer',
-                'Jotunn Gatekeeper', 'Jotunn Hallkeeper', 'Jotunn Wallkeeper', 'Jotunn Wildkeeper', 'Mimas',
-                'Pallas', 'Porphyrion' },
+        [1] = {
+            sight = { 'Alkyoneus', 'Enkelados', 'Gigas Bonecutter', 'Gigas Spirekeeper', 'Gigas Stonemason',
+                      'Gigas Torturer', 'Jotunn Gatekeeper', 'Jotunn Hallkeeper', 'Jotunn Wallkeeper',
+                      'Jotunn Wildkeeper', 'Mimas', 'Pallas', 'Porphyrion' },
+        },
+        [2] = { sound = { 'Dire Bat', 'Incubus Bats' } },
+        [3] = {
+            sight = { 'Alkyoneus', 'Enkelados', 'Gigas Bonecutter', 'Gigas Spirekeeper', 'Gigas Stonemason',
+                      'Gigas Torturer', 'Jotunn Gatekeeper', 'Jotunn Hallkeeper', 'Jotunn Wallkeeper',
+                      'Jotunn Wildkeeper', 'Pallas', 'Porphyrion' },
+        },
+        [4] = {
+            sight = { 'Alkyoneus', 'Enkelados', 'Gigas Bonecutter', 'Gigas Spirekeeper', 'Gigas Stonemason',
+                      'Gigas Torturer', 'Jotunn Gatekeeper', 'Jotunn Hallkeeper', 'Jotunn Wallkeeper',
+                      'Jotunn Wildkeeper', 'Mimas', 'Pallas' },
+        },
+        [5] = {
+            sight = { 'Alkyoneus', 'Enkelados', 'Gigas Bonecutter', 'Gigas Spirekeeper', 'Gigas Stonemason',
+                      'Gigas Torturer', 'Jotunn Gatekeeper', 'Jotunn Hallkeeper', 'Jotunn Wallkeeper',
+                      'Jotunn Wildkeeper', 'Mimas', 'Porphyrion' },
+        },
+        [6] = { sound = { 'Ixtab' } },
+        [7] = {
+            sight = { 'Enkelados', 'Gigas Bonecutter', 'Gigas Spirekeeper', 'Gigas Stonemason', 'Gigas Torturer',
+                      'Jotunn Gatekeeper', 'Jotunn Hallkeeper', 'Jotunn Wallkeeper', 'Jotunn Wildkeeper', 'Mimas',
+                      'Pallas', 'Porphyrion' },
+        },
     },
     monsters = {
         {
@@ -81,6 +91,7 @@ return {
                 [34] = { acc = 125, eva = 109, agi = 24, int = 25, mnd = 29, chr = 45, resist = { slow = 10 } },
                 [35] = { acc = 128, eva = 113, agi = 26, int = 26, mnd = 30, chr = 46, resist = { slow = 15 } },
             },
+            ph_for = { [4] = { 1 }, [42] = { 39 } },
             ranks  = { earth = -2, thunder = 4, slow = -2, stun = 4 },
             drops  = {
                 { rate = 50, item = 1036 },  -- delkfutt chest key
@@ -159,7 +170,7 @@ return {
             ids    = { 35 },
             nm     = true,
             levels = {
-                [36] = { acc = 132, eva = 120, agi = 28, int = 22, mnd = 33, chr = 35 },
+                [36] = { acc = 132, eva = 121, agi = 36, int = 23, mnd = 28, chr = 35 },
             },
             ranks  = { earth = -2, thunder = 4, slow = -2, stun = 4 },
             resist = { virus = 15 },
@@ -194,10 +205,10 @@ return {
             ids    = { 45 },
             nm     = true,
             levels = {
-                [36] = { acc = 152, eva = 112, agi = 42, int = 27, mnd = 34, chr = 35 },
+                [36] = { acc = 132, eva = 121, agi = 36, int = 23, mnd = 28, chr = 35 },
             },
             ranks  = { earth = -2, thunder = 4, slow = -2, stun = 4 },
-            resist = { poison = 10 },
+            resist = { virus = 15 },
             drops  = {
                 { rate = 1000, item = 549 },  -- delkfutt key
                 { rate = 1000, item = 549 },  -- delkfutt key
@@ -428,6 +439,7 @@ return {
                 [68] = { acc = 276, eva = 263, agi = 71, int = 67, mnd = 52, chr = 66 },
                 [69] = { acc = 282, eva = 269, agi = 72, int = 69, mnd = 53, chr = 67 },
             },
+            ph_for = { [90] = { 91 }, [127] = { 128 } },
             ranks  = { fire = -3, ice = 4, wind = -2, thunder = -2, water = -2, light = -3, dark = 4, paralyze = 5,
                        bind = 5, silence = -2, poison = -2, light_sleep = -3, dark_sleep = 4, blind = 5, stun = -2,
                        gravity = -2 },

@@ -16,6 +16,10 @@
 
     A monster with a data row has exact numbers at each level. One without a row falls back to the
     typical values for its level (data\bands.lua), which give a range.
+
+    Your pet's hit rate and how often the monster misses it use the same formula. A pet isn't a player,
+    so it gains 4 accuracy per level it has over the monster and loses nothing when it's lower. The
+    monster gains 4 per level it has over your pet, and Signet never counts for a pet.
 ]]
 
 local bands = require('data.bands');
@@ -196,6 +200,15 @@ local function widen(range, low, high)
     return range;
 end
 
+-- True when `levels` has numbers for any level from low to high.
+local function any_known(levels, low, high)
+    local known = false;
+    for level = low, high do
+        known = known or levels[level] ~= nil;
+    end
+    return known;
+end
+
 --[[
     Works out the readout over every level the monster can be.
     `me` is player.read() plus accuracy and evasion from /checkparam (nil when unknown).
@@ -212,10 +225,7 @@ function physical.readout(me, mob)
     -- A monster with numbers for some of these levels is only ever one of them, like an Assault
     -- monster under its four level caps. The typical values stand in only when it has none.
     local levels = mob.row and mob.row.levels or {};
-    local known = false;
-    for level = mob.low, mob.high do
-        known = known or levels[level] ~= nil;
-    end
+    local known = any_known(levels, mob.low, mob.high);
 
     for level = mob.low, mob.high do
         local stats = levels[level];
@@ -228,6 +238,75 @@ function physical.readout(me, mob)
             out.evade = widen(out.evade, evade_at(me, gap, stats, band, signet));
             out.crit  = widen(out.crit, crit_at(me, stats, band));
             out.signet = out.signet or (signet and out.evade ~= nil);
+        end
+    end
+    return out;
+end
+
+--[[
+    Your pet's accuracy and evasion at `level`, as { acc_low, acc_high, eva_low, eva_high }. A jug pet,
+    wyvern or automaton has the ones from its /checkparam reply, nil when they didn't come back. A
+    charmed monster has its own row's at that level, or the typical values when the row has none there.
+]]
+local function pet_numbers(pet, level)
+    if (pet.kind ~= 'charmed') then
+        return { acc_low = pet.accuracy, acc_high = pet.accuracy, eva_low = pet.evasion, eva_high = pet.evasion };
+    end
+    local stats = pet.row and pet.row.levels and pet.row.levels[level];
+    if (stats ~= nil) then
+        return { acc_low = stats.acc, acc_high = stats.acc, eva_low = stats.eva, eva_high = stats.eva };
+    end
+    return BANDS[level] or {};
+end
+
+-- How often your pet hits the monster. `over` is how many levels your pet has over it.
+local function pet_hit_at(own, over, stats, band)
+    if (own.acc_low == nil or (stats == nil and band == nil)) then
+        return nil;
+    end
+    local bonus = ACCURACY_PER_LEVEL * math.max(0, over);
+    local eva_low  = stats and stats.eva or band.eva_low;
+    local eva_high = stats and stats.eva or band.eva_high;
+    return physical.hit_percent(own.acc_low + bonus, eva_high), physical.hit_percent(own.acc_high + bonus, eva_low);
+end
+
+-- How often the monster misses your pet. `over` is how many levels the monster has over it.
+local function pet_evade_at(own, over, stats, band)
+    if (own.eva_low == nil or (stats == nil and band == nil)) then
+        return nil;
+    end
+    local bonus = ACCURACY_PER_LEVEL * math.max(0, over);
+    local acc_low  = stats and stats.acc or band.acc_low;
+    local acc_high = stats and stats.acc or band.acc_high;
+    return 100 - physical.hit_percent(acc_high + bonus, own.eva_low),
+        100 - physical.hit_percent(acc_low + bonus, own.eva_high);
+end
+
+--[[
+    Works out the pet part over every level the monster can be and every level your pet can be.
+    `pet` is what pet.find returns, with pet.accuracy and pet.evasion from its /checkparam reply (nil
+    when unknown, or for a charmed monster), and `mob` the same as for physical.readout.
+    Returns { name, low, high, hit, evade }, with low..high your pet's level and each number as
+    { low, high } or nil when unknown.
+]]
+function physical.pet_readout(pet, mob)
+    local out = { name = pet.name, low = pet.low, high = pet.high };
+    if (mob.low == nil or pet.low == nil) then
+        return out;
+    end
+
+    local levels = mob.row and mob.row.levels or {};
+    local known = any_known(levels, mob.low, mob.high);
+
+    for level = mob.low, mob.high do
+        local stats = levels[level];
+        if (stats ~= nil or not known) then
+            local band = (stats == nil) and BANDS[level] or nil;
+            for own_level = pet.low, pet.high do
+                local own = pet_numbers(pet, own_level);
+                out.hit   = widen(out.hit, pet_hit_at(own, own_level - level, stats, band));
+                out.evade = widen(out.evade, pet_evade_at(own, level - own_level, stats, band));
+            end
         end
     end
     return out;

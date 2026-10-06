@@ -1,56 +1,94 @@
 -- Balgas Dais (zone 146).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Searcher' },
-        [2] = { 'Black Dragon' },
-        [3] = { 'Chaa Paqa the Profound', 'Juu Zeni the Poisonmist', 'Nuu Kofu the Gentle', 'Yagudos Avatar' },
-        [4] = { 'Buu Xolo the Bloodfaced', 'Chaa Paqa the Profound', 'Juu Zeni the Poisonmist', 'Yagudos Avatar' },
-        [5] = { 'Buu Xolo the Bloodfaced', 'Chaa Paqa the Profound', 'Nuu Kofu the Gentle', 'Yagudos Avatar' },
-        [6] = { 'Buu Xolo the Bloodfaced', 'Juu Zeni the Poisonmist', 'Nuu Kofu the Gentle', 'Yagudos Avatar' },
-        [7] = { 'Buu Xolo the Bloodfaced', 'Chaa Paqa the Profound', 'Juu Zeni the Poisonmist',
-                'Nuu Kofu the Gentle' },
-        [8] = { 'Maat' },
-        [9] = { 'Pepper', 'Phoedme' },
-        [10] = { 'Phoedme', 'Prune' },
-        [11] = { 'Pepper', 'Prune' },
-        [12] = { 'Nenaunirs Wife' },
-        [13] = { 'Nenaunir', 'Nenaunirs Wife' },
-        [14] = { 'Domovoi' },
-        [15] = { 'Domovoi', 'Dvorovoi' },
-        [16] = { 'Myrmidon Apu-apu', 'Myrmidon Epa-epa', 'Myrmidon Spo-spo', 'Opo-opo Heir' },
-        [17] = { 'Myrmidon Apu-apu', 'Myrmidon Epa-epa', 'Myrmidon Spo-spo', 'Opo-opo Monarch' },
-        [18] = { 'Myrmidon Apu-apu', 'Myrmidon Epa-epa', 'Opo-opo Heir', 'Opo-opo Monarch' },
-        [19] = { 'Myrmidon Epa-epa', 'Myrmidon Spo-spo', 'Opo-opo Heir', 'Opo-opo Monarch' },
-        [20] = { 'Myrmidon Apu-apu', 'Myrmidon Spo-spo', 'Opo-opo Heir', 'Opo-opo Monarch' },
-        [21] = { 'Large Box', 'Medium Box' },
-        [22] = { 'Large Box', 'Small Box' },
-        [23] = { 'Medium Box', 'Small Box' },
-        [24] = { 'Aa Nawu the Thunderblade', 'Cuu Doko the Blizzard', 'Gii Jaha the Raucous', 'Yoo Mihi the Haze',
-                 'Zuu Xowu the Darksmoke' },
-        [25] = { 'Aa Nawu the Thunderblade', 'Gii Jaha the Raucous', 'Voo Tolu the Ghostfist', 'Yoo Mihi the Haze',
-                 'Zuu Xowu the Darksmoke' },
-        [26] = { 'Aa Nawu the Thunderblade', 'Cuu Doko the Blizzard', 'Gii Jaha the Raucous',
-                 'Voo Tolu the Ghostfist', 'Yoo Mihi the Haze' },
-        [27] = { 'Aa Nawu the Thunderblade', 'Cuu Doko the Blizzard', 'Voo Tolu the Ghostfist', 'Yoo Mihi the Haze',
-                 'Zuu Xowu the Darksmoke' },
-        [28] = { 'Cuu Doko the Blizzard', 'Gii Jaha the Raucous', 'Voo Tolu the Ghostfist', 'Yoo Mihi the Haze',
-                 'Zuu Xowu the Darksmoke' },
-        [29] = { 'Aa Nawu the Thunderblade', 'Cuu Doko the Blizzard', 'Gii Jaha the Raucous',
-                 'Voo Tolu the Ghostfist', 'Zuu Xowu the Darksmoke' },
-        [30] = { 'Dromiceiomimus' },
-        [31] = { 'King of Batons', 'King of Coins', 'King of Swords', 'Queen of Batons', 'Queen of Cups' },
-        [32] = { 'King of Coins', 'King of Cups', 'King of Swords', 'Queen of Batons', 'Queen of Cups' },
-        [33] = { 'King of Batons', 'King of Coins', 'King of Cups', 'Queen of Batons', 'Queen of Cups' },
-        [34] = { 'King of Batons', 'King of Cups', 'King of Swords', 'Queen of Batons', 'Queen of Cups' },
-        [35] = { 'King of Batons', 'King of Coins', 'King of Cups', 'King of Swords', 'Queen of Batons' },
-        [36] = { 'King of Batons', 'King of Coins', 'King of Cups', 'King of Swords', 'Queen of Cups' },
-        [37] = { 'Giant Moa' },
+        [1] = { superlink = { 'Searcher' } },
+        [2] = { superlink = { 'Black Dragon' } },
+        [3] = {
+            sight = { 'Yagudos Avatar' },
+            true_sight = { 'Chaa Paqa the Profound', 'Juu Zeni the Poisonmist', 'Nuu Kofu the Gentle' },
+        },
+        [4] = {
+            sight = { 'Yagudos Avatar' },
+            true_sight = { 'Buu Xolo the Bloodfaced', 'Chaa Paqa the Profound', 'Juu Zeni the Poisonmist' },
+        },
+        [5] = {
+            sight = { 'Yagudos Avatar' },
+            true_sight = { 'Buu Xolo the Bloodfaced', 'Chaa Paqa the Profound', 'Nuu Kofu the Gentle' },
+        },
+        [6] = {
+            sight = { 'Yagudos Avatar' },
+            true_sight = { 'Buu Xolo the Bloodfaced', 'Juu Zeni the Poisonmist', 'Nuu Kofu the Gentle' },
+        },
+        [7] = {
+            true_sight = { 'Buu Xolo the Bloodfaced', 'Chaa Paqa the Profound', 'Juu Zeni the Poisonmist',
+                           'Nuu Kofu the Gentle' },
+        },
+        [8] = { sight = { 'Maat' } },
+        [9] = { superlink = { 'Pepper', 'Phoedme' } },
+        [10] = { superlink = { 'Phoedme', 'Prune' } },
+        [11] = { superlink = { 'Pepper', 'Prune' } },
+        [12] = { superlink = { 'Nenaunirs Wife' } },
+        [13] = { superlink = { 'Nenaunir', 'Nenaunirs Wife' } },
+        [14] = { superlink = { 'Domovoi' } },
+        [15] = { superlink = { 'Domovoi', 'Dvorovoi' } },
+        [16] = { superlink = { 'Myrmidon Apu-apu', 'Myrmidon Epa-epa', 'Myrmidon Spo-spo', 'Opo-opo Heir' } },
+        [17] = { superlink = { 'Myrmidon Apu-apu', 'Myrmidon Epa-epa', 'Myrmidon Spo-spo', 'Opo-opo Monarch' } },
+        [18] = { superlink = { 'Myrmidon Apu-apu', 'Myrmidon Epa-epa', 'Opo-opo Heir', 'Opo-opo Monarch' } },
+        [19] = { superlink = { 'Myrmidon Epa-epa', 'Myrmidon Spo-spo', 'Opo-opo Heir', 'Opo-opo Monarch' } },
+        [20] = { superlink = { 'Myrmidon Apu-apu', 'Myrmidon Spo-spo', 'Opo-opo Heir', 'Opo-opo Monarch' } },
+        [21] = { sound = { 'Large Box', 'Medium Box' } },
+        [22] = { sound = { 'Large Box', 'Small Box' } },
+        [23] = { sound = { 'Medium Box', 'Small Box' } },
+        [24] = {
+            superlink = { 'Aa Nawu the Thunderblade', 'Cuu Doko the Blizzard', 'Gii Jaha the Raucous',
+                          'Yoo Mihi the Haze', 'Zuu Xowu the Darksmoke' },
+        },
+        [25] = {
+            superlink = { 'Aa Nawu the Thunderblade', 'Gii Jaha the Raucous', 'Voo Tolu the Ghostfist',
+                          'Yoo Mihi the Haze', 'Zuu Xowu the Darksmoke' },
+        },
+        [26] = {
+            superlink = { 'Aa Nawu the Thunderblade', 'Cuu Doko the Blizzard', 'Gii Jaha the Raucous',
+                          'Voo Tolu the Ghostfist', 'Yoo Mihi the Haze' },
+        },
+        [27] = {
+            superlink = { 'Aa Nawu the Thunderblade', 'Cuu Doko the Blizzard', 'Voo Tolu the Ghostfist',
+                          'Yoo Mihi the Haze', 'Zuu Xowu the Darksmoke' },
+        },
+        [28] = {
+            superlink = { 'Cuu Doko the Blizzard', 'Gii Jaha the Raucous', 'Voo Tolu the Ghostfist',
+                          'Yoo Mihi the Haze', 'Zuu Xowu the Darksmoke' },
+        },
+        [29] = {
+            superlink = { 'Aa Nawu the Thunderblade', 'Cuu Doko the Blizzard', 'Gii Jaha the Raucous',
+                          'Voo Tolu the Ghostfist', 'Zuu Xowu the Darksmoke' },
+        },
+        [30] = { superlink = { 'Dromiceiomimus' } },
+        [31] = {
+            superlink = { 'King of Batons', 'King of Coins', 'King of Swords', 'Queen of Batons', 'Queen of Cups' },
+        },
+        [32] = {
+            superlink = { 'King of Coins', 'King of Cups', 'King of Swords', 'Queen of Batons', 'Queen of Cups' },
+        },
+        [33] = {
+            superlink = { 'King of Batons', 'King of Coins', 'King of Cups', 'Queen of Batons', 'Queen of Cups' },
+        },
+        [34] = {
+            superlink = { 'King of Batons', 'King of Cups', 'King of Swords', 'Queen of Batons', 'Queen of Cups' },
+        },
+        [35] = {
+            superlink = { 'King of Batons', 'King of Coins', 'King of Cups', 'King of Swords', 'Queen of Batons' },
+        },
+        [36] = {
+            superlink = { 'King of Batons', 'King of Coins', 'King of Cups', 'King of Swords', 'Queen of Cups' },
+        },
+        [37] = { superlink = { 'Giant Moa' } },
     },
     monsters = {
         {

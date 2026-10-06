@@ -1,27 +1,42 @@
 -- PsoXja (zone 9).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Camazotz', 'Dire Bat', 'Purgatory Bat', 'Vampire Bat' },
-        [2] = { 'Frost Lizard', 'Labyrinth Lizard', 'Maze Lizard', 'Snow Lizard' },
-        [3] = { 'Cryptonberry Cutter', 'Cryptonberry Harrier', 'Cryptonberry Plaguer', 'Cryptonberry Stalker',
-                'Golden-Tongued Culberry' },
-        [4] = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Jeweler',
-                'Goblin Mercenary', 'Goblin Veterinarian' },
-        [5] = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Hunter', 'Goblin Jeweler',
-                'Goblin Mercenary', 'Goblin Veterinarian' },
-        [6] = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter',
-                'Goblin Mercenary', 'Goblin Veterinarian' },
-        [7] = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Enchanter', 'Goblin Hunter', 'Goblin Jeweler',
-                'Goblin Mercenary', 'Goblin Veterinarian' },
-        [8] = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter',
-                'Goblin Jeweler', 'Goblin Mercenary', 'Goblin Veterinarian' },
-        [9] = { 'Cryptonberry Cutter', 'Cryptonberry Harrier', 'Cryptonberry Plaguer', 'Cryptonberry Stalker' },
+        [1] = { sound = { 'Camazotz', 'Dire Bat', 'Purgatory Bat', 'Vampire Bat' } },
+        [2] = { sound = { 'Frost Lizard', 'Labyrinth Lizard', 'Maze Lizard', 'Snow Lizard' } },
+        [3] = {
+            sight = { 'Cryptonberry Cutter', 'Cryptonberry Harrier', 'Cryptonberry Plaguer', 'Cryptonberry Stalker',
+                      'Golden-Tongued Culberry' },
+        },
+        [4] = {
+            sight = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Jeweler',
+                      'Goblin Mercenary', 'Goblin Veterinarian' },
+        },
+        [5] = {
+            sight = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Hunter', 'Goblin Jeweler',
+                      'Goblin Mercenary', 'Goblin Veterinarian' },
+        },
+        [6] = {
+            sight = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter',
+                      'Goblin Mercenary', 'Goblin Veterinarian' },
+        },
+        [7] = {
+            sight = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Enchanter', 'Goblin Hunter', 'Goblin Jeweler',
+                      'Goblin Mercenary', 'Goblin Veterinarian' },
+        },
+        [8] = {
+            sight = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter',
+                      'Goblin Jeweler', 'Goblin Mercenary', 'Goblin Veterinarian' },
+        },
+        [9] = {
+            sight = { 'Cryptonberry Cutter', 'Cryptonberry Harrier', 'Cryptonberry Plaguer',
+                      'Cryptonberry Stalker' },
+        },
     },
     monsters = {
         {
@@ -1109,6 +1124,7 @@ return {
                              [250] = { 42, 44 }, [255] = { 44, 46 }, [256] = { 44, 46 }, [260] = { 44, 46 },
                              [261] = { 44, 46 }, [263] = { 44, 46 }, [265] = { 45, 47 }, [268] = { 46, 47 },
                              [269] = { 47, 48 }, [270] = { 47, 48 }, [284] = { 43, 45 }, [285] = { 44, 44 } },
+            ph_for = { [239] = { 240 } },
             ranks  = { fire = -1, ice = -1, wind = -1, earth = -1, thunder = -1, water = -3, light = -2, dark = 3,
                        paralyze = -1, bind = -1, silence = -1, slow = -1, poison = -3, light_sleep = -2,
                        dark_sleep = 3, blind = 3, stun = -1, gravity = -1 },

@@ -6,6 +6,12 @@
     the settings library, the chat log and the GUI manager under imgui.lua are mocked here. Every imgui
     call is checked and recorded. Tests click, type and slide through MOCK.clicks, MOCK.typing and MOCK.slide.
 
+    Your pet is the entity at MOCK.player.pet_index. MOCK.summon, MOCK.charm and MOCK.dismiss change it and
+    send the pet update packet the way the server does, and MOCK.summon_quietly brings one out without it,
+    like a pet that was out before checkmate loaded. MOCK.pet_reply sends the five /checkparam <pet> reply
+    lines, MOCK.merit_packet builds a merit list, and MOCK.send_out fires the packet_out event for a packet
+    going out. QueueCommand never fires packet_out.
+
     run.py sets ADDON_DIR, ADDON_PATH (the addon folder with a trailing backslash, like addon.path in
     game), ADDON_FILES, FIXTURES_PATH, ASHITA_LIBS and MOCK_INSTALL_PATH before this runs.
 ]]
@@ -22,7 +28,8 @@ MOCK = {
     reads    = 0,        -- Game memory reads through AshitaCore:GetMemoryManager().
     player = {
         server_id = 1001, name = 'Tester', zone = 103,
-        main_job = 4, main_level = 75,
+        main_job = 4, main_level = 75, sub_job = 0, sub_level = 0,
+        pet_index = 0,                                       -- Your pet's entity index, 0 with no pet.
         -- Base stats by Ashita's index, 0 to 6 for STR DEX VIT AGI INT MND CHR, and the gear and buff
         -- bonus on top by the same index.
         stats     = { [0] = 60, [1] = 70, [2] = 60, [3] = 65, [4] = 90, [5] = 70, [6] = 60 },
@@ -109,6 +116,8 @@ local function player_memory()
     return {
         GetMainJob = function () return p.main_job; end,
         GetMainJobLevel = function () return p.main_level; end,
+        GetSubJob = function () return p.sub_job; end,
+        GetSubJobLevel = function () return p.sub_level; end,
         GetStat = function (_, i) return p.stats[i] or 0; end,
         GetStatModifier = function (_, i) return p.stat_mods[i] or 0; end,
         GetCombatSkill = function (_, id)
@@ -509,7 +518,7 @@ AshitaCore = {
 
 function GetPlayerEntity()
     if (MOCK.zoning) then return nil; end
-    return { Name = MOCK.player.name, ServerId = MOCK.player.server_id };
+    return { Name = MOCK.player.name, ServerId = MOCK.player.server_id, PetTargetIndex = MOCK.player.pet_index or 0 };
 end
 function GetEntity(index) return MOCK.entities[index]; end
 
@@ -598,6 +607,12 @@ function MOCK.mob_id(zone, index)
     return 0x01000000 + zone * 0x1000 + index;
 end
 
+-- The server id of a pet you call at entity index `index` in your zone. The server gives a pet the index
+-- plus 0x100, so its low 12 bits are 0x800 or more.
+function MOCK.pet_id(index)
+    return 0x01000000 + MOCK.player.zone * 0x1000 + index + 0x100;
+end
+
 -- 0x029 battle message.
 function MOCK.message_packet(actor, target, param1, param2, message, target_index)
     local b = bytes(0x1C);
@@ -629,6 +644,21 @@ function MOCK.checkparam_packets(accuracy, evasion, who)
     return out;
 end
 
+-- The five /checkparam <pet> reply lines about your pet, or the pet at entity index `index`. They come from
+-- you to the pet, with no 731. 712 has `accuracy` and 715 `evasion`.
+MOCK.PET_REPLY_LINES = { 733, 712, 713, 714, 715 };
+function MOCK.pet_reply_packets(accuracy, evasion, index)
+    index = index or MOCK.player.pet_index;
+    local entity = MOCK.entities[index];
+    local pet = entity and entity.ServerId or MOCK.pet_id(index);
+    local out = {};
+    for _, message in ipairs(MOCK.PET_REPLY_LINES) do
+        local value = (message == 712) and accuracy or ((message == 715) and evasion or 7);
+        out[#out + 1] = MOCK.message_packet(MOCK.player.server_id, pet, value, 0, message, index);
+    end
+    return out;
+end
+
 -- 0x0F4 widescan entry.
 function MOCK.widescan_packet(index, level)
     local b = bytes(0x10);
@@ -642,6 +672,28 @@ function MOCK.zone_packet(id)
     local b = bytes(0x20);
     put(b, 0x04, id or MOCK.player.server_id, 4);
     return packet(0x00A, b, 0x20);
+end
+
+-- 0x068 pet update with your pet's entity index at 0x0C, 0 with no pet. This is the short form the server
+-- sends with no pet. The HP, TP and name that follow the index with a pet out are left out, since
+-- checkmate only reads the index.
+function MOCK.pet_sync_packet(index)
+    local b = bytes(0x1C);
+    put(b, 0x0C, index, 2);
+    return packet(0x068, b, 0x1C);
+end
+
+-- 0x08C merit list. `entries` are { merit id, count }, 4 bytes each from 0x08, after the count at 0x04.
+function MOCK.merit_packet(entries)
+    local size = 0x08 + 4 * #entries;
+    local b = bytes(size);
+    put(b, 0x04, #entries, 2);
+    for i, entry in ipairs(entries) do
+        local at = 0x08 + 4 * (i - 1);
+        put(b, at, entry[1], 2);
+        b[at + 3] = entry[2];
+    end
+    return packet(0x08C, b, size);
 end
 
 --[[
@@ -665,6 +717,54 @@ end
 function MOCK.zone_in(zone)
     MOCK.player.zone = zone or MOCK.player.zone;
     MOCK.packet(MOCK.zone_packet());
+end
+
+-- The pet update packet for `index`.
+function MOCK.pet_sync(index)
+    return MOCK.packet(MOCK.pet_sync_packet(index));
+end
+
+-- Your pet named `name` comes out at entity index `index`, 0x700 by default, the first one the server
+-- hands a pet. MOCK.summon sends the pet update right away, like the server, and summon_quietly doesn't.
+function MOCK.summon_quietly(name, index)
+    index = index or 0x700;
+    MOCK.player.pet_index = index;
+    MOCK.entities[index] = { Name = name, ServerId = MOCK.pet_id(index), HPPercent = 100 };
+end
+function MOCK.summon(name, index)
+    MOCK.summon_quietly(name, index);
+    MOCK.pet_sync(MOCK.player.pet_index);
+end
+
+-- You charm the monster at entity index `index`. It keeps its own server id.
+function MOCK.charm(index, name)
+    MOCK.player.pet_index = index;
+    MOCK.entities[index] = { Name = name, ServerId = MOCK.mob_id(MOCK.player.zone, index), HPPercent = 100 };
+    MOCK.pet_sync(index);
+end
+
+-- Your pet goes. A pet you called goes away, and a monster you charmed stays where it is.
+function MOCK.dismiss()
+    local index = MOCK.player.pet_index or 0;
+    if (index >= 0x700) then
+        MOCK.entities[index] = nil;
+    end
+    MOCK.player.pet_index = 0;
+    MOCK.pet_sync(0);
+end
+
+-- A packet going out, like 0x0DD for a /check or /checkparam.
+function MOCK.send_out(id)
+    return MOCK.fire('packet_out', { id = id, blocked = false });
+end
+
+-- Your pet's /checkparam reply. Returns how many of its five lines were hidden.
+function MOCK.pet_reply(accuracy, evasion, index)
+    local hidden = 0;
+    for _, e in ipairs(MOCK.pet_reply_packets(accuracy, evasion, index)) do
+        if (MOCK.packet(e).blocked) then hidden = hidden + 1; end
+    end
+    return hidden;
 end
 
 -- One frame. It errors when imgui was left unbalanced.

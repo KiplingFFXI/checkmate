@@ -1,15 +1,17 @@
 -- RoMaeve (zone 122).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Apocalyptic Weapon', 'Douma Weapon', 'Infernal Weapon', 'Katashiro Weapon', 'Killing Weapon',
-                'Ominous Weapon' },
-        [2] = { 'Mimic Jester', 'Mimic King', 'Mimic Mage' },
+        [1] = {
+            sound = { 'Apocalyptic Weapon', 'Infernal Weapon', 'Killing Weapon', 'Ominous Weapon' },
+            true_sound = { 'Douma Weapon', 'Katashiro Weapon' },
+        },
+        [2] = { true_sound = { 'Mimic Jester', 'Mimic King', 'Mimic Mage' } },
     },
     monsters = {
         {
@@ -135,6 +137,7 @@ return {
                 [68] = { acc = 276, eva = 258, agi = 61, int = 73, mnd = 69, chr = 67 },
                 [69] = { acc = 282, eva = 263, agi = 61, int = 74, mnd = 71, chr = 68 },
             },
+            ph_for = { [35] = { 54 }, [44] = { 64 }, [53] = { 54 }, [63] = { 64 } },
             ranks  = { fire = 2, ice = 2, wind = 2, earth = 2, thunder = 2, water = 2, light = 2, dark = 2,
                        paralyze = 2, bind = 2, silence = 2, slow = 2, poison = 2, light_sleep = 2, dark_sleep = 2,
                        blind = 2, stun = 2, gravity = 2 },

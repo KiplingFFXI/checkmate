@@ -1,20 +1,25 @@
 addon.name    = 'checkmate';
 addon.author  = 'Kipling';
-addon.version = '1.0.0';
-addon.desc    = 'Hit, evade, crit, aggro, magic, immunities, elements and drops on /check for Phoenix.';
+addon.version = '1.1.0';
+addon.desc    = 'Hit, evade, crit, aggro, magic, immunities, elements, drops and your pet on /check for Phoenix.';
 addon.link    = 'https://github.com/KiplingFFXI/checkmate';
 
 --[[
-    checkmate reads the /check and widescan replies the server already sends you, your own stats,
-    skills, buffs and gear from game memory, and the monster data it ships with. After your own
-    /check of a monster it prints what it found in chat. When it loads, it reads the fonts its
-    settings window offers from the Windows fonts folder.
+    checkmate reads the /check and widescan replies the server already sends you, the message when a
+    monster dies near you, the merit list it sends when you zone, the pet update it sends when your pet
+    comes out, your own stats, skills, buffs, gear, jobs and pet from game memory, and the monster data
+    it ships with. It also notes when any /check or /checkparam goes out. After your own /check of a
+    monster it prints what it found in chat. When it loads, it reads the fonts its settings window
+    offers from the Windows fonts folder.
     It hides the game's own line for your /check, and its lines take that line's place. You can turn
     that off in the settings window or with /checkmate replace off.
     With hit rate or evade turned on, it sends /checkparam <me> a second and a half after your /check
-    of a monster comes back and hides the six reply lines to that one request. The game ignores a
-    /checkparam sent right after a /check. The wait also lets advcheck's, sent at 0.99 s, go first when
-    it's loaded. It never sends or hides anything else.
+    of a monster comes back, or after the last /check or /checkparam that went out after it, and hides
+    the six reply lines to that one request. The game ignores a /checkparam sent right after a /check.
+    The wait also lets advcheck's, sent at 0.99 s, go first when it's loaded. With the pet part turned
+    on and your jug pet, wyvern or automaton already out, it sends /checkparam <pet> a second and a half
+    after the last /check or /checkparam, and hides the five reply lines to that one request. It never
+    sends or hides anything else.
 ]]
 
 require('common');
@@ -26,6 +31,7 @@ local player     = require('core.player');
 local monsters   = require('core.monsters');
 local checkparam = require('core.checkparam');
 local physical   = require('core.physical');
+local pet        = require('core.pet');
 local aggro      = require('core.aggro');
 local magic      = require('core.magic');
 local elements   = require('core.elements');
@@ -43,6 +49,10 @@ local settings_window = require('ui.settings_window');
 local CHECK_FIRST      = 170;
 local CHECK_LAST       = 178;
 local CHECK_IMPOSSIBLE = 249;
+
+-- A monster's death messages (0x029), "defeats" and "falls to the ground". It comes back at a new level.
+local DEFEATS = 6;
+local FALLS   = 20;
 
 -- The /check con is its second parameter less this. 64 is "too weak".
 local CHECK_CON_BASE = 64;
@@ -63,6 +73,9 @@ local NUMBER_PARTS = { 'hit', 'evade', 'crit', 'magic' };
 
 -- The defaults the settings library keeps and merges into every settings file it loads.
 local DEFAULT_SETTINGS = defaults.make();
+-- Chat colors stay out of the defaults the settings library merges in, so tidy fills one a settings file
+-- lacks from that file's own skin.
+DEFAULT_SETTINGS.colors = T{};
 
 local checkmate = {
     settings  = settings.load(DEFAULT_SETTINGS),
@@ -96,7 +109,8 @@ end
 -- Fixes anything a hand-edited settings file could get wrong.
 local function tidy(s)
     own_tables(s, DEFAULT_SETTINGS);
-    defaults.fix_colors(s);
+    local skin = skins.find(s.look.skin);
+    defaults.fix_colors(s, skin and skin.chat);
     s.printout.order = printout.clean_order(s.printout.order);
     s.printout.separator = printout.clean_text(s.printout.separator);
     s.printout.divider = printout.divider_id(s.printout);
@@ -136,13 +150,13 @@ local function readout(check)
     local row = check.row;
     local result = { name = check.name, low = check.low, high = check.high, cant_gauge = check.cant_gauge,
         con = check.con, impossible = check.impossible, reading = check.reading, defense = check.defense,
-        range_low = check.range_low, range_high = check.range_high };
+        range_low = check.range_low, range_high = check.range_high, id = check.id, ph_for = check.ph_for };
     if (check.cant_gauge) then
         return result;
     end
 
     local me = player.read();
-    me.accuracy, me.evasion = checkparam.mine();
+    me.accuracy, me.evasion = check.accuracy, check.evasion;
     me.extra_accuracy = s.magic.extra_accuracy;
     result.scripted = row ~= nil and row.flags ~= nil and row.flags.scripted_stats == true;
 
@@ -150,6 +164,10 @@ local function readout(check)
         local numbers = physical.readout(me, check);
         result.hit, result.evade, result.crit = numbers.hit, numbers.evade, numbers.crit;
         result.signet = numbers.signet;
+    end
+    if (part_on('pet') and check.pet ~= nil) then
+        result.pet = physical.pet_readout(check.pet, check);
+        result.pet.scripted = result.scripted or check.pet.scripted;
     end
     -- The rest all need the monster's data row.
     if (row == nil) then
@@ -188,7 +206,7 @@ end
 local SAMPLE_AGGRO = {
     aggro   = true,
     detects = { 'sight' },
-    links   = { 'Goblin Butcher', 'Goblin Leecher', 'Goblin Tinkerer' },
+    links   = { sight = { 'Goblin Butcher', 'Goblin Leecher', 'Goblin Tinkerer' } },
 };
 local SAMPLE_DROPS = {
     drops = {
@@ -203,11 +221,14 @@ local SAMPLE_ELEMENTS = { ranks = { ice = -3, thunder = -3, water = 4 } };
 local SAMPLE_MAGIC = {
     elemental = 88, enfeebling = 81, dark = 95, divine = 90, healing = 95, ninjutsu = 72, singing = 85, blue = 78,
 };
+-- Its ID. The idword answer shows it too.
+local SAMPLE_ID = 17199202;
 
 local function print_sample()
     local s = checkmate.settings;
     local result = {
         name    = 'Sample Goblin',
+        id      = SAMPLE_ID,
         low     = 42,
         high    = 42,
         con     = 3,   -- Decent challenge.
@@ -225,6 +246,12 @@ local function print_sample()
     };
     -- It spawns at 40 to 44. With the level range on, that prints after its level.
     result.range_low, result.range_high = 40, 44;
+    -- It's a placeholder. With Show if it's a PH on, the NM it can pop prints after its level and ID.
+    result.ph_for = { 'Valkurm Emperor' };
+    -- Your wyvern at your level, for the pet part.
+    result.pet = {
+        name = 'Wyvern', low = 42, high = 42, hit = { low = 88, high = 88 }, evade = { low = 27, high = 27 },
+    };
     for _, id in ipairs(spells.SCHOOL_ORDER) do
         local school = s.magic.schools[id];
         if (school ~= nil and school.on) then
@@ -242,35 +269,58 @@ local function print_sample()
 end
 
 --[[
-    Prints the lines of a /check that haven't printed yet. Until the /checkparam reply is in, it stops
-    before the first line holding hit or evade. Once the wait is over, it goes on from that line. The
-    line is found again, since a layout change during the wait can move it.
-    A /check that gave up on the reply skips every line holding hit or evade. The exception is its
-    first line, when nothing has printed yet, the game's line is hidden and the extras share the
-    /check line. That line stands in for the game's, so it always prints.
+    Prints the lines of a /check that haven't printed yet, top to bottom. Until the /checkparam <me> reply
+    is in, it stops before the first line holding hit or evade, and once that wait is over it goes on from
+    that line. The pet's line is passed over while the /checkparam <pet> reply is out and prints by itself
+    once it's in, so it never holds up another line. The lines are found again each time, since a layout
+    change during a wait can move them.
+    A /check that gave up on a reply skips the lines holding what it gave up on. One whose pet was gone or
+    changed when its /checkparam was due only skips the pet's line when nothing else is on it. The exception
+    is its first line while it hasn't printed, when the game's line is hidden and the extras share the /check
+    line. That line stands in for the game's, so it always prints.
 ]]
 local function print_check(check)
-    if (check.done) then
+    if (check.done and check.pet_done) then
         return;
     end
-    local lines, waits_at, holding = printout.lines(checkmate.settings, readout(check));
-    local first, last = check.from, #lines;
-    if (check.waits and waits_at ~= nil) then
-        last = waits_at - 1;
-    elseif (first > 1 and waits_at ~= nil) then
-        first = waits_at;
-    end
-    local keep_first = check.from == 1 and checkmate.settings.printout.replace_game_line
-        and not checkmate.settings.printout.extras_own_line;
+    local s = checkmate.settings;
+    local lines, waits_at, holding, pet_at, pet_alone = printout.lines(s, readout(check));
+    local keep_first = (check.from == 1 or pet_at == 1) and s.printout.replace_game_line
+        and not s.printout.extras_own_line;
     local shown = {};
-    for at = first, last do
-        if (not (check.gave_up and holding[at]) or (at == 1 and keep_first)) then
+
+    local function show(at)
+        local skip = (check.gave_up and holding[at])
+            or (at == pet_at and (check.pet_gave_up or (check.pet_gone and pet_alone)));
+        if (not skip or (at == 1 and keep_first)) then
             shown[#shown + 1] = lines[at];
         end
+        if (at == pet_at) then
+            check.pet_done = true;
+        end
+    end
+
+    if (not check.done) then
+        local first, last = check.from, #lines;
+        if (check.waits and waits_at ~= nil) then
+            last = waits_at - 1;
+        elseif (first > 1 and waits_at ~= nil) then
+            first = waits_at;
+        end
+        for at = first, last do
+            if (at ~= pet_at or not check.pet_waits) then
+                show(at);
+            end
+        end
+        check.from = last + 1;
+        check.done = last == #lines;
+    end
+    -- The pet's line, passed over while its reply was out. Once the rest are done, it prints wherever a layout
+    -- change put it.
+    if (pet_at ~= nil and not check.pet_done and not check.pet_waits and (pet_at < check.from or check.done)) then
+        show(pet_at);
     end
     print_lines(shown);
-    check.from = last + 1;
-    check.done = last == #lines;
 end
 
 -- Prints what `check` still has to print on the next frame.
@@ -278,18 +328,37 @@ local function print_soon(check)
     checkmate.ready[#checkmate.ready + 1] = check;
 end
 
--- The /checkparam reply for `check` is in or overdue. Its waiting lines print on the next frame.
-local function stop_waiting(check)
-    check.waits = false;
+-- A /checkparam reply for `check` is in or overdue, so its waiting lines print on the next frame. The accuracy
+-- and evasion it gave are kept on the /check, since a newer /check's request clears the ones checkparam holds.
+local function stop_waiting(check, kind)
+    if (kind == 'pet') then
+        check.pet_waits = false;
+        check.pet.accuracy, check.pet.evasion = checkparam.values('pet');
+    else
+        check.waits = false;
+        check.accuracy, check.evasion = checkparam.values('me');
+    end
     print_soon(check);
 end
 
--- A /check that stops waiting without the reply prints the rest of its lines on the next frame, all but
--- the ones holding hit or evade.
+-- A /check that stops waiting without a reply prints the rest of its lines on the next frame, all but the
+-- ones holding what it still waited for: hit and evade, or its pet.
 local function give_up(check)
+    if (check == nil) then
+        return;
+    end
+    check.gave_up = check.gave_up or check.waits;
+    check.pet_gave_up = check.pet_gave_up or check.pet_waits;
+    check.waits, check.pet_waits = false, false;
+    print_soon(check);
+end
+
+-- Your pet was gone when its /checkparam was due, so `check` stops waiting for it. Its pet line prints with
+-- unknown numbers when other parts share it, and is left out when it's alone.
+local function pet_gone(check)
     if (check ~= nil) then
-        check.gave_up = true;
-        stop_waiting(check);
+        check.pet_gone, check.pet_waits = true, false;
+        print_soon(check);
     end
 end
 
@@ -303,9 +372,14 @@ local function on_check(target, index, level, param2, message)
     local name = player.entity_name(index);
     local row = monsters.find(player.zone(), target, name);
     local low, high = monsters.level(row, level, index);
+    -- Kept for when you charm this monster later.
+    if (level >= 1) then
+        monsters.on_check(index, low);
+    end
     local gauged = message ~= CHECK_IMPOSSIBLE;
     local check = {
         name    = name or (row and row.name) or 'The monster',
+        id      = target,
         row     = row,
         low     = low,
         high    = high,
@@ -314,25 +388,46 @@ local function on_check(target, index, level, param2, message)
         defense = gauged and (message - CHECK_FIRST) % READING_SIZE or nil,
         from    = 1,   -- The first of its lines not printed yet.
         done    = false,   -- Set once its last line printed.
-        gave_up = false,   -- Set when a newer /check or zoning ends its wait for the reply.
+        gave_up = false,   -- Set when a newer /check or zoning ends its wait for the /checkparam <me> reply.
+        pet_gave_up = false,   -- The same for the /checkparam <pet> reply. Its pet line is skipped.
+        pet_gone = false,   -- Set when your pet was gone or changed when its /checkparam was due.
     };
     if (row ~= nil and low ~= nil and low == high) then
         check.range_low, check.range_high = monsters.range_around(row, index, low);
     end
+    check.ph_for = monsters.ph_for(row, index);
     check.impossible = not gauged;
     check.cant_gauge = row == nil and low == nil and any_on(NUMBER_PARTS);
     check.waits = (part_on('hit') or part_on('evade')) and not check.cant_gauge;
-
-    -- Only hit rate and evade need a fresh /checkparam. The lines before the first one holding them
-    -- print on the next frame, and the rest once the reply is in.
-    local older;
-    if (check.waits) then
-        older = checkparam.on_check(os.clock(), check);
-    else
-        older = checkparam.cancel();
+    -- Your pet, whether its line waits for the /checkparam <pet> reply, and whether that line is done.
+    if (part_on('pet') and not check.cant_gauge) then
+        check.pet = pet.find(target);
     end
-    -- An older /check still waiting gives up on the reply.
-    give_up(older);
+    -- With no level for the monster, the pet's numbers can only be unknown, so nothing is asked.
+    check.pet_waits = check.pet ~= nil and check.pet.asks and low ~= nil;
+    check.pet_done  = check.pet == nil;
+
+    -- Only hit rate, evade and the pet part need a fresh /checkparam. The lines before the first one
+    -- holding hit or evade print on the next frame, and the rest once the reply is in. The pet's line
+    -- prints once its own reply is in.
+    checkparam.wait_from(os.clock());
+    local older_me, older_pet, taken;
+    if (check.waits) then
+        older_me = checkparam.ask('me', check, checkmate.my_id);
+    else
+        older_me = checkparam.cancel('me');
+    end
+    if (check.pet_waits) then
+        older_pet, taken = checkparam.ask('pet', check, check.pet.id);
+        if (not taken) then
+            check.pet_gone, check.pet_waits = true, false;
+        end
+    else
+        older_pet = checkparam.cancel('pet');
+    end
+    -- Older /checks still waiting give up on their replies.
+    give_up(older_me);
+    give_up(older_pet);
     print_soon(check);
 end
 
@@ -342,7 +437,7 @@ end
 
 -- The parts show and hide take. The window calls the reading "Evasion and defense".
 local PART_LIST = 'name, difficulty, reading (evasion and defense), hit, evade, crit, aggro, magic, immunities, '
-    .. 'elements, drops';
+    .. 'elements, drops, pet';
 
 -- The parts with a label, then the ones with New line and arrows. The name part always comes first, so
 -- it has no New line and doesn't move. The reading rides on the difficulty and has none of them.
@@ -694,28 +789,70 @@ local function set_range_word(text)
     say(('The level range now prints like (Lv 42, %s).'):format(printout.range_text(ps, 40, 44)));
 end
 
--- The words /checkmate weakword and resistword set, each with its key in the elements settings and the
--- elements it goes before.
-local ELEMENT_WORDS = {
-    weakword   = { key = 'weak_word',   what = 'the elements a monster is weak to' },
-    resistword = { key = 'resist_word', what = 'the elements a monster resists' },
+-- `text` is everything after idword, or nil when nothing follows it. Empty quotes clear the word.
+local function set_id_word(text)
+    if (text == nil) then
+        say('Type /checkmate idword <text>. Put text with spaces in quotes, and "" leaves the word out.');
+        return;
+    end
+    local ps = checkmate.settings.printout;
+    ps.id_word = printout.clean_command_text(text):sub(1, printout.LABEL_MAX);
+    save_settings();
+    say(('The monster\'s ID now prints like (%s).'):format(printout.id_text(ps, SAMPLE_ID)));
+end
+
+-- `text` is everything after phword, or nil when nothing follows it. Empty quotes clear the word.
+local function set_ph_word(text)
+    if (text == nil) then
+        say('Type /checkmate phword <text>. Put text with spaces in quotes, and "" leaves the word out.');
+        return;
+    end
+    local ps = checkmate.settings.printout;
+    ps.ph_word = printout.clean_command_text(text):sub(1, printout.LABEL_MAX);
+    save_settings();
+    say(('The PH note now prints like (%s).'):format(printout.ph_text(ps, { 'Valkurm Emperor' })));
+end
+
+-- The words /checkmate weakword, resistword, pethitword and petevadeword set, each with the settings
+-- section and key it sets and what it says with a word and with none.
+local WORDS = {
+    weakword = {
+        section = 'elements', key = 'weak_word',
+        said  = 'The elements part now puts "%s" before the elements a monster is weak to.',
+        empty = 'The elements part now lists the elements a monster is weak to with no word before them.',
+    },
+    resistword = {
+        section = 'elements', key = 'resist_word',
+        said  = 'The elements part now puts "%s" before the elements a monster resists.',
+        empty = 'The elements part now lists the elements a monster resists with no word before them.',
+    },
+    pethitword = {
+        section = 'pet', key = 'hit_word',
+        said  = 'The pet part now puts "%s" before your pet\'s hit rate.',
+        empty = 'The pet part now shows your pet\'s hit rate with no word before it.',
+    },
+    petevadeword = {
+        section = 'pet', key = 'evade_word',
+        said  = 'The pet part now puts "%s" before how often the monster misses your pet.',
+        empty = 'The pet part now shows how often the monster misses your pet with no word before it.',
+    },
 };
 
 -- `text` is everything after the command, or nil when nothing follows it. Empty quotes clear the word.
-local function set_element_word(sub, text)
+local function set_word(sub, text)
     if (text == nil) then
         say(('Type /checkmate %s <text>. Put text with spaces in quotes, and "" leaves the word out.'):format(sub));
         return;
     end
-    local entry = ELEMENT_WORDS[sub];
+    local entry = WORDS[sub];
     local word = printout.clean_command_text(text):sub(1, printout.LABEL_MAX);
-    checkmate.settings.elements[entry.key] = word;
+    checkmate.settings[entry.section][entry.key] = word;
     save_settings();
     if (word:match('^%s*$')) then
-        say(('The elements part now lists %s with no word before them.'):format(entry.what));
+        say(entry.empty);
         return;
     end
-    say(('The elements part now puts "%s" before %s.'):format(word, entry.what));
+    say(entry.said:format(word));
 end
 
 -- `what` names one of the color settings, and `word` a palette color by name or number.
@@ -971,6 +1108,16 @@ local SWITCHES = {
         on  = 'The level range now shows after a monster\'s exact level.',
         off = 'The level range no longer shows after a monster\'s level.',
     },
+    id = {
+        section = 'printout', key = 'show_id',
+        on  = 'The monster\'s ID now shows after its name and level.',
+        off = 'The monster\'s ID no longer shows after its name and level.',
+    },
+    ph = {
+        section = 'printout', key = 'show_ph',
+        on  = 'The PH note now shows after a placeholder\'s name and level.',
+        off = 'The PH note no longer shows after a placeholder\'s name and level.',
+    },
     tag = {
         section = 'printout', key = 'header',
         on  = 'checkmate\'s /check lines now start with [checkmate].',
@@ -993,18 +1140,33 @@ local SWITCHES = {
     },
     grades = {
         section = 'grades', key = 'on',
-        on  = 'The hit rate, evade and crit numbers now print in the Good, OK or Bad color.',
-        off = 'The hit rate, evade and crit numbers now print in each part\'s Number color.',
+        on  = 'The hit rate, evade, crit and pet numbers now print in the Good, OK or Bad color.',
+        off = 'The hit rate, evade, crit and pet numbers now print in each part\'s Number color.',
+    },
+    petname = {
+        section = 'pet', key = 'show_name',
+        on  = 'The pet part now shows your pet\'s name.',
+        off = 'The pet part no longer shows your pet\'s name and level.',
+    },
+    petlevel = {
+        section = 'pet', key = 'show_level',
+        on  = 'The pet part now shows your pet\'s level after its name.',
+        off = 'The pet part no longer shows your pet\'s level.',
     },
     detection = {
         section = 'aggro', key = 'detection',
         on  = 'The aggro part now shows how a monster finds you.',
         off = 'The aggro part no longer shows how a monster finds you.',
     },
+    linkhow = {
+        section = 'aggro', key = 'link_how',
+        on  = 'The aggro part now shows how each monster it links with joins, like Goblin Thug (Sight).',
+        off = 'The aggro part no longer shows how the monsters it links with join.',
+    },
     linknames = {
         section = 'aggro', key = 'link_names',
         on  = 'The aggro part now names what a monster links with.',
-        off = 'The aggro part now just says whether a monster links, without the names.',
+        off = 'The aggro part no longer names what a monster links with.',
     },
     strength = {
         section = 'elements', key = 'strength',
@@ -1029,9 +1191,10 @@ local CHOICES = {
     extras = {
         section = 'printout', key = 'extras_own_line', usage = 'same|new',
         words = {
-            same = { false, 'Hit, evade, crit, aggro, magic, immunities, elements and drops now stay on the /check '
-                .. 'line. A part with New line checked still starts a new line.' },
-            new  = { true, 'Hit, evade, crit, aggro, magic, immunities, elements and drops now start on a new line.' },
+            same = { false, 'Hit, evade, crit, aggro, magic, immunities, elements, drops and pet now stay on the '
+                .. '/check line. A part with New line checked still starts a new line.' },
+            new  = { true, 'Hit, evade, crit, aggro, magic, immunities, elements, drops and pet now start on a new '
+                .. 'line.' },
         },
     },
     reading = {
@@ -1177,8 +1340,8 @@ local TOPIC_LIST = 'printout, colors, numbers, aggro, magic, drops, immunities, 
 local HELP_SHOW = ('/checkmate show|hide <part>  shows or hides a part. The parts are %s.'):format(PART_LIST);
 local HELP_TH = ('/checkmate th <0-%d>  sets the Treasure Hunter for drop chances.'):format(drops.TH_MAX);
 local HELP_SCHOOL = '/checkmate school <school> on|off  turns a magic school on or off.';
-local HELP_GRADES = '/checkmate grades on|off  colors the hit rate, evade and crit numbers in the Good, OK or Bad '
-    .. 'color, or in each part\'s Number color.';
+local HELP_GRADES = '/checkmate grades on|off  colors the hit rate, evade, crit and pet numbers in the Good, OK or '
+    .. 'Bad color, or in each part\'s Number color.';
 local HELP_SKIN = ('/checkmate skin <name>  switches the look. Naming the skin you already have puts back everything '
     .. 'it sets, like Reset to skin. The skins are %s.'):format(skins.IDS);
 local HELP_PROFILE = '/checkmate profile save|load|delete <name>  saves, loads or deletes a profile. Put a name with '
@@ -1214,10 +1377,17 @@ local HELP_TOPICS = {
             .. 'It only shows once checkmate knows the exact level.',
         '/checkmate rangeword <text>  sets the word before that range. Put text with spaces in quotes, and "" leaves '
             .. 'the word out.',
+        '/checkmate id on|off  shows or hides the monster\'s ID after its name and level, like (ID 17199202).',
+        '/checkmate idword <text>  sets the word before the ID. Put text with spaces in quotes, and "" leaves the word '
+            .. 'out.',
+        '/checkmate ph on|off  shows or hides the PH note after a placeholder\'s name and level, like (PH for Valkurm '
+            .. 'Emperor).',
+        '/checkmate phword <text>  sets the word before the NM in the PH note. Put text with spaces in quotes, and "" '
+            .. 'leaves the word out.',
         '/checkmate reading evasion|defense  puts evasion or defense first in the reading after the difficulty.',
-        '/checkmate extras same|new  same keeps hit, evade, crit, aggro, magic, immunities, elements and drops on the '
-            .. '/check line, and new starts them on a line of their own. A part with New line checked starts a new '
-            .. 'line either way.',
+        '/checkmate extras same|new  same keeps hit, evade, crit, aggro, magic, immunities, elements, drops and pet on '
+            .. 'the /check line, and new starts them on a line of their own. A part with New line checked starts a '
+            .. 'new line either way.',
         '/checkmate tag on|off  starts each /check line with [checkmate], or leaves it off.',
         ('/checkmate divider <name>  sets what goes between parts. The dividers are %s.'):format(printout.DIVIDER_IDS),
         '/checkmate divider custom <text>  puts your own text between parts. Put text with spaces in quotes.',
@@ -1225,8 +1395,8 @@ local HELP_TOPICS = {
             :format(printout.LABEL_DIVIDER_IDS),
         '/checkmate labeldivider custom <text>  puts your own text right after each label, then a space. Put text '
             .. 'with spaces in quotes.',
-        '/checkmate ranges range|middle  prints a range of hit rate, evade, crit or magic like 64-72%, or as its '
-            .. 'middle, like ~68%.',
+        '/checkmate ranges range|middle  prints a range of hit rate, evade, crit, magic or pet numbers like 64-72%, '
+            .. 'or as its middle, like ~68%.',
         '/checkmate replace on|off  hides the game\'s own /check line so checkmate\'s lines take its place, or '
             .. 'shows it again.',
         HELP_SAMPLE,
@@ -1242,9 +1412,16 @@ local HELP_TOPICS = {
             .. 'default hit is Good at 85 and OK at 70, evade at 30 and 15, and crit at 15 and 8.')
             :format(printout.CUTOFF_MAX),
         HELP_GRADES,
+        '/checkmate petname on|off  shows or hides your pet\'s name and level in the pet part.',
+        '/checkmate petlevel on|off  shows or hides your pet\'s level after its name, like (Lv 75).',
+        '/checkmate pethitword <text>  sets the word before your pet\'s hit rate. Put text with spaces in quotes, and '
+            .. '"" leaves the word out.',
+        '/checkmate petevadeword <text>  sets the word before how often the monster misses your pet. Put text with '
+            .. 'spaces in quotes, and "" leaves the word out.',
     },
     aggro = {
         '/checkmate detection on|off  shows or hides how an aggressive monster finds you, like (Sight, Sound).',
+        '/checkmate linkhow on|off  shows or hides how each monster it links with joins, like Goblin Thug (Sight).',
         '/checkmate linknames on|off  shows or hides the names a monster links with.',
         ('/checkmate maxlinks <0-%d>  sets the most link names shown. 0 shows every name.'):format(aggro.MAX_LINKS),
     },
@@ -1360,15 +1537,19 @@ local COMMANDS = {
     newline       = function (args, word) set_new_line(word, lower(args[4])); end,
     move          = function (args, word) move_part(word, lower(args[4])); end,
     rangeword     = function (args) set_range_word(rest(args, 3)); end,
+    idword        = function (args) set_id_word(rest(args, 3)); end,
+    phword        = function (args) set_ph_word(rest(args, 3)); end,
     divider       = function (args, word) set_divider(word, rest(args, 4)); end,
     labeldivider  = function (args, word) set_label_divider(word, rest(args, 4)); end,
     sample        = function () print_sample(); end,
     color         = function (args, word) set_color(word, table.concat(args, ' ', 4)); end,
     cutoff        = function (args, word) set_cutoff(word, lower(args[4]), args[5]); end,
+    pethitword    = function (args) set_word('pethitword', rest(args, 3)); end,
+    petevadeword  = function (args) set_word('petevadeword', rest(args, 3)); end,
     school        = function (args, word) set_school(word, on_word(lower(args[4]))); end,
     spell         = function (args, word) set_spell(word, table.concat(args, ' ', 4)); end,
-    weakword      = function (args) set_element_word('weakword', rest(args, 3)); end,
-    resistword    = function (args) set_element_word('resistword', rest(args, 3)); end,
+    weakword      = function (args) set_word('weakword', rest(args, 3)); end,
+    resistword    = function (args) set_word('resistword', rest(args, 3)); end,
     immunity      = function (args, word) set_immunity(word, lower(args[4])); end,
     immunitylabel = function (args, word) set_immunity_label(word, rest(args, 4)); end,
     skin          = function (args) set_skin(args[3]); end,
@@ -1420,6 +1601,10 @@ end);
 
 local function on_message(e)
     local actor, target, param1, param2, message, index = packets.message(e);
+    -- Anyone's kill counts.
+    if (message == DEFEATS or message == FALLS) then
+        monsters.on_death(index);
+    end
     if (actor ~= checkmate.my_id) then
         return;
     end
@@ -1433,13 +1618,13 @@ local function on_message(e)
         if (checkmate.settings.printout.replace_game_line) then
             e.blocked = true;
         end
-    elseif (target == checkmate.my_id and checkparam.is_reply(message)) then
-        local hide, finished = checkparam.on_reply(message, param1);
+    elseif (checkparam.is_reply(message)) then
+        local hide, finished, kind = checkparam.on_reply(os.clock(), message, param1, target);
         if (hide) then
             e.blocked = true;
         end
         if (finished ~= nil) then
-            stop_waiting(finished);
+            stop_waiting(finished, kind);
         end
     end
 end
@@ -1451,12 +1636,31 @@ ashita.events.register('packet_in', 'checkmate_packet_in', function (e)
         on_message(e);
     elseif (id == packets.ID.WIDESCAN) then
         monsters.on_widescan(packets.widescan(e));
+    elseif (id == packets.ID.PET_SYNC) then
+        pet.on_sync(packets.pet_index(e));
+    elseif (id == packets.ID.MERITS) then
+        local count = packets.merit_count(e, pet.AFFINITY_ID);
+        if (count ~= nil) then
+            pet.on_affinity(count);
+        end
     elseif (id == packets.ID.ZONE_IN) then
         checkmate.my_id = packets.zone_in(e);
         monsters.forget_zone();
         checkmate.ready = {};
-        give_up(checkparam.reset());
+        pet.forget();
+        for _, check in ipairs(checkparam.reset()) do
+            give_up(check);
+        end
         checkmate.job_check = true;
+    end
+end);
+
+-- Any /check or /checkparam going out, yours, checkmate's or another addon's. The game ignores a /checkparam
+-- sent too soon after one of these, so checkmate's next /checkparam waits for it. Nothing going out is changed
+-- or blocked.
+ashita.events.register('packet_out', 'checkmate_packet_out', function (e)
+    if (e.id == packets.CHECK_OUT) then
+        checkparam.wait_from(os.clock());
     end
 end);
 
@@ -1464,15 +1668,21 @@ end);
     Frame.
 ]]
 
--- Sends the /checkparam when it's due, and lets the /check print without it when the reply is late.
+-- Sends a /checkparam when it's due, and lets the /check print without it when the reply is late. A pet
+-- that's gone by the time its request is due gets nothing sent. Its pet line prints with unknown numbers when
+-- it shares a line, and is left out when it's alone.
 local function update_checkparam(now)
-    if (checkparam.due(now)) then
-        AshitaCore:GetChatManager():QueueCommand(COMMAND_TYPED, '/checkparam <me>');
+    local kind, about = checkparam.ready(now);
+    if (kind == 'pet' and not pet.out(about)) then
+        pet_gone(checkparam.cancel('pet'));
+    elseif (kind ~= nil) then
+        checkparam.sent(now, kind);
+        AshitaCore:GetChatManager():QueueCommand(COMMAND_TYPED, checkparam.COMMANDS[kind]);
         return;
     end
-    local late = checkparam.timed_out(now);
+    local late, late_kind = checkparam.timed_out(now);
     if (late ~= nil) then
-        stop_waiting(late);
+        stop_waiting(late, late_kind);
     end
 end
 
@@ -1520,6 +1730,7 @@ local function frame()
     if (checkparam.is_active()) then
         update_checkparam(os.clock());
     end
+    pet.on_frame(os.clock());
     if (#checkmate.ready > 0) then
         local ready = checkmate.ready;
         checkmate.ready = {};

@@ -1,25 +1,33 @@
 -- Lower Delkfutts Tower (zone 184).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Eurymedon', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Butcher',
-                'Gigas Hallwatcher', 'Gigas Punisher', 'Gigas Sculptor', 'Hippolytos' },
-        [2] = { 'Epialtes', 'Eurymedon', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry',
-                'Gigas Butcher', 'Gigas Hallwatcher', 'Gigas Punisher', 'Gigas Sculptor', 'Hippolytos' },
-        [3] = { 'Ancient Bat', 'Seeker Bats' },
-        [4] = { 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger' },
-        [5] = { 'Epialtes', 'Eurymedon', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry',
-                'Gigas Butcher', 'Gigas Hallwatcher', 'Gigas Punisher', 'Gigas Sculptor' },
-        [6] = { 'Epialtes', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry', 'Gigas Butcher',
-                'Gigas Hallwatcher', 'Gigas Punisher', 'Gigas Sculptor', 'Hippolytos' },
-        [7] = { 'Fomorian Spear' },
-        [8] = { 'Fomorian Spear', 'Orna' },
-        [9] = { 'Akvan' },
+        [1] = {
+            sight = { 'Eurymedon', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry',
+                      'Gigas Butcher', 'Gigas Hallwatcher', 'Gigas Punisher', 'Gigas Sculptor', 'Hippolytos' },
+        },
+        [2] = {
+            sight = { 'Epialtes', 'Eurymedon', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry',
+                      'Gigas Butcher', 'Gigas Hallwatcher', 'Gigas Punisher', 'Gigas Sculptor', 'Hippolytos' },
+        },
+        [3] = { sound = { 'Ancient Bat', 'Seeker Bats' } },
+        [4] = { sight = { 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger' } },
+        [5] = {
+            sight = { 'Epialtes', 'Eurymedon', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry',
+                      'Gigas Butcher', 'Gigas Hallwatcher', 'Gigas Punisher', 'Gigas Sculptor' },
+        },
+        [6] = {
+            sight = { 'Epialtes', 'Giant Gatekeeper', 'Giant Guard', 'Giant Lobber', 'Giant Sentry',
+                      'Gigas Butcher', 'Gigas Hallwatcher', 'Gigas Punisher', 'Gigas Sculptor', 'Hippolytos' },
+        },
+        [7] = { sound = { 'Fomorian Spear' } },
+        [8] = { sound = { 'Fomorian Spear', 'Orna' } },
+        [9] = { true_both = { 'Akvan' } },
     },
     monsters = {
         {
@@ -50,6 +58,7 @@ return {
                 [29] = { acc = 107, eva = 97, agi = 29, int = 19, mnd = 22, chr = 28 },
                 [30] = { acc = 110, eva = 100, agi = 29, int = 19, mnd = 23, chr = 28 },
             },
+            ph_for = { [2] = { 1 } },
             ranks  = { earth = -2, thunder = 4, slow = -2, stun = 4 },
             resist = { virus = 10 },
             drops  = {
@@ -67,6 +76,7 @@ return {
                 [29] = { acc = 108, eva = 96, agi = 21, int = 17, mnd = 26, chr = 28 },
                 [30] = { acc = 112, eva = 99, agi = 21, int = 17, mnd = 28, chr = 28 },
             },
+            ph_for = { [121] = { 119 } },
             ranks  = { earth = -2, thunder = 4, slow = -2, stun = 4 },
             drops  = {
                 { rate = 10, item = 1538 },  -- ram leather missive
@@ -83,6 +93,7 @@ return {
                 [29] = { acc = 107, eva = 94, agi = 23, int = 21, mnd = 24, chr = 36 },
                 [30] = { acc = 110, eva = 97, agi = 23, int = 21, mnd = 25, chr = 36 },
             },
+            ph_for = { [238] = { 234 } },
             ranks  = { earth = -2, thunder = 4, slow = -2, stun = 4 },
             resist = { virus = 10, slow = 10 },
             drops  = {

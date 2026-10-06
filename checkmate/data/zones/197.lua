@@ -1,28 +1,36 @@
 -- Crawlers Nest (zone 197).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Awd Goggie', 'Drone Crawler', 'Guardian Crawler', 'Knight Crawler', 'Matron Crawler',
-                'Queen Crawler', 'Rumble Crawler', 'Soldier Crawler', 'Worker Crawler', 'Worker Crawler CN' },
-        [2] = { 'Awd Goggie', 'Drone Crawler', 'Guardian Crawler', 'Knight Crawler', 'Matron Crawler',
-                'Rumble Crawler', 'Soldier Crawler', 'Worker Crawler', 'Worker Crawler CN' },
-        [3] = { 'Awd Goggie', 'Drone Crawler', 'Guardian Crawler', 'Knight Crawler', 'Queen Crawler',
-                'Rumble Crawler', 'Soldier Crawler', 'Worker Crawler', 'Worker Crawler CN' },
-        [4] = { 'Drone Crawler', 'Guardian Crawler', 'Knight Crawler', 'Matron Crawler', 'Queen Crawler',
-                'Rumble Crawler', 'Soldier Crawler', 'Worker Crawler', 'Worker Crawler CN' },
-        [5] = { 'Death Jacket', 'Demonic Tiphia', 'Soul Stinger', 'Wespe' },
-        [6] = { 'Labyrinth Lizard', 'Maze Lizard' },
-        [7] = { 'Exoray', 'Killer Mushroom' },
-        [8] = { 'Crawler Hunter', 'Doom Scorpion', 'Mushussu' },
-        [9] = { 'Caveberry', 'Witch Hazel' },
-        [10] = { 'Blazer Beetle', 'Helm Beetle', 'Nest Beetle' },
-        [11] = { 'Dragonfly', 'Hornfly' },
-        [12] = { 'Death Jacket', 'Soul Stinger', 'Wespe' },
+        [1] = {
+            sound = { 'Awd Goggie', 'Drone Crawler', 'Guardian Crawler', 'Knight Crawler', 'Matron Crawler',
+                      'Queen Crawler', 'Rumble Crawler', 'Soldier Crawler', 'Worker Crawler', 'Worker Crawler CN' },
+        },
+        [2] = {
+            sound = { 'Awd Goggie', 'Drone Crawler', 'Guardian Crawler', 'Knight Crawler', 'Matron Crawler',
+                      'Rumble Crawler', 'Soldier Crawler', 'Worker Crawler', 'Worker Crawler CN' },
+        },
+        [3] = {
+            sound = { 'Awd Goggie', 'Drone Crawler', 'Guardian Crawler', 'Knight Crawler', 'Queen Crawler',
+                      'Rumble Crawler', 'Soldier Crawler', 'Worker Crawler', 'Worker Crawler CN' },
+        },
+        [4] = {
+            sound = { 'Drone Crawler', 'Guardian Crawler', 'Knight Crawler', 'Matron Crawler', 'Queen Crawler',
+                      'Rumble Crawler', 'Soldier Crawler', 'Worker Crawler', 'Worker Crawler CN' },
+        },
+        [5] = { sight = { 'Death Jacket', 'Demonic Tiphia', 'Soul Stinger', 'Wespe' } },
+        [6] = { sound = { 'Labyrinth Lizard', 'Maze Lizard' } },
+        [7] = { sound = { 'Exoray', 'Killer Mushroom' } },
+        [8] = { sound = { 'Crawler Hunter', 'Doom Scorpion', 'Mushussu' } },
+        [9] = { sound = { 'Caveberry', 'Witch Hazel' } },
+        [10] = { sight = { 'Blazer Beetle', 'Helm Beetle', 'Nest Beetle' } },
+        [11] = { sound = { 'Dragonfly', 'Hornfly' } },
+        [12] = { sight = { 'Death Jacket', 'Soul Stinger', 'Wespe' } },
     },
     monsters = {
         {
@@ -580,6 +588,7 @@ return {
                 [56] = { acc = 213, eva = 202, agi = 65, int = 44, mnd = 44, chr = 50 },
                 [57] = { acc = 218, eva = 207, agi = 65, int = 46, mnd = 46, chr = 50 },
             },
+            ph_for = { [269] = { 270 } },
             ranks  = { fire = -2, ice = -3, wind = 2, earth = -2, thunder = -2, water = -2, light = -2, dark = -2,
                        paralyze = -3, bind = -3, silence = 2, slow = -2, poison = -2, light_sleep = -2,
                        dark_sleep = -2, blind = -2, stun = -2, gravity = 2 },

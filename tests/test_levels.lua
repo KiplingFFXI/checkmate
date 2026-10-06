@@ -1,6 +1,7 @@
 -- Tests how the addon works out a monster's level, on the made-up zone in fixtures\. It covers the
 -- /check level less level_mod, a /check level of -1, widescan, the data's range, dynamic spawns by
--- name, when the zone file loads, the level range after a known level, and each spawn's own range.
+-- name, when the zone file loads, the level range after a known level, each spawn's own range, and a
+-- charmed pet's level.
 -- Counts the zone files monsters.lua loads.
 local zone_loads = 0;
 local real_loadfile = loadfile;
@@ -253,5 +254,51 @@ expect('a spawn at 54 to 55 is too weak to aggro you', aggro_line(40),
     '[checkmate] Aggro: Too weak to aggro you unless you rest  Doesn\'t link');
 expect('a spawn at 56 to 57 aggroes you', aggro_line(41), '[checkmate] Aggro: Aggressive  Doesn\'t link');
 expect('the row\'s range says where it starts', aggro_line(42), '[checkmate] Aggro: Aggressive if it\'s level 56 or higher  Doesn\'t link');
+
+-- A charmed pet's level -----------------------------------------------------------------------------
+
+-- Your latest /check or widescan of it in this zone comes first, unless it died since, then the levels it
+-- spawns at. Only a charmed pet reads the /check level, so it never changes what a later /check with no
+-- level shows.
+local monsters = require('core.monsters');
+MOCK.entities[2] = { Name = 'Fixture Goblin' };
+MOCK.zone_in(900);
+local goblin = monsters.find(900, MOCK.mob_id(900, 2), 'Fixture Goblin');
+local rabbit = monsters.find(900, MOCK.mob_id(900, 5), 'Fixture Rabbit');
+local function pet_level(row, index)
+    local low, high = monsters.pet_level(row, index);
+    return tostring(low) .. '-' .. tostring(high);
+end
+expect('with nothing seen, the levels it spawns at', pet_level(goblin, 2), '38-40');
+check('no row and nothing seen is no level', monsters.pet_level(nil, 77) == nil);
+first_line(2, -1, 4);
+expect('a /check level of -1 notes nothing', pet_level(goblin, 2), '38-40');
+first_line(2, 39, 4);
+expect('your /check of it', pet_level(goblin, 2), '39-39');
+expect('a later /check with no level still shows the range', first_line(2, 0, nil, 249), '[checkmate] Fixture Goblin (Lv 38-40)');
+MOCK.packet(MOCK.widescan_packet(2, 40));
+expect('a newer widescan replaces your /check', pet_level(goblin, 2), '40-40');
+first_line(2, 39, 4);
+expect('and a newer /check replaces the widescan', pet_level(goblin, 2), '39-39');
+MOCK.packet(MOCK.widescan_packet(1, 38));
+expect('widescan with no /check', pet_level(goblin, 1), '38-38');
+first_line(5, 3, 2);
+expect('a /check level less level_mod', pet_level(rabbit, 5), '5-5');
+-- A monster that dies comes back at a level of its own.
+MOCK.packet(MOCK.message_packet(MOCK.player.server_id + 1, MOCK.mob_id(900, 2), 0, 0, 6, 2));
+expect('someone else defeating it forgets your /check of it', pet_level(goblin, 2), '38-40');
+expect('and leaves the one at another index alone', pet_level(goblin, 1), '38-38');
+MOCK.packet(MOCK.widescan_packet(2, 39));
+expect('a widescan of it after that', pet_level(goblin, 2), '39-39');
+MOCK.packet(MOCK.message_packet(MOCK.mob_id(900, 2), MOCK.mob_id(900, 2), 0, 0, 20, 2));
+expect('falling to the ground with no one to defeat it forgets that too', pet_level(goblin, 2), '38-40');
+MOCK.zone_in(900);
+expect('zoning forgets the /check level', pet_level(goblin, 2), '38-40');
+
+-- A placed monster's server id has its spawn index in its low 12 bits. A pet's, or one a script spawned,
+-- is 0x800 or more there.
+check('a placed monster is placed', monsters.placed(MOCK.mob_id(900, 2)) and monsters.placed(MOCK.mob_id(900, 0x7FF)));
+check('a pet you called isn\'t', not monsters.placed(MOCK.pet_id(0x700)));
+check('and nor is a monster a script spawned', not monsters.placed(MOCK.mob_id(900, 0x805)));
 
 return MOCK.report();

@@ -1,18 +1,22 @@
 -- Yughott Grotto (zone 142).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Ashmaker Gotblut', 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Grunt', 'Orcish Neckchopper',
-                'Orcish Serjeant', 'Orcish Stonechucker' },
-        [2] = { 'Grotto Bats', 'Stealth Bat' },
-        [3] = { 'Riding Lizard' },
-        [4] = { 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Grunt', 'Orcish Neckchopper', 'Orcish Serjeant',
-                'Orcish Stonechucker' },
+        [1] = {
+            sight = { 'Ashmaker Gotblut', 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Grunt',
+                      'Orcish Neckchopper', 'Orcish Serjeant', 'Orcish Stonechucker' },
+        },
+        [2] = { sound = { 'Grotto Bats', 'Stealth Bat' } },
+        [3] = { sound = { 'Riding Lizard' } },
+        [4] = {
+            sight = { 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Grunt', 'Orcish Neckchopper',
+                      'Orcish Serjeant', 'Orcish Stonechucker' },
+        },
     },
     monsters = {
         {
@@ -26,6 +30,7 @@ return {
                 [17] = { acc = 64, eva = 60, agi = 18, int = 13, mnd = 15, chr = 21 },
                 [18] = { acc = 67, eva = 63, agi = 18, int = 13, mnd = 17, chr = 21 },
             },
+            ph_for = { [80] = { 84 } },
             ranks  = { wind = -2, earth = -2, thunder = -2, water = -3, light = -2, dark = -2, silence = -2,
                        slow = -2, poison = -3, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -2,
                        gravity = -2 },
@@ -51,6 +56,7 @@ return {
                 [17] = { acc = 74, eva = 60, agi = 23, int = 14, mnd = 16, chr = 18 },
                 [18] = { acc = 77, eva = 63, agi = 23, int = 15, mnd = 17, chr = 19 },
             },
+            ph_for = { [81] = { 84 } },
             ranks  = { wind = -2, earth = -2, thunder = -2, water = -3, light = -2, dark = -2, silence = -2,
                        slow = -2, poison = -3, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -2,
                        gravity = -2 },

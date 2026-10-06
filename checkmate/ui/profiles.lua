@@ -178,7 +178,11 @@ function profiles.load(settings, name)
     if (profile == nil) then
         return false;
     end
-    for key, default in pairs(defaults.make()) do
+    local base = defaults.make();
+    -- Chat colors stay as the profile has them. Tidying the settings after the load fills a missing one
+    -- from the profile's own skin, like it does for a settings file.
+    base.colors = T{};
+    for key, default in pairs(base) do
         if (not NOT_SAVED[key]) then
             settings[key] = fill(copy(profile[key]), default);
         end

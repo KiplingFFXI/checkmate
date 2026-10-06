@@ -1,32 +1,46 @@
 -- Monastic Cavern (zone 150).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Orcish Bewitcher', 'Orcish Bowshooter', 'Orcish Champion', 'Orcish Dragoon', 'Orcish Dreadnought',
-                'Orcish Farkiller', 'Orcish Footsoldier', 'Orcish Gladiator', 'Orcish Hexspinner',
-                'Orcish Overlord', 'Orcish Predator', 'Orcish Protector', 'Orcish Trooper', 'Orcish Veteran',
-                'Orcish Warchief', 'Orcish Warlord', 'Orcish Zerker', 'Overlord Bakgodek' },
-        [2] = { 'Orcish Bewitcher', 'Orcish Bowshooter', 'Orcish Champion', 'Orcish Dragoon', 'Orcish Dreadnought',
-                'Orcish Farkiller', 'Orcish Footsoldier', 'Orcish Gladiator', 'Orcish Overlord', 'Orcish Predator',
-                'Orcish Protector', 'Orcish Trooper', 'Orcish Veteran', 'Orcish Warchief', 'Orcish Warlord',
-                'Orcish Zerker', 'Overlord Bakgodek' },
-        [3] = { 'Orcish Bewitcher', 'Orcish Bowshooter', 'Orcish Champion', 'Orcish Dragoon', 'Orcish Dreadnought',
-                'Orcish Farkiller', 'Orcish Footsoldier', 'Orcish Gladiator', 'Orcish Hexspinner',
-                'Orcish Predator', 'Orcish Protector', 'Orcish Trooper', 'Orcish Veteran', 'Orcish Warchief',
-                'Orcish Warlord', 'Orcish Zerker', 'Overlord Bakgodek' },
-        [4] = { 'Orcish Bewitcher', 'Orcish Bowshooter', 'Orcish Champion', 'Orcish Dragoon', 'Orcish Dreadnought',
-                'Orcish Farkiller', 'Orcish Footsoldier', 'Orcish Gladiator', 'Orcish Hexspinner',
-                'Orcish Overlord', 'Orcish Predator', 'Orcish Protector', 'Orcish Trooper', 'Orcish Veteran',
-                'Orcish Warchief', 'Orcish Warlord', 'Orcish Zerker' },
-        [5] = { 'Orcish Bowshooter', 'Orcish Champion', 'Orcish Dragoon', 'Orcish Dreadnought', 'Orcish Farkiller',
-                'Orcish Footsoldier', 'Orcish Gladiator', 'Orcish Hexspinner', 'Orcish Overlord', 'Orcish Predator',
-                'Orcish Protector', 'Orcish Trooper', 'Orcish Veteran', 'Orcish Warchief', 'Orcish Warlord',
-                'Orcish Zerker', 'Overlord Bakgodek' },
+        [1] = {
+            sight = { 'Orcish Bewitcher', 'Orcish Bowshooter', 'Orcish Champion', 'Orcish Dragoon',
+                      'Orcish Dreadnought', 'Orcish Farkiller', 'Orcish Footsoldier', 'Orcish Gladiator',
+                      'Orcish Predator', 'Orcish Protector', 'Orcish Trooper', 'Orcish Veteran', 'Orcish Warchief',
+                      'Orcish Zerker' },
+            true_sight = { 'Orcish Hexspinner', 'Orcish Overlord', 'Orcish Warlord', 'Overlord Bakgodek' },
+        },
+        [2] = {
+            sight = { 'Orcish Bewitcher', 'Orcish Bowshooter', 'Orcish Champion', 'Orcish Dragoon',
+                      'Orcish Dreadnought', 'Orcish Farkiller', 'Orcish Footsoldier', 'Orcish Gladiator',
+                      'Orcish Predator', 'Orcish Protector', 'Orcish Trooper', 'Orcish Veteran', 'Orcish Warchief',
+                      'Orcish Zerker' },
+            true_sight = { 'Orcish Overlord', 'Orcish Warlord', 'Overlord Bakgodek' },
+        },
+        [3] = {
+            sight = { 'Orcish Bewitcher', 'Orcish Bowshooter', 'Orcish Champion', 'Orcish Dragoon',
+                      'Orcish Dreadnought', 'Orcish Farkiller', 'Orcish Footsoldier', 'Orcish Gladiator',
+                      'Orcish Predator', 'Orcish Protector', 'Orcish Trooper', 'Orcish Veteran', 'Orcish Warchief',
+                      'Orcish Zerker' },
+            true_sight = { 'Orcish Hexspinner', 'Orcish Warlord', 'Overlord Bakgodek' },
+        },
+        [4] = {
+            sight = { 'Orcish Bewitcher', 'Orcish Bowshooter', 'Orcish Champion', 'Orcish Dragoon',
+                      'Orcish Dreadnought', 'Orcish Farkiller', 'Orcish Footsoldier', 'Orcish Gladiator',
+                      'Orcish Predator', 'Orcish Protector', 'Orcish Trooper', 'Orcish Veteran', 'Orcish Warchief',
+                      'Orcish Zerker' },
+            true_sight = { 'Orcish Hexspinner', 'Orcish Overlord', 'Orcish Warlord' },
+        },
+        [5] = {
+            sight = { 'Orcish Bowshooter', 'Orcish Champion', 'Orcish Dragoon', 'Orcish Dreadnought',
+                      'Orcish Farkiller', 'Orcish Footsoldier', 'Orcish Gladiator', 'Orcish Predator',
+                      'Orcish Protector', 'Orcish Trooper', 'Orcish Veteran', 'Orcish Warchief', 'Orcish Zerker' },
+            true_sight = { 'Orcish Hexspinner', 'Orcish Overlord', 'Orcish Warlord', 'Overlord Bakgodek' },
+        },
     },
     monsters = {
         {

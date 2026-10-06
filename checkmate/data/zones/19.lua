@@ -1,19 +1,19 @@
 -- Spire of Dem (zone 19).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Offspring' },
-        [2] = { 'Offspring', 'Progenerator' },
-        [3] = { 'Neogorger', 'Neoingester', 'Neosatiator', 'Wanderer' },
-        [4] = { 'Ingester', 'Neogorger', 'Neosatiator', 'Wanderer' },
-        [5] = { 'Ingester', 'Neoingester', 'Neosatiator', 'Wanderer' },
-        [6] = { 'Ingester', 'Neogorger', 'Neoingester', 'Wanderer' },
-        [7] = { 'Ingester', 'Neogorger', 'Neoingester', 'Neosatiator' },
+        [1] = { true_sound = { 'Offspring' } },
+        [2] = { true_sound = { 'Offspring', 'Progenerator' } },
+        [3] = { superlink = { 'Neogorger', 'Neoingester', 'Neosatiator', 'Wanderer' } },
+        [4] = { superlink = { 'Ingester', 'Neogorger', 'Neosatiator', 'Wanderer' } },
+        [5] = { superlink = { 'Ingester', 'Neoingester', 'Neosatiator', 'Wanderer' } },
+        [6] = { superlink = { 'Ingester', 'Neogorger', 'Neoingester', 'Wanderer' } },
+        [7] = { superlink = { 'Ingester', 'Neogorger', 'Neoingester', 'Neosatiator' } },
     },
     monsters = {
         {

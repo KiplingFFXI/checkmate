@@ -1,39 +1,50 @@
 -- Outer Horutoto Ruins (zone 194).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Thug', 'Goblin Tinkerer', 'Goblin Weaver' },
-        [2] = { 'Battue Bats', 'Blade Bat', 'Combat', 'Stink Bats' },
-        [3] = { 'Custom Cardian', 'Eight of Batons', 'Eight of Coins', 'Eight of Cups', 'Eight of Swords',
-                'Five of Batons', 'Five of Coins', 'Five of Cups', 'Five of Swords', 'Four of Batons',
-                'Four of Coins', 'Four of Cups', 'Four of Swords', 'Nine of Batons', 'Nine of Coins',
-                'Nine of Cups', 'Nine of Swords', 'Queen of Coins', 'Queen of Swords', 'Seven of Batons',
-                'Seven of Coins', 'Seven of Cups', 'Seven of Swords', 'Six of Batons', 'Six of Coins',
-                'Six of Cups', 'Six of Swords', 'Ten of Batons', 'Ten of Coins', 'Ten of Cups', 'Ten of Swords',
-                'Three of Batons', 'Three of Coins', 'Three of Cups', 'Three of Swords', 'Two of Batons',
-                'Two of Coins', 'Two of Cups', 'Two of Swords' },
-        [4] = { 'Doppelganger Dio', 'Doppelganger Gog' },
-        [5] = { 'Custom Cardian', 'Eight of Batons', 'Eight of Coins', 'Eight of Cups', 'Eight of Swords',
-                'Five of Batons', 'Five of Coins', 'Five of Cups', 'Five of Swords', 'Four of Batons',
-                'Four of Coins', 'Four of Cups', 'Four of Swords', 'Nine of Batons', 'Nine of Coins',
-                'Nine of Cups', 'Nine of Swords', 'Queen of Coins', 'Seven of Batons', 'Seven of Coins',
-                'Seven of Cups', 'Seven of Swords', 'Six of Batons', 'Six of Coins', 'Six of Cups', 'Six of Swords',
-                'Ten of Batons', 'Ten of Coins', 'Ten of Cups', 'Ten of Swords', 'Three of Batons',
-                'Three of Coins', 'Three of Cups', 'Three of Swords', 'Two of Batons', 'Two of Coins',
-                'Two of Cups', 'Two of Swords' },
-        [6] = { 'Custom Cardian', 'Eight of Batons', 'Eight of Coins', 'Eight of Cups', 'Eight of Swords',
-                'Five of Batons', 'Five of Coins', 'Five of Cups', 'Five of Swords', 'Four of Batons',
-                'Four of Coins', 'Four of Cups', 'Four of Swords', 'Nine of Batons', 'Nine of Coins',
-                'Nine of Cups', 'Nine of Swords', 'Queen of Swords', 'Seven of Batons', 'Seven of Coins',
-                'Seven of Cups', 'Seven of Swords', 'Six of Batons', 'Six of Coins', 'Six of Cups', 'Six of Swords',
-                'Ten of Batons', 'Ten of Coins', 'Ten of Cups', 'Ten of Swords', 'Three of Batons',
-                'Three of Coins', 'Three of Cups', 'Three of Swords', 'Two of Batons', 'Two of Coins',
-                'Two of Cups', 'Two of Swords' },
+        [1] = {
+            sight = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Thug', 'Goblin Tinkerer', 'Goblin Weaver' },
+        },
+        [2] = { sound = { 'Battue Bats', 'Blade Bat', 'Combat', 'Stink Bats' } },
+        [3] = {
+            sound = { 'Eight of Batons', 'Eight of Coins', 'Eight of Cups', 'Eight of Swords', 'Five of Batons',
+                      'Five of Coins', 'Five of Cups', 'Five of Swords', 'Four of Batons', 'Four of Coins',
+                      'Four of Cups', 'Four of Swords', 'Nine of Batons', 'Nine of Coins', 'Nine of Cups',
+                      'Nine of Swords', 'Seven of Batons', 'Seven of Coins', 'Seven of Cups', 'Seven of Swords',
+                      'Six of Batons', 'Six of Coins', 'Six of Cups', 'Six of Swords', 'Ten of Batons',
+                      'Ten of Coins', 'Ten of Cups', 'Ten of Swords', 'Three of Batons', 'Three of Coins',
+                      'Three of Cups', 'Three of Swords', 'Two of Batons', 'Two of Coins', 'Two of Cups',
+                      'Two of Swords' },
+            true_sound = { 'Custom Cardian', 'Queen of Coins', 'Queen of Swords' },
+        },
+        [4] = { sound = { 'Doppelganger Dio', 'Doppelganger Gog' } },
+        [5] = {
+            sound = { 'Eight of Batons', 'Eight of Coins', 'Eight of Cups', 'Eight of Swords', 'Five of Batons',
+                      'Five of Coins', 'Five of Cups', 'Five of Swords', 'Four of Batons', 'Four of Coins',
+                      'Four of Cups', 'Four of Swords', 'Nine of Batons', 'Nine of Coins', 'Nine of Cups',
+                      'Nine of Swords', 'Seven of Batons', 'Seven of Coins', 'Seven of Cups', 'Seven of Swords',
+                      'Six of Batons', 'Six of Coins', 'Six of Cups', 'Six of Swords', 'Ten of Batons',
+                      'Ten of Coins', 'Ten of Cups', 'Ten of Swords', 'Three of Batons', 'Three of Coins',
+                      'Three of Cups', 'Three of Swords', 'Two of Batons', 'Two of Coins', 'Two of Cups',
+                      'Two of Swords' },
+            true_sound = { 'Custom Cardian', 'Queen of Coins' },
+        },
+        [6] = {
+            sound = { 'Eight of Batons', 'Eight of Coins', 'Eight of Cups', 'Eight of Swords', 'Five of Batons',
+                      'Five of Coins', 'Five of Cups', 'Five of Swords', 'Four of Batons', 'Four of Coins',
+                      'Four of Cups', 'Four of Swords', 'Nine of Batons', 'Nine of Coins', 'Nine of Cups',
+                      'Nine of Swords', 'Seven of Batons', 'Seven of Coins', 'Seven of Cups', 'Seven of Swords',
+                      'Six of Batons', 'Six of Coins', 'Six of Cups', 'Six of Swords', 'Ten of Batons',
+                      'Ten of Coins', 'Ten of Cups', 'Ten of Swords', 'Three of Batons', 'Three of Coins',
+                      'Three of Cups', 'Three of Swords', 'Two of Batons', 'Two of Coins', 'Two of Cups',
+                      'Two of Swords' },
+            true_sound = { 'Custom Cardian', 'Queen of Swords' },
+        },
     },
     monsters = {
         {

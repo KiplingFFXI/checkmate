@@ -9,7 +9,7 @@
     its data, goes against the Too Weak table in data\too_weak.lua instead.
 
     The link names come from the data. They are every kind of monster that can end up in the fight
-    when you pull it.
+    when you pull it, each with how it links.
 ]]
 
 local too_weak = require('data.too_weak');
@@ -45,6 +45,31 @@ local DETECTION_WORDS = { sight = 'Sight', sound = 'Sound', magic = 'Magic', low
 -- True Sight and True Sound. Nothing stops the other senses anyway.
 local TRUE_WORDS = {
     sight = 'True Sight', sound = 'True Sound', magic = 'Magic', low_hp = 'Low HP', ability = 'Ability',
+};
+
+--[[
+    How the monsters it links with join a fight, by the group the data puts each link name in, in the
+    order a name in two groups lists them. CanLink (mob_entity.cpp) lets one that shares the caller's
+    superlink in from anywhere, and makes one that sees but doesn't hear face the fight. The rest join
+    from any side. The senses use the Detection words, so true detection says True Sight and True
+    Sound, even though nothing about you stops a link. One that neither sees nor hears gets the words
+    for what it notices instead, like Magic. The data calls one that notices none of those neither,
+    like a Memory Receptacle that only smells you, and it gets no words. LINK_WAYS in
+    tools\export\rows.py lists the same ways.
+]]
+aggro.LINK_WAYS = {
+    'superlink', 'sight', 'true_sight', 'sound', 'true_sound', 'both', 'true_both', 'magic', 'neither',
+};
+aggro.LINK_WORDS = {
+    superlink  = { 'Superlink' },
+    sight      = { DETECTION_WORDS.sight },
+    true_sight = { TRUE_WORDS.sight },
+    sound      = { DETECTION_WORDS.sound },
+    true_sound = { TRUE_WORDS.sound },
+    both       = { DETECTION_WORDS.sight, DETECTION_WORDS.sound },
+    true_both  = { TRUE_WORDS.sight, TRUE_WORDS.sound },
+    magic      = { DETECTION_WORDS.magic },
+    neither    = {},
 };
 
 -- Imps hear you all day and also see you from 18:00 to 5:59 (scripts/mixins/families/imp_aggro.lua).
@@ -123,24 +148,75 @@ local function notes(row)
     return out;
 end
 
--- The link names to show, and how many more there are past the most shown.
-local function link_names(row, setting)
-    local names = {};
-    local most = setting.max_links or 0;
-    for _, name in ipairs(row.links) do
-        if (most == 0 or #names < most) then
-            names[#names + 1] = name;
+--[[
+    Every link name once, in alphabetical order, and how each one links, like "Sight" or "True Sight,
+    True Sound". A name in two groups gets both, like "Sight or Sound". A group with no words adds
+    nothing, so a name only in neither gets an empty tag.
+]]
+local function link_list(links)
+    local names, tags = {}, {};
+    for _, way in ipairs(aggro.LINK_WAYS) do
+        local tag = table.concat(aggro.LINK_WORDS[way], ', ');
+        for _, name in ipairs(links[way] or {}) do
+            if (tags[name] == nil) then
+                names[#names + 1] = name;
+                tags[name] = tag;
+            elseif (tag ~= '') then
+                tags[name] = (tags[name] == '') and tag or (tags[name] .. ' or ' .. tag);
+            end
         end
     end
-    return names, #row.links - #names;
+    table.sort(names);
+    return names, tags;
+end
+
+-- The link names to show, how each of those links with Show how each one links on, and how many more
+-- there are past the most shown.
+local function link_names(links, setting)
+    local all, tags = link_list(links);
+    local names, shown = {}, {};
+    local most = setting.max_links or 0;
+    for _, name in ipairs(all) do
+        if (most == 0 or #names < most) then
+            names[#names + 1] = name;
+            shown[#shown + 1] = tags[name];
+        end
+    end
+    return names, setting.link_how and shown or nil, #all - #names;
+end
+
+-- Every word for how its link names link, each once and in the order of LINK_WAYS, like
+-- { 'Sight', 'Sound' }. It stands in for the tags when the names are off.
+local function link_senses(links)
+    local has = {};
+    for _, way in ipairs(aggro.LINK_WAYS) do
+        if (links[way] ~= nil) then
+            for _, word in ipairs(aggro.LINK_WORDS[way]) do
+                has[word] = true;
+            end
+        end
+    end
+    local words = {};
+    for _, way in ipairs(aggro.LINK_WAYS) do
+        for _, word in ipairs(aggro.LINK_WORDS[way]) do
+            if (has[word]) then
+                words[#words + 1] = word;
+                has[word] = nil;
+            end
+        end
+    end
+    return words;
 end
 
 --[[
     The aggro part for a data row, with your aggro settings.
-    Returns { text, threat, detects, notes, links, names, more }. `text` is the verdict, and `threat`
-    is true when the verdict is a threat. `detects` lists how it finds you, but only when it can aggro
-    you and Detection is on. `links` is true when it links. `names` holds the link names to show, or
-    nil with the names off, and `more` counts the names past the most shown.
+    Returns { text, threat, detects, notes, links, names, tags, senses, more }. `text` is the verdict,
+    and `threat` is true when the verdict is a threat. `detects` lists how it finds you, but only when
+    it can aggro you and Detection is on. `links` is true when it links. `names` holds the link names
+    to show, or nil with the names off, and `tags` how each of those links, like 'Sight', or '' for
+    one with no words, or nil with Show how each one links off. With the names off and that on,
+    `senses` holds every word for how they link, like { 'Sight', 'Sound' }. `more` counts the names
+    past the most shown.
 ]]
 function aggro.readout(row, check, my_level, setting)
     local key, from = verdict(row, check, my_level);
@@ -150,7 +226,7 @@ function aggro.readout(row, check, my_level, setting)
         threat  = shown.threat,
         detects = {},
         notes   = notes(row),
-        links   = row.links ~= nil and #row.links > 0,
+        links   = row.links ~= nil and next(row.links) ~= nil,
         more    = 0,
     };
     if (from ~= nil) then
@@ -160,7 +236,9 @@ function aggro.readout(row, check, my_level, setting)
         out.detects = detection(row);
     end
     if (out.links and setting.link_names) then
-        out.names, out.more = link_names(row, setting);
+        out.names, out.tags, out.more = link_names(row.links, setting);
+    elseif (out.links and setting.link_how) then
+        out.senses = link_senses(row.links);
     end
     return out;
 end

@@ -1,14 +1,14 @@
 -- Alzadaal Undersea Ruins (zone 72).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Cheese Hoarder Gigiroon', 'Qiqirn Goldsmith', 'Qiqirn Poulterer' },
-        [2] = { 'Qiqirn Goldsmith', 'Qiqirn Poulterer' },
+        [1] = { sight = { 'Qiqirn Goldsmith', 'Qiqirn Poulterer' }, true_sight = { 'Cheese Hoarder Gigiroon' } },
+        [2] = { sight = { 'Qiqirn Goldsmith', 'Qiqirn Poulterer' } },
     },
     monsters = {
         {

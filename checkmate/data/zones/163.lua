@@ -1,24 +1,24 @@
 -- Sacrificial Chamber (zone 163).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Molybiton', 'Tungsiton' },
-        [2] = { 'Graviton', 'Tungsiton' },
-        [3] = { 'Graviton', 'Molybiton' },
-        [4] = { 'Tonberrys Avatar' },
-        [5] = { 'Cyaneous-toed Yallberry', 'Vermilion-eared Noberry', 'Virid-faced Shanberry' },
-        [6] = { 'Cyaneous-toed Yallberry', 'Sable-tongued Gonberry', 'Vermilion-eared Noberry' },
-        [7] = { 'Sable-tongued Gonberry', 'Vermilion-eared Noberry', 'Virid-faced Shanberry' },
-        [8] = { 'Cyaneous-toed Yallberry', 'Sable-tongued Gonberry', 'Virid-faced Shanberry' },
-        [9] = { 'Hyohh the Conchblower', 'Pevv the Riverleaper', 'Rauu the Whaleswooner' },
-        [10] = { 'Hyohh the Conchblower', 'Pevv the Riverleaper', 'Qull the Fallstopper' },
-        [11] = { 'Pevv the Riverleaper', 'Qull the Fallstopper', 'Rauu the Whaleswooner' },
-        [12] = { 'Hyohh the Conchblower', 'Qull the Fallstopper', 'Rauu the Whaleswooner' },
+        [1] = { superlink = { 'Molybiton', 'Tungsiton' } },
+        [2] = { superlink = { 'Graviton', 'Tungsiton' } },
+        [3] = { superlink = { 'Graviton', 'Molybiton' } },
+        [4] = { sight = { 'Tonberrys Avatar' } },
+        [5] = { superlink = { 'Cyaneous-toed Yallberry', 'Vermilion-eared Noberry', 'Virid-faced Shanberry' } },
+        [6] = { superlink = { 'Cyaneous-toed Yallberry', 'Sable-tongued Gonberry', 'Vermilion-eared Noberry' } },
+        [7] = { superlink = { 'Sable-tongued Gonberry', 'Vermilion-eared Noberry', 'Virid-faced Shanberry' } },
+        [8] = { superlink = { 'Cyaneous-toed Yallberry', 'Sable-tongued Gonberry', 'Virid-faced Shanberry' } },
+        [9] = { superlink = { 'Hyohh the Conchblower', 'Pevv the Riverleaper', 'Rauu the Whaleswooner' } },
+        [10] = { superlink = { 'Hyohh the Conchblower', 'Pevv the Riverleaper', 'Qull the Fallstopper' } },
+        [11] = { superlink = { 'Pevv the Riverleaper', 'Qull the Fallstopper', 'Rauu the Whaleswooner' } },
+        [12] = { superlink = { 'Hyohh the Conchblower', 'Qull the Fallstopper', 'Rauu the Whaleswooner' } },
     },
     monsters = {
         {

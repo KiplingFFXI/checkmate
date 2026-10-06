@@ -1,29 +1,31 @@
 -- Aydeewa Subterrane (zone 68).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Phlebotomic Slug' },
-        [2] = { 'Treant Sapling' },
-        [3] = { 'Bluestreak Gyugyuroon', 'Qiqirn Archaeologist', 'Qiqirn Enterpriser', 'Qiqirn Lieuter',
-                'Qiqirn Mosstrooper' },
-        [4] = { 'Anautogenous Slug', 'Phlebotomic Slug' },
-        [5] = { 'Defoliator' },
-        [6] = { 'Mycohopper' },
-        [7] = { 'Mold Eater' },
-        [8] = { 'Qiqirn Archaeologist', 'Qiqirn Enterpriser', 'Qiqirn Lieuter', 'Qiqirn Mosstrooper' },
-        [9] = { 'Nosferatu Bats' },
-        [10] = { 'Nosferatu', 'Nosferatu Bats' },
-        [11] = { 'Nosferatu Wolf' },
-        [12] = { 'Nosferatu Murk' },
-        [13] = { 'Pandemonium Warden' },
-        [14] = { 'Pandemonium Lamp' },
-        [15] = { 'Morta' },
-        [16] = { 'Ravishing Rafflesia' },
+        [1] = { sound = { 'Phlebotomic Slug' } },
+        [2] = { sound = { 'Treant Sapling' } },
+        [3] = {
+            sight = { 'Bluestreak Gyugyuroon', 'Qiqirn Archaeologist', 'Qiqirn Enterpriser', 'Qiqirn Lieuter',
+                      'Qiqirn Mosstrooper' },
+        },
+        [4] = { sound = { 'Anautogenous Slug', 'Phlebotomic Slug' } },
+        [5] = { sound = { 'Defoliator' } },
+        [6] = { sound = { 'Mycohopper' } },
+        [7] = { sound = { 'Mold Eater' } },
+        [8] = { sight = { 'Qiqirn Archaeologist', 'Qiqirn Enterpriser', 'Qiqirn Lieuter', 'Qiqirn Mosstrooper' } },
+        [9] = { sound = { 'Nosferatu Bats' } },
+        [10] = { sound = { 'Nosferatu Bats' }, true_both = { 'Nosferatu' } },
+        [11] = { sound = { 'Nosferatu Wolf' } },
+        [12] = { sound = { 'Nosferatu Murk' } },
+        [13] = { sight = { 'Pandemonium Warden' } },
+        [14] = { sound = { 'Pandemonium Lamp' } },
+        [15] = { true_sound = { 'Morta' } },
+        [16] = { sound = { 'Ravishing Rafflesia' } },
     },
     monsters = {
         {
@@ -420,6 +422,7 @@ return {
                 [74] = { acc = 358, eva = 281, agi = 94, int = 60, mnd = 70, chr = 64 },
                 [75] = { acc = 363, eva = 286, agi = 96, int = 62, mnd = 70, chr = 65 },
             },
+            ph_for = { [211] = { 412 } },
             ranks  = { fire = -1, ice = -1, wind = -2, earth = 2, water = -1, light = -1, paralyze = -1, bind = -1,
                        silence = -2, slow = 2, poison = -1, light_sleep = -1, gravity = -2 },
             resist = { poison = 20 },

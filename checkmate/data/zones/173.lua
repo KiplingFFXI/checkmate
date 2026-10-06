@@ -1,20 +1,20 @@
 -- Korroloka Tunnel (zone 173).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Land Worm', 'Morion Worm' },
-        [2] = { 'Combat', 'Seeker Bats' },
-        [3] = { 'Jammer Leech', 'Korroloka Leech', 'Thread Leech' },
-        [4] = { 'Falcatus Aranei', 'Huge Spider' },
-        [5] = { 'Huge Spider' },
-        [6] = { 'Gigas Foreman', 'Gigas Stonecarrier', 'Gigas Stonegrinder', 'Gigas Stonemason' },
-        [7] = { 'Land Worm' },
-        [8] = { 'Gloom Phantom', 'Goblin Bounty Hunter' },
+        [1] = { sound = { 'Land Worm', 'Morion Worm' } },
+        [2] = { sound = { 'Combat', 'Seeker Bats' } },
+        [3] = { sound = { 'Jammer Leech', 'Korroloka Leech', 'Thread Leech' } },
+        [4] = { sound = { 'Falcatus Aranei', 'Huge Spider' } },
+        [5] = { sound = { 'Huge Spider' } },
+        [6] = { sight = { 'Gigas Foreman', 'Gigas Stonecarrier', 'Gigas Stonegrinder', 'Gigas Stonemason' } },
+        [7] = { sound = { 'Land Worm' } },
+        [8] = { sight = { 'Goblin Bounty Hunter' }, true_sight = { 'Gloom Phantom' } },
     },
     monsters = {
         {
@@ -149,6 +149,7 @@ return {
                 [30] = { acc = 110, eva = 101, agi = 31, int = 25, mnd = 25, chr = 22 },
                 [31] = { acc = 114, eva = 105, agi = 33, int = 27, mnd = 27, chr = 24 },
             },
+            ph_for = { [206] = { 207 }, [211] = { 207 } },
             ranks  = { ice = -3, thunder = -1, water = -1, paralyze = -3, bind = -3, poison = -1, stun = -1 },
             drops  = {
                 { rate = 10, item = 838 },  -- spider web
@@ -264,6 +265,7 @@ return {
                 [31] = { acc = 110, eva = 100, agi = 22, int = 23, mnd = 33, chr = 33 },
                 [32] = { acc = 113, eva = 102, agi = 22, int = 23, mnd = 33, chr = 33 },
             },
+            ph_for = { [178] = { 156 }, [180] = { 156 } },
             ranks  = { fire = -2, ice = -3, wind = -2, earth = -2, thunder = -3, water = 2, light = -2, dark = -2,
                        paralyze = -3, bind = -3, silence = -2, slow = -2, poison = 2, light_sleep = -2,
                        dark_sleep = -2, blind = -2, stun = -3, gravity = -2 },
@@ -349,6 +351,7 @@ return {
                 [32] = { acc = 115, eva = 107, agi = 33, int = 31, mnd = 24, chr = 32 },
                 [33] = { acc = 119, eva = 111, agi = 34, int = 32, mnd = 25, chr = 32 },
             },
+            ph_for = { [304] = { 305 } },
             ranks  = { fire = -3, ice = 4, wind = -2, thunder = -2, water = -2, light = -3, dark = 4, paralyze = 5,
                        bind = 5, silence = -2, poison = -2, light_sleep = -3, dark_sleep = 4, blind = 5, stun = -2,
                        gravity = -2 },

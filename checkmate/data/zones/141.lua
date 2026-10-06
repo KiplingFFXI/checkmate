@@ -1,29 +1,40 @@
 -- Fort Ghelsba (zone 141).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Chariotbuster Byakzak', 'Hundredscar Hajwaj', 'Orcish Cursemaker', 'Orcish Fighter',
-                'Orcish Flamethrower', 'Orcish Fodder', 'Orcish Grappler', 'Orcish Grunt', 'Orcish Mesmerizer',
-                'Orcish Neckchopper', 'Orcish Panzer', 'Orcish Serjeant', 'Orcish Stonechucker' },
-        [2] = { 'Cheiroptera', 'Spectacled Bats' },
-        [3] = { 'Chariotbuster Byakzak', 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Flamethrower',
-                'Orcish Fodder', 'Orcish Grappler', 'Orcish Grunt', 'Orcish Mesmerizer', 'Orcish Neckchopper',
-                'Orcish Panzer', 'Orcish Serjeant', 'Orcish Stonechucker' },
-        [4] = { 'Sentry Lizard' },
-        [5] = { 'Chariotbuster Byakzak', 'Hundredscar Hajwaj', 'Orcish Cursemaker', 'Orcish Fighter',
-                'Orcish Flamethrower', 'Orcish Fodder', 'Orcish Grappler', 'Orcish Grunt', 'Orcish Mesmerizer',
-                'Orcish Neckchopper', 'Orcish Serjeant', 'Orcish Stonechucker' },
-        [6] = { 'Hundredscar Hajwaj', 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Flamethrower', 'Orcish Fodder',
-                'Orcish Grappler', 'Orcish Grunt', 'Orcish Mesmerizer', 'Orcish Neckchopper', 'Orcish Panzer',
-                'Orcish Serjeant', 'Orcish Stonechucker' },
-        [7] = { 'Chariotbuster Byakzak', 'Hundredscar Hajwaj', 'Orcish Cursemaker', 'Orcish Fighter',
-                'Orcish Flamethrower', 'Orcish Fodder', 'Orcish Grappler', 'Orcish Grunt', 'Orcish Mesmerizer',
-                'Orcish Neckchopper', 'Orcish Panzer', 'Orcish Stonechucker' },
+        [1] = {
+            sight = { 'Chariotbuster Byakzak', 'Hundredscar Hajwaj', 'Orcish Cursemaker', 'Orcish Fighter',
+                      'Orcish Flamethrower', 'Orcish Fodder', 'Orcish Grappler', 'Orcish Grunt',
+                      'Orcish Mesmerizer', 'Orcish Neckchopper', 'Orcish Panzer', 'Orcish Serjeant',
+                      'Orcish Stonechucker' },
+        },
+        [2] = { sound = { 'Cheiroptera', 'Spectacled Bats' } },
+        [3] = {
+            sight = { 'Chariotbuster Byakzak', 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Flamethrower',
+                      'Orcish Fodder', 'Orcish Grappler', 'Orcish Grunt', 'Orcish Mesmerizer', 'Orcish Neckchopper',
+                      'Orcish Panzer', 'Orcish Serjeant', 'Orcish Stonechucker' },
+        },
+        [4] = { sound = { 'Sentry Lizard' } },
+        [5] = {
+            sight = { 'Chariotbuster Byakzak', 'Hundredscar Hajwaj', 'Orcish Cursemaker', 'Orcish Fighter',
+                      'Orcish Flamethrower', 'Orcish Fodder', 'Orcish Grappler', 'Orcish Grunt',
+                      'Orcish Mesmerizer', 'Orcish Neckchopper', 'Orcish Serjeant', 'Orcish Stonechucker' },
+        },
+        [6] = {
+            sight = { 'Hundredscar Hajwaj', 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Flamethrower',
+                      'Orcish Fodder', 'Orcish Grappler', 'Orcish Grunt', 'Orcish Mesmerizer', 'Orcish Neckchopper',
+                      'Orcish Panzer', 'Orcish Serjeant', 'Orcish Stonechucker' },
+        },
+        [7] = {
+            sight = { 'Chariotbuster Byakzak', 'Hundredscar Hajwaj', 'Orcish Cursemaker', 'Orcish Fighter',
+                      'Orcish Flamethrower', 'Orcish Fodder', 'Orcish Grappler', 'Orcish Grunt',
+                      'Orcish Mesmerizer', 'Orcish Neckchopper', 'Orcish Panzer', 'Orcish Stonechucker' },
+        },
     },
     monsters = {
         {
@@ -146,6 +157,7 @@ return {
                 [9] = { acc = 38, eva = 33, agi = 11, int = 8, mnd = 11, chr = 13 },
                 [10] = { acc = 42, eva = 37, agi = 12, int = 8, mnd = 12, chr = 13 },
             },
+            ph_for = { [73] = { 76 } },
             ranks  = { wind = -2, earth = -2, thunder = -2, water = -3, light = -2, dark = -2, silence = -2,
                        slow = -2, poison = -3, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -2,
                        gravity = -2 },

@@ -8,10 +8,12 @@ f:close();
 local version = source:match("\naddon%.version = '(%d+%.%d+%.%d+)';\n") or 'missing';
 check('the header', source:find("addon.name    = 'checkmate';\naddon.author  = 'Kipling';\n"
     .. "addon.version = '" .. version .. "';\n"
-    .. "addon.desc    = 'Hit, evade, crit, aggro, magic, immunities, elements and drops on /check for Phoenix.';\n"
+    .. "addon.desc    = 'Hit, evade, crit, aggro, magic, immunities, elements, drops and your pet on /check for Phoenix.';\n"
     .. "addon.link    = 'https://github.com/KiplingFFXI/checkmate';\n", 1, true) == 1);
 check('the top comment says what it sends and hides', source:find('/checkparam <me>', 1, true) ~= nil
-    and source:find('six reply lines', 1, true) ~= nil and source:find('hides the game\'s own line for your /check', 1, true) ~= nil);
+    and source:find('six reply lines', 1, true) ~= nil and source:find('hides the game\'s own line for your /check', 1, true) ~= nil
+    and source:find('/checkparam <pet>', 1, true) ~= nil and source:find('five reply lines', 1, true) ~= nil
+    and source:find('jug pet, wyvern or automaton', 1, true) ~= nil);
 
 -- No module may shadow one of Ashita's libs, and modules live under core, ui and data.
 local SHADOWS = { settings = true, chat = true, imgui = true, common = true, struct = true, bit = true };
@@ -58,6 +60,13 @@ MOCK.packet(MOCK.check_packet(1, 39, 4, 174));
 MOCK.frame();
 check('a /check prints, with the star between parts', MOCK.printed_since(n)[1]
     == '[checkmate] Fixture Goblin (Lv 39) \129\154 Even Match', MOCK.printed_since(n)[1]);
+MOCK.settings.current.printout.show_id = true;
+n = #MOCK.printed;
+MOCK.packet(MOCK.check_packet(1, 39, 4, 174));
+MOCK.frame();
+check('with Show its ID on, the ID is the one the /check reply named', MOCK.printed_since(n)[1]
+    == '[checkmate] Fixture Goblin (Lv 39) (ID ' .. MOCK.mob_id(900, 1) .. ') \129\154 Even Match', MOCK.printed_since(n)[1]);
+MOCK.settings.current.printout.show_id = false;
 
 -- With nothing waiting, a frame reads no game memory.
 MOCK.frame();

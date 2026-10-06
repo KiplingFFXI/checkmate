@@ -1,25 +1,33 @@
 -- Labyrinth of Onzozo (zone 213).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter',
-                'Goblin Mercenary', 'Goblin Miner', 'Goblin Poacher', 'Goblin Reaper', 'Goblin Robber',
-                'Goblin Shepherd', 'Goblin Trader', 'Mysticmaker Profblix', 'Soulstealer Skullnix' },
-        [2] = { 'Labyrinth Leech' },
-        [3] = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter',
-                'Goblin Mercenary', 'Goblin Miner', 'Goblin Poacher', 'Goblin Reaper', 'Goblin Robber',
-                'Goblin Shepherd', 'Mysticmaker Profblix', 'Soulstealer Skullnix' },
-        [4] = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter',
-                'Goblin Mercenary', 'Goblin Miner', 'Goblin Poacher', 'Goblin Reaper', 'Goblin Robber',
-                'Goblin Shepherd', 'Goblin Trader', 'Soulstealer Skullnix' },
-        [5] = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter',
-                'Goblin Mercenary', 'Goblin Miner', 'Goblin Poacher', 'Goblin Reaper', 'Goblin Robber',
-                'Goblin Shepherd', 'Goblin Trader', 'Mysticmaker Profblix' },
+        [1] = {
+            sight = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter',
+                      'Goblin Mercenary', 'Goblin Miner', 'Goblin Poacher', 'Goblin Reaper', 'Goblin Robber',
+                      'Goblin Shepherd', 'Goblin Trader', 'Mysticmaker Profblix', 'Soulstealer Skullnix' },
+        },
+        [2] = { sound = { 'Labyrinth Leech' } },
+        [3] = {
+            sight = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter',
+                      'Goblin Mercenary', 'Goblin Miner', 'Goblin Poacher', 'Goblin Reaper', 'Goblin Robber',
+                      'Goblin Shepherd', 'Mysticmaker Profblix', 'Soulstealer Skullnix' },
+        },
+        [4] = {
+            sight = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter',
+                      'Goblin Mercenary', 'Goblin Miner', 'Goblin Poacher', 'Goblin Reaper', 'Goblin Robber',
+                      'Goblin Shepherd', 'Goblin Trader', 'Soulstealer Skullnix' },
+        },
+        [5] = {
+            sight = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Bouncer', 'Goblin Enchanter', 'Goblin Hunter',
+                      'Goblin Mercenary', 'Goblin Miner', 'Goblin Poacher', 'Goblin Reaper', 'Goblin Robber',
+                      'Goblin Shepherd', 'Goblin Trader', 'Mysticmaker Profblix' },
+        },
     },
     monsters = {
         {
@@ -382,6 +390,7 @@ return {
                 [58] = { acc = 222, eva = 210, agi = 61, int = 46, mnd = 46, chr = 52 },
                 [59] = { acc = 228, eva = 216, agi = 63, int = 47, mnd = 47, chr = 53 },
             },
+            ph_for = { [66] = { 67 }, [96] = { 97 } },
             ranks  = { fire = -1, ice = -2, wind = -1, earth = -1, thunder = -2, water = 6, light = -1, dark = -1,
                        paralyze = -2, bind = -2, silence = -1, slow = -1, poison = 6, light_sleep = -1,
                        dark_sleep = -1, blind = -1, stun = -2, gravity = -1 },
@@ -469,6 +478,7 @@ return {
                 [72] = { acc = 301, eva = 284, agi = 75, int = 60, mnd = 52, chr = 63 },
                 [73] = { acc = 306, eva = 290, agi = 76, int = 62, mnd = 54, chr = 64 },
             },
+            ph_for = { [153] = { 158 }, [156] = { 158 } },
             ranks  = { fire = -2, ice = -2, wind = -2, earth = -3, water = -2, light = -2, dark = -2, paralyze = -2,
                        bind = -2, silence = -2, slow = -3, poison = -2, light_sleep = -2, dark_sleep = -2,
                        blind = -2, gravity = -2 },
@@ -489,6 +499,7 @@ return {
                 [73] = { acc = 302, eva = 288, agi = 72, int = 58, mnd = 58, chr = 56 },
                 [74] = { acc = 307, eva = 293, agi = 73, int = 58, mnd = 58, chr = 56 },
             },
+            ph_for = { [119] = { 120 }, [123] = { 120 } },
             ranks  = { fire = 4, ice = -2, wind = 4, earth = -2, thunder = -2, water = -3, paralyze = -2, bind = -2,
                        silence = 4, slow = -2, poison = -3, stun = -2, gravity = 4 },
             drops  = {
@@ -554,6 +565,7 @@ return {
                 [62] = { acc = 245, eva = 232, agi = 66, int = 49, mnd = 46, chr = 59 },
                 [63] = { acc = 250, eva = 237, agi = 66, int = 49, mnd = 46, chr = 59 },
             },
+            ph_for = { [133] = { 131 } },
             ranks  = { fire = -2, ice = 3, water = 2, light = -2, dark = 8, paralyze = 3, bind = 3, poison = 2,
                        light_sleep = -2, dark_sleep = 8, blind = 8 },
             undead = true,
@@ -618,6 +630,7 @@ return {
                 [68] = { acc = 271, eva = 239, agi = 64, int = 60, mnd = 83, chr = 71 },
                 [69] = { acc = 277, eva = 243, agi = 65, int = 60, mnd = 84, chr = 72 },
             },
+            ph_for = { [165] = { 154 } },
             ranks  = { fire = -2, ice = -2, wind = -2, earth = -2, thunder = -2, water = -2, light = -3,
                        paralyze = -2, bind = -2, silence = -2, slow = -2, poison = -2, light_sleep = -3, stun = -2,
                        gravity = -2 },
@@ -660,6 +673,7 @@ return {
                 [68] = { acc = 286, eva = 318, agi = 81, int = 71, mnd = 48, chr = 48 },
                 [69] = { acc = 292, eva = 324, agi = 82, int = 72, mnd = 48, chr = 48 },
             },
+            ph_for = { [173] = { 154 } },
             ranks  = { fire = -2, ice = -2, wind = -2, earth = -2, thunder = -2, water = -2, light = -3,
                        paralyze = -2, bind = -2, silence = -2, slow = -2, poison = -2, light_sleep = -3, stun = -2,
                        gravity = -2 },

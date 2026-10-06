@@ -1,22 +1,24 @@
 -- Maze of Shakhrami (zone 198).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher',
-                'Goblin Mugger', 'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy', 'Goblin Tinkerer' },
-        [2] = { 'Abyss Worm', 'Maze Maker' },
-        [3] = { 'Ancient Bat', 'Combat', 'Seeker Bats', 'Stink Bats' },
-        [4] = { 'Aroma Crawler', 'Carnivorous Crawler', 'Caterchipillar' },
-        [5] = { 'Leech King', 'Poison Leech' },
-        [6] = { 'Poison Leech' },
-        [7] = { 'Wyrmfly' },
-        [8] = { 'Carnivorous Crawler', 'Caterchipillar' },
-        [9] = { 'Ogbunabali' },
+        [1] = {
+            sight = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher',
+                      'Goblin Mugger', 'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy', 'Goblin Tinkerer' },
+        },
+        [2] = { sound = { 'Abyss Worm', 'Maze Maker' } },
+        [3] = { sound = { 'Ancient Bat', 'Combat', 'Seeker Bats', 'Stink Bats' } },
+        [4] = { sound = { 'Aroma Crawler', 'Carnivorous Crawler', 'Caterchipillar' } },
+        [5] = { sound = { 'Leech King', 'Poison Leech' } },
+        [6] = { sound = { 'Poison Leech' } },
+        [7] = { sound = { 'Wyrmfly' } },
+        [8] = { sound = { 'Carnivorous Crawler', 'Caterchipillar' } },
+        [9] = { true_sound = { 'Ogbunabali' } },
     },
     monsters = {
         {

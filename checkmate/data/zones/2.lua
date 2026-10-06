@@ -1,23 +1,27 @@
 -- Carpenters Landing (zone 2).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Beady Beetle', 'Diving Beetle', 'Hercules Beetle', 'Stag Beetle' },
-        [2] = { 'Marsh Funguar', 'Poison Funguar' },
-        [3] = { 'Bulldog Bats', 'Specter Bat' },
-        [4] = { 'Digger Wasp', 'Spider Wasp' },
-        [5] = { 'Bullheaded Grosvez', 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Grunt', 'Orcish Neckchopper',
-                'Orcish Serjeant', 'Orcish Stonechucker' },
-        [6] = { 'Cryptonberry Assassin' },
-        [7] = { 'Cryptonberry Assassin', 'Cryptonberry Executor' },
-        [8] = { 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Grunt', 'Orcish Neckchopper', 'Orcish Serjeant',
-                'Orcish Stonechucker' },
-        [9] = { 'Beady Beetle', 'Diving Beetle', 'Stag Beetle' },
+        [1] = { sight = { 'Beady Beetle', 'Diving Beetle', 'Hercules Beetle', 'Stag Beetle' } },
+        [2] = { sound = { 'Marsh Funguar', 'Poison Funguar' } },
+        [3] = { sound = { 'Bulldog Bats', 'Specter Bat' } },
+        [4] = { sight = { 'Digger Wasp', 'Spider Wasp' } },
+        [5] = {
+            sight = { 'Bullheaded Grosvez', 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Grunt',
+                      'Orcish Neckchopper', 'Orcish Serjeant', 'Orcish Stonechucker' },
+        },
+        [6] = { sight = { 'Cryptonberry Assassin' } },
+        [7] = { sight = { 'Cryptonberry Assassin', 'Cryptonberry Executor' } },
+        [8] = {
+            sight = { 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Grunt', 'Orcish Neckchopper',
+                      'Orcish Serjeant', 'Orcish Stonechucker' },
+        },
+        [9] = { sight = { 'Beady Beetle', 'Diving Beetle', 'Stag Beetle' } },
     },
     monsters = {
         {
@@ -620,6 +624,7 @@ return {
                 [32] = { acc = 117, eva = 109, agi = 37, int = 26, mnd = 26, chr = 31 },
                 [33] = { acc = 121, eva = 113, agi = 38, int = 29, mnd = 29, chr = 32 },
             },
+            ph_for = { [267] = { 268 } },
             ranks  = { fire = -3, ice = -1, wind = 3, water = 3, light = 3, dark = -1, paralyze = -1, bind = -1,
                        silence = 3, poison = 3, light_sleep = 3, dark_sleep = -1, blind = -1, gravity = 3 },
             drops  = {

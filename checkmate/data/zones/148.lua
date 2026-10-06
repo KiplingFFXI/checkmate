@@ -1,20 +1,31 @@
 -- Qulun Dome (zone 148).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Adaman Quadav', 'Ancient Quadav', 'Darksteel Quadav', 'Diamond Quadav', 'HuRhe Marrowgorger',
-                'Platinum Quadav', 'Ruby Quadav', 'Sapphire Quadav', 'ZaDha Adamantking' },
-        [2] = { 'Ancient Quadav', 'Darksteel Quadav', 'Diamond Quadav', 'HuRhe Marrowgorger', 'Platinum Quadav',
-                'Ruby Quadav', 'Sapphire Quadav', 'ZaDha Adamantking' },
-        [3] = { 'Adaman Quadav', 'Ancient Quadav', 'Darksteel Quadav', 'Diamond Quadav', 'HuRhe Marrowgorger',
-                'Platinum Quadav', 'Ruby Quadav', 'Sapphire Quadav' },
-        [4] = { 'Adaman Quadav', 'Ancient Quadav', 'Darksteel Quadav', 'Diamond Quadav', 'Platinum Quadav',
-                'Ruby Quadav', 'Sapphire Quadav', 'ZaDha Adamantking' },
+        [1] = {
+            sound = { 'Ancient Quadav', 'Darksteel Quadav', 'HuRhe Marrowgorger', 'Platinum Quadav',
+                      'Sapphire Quadav' },
+            true_sound = { 'Adaman Quadav', 'Diamond Quadav', 'Ruby Quadav', 'ZaDha Adamantking' },
+        },
+        [2] = {
+            sound = { 'Ancient Quadav', 'Darksteel Quadav', 'HuRhe Marrowgorger', 'Platinum Quadav',
+                      'Sapphire Quadav' },
+            true_sound = { 'Diamond Quadav', 'Ruby Quadav', 'ZaDha Adamantking' },
+        },
+        [3] = {
+            sound = { 'Ancient Quadav', 'Darksteel Quadav', 'HuRhe Marrowgorger', 'Platinum Quadav',
+                      'Sapphire Quadav' },
+            true_sound = { 'Adaman Quadav', 'Diamond Quadav', 'Ruby Quadav' },
+        },
+        [4] = {
+            sound = { 'Ancient Quadav', 'Darksteel Quadav', 'Platinum Quadav', 'Sapphire Quadav' },
+            true_sound = { 'Adaman Quadav', 'Diamond Quadav', 'Ruby Quadav', 'ZaDha Adamantking' },
+        },
     },
     monsters = {
         {

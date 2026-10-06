@@ -1,28 +1,38 @@
 -- North Gustaberg (zone 106).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Ding Bats', 'Fledermaus' },
-        [2] = { 'Ornery Sheep' },
-        [3] = { 'Gambilox Wanderling', 'Goblin Digger', 'Goblin Fisher', 'Goblin Gambler', 'Goblin Leecher',
-                'Goblin Mugger', 'Goblin Thug', 'Goblin Weaver' },
-        [4] = { 'Stinging Sophie' },
-        [5] = { 'Rock Lizard' },
-        [6] = { 'Amber Quadav', 'Amethyst Quadav', 'Brass Quadav', 'Heliodor Quadav', 'Lead Quadav', 'Old Quadav',
-                'Sapphirine Quadav', 'Young Quadav' },
-        [7] = { 'Maighdean Uaine', 'Walking Sapling' },
-        [8] = { 'Gambilox Wanderling', 'Goblin Fisher', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger',
-                'Goblin Thug', 'Goblin Weaver' },
-        [9] = { 'Goblin Digger', 'Goblin Fisher', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger',
-                'Goblin Thug', 'Goblin Weaver' },
-        [10] = { 'Amber Quadav', 'Amethyst Quadav', 'Brass Quadav', 'Heliodor Quadav', 'Old Quadav',
-                 'Sapphirine Quadav', 'Young Quadav' },
-        [11] = { 'Sallow Seymour' },
+        [1] = { sound = { 'Ding Bats', 'Fledermaus' } },
+        [2] = { sight = { 'Ornery Sheep' } },
+        [3] = {
+            sight = { 'Gambilox Wanderling', 'Goblin Digger', 'Goblin Fisher', 'Goblin Gambler', 'Goblin Leecher',
+                      'Goblin Mugger', 'Goblin Thug', 'Goblin Weaver' },
+        },
+        [4] = { sight = { 'Stinging Sophie' } },
+        [5] = { sound = { 'Rock Lizard' } },
+        [6] = {
+            sound = { 'Amber Quadav', 'Amethyst Quadav', 'Brass Quadav', 'Heliodor Quadav', 'Lead Quadav',
+                      'Old Quadav', 'Sapphirine Quadav', 'Young Quadav' },
+        },
+        [7] = { sound = { 'Maighdean Uaine', 'Walking Sapling' } },
+        [8] = {
+            sight = { 'Gambilox Wanderling', 'Goblin Fisher', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger',
+                      'Goblin Thug', 'Goblin Weaver' },
+        },
+        [9] = {
+            sight = { 'Goblin Digger', 'Goblin Fisher', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger',
+                      'Goblin Thug', 'Goblin Weaver' },
+        },
+        [10] = {
+            sound = { 'Amber Quadav', 'Amethyst Quadav', 'Brass Quadav', 'Heliodor Quadav', 'Old Quadav',
+                      'Sapphirine Quadav', 'Young Quadav' },
+        },
+        [11] = { sound = { 'Sallow Seymour' } },
     },
     monsters = {
         {
@@ -186,6 +196,7 @@ return {
                              [188] = { 5, 6 }, [189] = { 5, 6 }, [190] = { 5, 6 }, [191] = { 5, 6 },
                              [279] = { 3, 4 }, [280] = { 3, 4 }, [281] = { 3, 4 }, [295] = { 4, 5 },
                              [296] = { 4, 5 }, [297] = { 4, 5 } },
+            ph_for = { [144] = { 145 }, [168] = { 169 } },
             ranks  = { fire = -2, ice = -3, wind = 2, earth = -2, thunder = -2, water = -2, light = -2, dark = -2,
                        paralyze = -3, bind = -3, silence = 2, slow = -2, poison = -2, light_sleep = -2,
                        dark_sleep = -2, blind = -2, stun = -2, gravity = 2 },
@@ -483,6 +494,7 @@ return {
                              [350] = { 5, 6 }, [393] = { 5, 6 }, [394] = { 5, 6 }, [409] = { 5, 6 },
                              [410] = { 5, 6 }, [411] = { 5, 6 }, [421] = { 5, 6 }, [422] = { 5, 6 },
                              [423] = { 5, 6 }, [433] = { 5, 6 }, [434] = { 5, 6 }, [435] = { 5, 6 } },
+            ph_for = { [309] = { 310 } },
             ranks  = { fire = -3, ice = -2, wind = -2, thunder = -2, dark = -3, paralyze = -2, bind = -2,
                        silence = -2, dark_sleep = -3, blind = -3, stun = -2, gravity = -2 },
             drops  = {

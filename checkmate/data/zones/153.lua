@@ -1,28 +1,28 @@
 -- The Boyahda Tree (zone 153).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Blood Ball' },
-        [2] = { 'Bark Spider', 'Bark Tarantula' },
-        [3] = { 'Death Cap', 'Ellyllon' },
-        [4] = { 'Death Cap' },
-        [5] = { 'Korrigan', 'Mourioche' },
-        [6] = { 'Moss Eater', 'Unut' },
-        [7] = { 'Knight Crawler', 'Processionaire', 'Templar Crawler' },
-        [8] = { 'Ancient Goobbue', 'Elder Goobbue', 'Old Goobbue' },
-        [9] = { 'Moss Eater' },
-        [10] = { 'Beet Leafhopper', 'Darter', 'Skimmer' },
-        [11] = { 'Blood Ball', 'Bouncing Ball' },
-        [12] = { 'Elder Goobbue', 'Old Goobbue' },
-        [13] = { 'Boyahda Sapling', 'Leshonki', 'Modron', 'Modrons Druid' },
-        [14] = { 'Boyahda Sapling', 'Modron', 'Modrons Druid' },
-        [15] = { 'Darter', 'Skimmer' },
-        [16] = { 'Knight Crawler', 'Processionaire' },
+        [1] = { sound = { 'Blood Ball' } },
+        [2] = { sound = { 'Bark Spider', 'Bark Tarantula' } },
+        [3] = { sound = { 'Death Cap', 'Ellyllon' } },
+        [4] = { sound = { 'Death Cap' } },
+        [5] = { sound = { 'Korrigan', 'Mourioche' } },
+        [6] = { sight = { 'Moss Eater', 'Unut' } },
+        [7] = { sound = { 'Knight Crawler', 'Processionaire', 'Templar Crawler' } },
+        [8] = { sound = { 'Ancient Goobbue', 'Elder Goobbue', 'Old Goobbue' } },
+        [9] = { sight = { 'Moss Eater' } },
+        [10] = { sound = { 'Beet Leafhopper', 'Darter', 'Skimmer' } },
+        [11] = { sound = { 'Blood Ball', 'Bouncing Ball' } },
+        [12] = { sound = { 'Elder Goobbue', 'Old Goobbue' } },
+        [13] = { sound = { 'Boyahda Sapling', 'Leshonki', 'Modron', 'Modrons Druid' } },
+        [14] = { sound = { 'Boyahda Sapling', 'Modron', 'Modrons Druid' } },
+        [15] = { sound = { 'Darter', 'Skimmer' } },
+        [16] = { sound = { 'Knight Crawler', 'Processionaire' } },
     },
     monsters = {
         {
@@ -123,6 +123,7 @@ return {
                 [62] = { acc = 245, eva = 232, agi = 66, int = 46, mnd = 49, chr = 55 },
                 [63] = { acc = 250, eva = 237, agi = 66, int = 46, mnd = 49, chr = 55 },
             },
+            ph_for = { [34] = { 35 } },
             ranks  = { fire = -2, ice = -2, wind = -2, earth = -2, thunder = -2, water = 4, light = -3, dark = 4,
                        paralyze = -2, bind = -2, silence = -2, slow = -2, poison = 4, light_sleep = -3,
                        dark_sleep = 4, blind = 6, stun = -2, gravity = -2 },
@@ -204,6 +205,7 @@ return {
                 [65] = { acc = 263, eva = 248, agi = 68, int = 52, mnd = 52, chr = 58 },
                 [66] = { acc = 269, eva = 253, agi = 70, int = 52, mnd = 52, chr = 58 },
             },
+            ph_for = { [123] = { 125 }, [139] = { 125 }, [149] = { 125 }, [156] = { 125 } },
             ranks  = { fire = -2, ice = -1, wind = -2, earth = -1, thunder = -3, water = -3, light = -1, dark = -3,
                        paralyze = -1, bind = -1, silence = -2, slow = -1, poison = -3, light_sleep = -1,
                        dark_sleep = -3, blind = -3, stun = -3, gravity = -2 },
@@ -267,6 +269,7 @@ return {
                 [65] = { acc = 256, eva = 235, agi = 43, int = 46, mnd = 68, chr = 68 },
                 [66] = { acc = 261, eva = 240, agi = 44, int = 47, mnd = 70, chr = 70 },
             },
+            ph_for = { [95] = { 96 }, [100] = { 96 } },
             ranks  = { fire = -2, ice = -3, wind = -2, earth = -2, thunder = -3, water = 2, light = -2, dark = -2,
                        paralyze = -3, bind = -3, silence = -2, slow = -2, poison = 2, light_sleep = -2,
                        dark_sleep = -2, blind = -2, stun = -3, gravity = -2 },
@@ -556,6 +559,7 @@ return {
                 [76] = { acc = 321, eva = 306, agi = 80, int = 59, mnd = 59, chr = 62 },
                 [77] = { acc = 326, eva = 311, agi = 80, int = 60, mnd = 60, chr = 62 },
             },
+            ph_for = { [388] = { 396 }, [390] = { 396 }, [392] = { 396 }, [397] = { 396 }, [400] = { 396 } },
             ranks  = { fire = -3, ice = -2, wind = -2, thunder = -2, dark = -3, paralyze = -2, bind = -2,
                        silence = -2, dark_sleep = -3, blind = -3, stun = -2, gravity = -2 },
             drops  = {
@@ -591,6 +595,7 @@ return {
                 [77] = { acc = 330, eva = 311, agi = 80, int = 60, mnd = 56, chr = 66 },
                 [78] = { acc = 335, eva = 316, agi = 80, int = 60, mnd = 57, chr = 68 },
             },
+            ph_for = { [426] = { 427 } },
             ranks  = { fire = -3, ice = -2, wind = -2, earth = -2, thunder = -2, water = 4, light = -2, dark = 4,
                        paralyze = -2, bind = -2, silence = -2, slow = -2, poison = 4, light_sleep = -2,
                        dark_sleep = 4, blind = 4, stun = -2, gravity = -2 },

@@ -1,18 +1,42 @@
 -- Spire of Vahzl (zone 23).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Offspring' },
-        [2] = { 'Contemplator', 'Ingurgitator', 'Memory Receptacle', 'Neoingurgitator', 'Repiner' },
-        [3] = { 'Ingurgitator', 'Memory Receptacle', 'Neoingurgitator', 'Repiner' },
-        [4] = { 'Contemplator', 'Memory Receptacle', 'Neoingurgitator', 'Repiner' },
-        [5] = { 'Contemplator', 'Ingurgitator', 'Memory Receptacle', 'Neoingurgitator' },
-        [6] = { 'Contemplator', 'Ingurgitator', 'Memory Receptacle', 'Repiner' },
+        [1] = { true_sound = { 'Offspring' } },
+        [2] = {
+            true_sound = { 'Contemplator', 'Ingurgitator', 'Neoingurgitator', 'Repiner' },
+            neither = { 'Memory Receptacle' },
+        },
+        [3] = {
+            sound = { 'Memory Receptacle' },
+            true_sound = { 'Contemplator', 'Ingurgitator', 'Neoingurgitator', 'Repiner' },
+            neither = { 'Memory Receptacle' },
+        },
+        [4] = {
+            sound = { 'Memory Receptacle' },
+            true_sound = { 'Ingurgitator', 'Neoingurgitator', 'Repiner' },
+            neither = { 'Memory Receptacle' },
+        },
+        [5] = {
+            sound = { 'Memory Receptacle' },
+            true_sound = { 'Contemplator', 'Neoingurgitator', 'Repiner' },
+            neither = { 'Memory Receptacle' },
+        },
+        [6] = {
+            sound = { 'Memory Receptacle' },
+            true_sound = { 'Contemplator', 'Ingurgitator', 'Neoingurgitator' },
+            neither = { 'Memory Receptacle' },
+        },
+        [7] = {
+            sound = { 'Memory Receptacle' },
+            true_sound = { 'Contemplator', 'Ingurgitator', 'Repiner' },
+            neither = { 'Memory Receptacle' },
+        },
     },
     monsters = {
         {
@@ -91,7 +115,7 @@ return {
             magic_dmg = { all = -50 },
             immune = { 'dark_sleep', 'light_sleep', 'bind', 'gravity', 'silence', 'paralyze', 'slow', 'blind',
                        'poison' },
-            links  = 2,
+            links  = 3,
         },
         {
             name   = 'Contemplator',
@@ -104,7 +128,7 @@ return {
             aggro  = true,
             true_detect = true,
             detects = { 'sound' },
-            links  = 3,
+            links  = 4,
         },
         {
             name   = 'Ingurgitator',
@@ -118,7 +142,7 @@ return {
             aggro  = true,
             true_detect = true,
             detects = { 'sound' },
-            links  = 4,
+            links  = 5,
         },
         {
             name   = 'Repiner',
@@ -131,7 +155,7 @@ return {
             aggro  = true,
             true_detect = true,
             detects = { 'sound' },
-            links  = 5,
+            links  = 6,
         },
         {
             name   = 'Neoingurgitator',
@@ -146,7 +170,7 @@ return {
             aggro  = true,
             true_detect = true,
             detects = { 'sound' },
-            links  = 6,
+            links  = 7,
         },
     },
     by_name = {},

@@ -1,23 +1,26 @@
 -- Ifrits Cauldron (zone 205).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Ash Lizard', 'Tarasque' },
-        [2] = { 'Old Opo-opo' },
-        [3] = { 'Dire Bat', 'Nightmare Bats' },
-        [4] = { 'Volcano Wasp' },
-        [5] = { 'Foreseer Oramix', 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Mercenary', 'Goblin Shepherd' },
-        [6] = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Mercenary', 'Goblin Shepherd' },
-        [7] = { 'Ash Lizard', 'Salamander', 'Tarasque' },
-        [8] = { 'Bomb Bastard', 'Bomb Prince', 'Bomb Princess' },
-        [9] = { 'Bomb Prince', 'Bomb Princess' },
-        [10] = { 'Ash Lizard', 'Salamander' },
-        [11] = { 'Coca' },
+        [1] = { sound = { 'Ash Lizard', 'Tarasque' } },
+        [2] = { sight = { 'Old Opo-opo' } },
+        [3] = { sound = { 'Dire Bat', 'Nightmare Bats' } },
+        [4] = { sight = { 'Volcano Wasp' } },
+        [5] = {
+            sight = { 'Foreseer Oramix', 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Mercenary',
+                      'Goblin Shepherd' },
+        },
+        [6] = { sight = { 'Goblin Alchemist', 'Goblin Bandit', 'Goblin Mercenary', 'Goblin Shepherd' } },
+        [7] = { sound = { 'Ash Lizard', 'Salamander', 'Tarasque' } },
+        [8] = { sight = { 'Bomb Bastard', 'Bomb Prince', 'Bomb Princess' } },
+        [9] = { sight = { 'Bomb Prince', 'Bomb Princess' } },
+        [10] = { sound = { 'Ash Lizard', 'Salamander' } },
+        [11] = { sight = { 'Coca' } },
     },
     monsters = {
         {
@@ -265,6 +268,7 @@ return {
                 [68] = { acc = 271, eva = 239, agi = 64, int = 60, mnd = 83, chr = 71 },
                 [69] = { acc = 277, eva = 243, agi = 65, int = 60, mnd = 84, chr = 72 },
             },
+            ph_for = { [159] = { 166 }, [160] = { 166 }, [170] = { 166 }, [173] = { 166 } },
             ranks  = { fire = -2, ice = -2, wind = -2, earth = -2, thunder = -2, water = -2, light = -3,
                        paralyze = -2, bind = -2, silence = -2, slow = -2, poison = -2, light_sleep = -3, stun = -2,
                        gravity = -2 },
@@ -311,6 +315,7 @@ return {
                 [72] = { acc = 297, eva = 284, agi = 75, int = 55, mnd = 55, chr = 63 },
                 [73] = { acc = 302, eva = 290, agi = 76, int = 58, mnd = 58, chr = 64 },
             },
+            ph_for = { [100] = { 103 }, [105] = { 103 } },
             ranks  = { ice = -3, thunder = -2, water = -2, light = -3, paralyze = -3, bind = -3, poison = -2,
                        light_sleep = -3, stun = -2 },
             drops  = {
@@ -351,6 +356,7 @@ return {
                 [72] = { acc = 298, eva = 287, agi = 80, int = 55, mnd = 55, chr = 63 },
                 [73] = { acc = 304, eva = 292, agi = 80, int = 58, mnd = 58, chr = 64 },
             },
+            ph_for = { [112] = { 117 }, [116] = { 117 } },
             ranks  = { wind = -2, earth = -2, thunder = -2, water = -3, light = -2, dark = -2, silence = -2,
                        slow = -2, poison = -3, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -2,
                        gravity = -2 },
@@ -498,6 +504,7 @@ return {
                 [77] = { acc = 328, eva = 311, agi = 80, int = 69, mnd = 56, chr = 62 },
                 [78] = { acc = 333, eva = 316, agi = 80, int = 69, mnd = 57, chr = 65 },
             },
+            ph_for = { [222] = { 234 }, [226] = { 234 } },
             ranks  = { fire = 4, ice = 1, thunder = -2, water = -2, light = -2, dark = -3, paralyze = 1, bind = 1,
                        poison = -2, light_sleep = -2, dark_sleep = -3, blind = -3, stun = -2 },
             drops  = {

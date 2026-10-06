@@ -4,7 +4,8 @@ Builds checkmate's monster data from the Phoenix server source.
     python tools\\export_data.py [--repo PATH] [--ref phoenix/live] [--out checkmate\\data] [content options]
 
 It copies the ref into a new temp folder with git archive and works out every monster row. It writes
-data\\zones\\<zone id>.lua, data\\bands.lua and data\\too_weak.lua, then prints a short summary. See tools\\README.txt.
+data\\zones\\<zone id>.lua, data\\bands.lua, data\\too_weak.lua and data\\pets.lua, then prints a short summary.
+See tools\\README.txt.
 """
 import argparse
 import os
@@ -24,6 +25,8 @@ from export import lua_writer
 from export import mobscripts
 from export import outside
 from export import overlays
+from export import pets
+from export import placeholders
 from export import rows
 from export import species
 from export import sqlfile
@@ -69,6 +72,7 @@ class Context:
         self.scripts = mobscripts.ScriptIndex(folder, set(self.tables.immunities), self.tables.mod_aliases)
         self.items = drops.item_ids(folder)
         self.dynamis = dynamis.Dynamis(folder)
+        self.placeholders = placeholders.Reader(folder, self.scripts, self.dynamis)
         self.launch = launch.load(folder)
         self.zone_dirs = {number: name for name, number in self.tables.zones.items()}
         self.script_dirs = {row['zoneid']: row['name'] for row in
@@ -193,11 +197,15 @@ def build_files(folder, allowed, stamp, out):
     sources, too_weak = aggro.too_weak_table(folder, allowed)
     too_weak_path = os.path.join(out, 'too_weak.lua')
     too_weak_size = len(lua_writer.write_too_weak(too_weak_path, sources, too_weak, stamp))
-    note = load_check(written + [bands_path, too_weak_path])
-    total_size = sum(entry[0] for entry in zone_sizes) + bands_size + too_weak_size
+    jugs, avatars = pets.jugs(ctx.tree), pets.avatars(ctx.tree)
+    affinity = pets.beast_affinity(ctx.tree, ctx.roots)
+    pets_path = os.path.join(out, 'pets.lua')
+    pets_size = len(lua_writer.write_pets(pets_path, jugs, avatars, pets.jug_range_items(ctx.tree), affinity, stamp))
+    note = load_check(written + [bands_path, too_weak_path, pets_path])
+    total_size = sum(entry[0] for entry in zone_sizes) + bands_size + too_weak_size + pets_size
     return {'files': len(written), 'rows': total_rows, 'zone_sizes': zone_sizes, 'total_size': total_size,
             'bands': band_rows, 'note': note, 'skipped': len(ctx.skipped), 'too_weak': too_weak,
-            'too_weak_sources': sources}
+            'too_weak_sources': sources, 'jugs': len(jugs), 'avatars': len(avatars), 'affinity': affinity}
 
 
 def export(args):
@@ -213,12 +221,15 @@ def export(args):
     biggest = max(result['zone_sizes'])
     level_75 = [band for band in result['bands'] if band[0] == 75]
     print('Built from %s (%s).' % (stamp.built, stamp.content))
-    print('%d zone files, %d rows, %.2f MB with bands.lua and too_weak.lua. Biggest is %s (zone %d) at %.1f KB.'
-          % (result['files'], result['rows'], result['total_size'] / 1048576.0,
-             biggest[2], biggest[1], biggest[0] / 1024.0))
+    print('%d zone files, %d rows, %.2f MB with bands.lua, too_weak.lua and pets.lua. Biggest is %s (zone %d) at '
+          '%.1f KB.' % (result['files'], result['rows'], result['total_size'] / 1048576.0,
+                        biggest[2], biggest[1], biggest[0] / 1024.0))
     print('bands.lua has %d levels. Level 75 is %s.' % (len(result['bands']), level_75[0] if level_75 else 'missing'))
     print('too_weak.lua comes from %s. At level 75, level %d and below checks Too Weak.'
           % (' and '.join(result['too_weak_sources']), result['too_weak'][75]))
+    affinity = result['affinity']
+    print('pets.lua has %d jug pets and %d avatars. Beast Affinity adds %d levels a merit, up to %d merits.'
+          % (result['jugs'], result['avatars'], affinity['per_merit'], affinity['most']))
     if result['skipped']:
         count = result['skipped']
         print('Skipped %d instance spawn%s with no mob_groups or mob_pools row.' % (count, '' if count == 1 else 's'))

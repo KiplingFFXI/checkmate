@@ -1,28 +1,38 @@
 -- Batallia Downs (zone 105).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Ahtu', 'Sobbing Sapling', 'Stalking Sapling', 'Tottering Toby', 'Treant' },
-        [2] = { 'Ahtu', 'Sobbing Sapling', 'Stalking Sapling', 'Tottering Toby', 'Treant', 'Weeping Willow' },
-        [3] = { 'May Fly' },
-        [4] = { 'Goblin Bounty Hunter', 'Goblin Digger', 'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher',
-                'Goblin Mugger', 'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy', 'Vegnix Greenthumb' },
-        [5] = { 'Orcish Beastrider', 'Orcish Brawler', 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Impaler',
-                'Orcish Nightraider', 'Orcish Serjeant' },
-        [6] = { 'Ahtu', 'Sobbing Sapling', 'Stalking Sapling', 'Treant', 'Weeping Willow' },
-        [7] = { 'Ba' },
-        [8] = { 'Sobbing Sapling', 'Stalking Sapling', 'Tottering Toby', 'Treant', 'Weeping Willow' },
-        [9] = { 'Goblin Bounty Hunter', 'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger',
-                'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy', 'Vegnix Greenthumb' },
-        [10] = { 'Suparna Fledgling' },
-        [11] = { 'Suparna' },
-        [12] = { 'Goblin Bounty Hunter', 'Goblin Digger', 'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher',
-                 'Goblin Mugger', 'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy' },
+        [1] = { sound = { 'Ahtu', 'Sobbing Sapling', 'Stalking Sapling', 'Tottering Toby', 'Treant' } },
+        [2] = {
+            sound = { 'Ahtu', 'Sobbing Sapling', 'Stalking Sapling', 'Tottering Toby', 'Treant', 'Weeping Willow' },
+        },
+        [3] = { sound = { 'May Fly' } },
+        [4] = {
+            sight = { 'Goblin Bounty Hunter', 'Goblin Digger', 'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher',
+                      'Goblin Mugger', 'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy', 'Vegnix Greenthumb' },
+        },
+        [5] = {
+            sight = { 'Orcish Beastrider', 'Orcish Brawler', 'Orcish Cursemaker', 'Orcish Fighter',
+                      'Orcish Impaler', 'Orcish Nightraider', 'Orcish Serjeant' },
+        },
+        [6] = { sound = { 'Ahtu', 'Sobbing Sapling', 'Stalking Sapling', 'Treant', 'Weeping Willow' } },
+        [7] = { sound = { 'Ba' } },
+        [8] = { sound = { 'Sobbing Sapling', 'Stalking Sapling', 'Tottering Toby', 'Treant', 'Weeping Willow' } },
+        [9] = {
+            sight = { 'Goblin Bounty Hunter', 'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher', 'Goblin Mugger',
+                      'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy', 'Vegnix Greenthumb' },
+        },
+        [10] = { sight = { 'Suparna Fledgling' } },
+        [11] = { sight = { 'Suparna' } },
+        [12] = {
+            sight = { 'Goblin Bounty Hunter', 'Goblin Digger', 'Goblin Furrier', 'Goblin Gambler', 'Goblin Leecher',
+                      'Goblin Mugger', 'Goblin Pathfinder', 'Goblin Shaman', 'Goblin Smithy' },
+        },
     },
     monsters = {
         {
@@ -196,6 +206,7 @@ return {
                 [24] = { acc = 88, eva = 82, agi = 26, int = 19, mnd = 19, chr = 19 },
             },
             spawn_levels = { [61] = { 23, 23 }, [71] = { 24, 24 } },
+            ph_for = { [153] = { 180 } },
             ranks  = { fire = -3, ice = -2, wind = -2, thunder = -2, dark = -3, paralyze = -2, bind = -2,
                        silence = -2, dark_sleep = -3, blind = -3, stun = -2, gravity = -2 },
             drops  = {

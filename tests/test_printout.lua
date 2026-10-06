@@ -1,7 +1,8 @@
 -- Tests the chat lines a /check prints. That covers part order, new lines, labels, dividers, colors
 -- down to the bytes that print, grades and number styles. It also covers the difficulty and the
--- evasion and defense reading, the level range, the lines that wait for hit and evade, the plain
--- /check line with the game's line hidden, and settings files with missing or broken settings.
+-- evasion and defense reading, the level range, the monster's ID, the PH note, the lines that wait for
+-- hit and evade, the line holding the pet part, the plain /check line with the game's line hidden, and
+-- settings files with missing or broken settings.
 local printout = require('core.printout');
 local defaults = require('ui.defaults');
 
@@ -151,6 +152,97 @@ check('the range color is the level color by default', s.colors.level_range == s
     and printout.lines(s, r)[1]:find(color(8) .. ' (Lv 42, ' .. color(8) .. 'range 40-44' .. color(8) .. ')', 1, true) ~= nil,
     MOCK.plain(printout.lines(s, r)[1]));
 
+-- The monster's ID, in parentheses of its own after the name and level.
+local function id_line(c, l)
+    return (plain_lines(c, l)[1]:match('^(.-)  Hit'));
+end
+s = settings();
+r = result();
+r.id = 17199202;
+check('the ID is off by default, with the word ID', defaults.make().printout.show_id == false
+    and defaults.make().printout.id_word == 'ID' and id_line(s, r) == 'Goblin Tinkerer (Lv 42)', id_line(s, r));
+s.printout.show_id = true;
+expect('on, it follows the level', id_line(s, r), 'Goblin Tinkerer (Lv 42) (ID 17199202)');
+s.printout.show_range = true;
+r.range_low, r.range_high = 40, 44;
+expect('and the level range', id_line(s, r), 'Goblin Tinkerer (Lv 42, range 40-44) (ID 17199202)');
+s.printout.show_level = false;
+expect('with Show level off it follows the name', id_line(s, r), 'Goblin Tinkerer (ID 17199202)');
+s.printout.show_level = true;
+s.printout.id_word = 'Mob ID';
+expect('your own word', id_line(s, r), 'Goblin Tinkerer (Lv 42, range 40-44) (Mob ID 17199202)');
+s.printout.id_word = '  I\226\128\148D\9 ';
+expect('the word keeps printable ASCII only, trimmed', id_line(s, r), 'Goblin Tinkerer (Lv 42, range 40-44) (ID 17199202)');
+s.printout.id_word = '';
+local cleared = id_line(s, r);
+s.printout.id_word = '   ';
+check('a cleared word prints the number alone', cleared == 'Goblin Tinkerer (Lv 42, range 40-44) (17199202)'
+    and id_line(s, r) == cleared, cleared);
+s.printout.id_word = 'ID';
+s.colors.level, s.colors.level_range, s.colors.id = 7, 73, 81;
+check('the ID and its word in the ID color, after the level', printout.lines(s, r)[1]:find(color(73) .. 'range 40-44'
+    .. color(7) .. ')' .. color(81) .. ' (ID 17199202)' .. color(106) .. '  ', 1, true) ~= nil,
+    MOCK.plain(printout.lines(s, r)[1]));
+s = settings();
+s.printout.show_id = true;
+check('the ID color is the level color by default', s.colors.id == s.colors.level
+    and printout.lines(s, r)[1]:find(color(8) .. ' (Lv 42)' .. color(8) .. ' (ID 17199202)', 1, true) ~= nil,
+    MOCK.plain(printout.lines(s, r)[1]));
+r.pet = { name = 'Azure', low = 75, high = 75, hit = { low = 95, high = 95 }, evade = { low = 61, high = 61 } };
+local whole = table.concat(plain_lines(s, r), ' / ');
+check('only the name part gets it, never the pet', select(2, whole:gsub('%(ID ', '')) == 1
+    and whole:find('Pet: Azure (Lv 75)  Hit: 95%', 1, true) ~= nil, whole);
+s.printout.parts.name.on = false;
+check('and with the name part off it\'s left out too', plain_lines(s, r)[1]:find('^Hit: ') ~= nil
+    and not plain_lines(s, r)[1]:find('(ID', 1, true), plain_lines(s, r)[1]);
+
+-- The PH note, in parentheses of its own after the name, level and ID. ph_for holds the names of the NMs the
+-- monster can pop as a placeholder, or nil when it isn't one.
+s = settings();
+r = result();
+r.id, r.ph_for = 17199434, { 'Valkurm Emperor' };
+check('the PH note is off by default, with the word PH for', defaults.make().printout.show_ph == false
+    and defaults.make().printout.ph_word == 'PH for' and id_line(s, r) == 'Goblin Tinkerer (Lv 42)', id_line(s, r));
+s.printout.show_ph = true;
+expect('on, it follows the level', id_line(s, r), 'Goblin Tinkerer (Lv 42) (PH for Valkurm Emperor)');
+s.printout.show_id = true;
+expect('and the ID', id_line(s, r), 'Goblin Tinkerer (Lv 42) (ID 17199434) (PH for Valkurm Emperor)');
+s.printout.show_level = false;
+expect('with Show level off it follows the name and ID', id_line(s, r), 'Goblin Tinkerer (ID 17199434) (PH for Valkurm Emperor)');
+s.printout.show_id = false;
+expect('and the name alone with the ID off too', id_line(s, r), 'Goblin Tinkerer (PH for Valkurm Emperor)');
+s.printout.show_level = true;
+r.ph_for = { 'Rhoitos', 'Polybotes' };
+expect('two NMs', id_line(s, r), 'Goblin Tinkerer (Lv 42) (PH for Rhoitos and Polybotes)');
+r.ph_for = { 'Rhoitos', 'Polybotes', 'Eurytos' };
+expect('three NMs', id_line(s, r), 'Goblin Tinkerer (Lv 42) (PH for Rhoitos, Polybotes and Eurytos)');
+r.ph_for = { 'Valkurm Emperor' };
+s.printout.ph_word = 'PH:';
+expect('your own word', id_line(s, r), 'Goblin Tinkerer (Lv 42) (PH: Valkurm Emperor)');
+s.printout.ph_word = '  P\226\128\148H\9 ';
+expect('the word keeps printable ASCII only, trimmed', id_line(s, r), 'Goblin Tinkerer (Lv 42) (PH Valkurm Emperor)');
+s.printout.ph_word = '';
+cleared = id_line(s, r);
+s.printout.ph_word = '   ';
+check('a cleared word prints the NM alone', cleared == 'Goblin Tinkerer (Lv 42) (Valkurm Emperor)'
+    and id_line(s, r) == cleared, cleared);
+s.printout.ph_word = 'PH for';
+r.ph_for = nil;
+expect('a monster that isn\'t a placeholder gets nothing', id_line(s, r), 'Goblin Tinkerer (Lv 42)');
+r.ph_for = { 'Valkurm Emperor' };
+s.printout.show_id = true;
+s.colors.id, s.colors.ph = 81, 73;
+check('the PH note and its word in the PH color, after the ID', printout.lines(s, r)[1]:find(color(81) .. ' (ID 17199434)'
+    .. color(73) .. ' (PH for Valkurm Emperor)' .. color(106) .. '  ', 1, true) ~= nil, MOCK.plain(printout.lines(s, r)[1]));
+s = settings();
+s.printout.show_ph = true;
+check('the PH color is the level color by default', s.colors.ph == s.colors.level
+    and printout.lines(s, r)[1]:find(color(8) .. ' (Lv 42)' .. color(8) .. ' (PH for Valkurm Emperor)', 1, true) ~= nil,
+    MOCK.plain(printout.lines(s, r)[1]));
+s.printout.parts.name.on = false;
+check('and with the name part off it\'s left out', plain_lines(s, r)[1]:find('^Hit: ') ~= nil
+    and not plain_lines(s, r)[1]:find('(PH', 1, true), plain_lines(s, r)[1]);
+
 -- Number styles, unknown numbers and the scripted mark.
 s = settings();
 s.printout.number_style = 'midpoint';
@@ -295,6 +387,32 @@ lines = plain_lines(s, { name = 'Mystery Mob', cant_gauge = true, impossible = t
 check('can\'t be gauged is the same with the range on', #lines == 2 and lines[1] == 'Mystery Mob (Lv ?)  Impossible to Gauge'
     and lines[2] == CANT_GAUGE, table.concat(lines, ' / '));
 
+-- The plain /check line and can't be gauged with Show its ID on.
+s = defaults.make();
+s.printout.divider = 'spaces';
+for _, part in pairs(s.printout.parts) do part.on = false; end
+s.printout.show_id = true;
+r = { name = 'Goblin Tinkerer', id = 17199202, low = 42, high = 42, con = 3, reading = 0, defense = 1 };
+expect('the plain /check line shows the ID', plain_lines(s, r)[1],
+    'Goblin Tinkerer (Lv 42) (ID 17199202)  Decent Challenge (High Evasion)');
+s.printout.show_level = false;
+expect('with its level even when Show level is off', plain_lines(s, r)[1],
+    'Goblin Tinkerer (Lv 42) (ID 17199202)  Decent Challenge (High Evasion)');
+s = settings();
+s.printout.show_id = true;
+lines = plain_lines(s, { name = 'Mystery Mob', id = 17199438, cant_gauge = true, impossible = true });
+check('can\'t be gauged shows it on the /check line', #lines == 2
+    and lines[1] == 'Mystery Mob (Lv ?) (ID 17199438)  Impossible to Gauge' and lines[2] == CANT_GAUGE,
+    table.concat(lines, ' / '));
+
+-- The plain /check line with Show if it's a PH on.
+s = defaults.make();
+s.printout.divider = 'spaces';
+for _, part in pairs(s.printout.parts) do part.on = false; end
+s.printout.show_ph = true;
+r = { name = 'Damselfly', ph_for = { 'Valkurm Emperor' }, low = 21, high = 21, con = 0, reading = 1, defense = 1 };
+expect('the plain /check line shows the PH note', plain_lines(s, r)[1], 'Damselfly (Lv 21) (PH for Valkurm Emperor)  Too Weak');
+
 -- The second number printout.lines returns is the first line holding hit or evade. The table after it
 -- is true at every line holding them, listed here as their numbers in order.
 local function holding_lines()
@@ -332,6 +450,29 @@ s.printout.parts.evade.on = false;
 _, waits_at = printout.lines(s, result());
 check('nothing waits with both off', waits_at == nil, waits_at);
 expect('and no line holds them', holding_lines(), '');
+
+-- The fourth is the number of the line holding the pet part, or nil when it doesn't print.
+local function pet_at(r)
+    local _, _, _, at = printout.lines(s, r);
+    return at;
+end
+r = result();
+r.pet = { name = 'Azure', low = 75, high = 75, hit = { low = 95, high = 95 }, evade = { low = 61, high = 61 } };
+s = defaults.make();
+s.printout.divider = 'spaces';
+for _, part in pairs(s.printout.parts) do part.on = true; end
+lines = plain_lines(s, r);
+check('the pet part is last, on a line of its own', #lines == 6 and pet_at(r) == 6
+    and lines[6] == 'Pet: Azure (Lv 75)  Hit: 95%  Evade: 61%', table.concat(lines, ' / '));
+s.printout.parts.pet.new_line = false;
+check('with New line off it joins the drops line', pet_at(r) == 5 and #plain_lines(s, r) == 5, pet_at(r));
+s.printout.extras_own_line = false;
+for _, part in pairs(s.printout.parts) do part.new_line = false; end
+check('and the /check line with everything on it', pet_at(r) == 1 and #plain_lines(s, r) == 1, pet_at(r));
+s.printout.parts.pet.on = false;
+check('none with the pet part off', pet_at(r) == nil and not plain_lines(s, r)[1]:find('Pet', 1, true));
+s.printout.parts.pet.on = true;
+check('none with no pet', pet_at(result()) == nil);
 
 -- Difficulty and the evasion and defense reading ---------------------------------------------------
 
@@ -535,28 +676,34 @@ check('check parts with nothing to say make no line either', #lines == 1 and lin
 
 -- The order string.
 expect('clean_order keeps known parts once, in order, and puts each missing one after the part before it',
-    printout.clean_order('drops crit bogus crit'), 'difficulty hit evade drops crit aggro magic immunities elements');
+    printout.clean_order('drops crit bogus crit'), 'difficulty hit evade drops crit aggro magic immunities elements pet');
 check('clean_order of nothing is the default', printout.clean_order(nil) == printout.DEFAULT_ORDER
     and printout.clean_order('') == printout.DEFAULT_ORDER);
 check('clean_order drops name', printout.clean_order('name hit') == printout.DEFAULT_ORDER);
 check('an order missing difficulty gets it first', printout.clean_order('hit evade crit magic immunities drops')
     == printout.DEFAULT_ORDER and printout.clean_order('drops magic hit evade crit immunities')
-    == 'difficulty drops magic hit evade crit aggro immunities elements',
+    == 'difficulty drops magic hit evade crit aggro immunities elements pet',
     printout.clean_order('drops magic hit evade crit immunities'));
 check('an order missing aggro gets it after crit', printout.clean_order('difficulty hit evade crit magic immunities drops')
-    == printout.DEFAULT_ORDER and printout.DEFAULT_ORDER == 'difficulty hit evade crit aggro magic immunities elements drops'
+    == printout.DEFAULT_ORDER and printout.DEFAULT_ORDER == 'difficulty hit evade crit aggro magic immunities elements drops pet'
     and printout.clean_order('difficulty drops hit evade crit magic immunities')
-    == 'difficulty drops hit evade crit aggro magic immunities elements',
+    == 'difficulty drops hit evade crit aggro magic immunities elements pet',
     printout.clean_order('difficulty drops hit evade crit magic immunities'));
 check('an order missing elements gets it after immunities', printout.clean_order('difficulty hit evade crit aggro magic '
     .. 'immunities drops') == printout.DEFAULT_ORDER and printout.clean_order('drops immunities hit')
-    == 'difficulty drops immunities elements hit evade crit aggro magic', printout.clean_order('drops immunities hit'));
+    == 'difficulty drops immunities elements hit evade crit aggro magic pet', printout.clean_order('drops immunities hit'));
+check('an order missing pet gets it last', printout.clean_order('difficulty hit evade crit aggro magic '
+    .. 'immunities elements drops') == printout.DEFAULT_ORDER and printout.clean_order('difficulty drops hit evade crit aggro '
+    .. 'magic immunities elements') == 'difficulty drops hit evade crit aggro magic immunities elements pet',
+    printout.clean_order('difficulty drops hit evade crit aggro magic immunities elements'));
 check('move up', printout.move(printout.DEFAULT_ORDER, 'evade', -1)
-    == 'difficulty evade hit crit aggro magic immunities elements drops');
+    == 'difficulty evade hit crit aggro magic immunities elements drops pet');
 check('move down', printout.move(printout.DEFAULT_ORDER, 'evade', 1)
-    == 'difficulty hit crit evade aggro magic immunities elements drops');
+    == 'difficulty hit crit evade aggro magic immunities elements drops pet');
 check('the first can\'t go up', printout.move(printout.DEFAULT_ORDER, 'difficulty', -1) == printout.DEFAULT_ORDER);
-check('the last can\'t go down', printout.move(printout.DEFAULT_ORDER, 'drops', 1) == printout.DEFAULT_ORDER);
+check('the last can\'t go down', printout.move(printout.DEFAULT_ORDER, 'pet', 1) == printout.DEFAULT_ORDER);
+check('drops goes down past pet', printout.move(printout.DEFAULT_ORDER, 'drops', 1)
+    == 'difficulty hit evade crit aggro magic immunities elements pet drops');
 
 -- Dividers ----------------------------------------------------------------------------------------
 
@@ -759,6 +906,7 @@ local function full_result()
         more = 0 };
     c.elements = { weak = { { name = 'Ice' }, { name = 'Thunder' } }, resists = { { name = 'Water', strength = 'half' } },
         all = '-25%', scripted = true };
+    c.pet = { name = 'Azure', low = 75, high = 75, hit = { low = 95, high = 95 }, evade = { low = 61, high = 61 } };
     return c;
 end
 
@@ -768,6 +916,8 @@ local PAINTS = {
     { 'name', 'Goblin Tinkerer' },
     { 'level', ' (Lv 42)' },
     { 'level_range', 'range 40-44', function (c, r) c.printout.show_range = true; r.range_low, r.range_high = 40, 44; end },
+    { 'id', ' (ID 17199202)', function (c, r) c.printout.show_id = true; r.id = 17199202; end },
+    { 'ph', ' (PH for Valkurm Emperor)', function (c, r) c.printout.show_ph = true; r.ph_for = { 'Valkurm Emperor' }; end },
     { 'difficulty', 'Decent Challenge', function (c) c.printout.con_colors = false; end },
     { 'too_weak', 'Too Weak', function (_, r) r.con = 0; end },
     { 'incredibly_easy_prey', 'Incredibly Easy Prey', function (_, r) r.con = 1; end },
@@ -794,6 +944,7 @@ local PAINTS = {
     { 'aggro_words', 'Links with ' },
     { 'aggro_words', 'Aggressive', function (c) c.aggro.threat_colors = false; end },
     { 'aggro_detail', ' (Sight)' },
+    { 'aggro_detail', ' (Sound)', function (_, r) r.aggro.tags = { 'Sound' }; end },
     { 'aggro_threat', 'Aggressive' },
     { 'aggro_safe', 'Not aggressive', function (_, r) r.aggro.text, r.aggro.threat = 'Not aggressive', false; end },
     { 'magic_label', 'Magic' .. color(VIOLET) .. ': ' },
@@ -821,6 +972,15 @@ local PAINTS = {
     { 'drops_detail', ' (TH 2)' },
     { 'drops_detail', ' | +2 more' },
     { 'drops_detail', ' (plus scripted drops) (only drops if you get EXP)' },
+    { 'pet_label', 'Pet' .. color(VIOLET) .. ': ' },
+    { 'pet_label', 'Hit: ' },
+    { 'pet_label', 'Evade: ' },
+    { 'pet_name', 'Azure' },
+    { 'pet_level', ' (Lv 75)' },
+    { 'pet_number', '95%' },
+    { 'pet_detail', ' | ' },
+    { 'pet_detail', 'unknown', function (_, r) r.pet.hit = nil; end },
+    { 'pet_detail', '?', function (_, r) r.pet.scripted = true; end },
     { 'good', '31%', function (c) c.grades.on = true; end },
     { 'ok', '10%', function (c, r) c.grades.on = true; r.crit = { low = 10, high = 10 }; end },
     { 'bad', '64-72%', function (c) c.grades.on = true; end },
@@ -850,7 +1010,7 @@ local missing = {};
 for _, key in ipairs(printout.COLOR_KEYS) do
     if (not covered[key]) then missing[#missing + 1] = key; end
 end
-check('every color setting is tested', #missing == 0 and #printout.COLOR_KEYS == 51, table.concat(missing, ', '));
+check('every color setting is tested', #missing == 0 and #printout.COLOR_KEYS == 58, table.concat(missing, ', '));
 local keys_ok = true;
 for _, key in ipairs(printout.COLOR_KEYS) do
     keys_ok = keys_ok and printout.color_key(key) == key and printout.color_key(key:upper()) == key;
@@ -880,14 +1040,20 @@ MOCK.settings_file = { printout = { order = 'drops hit evade crit magic immuniti
 dofile(ADDON_DIR .. '/checkmate.lua');
 MOCK.fire('load');
 local cur = MOCK.settings.current;
-check('an order missing parts is cleaned on load, with difficulty first, aggro right after crit and elements after immunities',
-    cur.printout.order == 'difficulty drops hit evade crit aggro magic immunities elements', cur.printout.order);
+check('an order missing parts is cleaned on load, with difficulty first, aggro right after crit, elements after immunities '
+    .. 'and pet last', cur.printout.order == 'difficulty drops hit evade crit aggro magic immunities elements pet',
+    cur.printout.order);
 check('the merge brings difficulty and reading in, on', cur.printout.parts.difficulty.on == true
     and cur.printout.parts.reading.on == true and cur.printout.con_colors == true);
 check('and the aggro part, on, on its own line, with its settings', cur.printout.parts.aggro.on == true
     and cur.printout.parts.aggro.label == 'Aggro' and cur.printout.parts.aggro.new_line == true
     and cur.aggro.threat_colors == true and cur.aggro.detection == true and cur.aggro.link_names == true
-    and cur.aggro.max_links == 5 and cur.colors.aggro_threat == 76 and cur.colors.aggro_safe == 2);
+    and cur.aggro.max_links == 5 and cur.aggro.link_how == true and cur.colors.aggro_threat == 76
+    and cur.colors.aggro_safe == 2);
+check('and the pet part, off, on its own line, with its settings', cur.printout.parts.pet.on == false
+    and cur.printout.parts.pet.label == 'Pet' and cur.printout.parts.pet.new_line == true and cur.pet.show_name == true
+    and cur.pet.show_level == true and cur.pet.hit_word == 'Hit' and cur.pet.evade_word == 'Evade'
+    and cur.colors.pet_label == 106 and cur.colors.pet_detail == 106);
 -- Ashita's merge gives the file the defaults' own tables for anything it lacks. Changing those
 -- tables must not touch the defaults that a reset or another character starts from.
 MOCK.command('/checkmate maxlinks 1');
@@ -901,6 +1067,10 @@ check('saved values survive the merge', cur.printout.header == false and cur.pri
 check('a file without the setting gets the extras on their own line', cur.printout.extras_own_line == true);
 check('and the level range off, with the word range and the Phoenix range color', cur.printout.show_range == false
     and cur.printout.range_word == 'range' and cur.colors.level_range == 8);
+check('and Show its ID off, with the word ID and the Phoenix ID color', cur.printout.show_id == false
+    and cur.printout.id_word == 'ID' and cur.colors.id == 8);
+check('and Show if it\'s a PH off, with the word PH for and the Phoenix PH color', cur.printout.show_ph == false
+    and cur.printout.ph_word == 'PH for' and cur.colors.ph == 8);
 check('and the game\'s /check line replaced', cur.printout.replace_game_line == true);
 check('and Star between parts', cur.printout.divider == 'star' and cur.printout.separator == '  ');
 
@@ -955,6 +1125,27 @@ end
 local line, raw = check_line(400, 0, nil, 249);
 check('249 is impossible to gauge, with no reading', line == '[checkmate] Fixture NM (Lv 50-51)  Impossible to Gauge', line);
 check('in magenta', raw:find(color(5) .. 'Impossible to Gauge', 1, true) ~= nil);
+
+-- Show its ID shows the id from the /check reply, can't be gauged included.
+MOCK.command('/checkmate id on');
+local goblin_id = (' (ID %d)'):format(MOCK.mob_id(900, 1));
+line, raw = check_line(1, 39, 4, 174);
+check('Show its ID shows the id from the /check reply, in the ID color', line == '[checkmate] Fixture Goblin (Lv 39)'
+    .. goblin_id .. '  Even Match' and raw:find(color(8) .. ' (Lv 39)' .. color(8) .. goblin_id, 1, true) ~= nil, line);
+line = check_line(400, 0, nil, 249);
+check('and for impossible to gauge', line == ('[checkmate] Fixture NM (Lv 50-51) (ID %d)  Impossible to Gauge')
+    :format(MOCK.mob_id(900, 400)), line);
+MOCK.entities[77] = { Name = 'Mystery Mob' };
+cur.printout.parts.crit.on = true;
+n = #MOCK.printed;
+MOCK.packet(MOCK.check_packet(77, 0, nil, 249));
+MOCK.frame();
+lines = MOCK.printed_since(n);
+check('and for can\'t be gauged', #lines == 2 and lines[1] == ('[checkmate] Mystery Mob (Lv ?) (ID %d)  Impossible to '
+    .. 'Gauge'):format(MOCK.mob_id(900, 77)) and lines[2] == '[checkmate] ' .. CANT_GAUGE,
+    table.concat(lines, ' / '));
+cur.printout.parts.crit.on = false;
+MOCK.command('/checkmate id off');
 line, raw = check_line(1, 39, 3, 176);
 check('decent challenge in its color', raw:find(color(102) .. 'Decent Challenge ' .. color(106) .. '(', 1, true) ~= nil, line);
 cur.printout.con_colors = false;
@@ -991,8 +1182,9 @@ check('a file with a custom label divider keeps it', MOCK.settings.current.print
     and lines[1] == '[checkmate] Aggro > Not aggressive' .. STAR .. 'Doesn\'t link', lines[1]);
 
 -- A broken color takes the default, and a good one stays.
-MOCK.settings.switch_character({ colors = { level = 69, level_range = 0 } });
-check('a broken range color takes the default', MOCK.settings.current.colors.level_range == 8
+MOCK.settings.switch_character({ colors = { level = 69, level_range = 0, id = 10, ph = 13 } });
+check('a broken range, ID or PH color takes the default', MOCK.settings.current.colors.level_range == 8
+    and MOCK.settings.current.colors.id == 8 and MOCK.settings.current.colors.ph == 8
     and MOCK.settings.current.colors.level == 69, MOCK.settings.current.colors.level_range);
 
 -- A settings file with the reading off and no colors. Its colors come from the defaults.
@@ -1003,7 +1195,7 @@ check('the reading stays off', cur.printout.parts.reading.on == false);
 check('a file with no colors gets the default colors', cc.tag_word == 6 and cc.decent_challenge == 102 and cc.magic_name == 106
     and cc.very_tough == 76);
 check('its colors are its own table, not the defaults Ashita keeps', cc ~= MOCK.settings.defaults.colors
-    and MOCK.settings.defaults.colors.line == 106 and MOCK.settings.defaults.colors.name == 8);
+    and next(MOCK.settings.defaults.colors) == nil);
 line = check_line(1, 39, 6, 171);
 check('and it prints', line == '[checkmate] Fixture Goblin (Lv 39)' .. STAR .. 'Very Tough', line);
 cur.printout.parts.reading.on = true;
@@ -1014,6 +1206,7 @@ check('the reading back on prints in parentheses', line == '[checkmate] Fixture 
 MOCK.command('/checkmate reset');
 MOCK.command('/checkmate reset');
 check('reset brings back the default colors', MOCK.settings.current.colors.line == 106 and MOCK.settings.current.colors.name == 8
-    and MOCK.settings.current.colors.level_range == 8);
+    and MOCK.settings.current.colors.level_range == 8 and MOCK.settings.current.colors.id == 8
+    and MOCK.settings.current.colors.ph == 8);
 
 return MOCK.report();

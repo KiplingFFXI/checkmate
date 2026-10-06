@@ -37,8 +37,15 @@ s.colors.magic_name = 73;
 s.printout.show_range = true;
 s.printout.range_word = 'spawns';
 s.colors.level_range = 69;
+s.printout.show_id = true;
+s.printout.id_word = 'Mob';
+s.colors.id = 73;
+s.printout.show_ph = true;
+s.printout.ph_word = 'PH:';
+s.colors.ph = 69;
 s.printout.parts.aggro.on = false;
 s.aggro.max_links = 9;
+s.aggro.link_how = false;
 s.aggro.threat_colors = false;
 s.printout.parts.elements.on = true;
 s.elements.weak_word = 'Soft';
@@ -64,8 +71,12 @@ check('and the label divider with its custom text', saved.printout.label_divider
     and saved.printout.label_separator == ' >');
 check('and the level range, its word and its color', saved.printout.show_range == true
     and saved.printout.range_word == 'spawns' and saved.colors.level_range == 69);
+check('and Show its ID, its word and its color', saved.printout.show_id == true and saved.printout.id_word == 'Mob'
+    and saved.colors.id == 73);
+check('and Show if it\'s a PH, its word and its color', saved.printout.show_ph == true and saved.printout.ph_word == 'PH:'
+    and saved.colors.ph == 69);
 check('and the aggro part and its settings', saved.printout.parts.aggro.on == false
-    and saved.aggro.max_links == 9 and saved.aggro.threat_colors == false);
+    and saved.aggro.max_links == 9 and saved.aggro.link_how == false and saved.aggro.threat_colors == false);
 check('and the elements part, its words, how strong and its colors', saved.printout.parts.elements.on == true
     and saved.elements.weak_word == 'Soft' and saved.elements.resist_word == 'Resists'
     and saved.elements.strength == false and saved.colors.elements_resist == 76);
@@ -89,8 +100,15 @@ s.colors.magic_name = 106;
 s.printout.show_range = false;
 s.printout.range_word = 'range';
 s.colors.level_range = 8;
+s.printout.show_id = false;
+s.printout.id_word = 'ID';
+s.colors.id = 8;
+s.printout.show_ph = false;
+s.printout.ph_word = 'PH for';
+s.colors.ph = 8;
 s.printout.parts.aggro.on = true;
 s.aggro.max_links = 5;
+s.aggro.link_how = true;
 s.aggro.threat_colors = true;
 s.printout.parts.elements.on = false;
 s.elements.weak_word = 'Weak';
@@ -108,10 +126,14 @@ check('load restores the settings', s.drops.th == 3 and s.printout.order == 'dro
 check('and the label divider', s.printout.label_divider == 'custom' and s.printout.label_separator == ' >');
 check('and the level range, its word and its color', s.printout.show_range == true and s.printout.range_word == 'spawns'
     and s.colors.level_range == 69);
+check('and Show its ID, its word and its color', s.printout.show_id == true and s.printout.id_word == 'Mob'
+    and s.colors.id == 73);
+check('and Show if it\'s a PH, its word and its color', s.printout.show_ph == true and s.printout.ph_word == 'PH:'
+    and s.colors.ph == 69);
 check('and the window colors and font', s.look.imgui.heading_lines[4] == 0.8 and s.look.font == 'tahoma'
     and s.look.font_size == 21);
 check('and the aggro part and its settings', s.printout.parts.aggro.on == false and s.aggro.max_links == 9
-    and s.aggro.threat_colors == false and s.aggro.detection == true);
+    and s.aggro.link_how == false and s.aggro.threat_colors == false and s.aggro.detection == true);
 check('and the elements part, its words, how strong and its colors', s.printout.parts.elements.on == true
     and s.elements.weak_word == 'Soft' and s.elements.resist_word == 'Resists' and s.elements.strength == false
     and s.colors.elements_resist == 76);
@@ -161,8 +183,8 @@ MOCK.command('/checkmate profile load Partial');
 s = cur();
 check('missing part keys come from the defaults', s.printout.parts.hit.on == true and s.printout.parts.hit.label == 'Hit'
     and s.printout.parts.drops.label == 'Drops' and s.printout.parts.name.on == true);
-check('an order missing parts gets difficulty first, aggro right after crit and elements after immunities',
-    s.printout.order == 'difficulty drops hit evade crit aggro magic immunities elements', s.printout.order);
+check('an order missing parts gets difficulty first, aggro right after crit, elements after immunities and pet last',
+    s.printout.order == 'difficulty drops hit evade crit aggro magic immunities elements pet', s.printout.order);
 check('and the elements part, its settings and its colors from the defaults', s.printout.parts.elements.on == false
     and s.printout.parts.elements.label == 'Elements' and s.printout.parts.elements.new_line == true
     and s.elements.weak_word == 'Weak' and s.elements.resist_word == 'Resists' and s.elements.strength == true
@@ -170,8 +192,12 @@ check('and the elements part, its settings and its colors from the defaults', s.
     and s.colors.elements_detail == 106);
 check('and the aggro part and its settings from the defaults', s.printout.parts.aggro.on == true
     and s.printout.parts.aggro.label == 'Aggro' and s.printout.parts.aggro.new_line == true and s.aggro.threat_colors == true
-    and s.aggro.detection == true and s.aggro.link_names == true and s.aggro.max_links == 5
+    and s.aggro.detection == true and s.aggro.link_names == true and s.aggro.max_links == 5 and s.aggro.link_how == true
     and s.colors.aggro_threat == 76 and s.colors.aggro_safe == 2 and s.colors.aggro_label == 106);
+check('and the pet part, its settings and the Phoenix pet colors from the defaults', s.printout.parts.pet.on == false
+    and s.printout.parts.pet.label == 'Pet' and s.printout.parts.pet.new_line == true and s.pet.show_name == true
+    and s.pet.show_level == true and s.pet.hit_word == 'Hit' and s.pet.evade_word == 'Evade' and s.colors.pet_label == 106
+    and s.colors.pet_name == 106 and s.colors.pet_level == 106 and s.colors.pet_number == 106 and s.colors.pet_detail == 106);
 check('and the difficulty and reading parts, on', s.printout.parts.difficulty.on == true
     and s.printout.parts.reading.on == true and s.printout.con_colors == true);
 check('and the extras on their own line', s.printout.extras_own_line == true);
@@ -185,6 +211,10 @@ check('and Star between parts', s.printout.divider == 'star' and s.printout.sepa
 check('and Colon after its labels', s.printout.label_divider == 'colon' and s.printout.label_separator == ':');
 check('and the level range off, with the word range and the Phoenix range color', s.printout.show_range == false
     and s.printout.range_word == 'range' and s.colors.level_range == 8);
+check('and Show its ID off, with the word ID and the Phoenix ID color', s.printout.show_id == false
+    and s.printout.id_word == 'ID' and s.colors.id == 8);
+check('and Show if it\'s a PH off, with the word PH for and the Phoenix PH color', s.printout.show_ph == false
+    and s.printout.ph_word == 'PH for' and s.colors.ph == 8);
 check('and the default colors', s.colors.line == 106 and s.colors.name == 8 and s.colors.decent_challenge == 102
     and s.printout.defense_first == false);
 MOCK.command('/checkmate profile load Bad');
@@ -193,9 +223,26 @@ check('wrong types become defaults', type(s.drops) == 'table' and s.drops.max_it
 check('an unknown label divider becomes Colon', s.printout.label_divider == 'colon' and s.printout.label_separator == ':');
 check('its window look is kept and filled from its skin', s.look.skin == 'ember' and s.look.imgui.text[2] == 0
     and s.look.imgui.rounding == 2);
-check('its broken colors become defaults and a good one stays', s.colors.name == 8 and s.colors.line == 106
+check('its broken colors come from its skin and a good one stays', s.colors.name == 76 and s.colors.line == 7
     and s.colors.level == 69);
 check('an unknown font becomes Ashita\'s and a size too big the biggest', s.look.font == 'ashita' and s.look.font_size == 24);
+
+-- A Classic profile saved before the pet colors gets them from Classic, so it's still Classic.
+local PET_COLORS = { 'pet_label', 'pet_name', 'pet_level', 'pet_number', 'pet_detail' };
+skins.apply(s, 'classic');
+profiles.save(s, 'Old Classic');
+local old = json.decode(read_file());
+for _, key in ipairs(PET_COLORS) do old['Old Classic'].colors[key] = nil; end
+write_file(json.encode(old));
+profiles.refresh();
+skins.apply(s, 'ember');
+MOCK.command('/checkmate profile load "Old Classic"');
+s = cur();
+local pet_colors = {};
+for _, key in ipairs(PET_COLORS) do pet_colors[#pet_colors + 1] = tostring(s.colors[key]); end
+check('a Classic profile without the pet colors loads Classic\'s', table.concat(pet_colors, ',') == '7,106,106,1,67',
+    table.concat(pet_colors, ','));
+check('and stays Classic', s.look.skin == 'classic' and skins.current(s) == skins.find('classic'));
 
 -- A broken file is never written over.
 write_file('{broken');

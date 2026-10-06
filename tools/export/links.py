@@ -7,9 +7,12 @@ superlink, another force-linker matches any force-linker, and the rest match a l
 same sublink.
 
 In a fight the monster calls idle members of its party. It skips its own family unless it links or force-links
-itself, and never calls pets or monsters with NO_LINK, unless they share its superlink. Every monster that joins
-calls its own helpers the same way, so a row lists everyone its fight can pull in. Distance, sight and facing
-depend on where things stand, so they are left out.
+itself, and never calls pets, monsters with NO_LINK or an ambush antlion while it's underground, unless they share
+its superlink. Every monster that joins calls its own helpers the same way, so a row lists everyone its fight can
+pull in. Each name keeps how that helper links (CanLink). One that shares the superlink of the monster calling it
+links from anywhere, with no other check. Any other one has to be near with nothing in the way, and one that sees
+but doesn't hear has to face the fight too. Distance, line of sight and facing depend on where things stand, so the
+data leaves them out.
 
 A battlefield sets up new parties when it starts (lua_battlefield.cpp addGroups). An isParty group is one party,
 a superlinked group is another, and the rest of its battlefield-typed monsters share one. Other monsters in it
@@ -17,9 +20,11 @@ go back to their family or sublink party. Each arena is a fight of its own, and 
 use links with the partners from each.
 """
 import copy
+import os
 import re
 
 from . import aggro
+from . import battlefields
 from . import dynamis
 from . import outside
 
@@ -35,12 +40,22 @@ KNOWN_LINK_SCRIPTS = {
     ('Mine_Shaft_2716', 'Hume_Automaton'): 'no_link',
 }
 
-# Helpers whose link changes the reader can't follow but that change no names.
+# The helper the fomors in Lufaise Meadows, Misareaux Coast, Phomiuna Aqueducts and the Sacrarium call in
+# onMobInitialize. It gives each fomor of a patrol or guard its party leader's id as a superlink.
+FOMOR_PARTY = 'xi.mix.fomorParty.onPartySpawn'
+
+# Helpers whose link changes the reader can't follow from the call.
 KNOWN_LINK_HELPERS = {
-    # Superlinks the fomors of one patrol. The linking ones already share the fomor family party, and the rest
-    # have no party for a superlink to work in.
-    'xi.mix.fomorParty.onPartySpawn',
+    # fomor_superlinks reads its patrols and guards from the mixin.
+    FOMOR_PARTY,
 }
+
+# In fomor_party.lua: a patrol's leader and how many follow it, a guard's members, and one member. In a zone's
+# IDs.lua: a table of one script's ids.
+FOMOR_PATROL = r'leader\s*=\s*%s\.mob\.(\w+)\[(\d+)\]\s*,\s*followers\s*=\s*(\d+)'
+FOMOR_GUARD = re.compile(r'members\s*=\s*\{([^}]*)\}')
+FOMOR_MEMBER = r'%s\.mob\.(\w+)\[(\d+)\]'
+TABLE_OF_IDS = re.compile(r"(\w+)\s*=\s*GetTableOfIDs\('([^']+)'\)")
 
 # Superlink values a script can name, and how the server works them out.
 OWN_TARG = 'mob:getTargID()'
@@ -141,6 +156,8 @@ class Linker:
         self.fight_force = False
         self.no_link = False
         self.one_way = False
+        # How it links when the monster calling it doesn't share its superlink.
+        self.way = 'neither'
         self.party = None
 
 
@@ -150,6 +167,21 @@ def check_scripts(kind, script_dir):
                if not any(' %s ' % helper in reason for helper in KNOWN_LINK_HELPERS)]
     if unknown and (script_dir, kind.script) not in KNOWN_LINK_SCRIPTS:
         raise RuntimeError('The exporter can\'t read these link changes:\n  ' + '\n  '.join(unknown))
+
+
+def sense_way(state, detects):
+    """
+    How a monster in this state links when it doesn't share the caller's superlink, as a rows.LINK_WAYS key. CanLink
+    only reads sight and hearing. True detection doesn't change a link, but the addon words it the way aggro does.
+    """
+    bits = state.mob_mods['detection']
+    sees, hears = bits & detects['sight'], bits & detects['hearing']
+    if not (sees or hears):
+        # The other senses aggro shows, in its order, like magic or magic_low_hp. Scent has no word, so a monster
+        # that only smells you is neither.
+        return '_'.join(name for bit, name in aggro.DETECTS if bits & detects[bit]) or 'neither'
+    way = 'both' if sees and hears else 'sight' if sees else 'sound'
+    return 'true_' + way if state.true_detection else way
 
 
 def make_linker(spawn_id, kind, ids, in_dynamis, detects, script_dir):
@@ -171,9 +203,61 @@ def make_linker(spawn_id, kind, ids, in_dynamis, detects, script_dir):
     linker.links = fight.links
     linker.fight_superlink = ids.value(fight.mob_mods.get('superlink', 0), spawn_id, where)
     linker.fight_force = in_dynamis or linker.battlefield or linker.fight_superlink != 0
-    linker.no_link = fight.mob_mods.get('no_link', 0) > 0 or hand == 'no_link'
+    # An ambush antlion sits underground with its name hidden whenever it's idle, and CanLink turns it away then
+    # (mob_entity.cpp:459-463), so like NO_LINK it only joins a fight it shares a superlink with.
+    hidden = 'ambush' in kind.roam and 'families/antlion_ambush' in kind.effects.mixins + kind.group_mixins
+    linker.no_link = fight.mob_mods.get('no_link', 0) > 0 or hand == 'no_link' or hidden
     linker.one_way = fight.mob_mods.get('one_way_linking', 0) > 0
+    linker.way = sense_way(fight, detects)
     return linker
+
+
+def fomor_superlinks(tree, ids):
+    """
+    {spawn id: superlink} for the fomors of the zone's patrols and guards in scripts/mixins/fomor_party.lua. A
+    patrol is its leader and the spawns right after it, and a guard the members it lists. getFomorParty takes the
+    first party a spawn is in, patrols before guards, and onPartySpawn gives it that party leader's id.
+    """
+    text = open(os.path.join(tree, 'scripts', 'mixins', 'fomor_party.lua'), encoding='utf-8').read()
+    aliases = [alias for alias, zone in battlefields.ALIAS.findall(text) if zone == ids.script_dir.upper()]
+    if not aliases:
+        return {}
+    alias = re.escape(aliases[0])
+    path = os.path.join(tree, 'scripts', 'zones', ids.script_dir, 'IDs.lua')
+    scripts = dict(TABLE_OF_IDS.findall(open(path, encoding='utf-8').read()))
+
+    def spawn_id(name, number):
+        spawns = ids.tables.get(scripts.get(name), [])
+        if not 1 <= int(number) <= len(spawns):
+            raise RuntimeError('fomor_party.lua names %s mob.%s[%s], which the exporter can\'t find'
+                               % (ids.script_dir, name, number))
+        return spawns[int(number) - 1]
+
+    patrols = re.findall(FOMOR_PATROL % alias, text)
+    guards = [re.findall(FOMOR_MEMBER % alias, members) for members in FOMOR_GUARD.findall(text)]
+    if len(re.findall(r'\b%s\.mob\.' % alias, text)) != len(patrols) + sum(len(guard) for guard in guards):
+        raise RuntimeError('The fomor party reader needs updating: fomor_party.lua names %s monsters it can\'t read'
+                           % ids.script_dir)
+    parties = [[spawn_id(name, number) + i for i in range(int(followers) + 1)] for name, number, followers in patrols]
+    parties += [[spawn_id(name, number) for name, number in guard] for guard in guards if guard]
+    superlinks = {}
+    for party in parties:
+        for member in party:
+            superlinks.setdefault(member, int16(party[0]))
+    return superlinks
+
+
+def calls_fomor_party(ctx, script_dir, script):
+    """
+    Whether the monster script calls onPartySpawn. It has to be in onMobInitialize, which runs before the zone
+    builds its link parties, so the superlink counts there and in a fight.
+    """
+    source = ctx.scripts.lua(ctx.scripts.mob_script_path(script_dir, script))
+    handlers = {handler for handler, _, name, _ in (source.helpers if source else []) if name == FOMOR_PARTY}
+    if handlers - {'onMobInitialize'}:
+        raise RuntimeError('%s %s calls %s outside onMobInitialize, which the exporter can\'t read'
+                           % (script_dir, script, FOMOR_PARTY))
+    return bool(handlers)
 
 
 def matches(a, b):
@@ -213,8 +297,8 @@ def calls(caller, helper):
     return not (helper.battlefield and not caller.battlefield and caller.party[0] == 'zone')
 
 
-def closure_names(members):
-    """{linker: set of names} of everyone each member's fight can pull in, not counting the member itself."""
+def closure(members):
+    """{linker: set of linkers} of everyone each member's fight can pull in, not counting the member itself."""
     classes = {}
     for linker in members:
         key = (linker.family, linker.links, linker.fight_force, linker.fight_superlink, linker.no_link,
@@ -231,13 +315,20 @@ def closure_names(members):
             if other not in reached:
                 reached.add(other)
                 todo += edges[other]
-        names = set()
+        helpers = set()
         for other in reached - {index}:
-            names |= {linker.name for linker in groups[other]}
+            helpers.update(groups[other])
         for linker in group:
-            own = {other.name for other in group if other is not linker} if index in reached else set()
-            out[linker] = names | own
+            own = {other for other in group if other is not linker} if index in reached else set()
+            out[linker] = helpers | own
     return out
+
+
+def link_way(caller, helper):
+    """How helper links when caller calls it. CanLink checks the superlink first and then nothing else."""
+    if caller.fight_superlink and helper.fight_superlink == caller.fight_superlink:
+        return 'superlink'
+    return helper.way
 
 
 def fight_members(fight, ids, placed, crates):
@@ -309,12 +400,19 @@ def fight_seats(fights, linkers):
     return seats
 
 
-def zone_names(ctx, placed, in_dynamis, fights, script_dir, ids):
-    """Sets kind.links for every kind in one zone or instance. placed is [(spawn id, kind)] for every placed monster."""
+def zone_names(ctx, placed, in_dynamis, fights, script_dir, ids, fomors):
+    """
+    Sets kind.links, the names each kind links with by how each one links, for every kind in one zone or instance.
+    placed is [(spawn id, kind)] for every placed monster, and fomors what fomor_superlinks gives.
+    """
     by_id = {}
     for spawn_id, kind in placed:
         check_scripts(kind, script_dir)
-        by_id[spawn_id] = make_linker(spawn_id, kind, ids, in_dynamis, ctx.tables.detects, script_dir)
+        linker = make_linker(spawn_id, kind, ids, in_dynamis, ctx.tables.detects, script_dir)
+        if spawn_id in fomors and calls_fomor_party(ctx, script_dir, kind.script):
+            linker.superlink = linker.fight_superlink = fomors[spawn_id]
+            linker.force = linker.fight_force = True
+        by_id[spawn_id] = linker
     mark_pets(ctx, placed, by_id, script_dir, ids)
     zone_parties(by_id.values())
     seats = fight_seats(fights, by_id)
@@ -322,11 +420,18 @@ def zone_names(ctx, placed, in_dynamis, fights, script_dir, ids):
     for linker in list(by_id.values()) + seats:
         if linker.party is not None:
             by_party.setdefault(linker.party, []).append(linker)
-    names = {}
     for members in by_party.values():
-        names.update(closure_names(members))
-    for linker, found in names.items():
-        linker.kind.links |= found
+        for caller, helpers in closure(members).items():
+            partners = {}
+            for helper in helpers:
+                if helper.fight_superlink:
+                    partners.setdefault(helper.fight_superlink, []).append(helper)
+            for helper in helpers:
+                caller.kind.links.setdefault(link_way(caller, helper), set()).add(helper.name)
+                # Another one in the fight that shares its superlink calls it in from anywhere.
+                others = partners.get(helper.fight_superlink, ())
+                if any(other is not helper and calls(other, helper) for other in others):
+                    caller.kind.links.setdefault('superlink', set()).add(helper.name)
 
 
 def pet_calls(ctx, script_dir, script):

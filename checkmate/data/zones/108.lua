@@ -1,24 +1,32 @@
 -- Konschtat Highlands (zone 108).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Mist Lizard' },
-        [2] = { 'Rock Eater' },
-        [3] = { 'Goblin Ambusher', 'Goblin Archaeologist', 'Goblin Butcher', 'Goblin Digger', 'Goblin Thug',
-                'Goblin Tinkerer', 'Goblin Weaver' },
-        [4] = { 'Amber Quadav', 'Amethyst Quadav', 'Greater Quadav', 'Onyx Quadav', 'Veteran Quadav',
-                'Young Quadav' },
-        [5] = { 'Mad Sheep', 'Stray Mary' },
-        [6] = { 'Goblin Ambusher', 'Goblin Archaeologist', 'Goblin Butcher', 'Goblin Thug', 'Goblin Tinkerer',
-                'Goblin Weaver' },
-        [7] = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Digger', 'Goblin Thug', 'Goblin Tinkerer',
-                'Goblin Weaver' },
-        [8] = { 'Gwynn ap Nudd' },
+        [1] = { sound = { 'Mist Lizard' } },
+        [2] = { sound = { 'Rock Eater' } },
+        [3] = {
+            sight = { 'Goblin Ambusher', 'Goblin Archaeologist', 'Goblin Butcher', 'Goblin Digger', 'Goblin Thug',
+                      'Goblin Tinkerer', 'Goblin Weaver' },
+        },
+        [4] = {
+            sound = { 'Amber Quadav', 'Amethyst Quadav', 'Greater Quadav', 'Onyx Quadav', 'Veteran Quadav',
+                      'Young Quadav' },
+        },
+        [5] = { sight = { 'Mad Sheep', 'Stray Mary' } },
+        [6] = {
+            sight = { 'Goblin Ambusher', 'Goblin Archaeologist', 'Goblin Butcher', 'Goblin Thug', 'Goblin Tinkerer',
+                      'Goblin Weaver' },
+        },
+        [7] = {
+            sight = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Digger', 'Goblin Thug', 'Goblin Tinkerer',
+                      'Goblin Weaver' },
+        },
+        [8] = { true_sound = { 'Gwynn ap Nudd' } },
     },
     monsters = {
         {
@@ -530,6 +538,7 @@ return {
                              [358] = { 12, 13 }, [378] = { 13, 14 }, [379] = { 13, 14 }, [380] = { 13, 14 },
                              [389] = { 13, 14 }, [390] = { 13, 14 }, [391] = { 13, 14 }, [399] = { 13, 14 },
                              [400] = { 13, 14 } },
+            ph_for = { [207] = { 211 }, [344] = { 349 } },
             ranks  = { fire = -2, wind = -2, earth = -2, thunder = -3, water = -3, light = -2, dark = -2,
                        silence = -2, slow = -2, poison = -3, light_sleep = -2, dark_sleep = -2, blind = -2,
                        stun = -3, gravity = -2 },
@@ -635,6 +644,7 @@ return {
                 [22] = { acc = 81, eva = 75, agi = 24, int = 18, mnd = 18, chr = 20 },
                 [23] = { acc = 84, eva = 78, agi = 24, int = 18, mnd = 18, chr = 20 },
             },
+            ph_for = { [301] = { 302 }, [403] = { 302 } },
             ranks  = { fire = -1, ice = 1, wind = -1, earth = -1, thunder = -2, water = -2, light = -1, dark = -1,
                        paralyze = 1, bind = 1, silence = -1, slow = -1, poison = -2, light_sleep = -1,
                        dark_sleep = -1, blind = -1, stun = -2, gravity = -1 },
@@ -659,6 +669,7 @@ return {
                 [27] = { acc = 98, eva = 91, agi = 29, int = 21, mnd = 21, chr = 24 },
                 [28] = { acc = 101, eva = 94, agi = 29, int = 21, mnd = 21, chr = 25 },
             },
+            ph_for = { [302] = { 303 } },
             ranks  = { fire = -1, ice = 1, wind = -1, earth = -1, thunder = -2, water = -2, light = -1, dark = -1,
                        paralyze = 1, bind = 1, silence = -1, slow = -1, poison = -2, light_sleep = -1,
                        dark_sleep = -1, blind = -1, stun = -2, gravity = -1 },

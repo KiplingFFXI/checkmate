@@ -1,6 +1,6 @@
 """Writes the data files as plain, readable Lua tables."""
 from .lua_source import ELEMENTS, STATUSES, RESIST_EFFECTS
-from .rows import MEVA_KEYS
+from .rows import MEVA_KEYS, LINK_WAYS
 
 LEVEL_FIELDS = ['acc', 'eva', 'agi', 'int', 'mnd', 'chr']
 RANK_ORDER = ELEMENTS + STATUSES
@@ -88,7 +88,7 @@ def aggro_lines(row, pad, lists):
     if 'aggro_hours' in row:
         lines.append('%saggro_hours = { %d, %d },' % (pad, row['aggro_hours'][0], row['aggro_hours'][1]))
     if 'links' in row:
-        lines.append('%slinks  = %d,' % (pad, lists[tuple(row['links'])]))
+        lines.append('%slinks  = %d,' % (pad, lists[link_key(row['links'])]))
     return lines
 
 
@@ -110,6 +110,9 @@ def row_lines(row, lists):
         ranges = sorted(row['spawn_levels'].items())
         parts = ['[%d] = { %d, %d }' % (index, low, high) for index, (low, high) in ranges]
         lines += wrap('%sspawn_levels = ' % pad, parts, ',')
+    if 'ph_for' in row:
+        parts = ['[%d] = { %s }' % (index, ', '.join(map(str, nms))) for index, nms in sorted(row['ph_for'].items())]
+        lines += wrap('%sph_for = ' % pad, parts, ',')
     if 'level_mod' in row:
         lines.append('%slevel_mod = %d,' % (pad, row['level_mod']))
     for field, order in EXTRA_FIELDS:
@@ -145,23 +148,36 @@ def stamp_lines(stamp):
             "-- Don't edit this file by hand."]
 
 
+def link_key(links):
+    """A row's link groups in LINK_WAYS order, as a tuple, so rows with the same groups share a list."""
+    return tuple((way, tuple(links[way])) for way in LINK_WAYS if way in links)
+
+
 def link_numbers(rows):
-    """Each distinct list of link names, numbered from 1 in the order the rows first use them."""
+    """Each distinct list of link groups, numbered from 1 in the order the rows first use them."""
     numbers = {}
     for row in rows:
         if 'links' in row:
-            numbers.setdefault(tuple(row['links']), len(numbers) + 1)
+            numbers.setdefault(link_key(row['links']), len(numbers) + 1)
     return numbers
 
 
 def link_list_lines(lists):
-    """The link_lists table. Many rows share a list, so each one is written once."""
+    """The link_lists table. Many rows share a list, so each one is written once, on one line when it fits."""
     if not lists:
         return ['    link_lists = {},']
-    lines = ["    -- Each list of link names, written once. A row's links is the number of its list.",
+    lines = ["    -- Each list of link names by how they link, written once. A row's links is the number of its list.",
              '    link_lists = {']
-    for names, number in lists.items():
-        lines += wrap('        [%d] = ' % number, [quote(name) for name in names], ',')
+    for groups, number in lists.items():
+        parts = ['%s = { %s }' % (way, ', '.join(quote(name) for name in names)) for way, names in groups]
+        line = '        [%d] = { %s },' % (number, ', '.join(parts))
+        if len(line) <= WIDTH:
+            lines.append(line)
+            continue
+        lines.append('        [%d] = {' % number)
+        for way, names in groups:
+            lines += wrap('            %s = ' % way, [quote(name) for name in names], ',')
+        lines.append('        },')
     return lines + ['    },']
 
 
@@ -209,4 +225,36 @@ def write_too_weak(path, sources, highest, stamp):
         parts = ['[%d] = %d,' % (level, highest[level]) for level in levels[start:start + 10]]
         lines.append('        ' + ' '.join(parts))
     lines += ['    },', '}']
+    return write_file(path, lines)
+
+
+def four_to_a_line(parts):
+    return ['        ' + ' '.join(parts[start:start + 4]) for start in range(0, len(parts), 4)]
+
+
+def write_pets(path, jugs, avatars, items, affinity, stamp):
+    lines = ["-- Jug pets by the name the game shows, with each one's own highest level, "
+             "a summoner's avatars and spirits",
+             "-- by name, the gear that narrows a jug pet's level, and the Beast Affinity merit."]
+    lines += stamp_lines(stamp)
+    lines += ['return {',
+              '    built   = %s,' % quote(stamp.built),
+              '    content = %s,' % quote(stamp.content),
+              "    -- [name] = the jug's own highest level, before Beast Affinity and your main level cap it",
+              '    jugs = {']
+    lines += four_to_a_line(['[%s] = %d,' % (quote(name), jugs[name]) for name in sorted(jugs)])
+    lines += ['    },',
+              "    -- The names of a summoner's avatars and spirits, which never get the pet part",
+              '    avatars = {']
+    lines += four_to_a_line(['[%s] = true,' % quote(name) for name in sorted(avatars)])
+    lines += ['    },',
+              '    -- [item id] = the levels it takes off how far under its highest level a jug pet can be, and its '
+              'own level']
+    lines += wrap('    jug_range_items = ', ['[%d] = { cut = %d, level = %d }' % (item, items[item][0], items[item][1])
+                                           for item in sorted(items)], ',')
+    lines += ['    -- Beast Affinity: its id in the merit list the server sends, the levels each merit adds and the '
+              'most merits',
+              '    beast_affinity = { id = %d, per_merit = %d, most = %d },'
+              % (affinity['id'], affinity['per_merit'], affinity['most']),
+              '}']
     return write_file(path, lines)

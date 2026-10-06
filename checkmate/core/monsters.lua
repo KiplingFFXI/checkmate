@@ -3,8 +3,8 @@
 
     Each zone has one data file, data\zones\<zone id>.lua. It loads the first time you /check
     something in that zone and is dropped when you zone. A monster's row is found by its spawn index,
-    the low 12 bits of its server id. Monsters a script spawns mid-game have no fixed index, so the
-    data keys those few by name.
+    the low 12 bits of its server id. Monsters a script spawns mid-game have no fixed index. A data file
+    can key those by name in by_name, but Phoenix's data has none, so they get no row.
 ]]
 
 local monsters = {};
@@ -19,6 +19,11 @@ local loaded = { zone = nil, file = nil, by_index = {} };
 
 -- Widescan levels seen in this zone, by entity index.
 local scanned = {};
+
+-- The true levels your own /checks and widescan saw in this zone, by entity index, whichever came last.
+-- Only a charmed pet's level reads them, so a /check level never changes the level shown for another
+-- monster at the same index. A monster dying near you drops its own, since it comes back at a new level.
+local checked = {};
 
 local function load_zone(zone)
     loaded.zone, loaded.file, loaded.by_index = zone, nil, {};
@@ -42,8 +47,8 @@ local function load_zone(zone)
 end
 
 --[[
-    Puts each row's link names where the file has the number of its list. A zone file writes each
-    list once in link_lists, since many rows share one.
+    Puts each row's link groups where the file has the number of its list. A zone file writes each
+    list once in link_lists, since many rows share one, and those rows share the same table.
 ]]
 function monsters.resolve_links(file)
     local lists = file.link_lists or {};
@@ -116,6 +121,27 @@ function monsters.range_around(row, index, level)
 end
 
 --[[
+    The names of the NMs the spawn at entity index `index` can pop as a placeholder, or nil when it isn't one.
+    The data keeps each placeholder's NMs by their spawn indexes in ph_for, and each NM's name is in its own row.
+    A name only shows once, so the Ornery Sheep in South Gustaberg that can pop either Carnero just says Carnero.
+]]
+function monsters.ph_for(row, index)
+    local nms = row and row.ph_for and row.ph_for[index];
+    if (nms == nil) then
+        return nil;
+    end
+    local names, seen = {}, {};
+    for _, nm in ipairs(nms) do
+        local nm_row = loaded.by_index[nm];
+        if (nm_row ~= nil and not seen[nm_row.name]) then
+            seen[nm_row.name] = true;
+            names[#names + 1] = nm_row.name;
+        end
+    end
+    return #names > 0 and names or nil;
+end
+
+--[[
     The monster's true level as low, high. They match when the level is known exactly.
     The /check level comes first when it is 1 or more, less the row's level_mod. The widescan level
     for its entity index in this zone comes next, then the levels it spawns at. Returns nil when none
@@ -141,8 +167,36 @@ end
 -- Widescan reported a monster's true level.
 function monsters.on_widescan(index, level)
     if (level >= 1) then
-        scanned[index] = level;
+        scanned[index], checked[index] = level, level;
     end
+end
+
+-- Your /check gave the true level of the monster at entity index `index`.
+function monsters.on_check(index, level)
+    checked[index] = level;
+end
+
+-- The monster at entity index `index` died near you.
+function monsters.on_death(index)
+    checked[index] = nil;
+end
+
+-- A charmed pet's level as low, high: your /check or widescan of it in this zone, whichever came last, unless
+-- it died since, else the levels it spawns at.
+function monsters.pet_level(row, index)
+    local level = checked[index];
+    if (level ~= nil) then
+        return level, level;
+    end
+    if (row ~= nil) then
+        return spawn_range(row, index);
+    end
+    return nil;
+end
+
+-- True when server id `id` is a placed monster's, not a pet's or one a script spawned mid-game.
+function monsters.placed(id)
+    return id % INDEX_SPAN < DYNAMIC_INDEX;
 end
 
 -- The build stamp of the loaded zone's data, or nil when none is loaded.
@@ -153,7 +207,7 @@ end
 -- Entity indexes are reused in the next zone, and its data is a different file.
 function monsters.forget_zone()
     loaded.zone, loaded.file, loaded.by_index = nil, nil, {};
-    scanned = {};
+    scanned, checked = {}, {};
 end
 
 return monsters;

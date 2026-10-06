@@ -1,28 +1,32 @@
 -- The Garden of RuHmet (zone 35).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Qnzdei' },
-        [2] = { 'Indoor aern blm', 'Indoor aern brd', 'Indoor aern bst', 'Indoor aern drg', 'Indoor aern drk',
-                'Indoor aern mnk', 'Indoor aern nin', 'Indoor aern pld', 'Indoor aern rdm', 'Indoor aern rng',
-                'Indoor aern sam', 'Indoor aern smn', 'Indoor aern thf', 'Indoor aern war', 'Indoor aern whm',
-                'Ixaern drk', 'Qnaern' },
-        [3] = { 'Aweuvhi' },
-        [4] = { 'Ixzdei' },
-        [5] = { 'Kfghrah blm', 'Kfghrah whm' },
-        [6] = { 'Jailer of Fortitude', 'Kfghrah blm' },
-        [7] = { 'Jailer of Fortitude', 'Kfghrah whm' },
-        [8] = { 'Indoor aern blm', 'Indoor aern brd', 'Indoor aern bst', 'Indoor aern drg', 'Indoor aern drk',
-                'Indoor aern mnk', 'Indoor aern nin', 'Indoor aern pld', 'Indoor aern rdm', 'Indoor aern rng',
-                'Indoor aern sam', 'Indoor aern smn', 'Indoor aern thf', 'Indoor aern war', 'Indoor aern whm',
-                'Qnaern' },
-        [9] = { 'Ixaern drgs Wynav' },
-        [10] = { 'Ixaern drg', 'Ixaern drgs Wynav' },
+        [1] = { true_sight = { 'Qnzdei' } },
+        [2] = {
+            both = { 'Indoor aern blm', 'Indoor aern brd', 'Indoor aern bst', 'Indoor aern drg', 'Indoor aern drk',
+                     'Indoor aern mnk', 'Indoor aern nin', 'Indoor aern pld', 'Indoor aern rdm', 'Indoor aern rng',
+                     'Indoor aern sam', 'Indoor aern smn', 'Indoor aern thf', 'Indoor aern war', 'Indoor aern whm',
+                     'Ixaern drk', 'Qnaern' },
+        },
+        [3] = { sound = { 'Aweuvhi' } },
+        [4] = { superlink = { 'Ixzdei' } },
+        [5] = { superlink = { 'Kfghrah blm', 'Kfghrah whm' } },
+        [6] = { superlink = { 'Jailer of Fortitude', 'Kfghrah blm' } },
+        [7] = { superlink = { 'Jailer of Fortitude', 'Kfghrah whm' } },
+        [8] = {
+            both = { 'Indoor aern blm', 'Indoor aern brd', 'Indoor aern bst', 'Indoor aern drg', 'Indoor aern drk',
+                     'Indoor aern mnk', 'Indoor aern nin', 'Indoor aern pld', 'Indoor aern rdm', 'Indoor aern rng',
+                     'Indoor aern sam', 'Indoor aern smn', 'Indoor aern thf', 'Indoor aern war', 'Indoor aern whm',
+                     'Qnaern' },
+        },
+        [9] = { superlink = { 'Ixaern drgs Wynav' } },
+        [10] = { superlink = { 'Ixaern drg', 'Ixaern drgs Wynav' } },
     },
     monsters = {
         {

@@ -1,16 +1,17 @@
 -- Riverne-Site A01 (zone 30).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Heliodromos' },
-        [2] = { 'Carmine Dobsonfly', 'Hawker' },
-        [3] = { 'Ziryu' },
-        [4] = { 'Ouryu', 'Ziryu' },
+        [1] = { superlink = { 'Heliodromos' } },
+        [2] = { superlink = { 'Carmine Dobsonfly' }, sound = { 'Carmine Dobsonfly', 'Hawker' } },
+        [3] = { superlink = { 'Carmine Dobsonfly' }, sound = { 'Hawker' } },
+        [4] = { sound = { 'Ziryu' } },
+        [5] = { sound = { 'Ziryu' }, true_both = { 'Ouryu' } },
     },
     monsters = {
         {
@@ -220,6 +221,7 @@ return {
                 [48] = { acc = 174, eva = 162, agi = 52, int = 44, mnd = 36, chr = 42 },
                 [49] = { acc = 178, eva = 165, agi = 53, int = 46, mnd = 38, chr = 42 },
             },
+            ph_for = { [209] = { 210 } },
             ranks  = { fire = 4, ice = 1, thunder = -2, water = -2, light = -2, dark = -3, paralyze = 1, bind = 1,
                        poison = -2, light_sleep = -2, dark_sleep = -3, blind = -3, stun = -2 },
             drops  = {
@@ -247,7 +249,7 @@ return {
                 { rate = 150, item = 14669 },  -- jaeger ring
                 { rate = 100, item = 15184 },  -- voyager sallet
             },
-            links  = 2,
+            links  = 3,
         },
         {
             name   = 'Aiatar',
@@ -332,7 +334,7 @@ return {
             aggro  = true,
             true_detect = true,
             detects = { 'sight', 'sound' },
-            links  = 3,
+            links  = 4,
         },
         {
             name   = 'Ziryu',
@@ -352,7 +354,7 @@ return {
             aggro  = true,
             detects = { 'sound' },
             aggro_note = 'underground',
-            links  = 4,
+            links  = 5,
         },
         {
             name   = 'Arcane Phantasm',

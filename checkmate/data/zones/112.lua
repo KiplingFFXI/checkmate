@@ -1,51 +1,87 @@
 -- Xarcabard (zone 112).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Awoken Angantyr', 'Awoken Hjorvarth', 'Awoken Hrani', 'Demon Aristocrat', 'Demon Knight',
-                'Demon Pawn', 'Demon Warlock', 'Demon Wizard' },
-        [2] = { 'Blizzard Gigas', 'Frost Gigas', 'Gigas Beastmaster', 'Gigas Monk', 'Gigas Ranger', 'Gigas Warrior',
-                'Graupel Gigas', 'Hail Gigas' },
-        [3] = { 'Koenigstiger' },
-        [4] = { 'Boreal Tiger' },
-        [5] = { 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger',
-                'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin White Mage' },
-        [6] = { 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger',
-                'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin Warrior' },
-        [7] = { 'Hobgoblin Beastmaster', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger', 'Hobgoblin Red Mage',
-                'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
-        [8] = { 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger',
-                'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
-        [9] = { 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger',
-                'Hobgoblin Red Mage', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
-        [10] = { 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Ranger', 'Hobgoblin Red Mage',
-                 'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
-        [11] = { 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight', 'Hobgoblin Red Mage',
-                 'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
-        [12] = { 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger', 'Hobgoblin Red Mage',
-                 'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
-        [13] = { 'Blizzard Gigas', 'Frost Gigas', 'Gigas Beastmaster', 'Gigas Monk', 'Gigas Ranger',
-                 'Graupel Gigas', 'Hail Gigas' },
-        [14] = { 'Blizzard Gigas', 'Frost Gigas', 'Gigas Beastmaster', 'Gigas Ranger', 'Gigas Warrior',
-                 'Graupel Gigas', 'Hail Gigas' },
-        [15] = { 'Blizzard Gigas', 'Frost Gigas', 'Gigas Monk', 'Gigas Ranger', 'Gigas Warrior', 'Graupel Gigas',
-                 'Hail Gigas' },
-        [16] = { 'Blizzard Gigas', 'Frost Gigas', 'Gigas Beastmaster', 'Gigas Monk', 'Gigas Warrior',
-                 'Graupel Gigas', 'Hail Gigas' },
-        [17] = { 'Awoken Angantyr', 'Awoken Hjorvarth', 'Awoken Hrani', 'Demon Knight', 'Demon Pawn',
-                 'Demon Warlock', 'Demon Wizard' },
-        [18] = { 'Beist' },
-        [19] = { 'Awoken Angantyr', 'Awoken Hjorvarth', 'Demon Aristocrat', 'Demon Knight', 'Demon Pawn',
-                 'Demon Warlock', 'Demon Wizard' },
-        [20] = { 'Awoken Angantyr', 'Awoken Hrani', 'Demon Aristocrat', 'Demon Knight', 'Demon Pawn',
-                 'Demon Warlock', 'Demon Wizard' },
-        [21] = { 'Awoken Hjorvarth', 'Awoken Hrani', 'Demon Aristocrat', 'Demon Knight', 'Demon Pawn',
-                 'Demon Warlock', 'Demon Wizard' },
+        [1] = {
+            sight = { 'Demon Aristocrat', 'Demon Knight', 'Demon Pawn', 'Demon Warlock', 'Demon Wizard' },
+            true_sight = { 'Awoken Angantyr', 'Awoken Hjorvarth', 'Awoken Hrani' },
+        },
+        [2] = {
+            sight = { 'Blizzard Gigas', 'Frost Gigas', 'Gigas Beastmaster', 'Gigas Monk', 'Gigas Ranger',
+                      'Gigas Warrior', 'Graupel Gigas', 'Hail Gigas' },
+        },
+        [3] = { sight = { 'Koenigstiger' } },
+        [4] = { true_sight = { 'Boreal Tiger' } },
+        [5] = {
+            sight = { 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger',
+                      'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin White Mage' },
+        },
+        [6] = {
+            sight = { 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger',
+                      'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin Warrior' },
+        },
+        [7] = {
+            sight = { 'Hobgoblin Beastmaster', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger', 'Hobgoblin Red Mage',
+                      'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
+        },
+        [8] = {
+            sight = { 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger',
+                      'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
+        },
+        [9] = {
+            sight = { 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger',
+                      'Hobgoblin Red Mage', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
+        },
+        [10] = {
+            sight = { 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Ranger', 'Hobgoblin Red Mage',
+                      'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
+        },
+        [11] = {
+            sight = { 'Hobgoblin Beastmaster', 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight',
+                      'Hobgoblin Red Mage', 'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
+        },
+        [12] = {
+            sight = { 'Hobgoblin Black Mage', 'Hobgoblin Dark Knight', 'Hobgoblin Ranger', 'Hobgoblin Red Mage',
+                      'Hobgoblin Thief', 'Hobgoblin Warrior', 'Hobgoblin White Mage' },
+        },
+        [13] = {
+            sight = { 'Blizzard Gigas', 'Frost Gigas', 'Gigas Beastmaster', 'Gigas Monk', 'Gigas Ranger',
+                      'Graupel Gigas', 'Hail Gigas' },
+        },
+        [14] = {
+            sight = { 'Blizzard Gigas', 'Frost Gigas', 'Gigas Beastmaster', 'Gigas Ranger', 'Gigas Warrior',
+                      'Graupel Gigas', 'Hail Gigas' },
+        },
+        [15] = {
+            sight = { 'Blizzard Gigas', 'Frost Gigas', 'Gigas Monk', 'Gigas Ranger', 'Gigas Warrior',
+                      'Graupel Gigas', 'Hail Gigas' },
+        },
+        [16] = {
+            sight = { 'Blizzard Gigas', 'Frost Gigas', 'Gigas Beastmaster', 'Gigas Monk', 'Gigas Warrior',
+                      'Graupel Gigas', 'Hail Gigas' },
+        },
+        [17] = {
+            sight = { 'Demon Knight', 'Demon Pawn', 'Demon Warlock', 'Demon Wizard' },
+            true_sight = { 'Awoken Angantyr', 'Awoken Hjorvarth', 'Awoken Hrani' },
+        },
+        [18] = { true_sound = { 'Beist' } },
+        [19] = {
+            sight = { 'Demon Aristocrat', 'Demon Knight', 'Demon Pawn', 'Demon Warlock', 'Demon Wizard' },
+            true_sight = { 'Awoken Angantyr', 'Awoken Hjorvarth' },
+        },
+        [20] = {
+            sight = { 'Demon Aristocrat', 'Demon Knight', 'Demon Pawn', 'Demon Warlock', 'Demon Wizard' },
+            true_sight = { 'Awoken Angantyr', 'Awoken Hrani' },
+        },
+        [21] = {
+            sight = { 'Demon Aristocrat', 'Demon Knight', 'Demon Pawn', 'Demon Warlock', 'Demon Wizard' },
+            true_sight = { 'Awoken Hjorvarth', 'Awoken Hrani' },
+        },
     },
     monsters = {
         {
@@ -134,6 +170,7 @@ return {
                              [177] = { 47, 48 }, [181] = { 47, 48 }, [206] = { 45, 46 }, [207] = { 45, 46 },
                              [208] = { 45, 46 }, [209] = { 45, 46 }, [210] = { 45, 46 }, [211] = { 45, 46 },
                              [228] = { 47, 48 } },
+            ph_for = { [206] = { 212 } },
             ranks  = { light = -2, dark = 6, silence = 11, light_sleep = -2, dark_sleep = 4, blind = 6 },
             resist = { silence = 20 },
             magic_dmg = { all = -25 },

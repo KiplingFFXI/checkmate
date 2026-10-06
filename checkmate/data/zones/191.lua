@@ -1,20 +1,22 @@
 -- Dangruf Wadi (zone 191).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Chocoboleech', 'Wadi Leech' },
-        [2] = { 'Rock Lizard', 'Steam Lizard' },
-        [3] = { 'Geyser Lizard', 'Rock Lizard', 'Steam Lizard' },
-        [4] = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Fisher', 'Goblin Gambler', 'Goblin Leecher',
-                'Goblin Mugger', 'Goblin Thug', 'Goblin Tinkerer', 'Goblin Weaver' },
-        [5] = { 'Hoarder Hare', 'Wadi Hare' },
-        [6] = { 'Witchetty Grub' },
-        [7] = { 'Wadi Leech' },
+        [1] = { sound = { 'Chocoboleech', 'Wadi Leech' } },
+        [2] = { sound = { 'Rock Lizard', 'Steam Lizard' } },
+        [3] = { sound = { 'Geyser Lizard', 'Rock Lizard', 'Steam Lizard' } },
+        [4] = {
+            sight = { 'Goblin Ambusher', 'Goblin Butcher', 'Goblin Fisher', 'Goblin Gambler', 'Goblin Leecher',
+                      'Goblin Mugger', 'Goblin Thug', 'Goblin Tinkerer', 'Goblin Weaver' },
+        },
+        [5] = { sight = { 'Hoarder Hare', 'Wadi Hare' } },
+        [6] = { sound = { 'Witchetty Grub' } },
+        [7] = { sound = { 'Wadi Leech' } },
     },
     monsters = {
         {
@@ -399,7 +401,10 @@ return {
                        paralyze = -2, bind = -2, silence = -3, slow = 2, poison = -2, light_sleep = -3, stun = -2,
                        gravity = -3 },
             drops  = {
-                { rate = 150, item = 768 },  -- flint stone
+                { rate = 1000, item = 768 },  -- flint stone
+                { rate = 150, item = 1108 },  -- pinch of sulfur
+                { rate = 100, item = 642 },  -- chunk of zinc ore
+                { rate = 50, item = 13475 },  -- hermits ring
             },
             aggro  = true,
             detects = { 'sound' },
@@ -461,6 +466,7 @@ return {
                 { rate = 50, item = 4680 },  -- scroll of barsleep
                 { rate = 50, item = 4667 },  -- scroll of silence
                 { rate = 10, item = 4681 },  -- scroll of barpoison
+                { rate = 10, item = 4683 },  -- scroll of barblind
                 { rate = 50, item = 4733 },  -- scroll of protectra
                 { rate = 50, item = 4745 },  -- scroll of sneak
                 { rate = 10, item = 4744 },  -- scroll of invisible

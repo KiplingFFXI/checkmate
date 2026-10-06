@@ -49,7 +49,12 @@ What's here
                           It also records where the window is told to open, where a test moved it
                           and each table's column count. AddFontFromFileTTF hands back a made-up
                           font, or fails or hands back nothing for a file a test names, and every
-                          call is recorded with the event it ran in
+                          call is recorded with the event it ran in. Your pet is the entity at
+                          MOCK.player.pet_index. MOCK.summon, MOCK.charm and MOCK.dismiss change it
+                          and send the pet update the way the server does, and MOCK.summon_quietly
+                          brings one out without it. MOCK.pet_reply sends the five /checkparam <pet>
+                          reply lines, MOCK.merit_packet builds a merit list, and MOCK.send_out fires
+                          packet_out for a packet going out. QueueCommand never fires packet_out
   fixtures\               a made-up zone 900 in the monster data format, one row per case to test.
                           A test points addon.path there to use it
   test_math.lua           the math on its own against worked examples in the file: hit rate
@@ -58,10 +63,13 @@ What's here
   test_levels.lua         which level a monster is: the /check level less level_mod, a /check level
                           of -1, widescan, the data's range and spawns found by name. Then the
                           numbers over a range, the level range after a known level, levels in two
-                          blocks like Assault, and each spawn's own range
+                          blocks like Assault, and each spawn's own range. It also covers a charmed
+                          pet's level, from your latest /check or widescan of it first, unless it
+                          died since
   test_checkparam.lua     the automatic /checkparam: when it's sent, hiding only its own six reply
                           lines, a reply that comes first (advcheck), a second /check while waiting,
-                          the timeout and zoning, with the game's /check line shown
+                          the timeout and zoning, with the game's /check line shown, and a reply
+                          about your pet with nothing waiting showing in chat
   test_replace.lua        replacing the game's own /check line: which lines are hidden and which
                           never are, a line checker hid first, what prints at once, when the request
                           goes and what waits for the reply, the timeout, and zoning, a layout
@@ -74,9 +82,11 @@ What's here
   test_aggro.lua          the aggro part: every answer from the /check con, always aggro, impossible
                           to gauge at a known level, across the Too Weak level and with no level,
                           not aggressive and never, how it finds you with Detection on and off, the
-                          notes, the links with the most names shown, "+N more", the names off and
-                          no links, Color by threat on and off, its place in the printout, and real
-                          monsters from the generated data through a real /check
+                          notes, the links with the most names shown, "+N more", how each one links
+                          with its switch on and off (Magic for one that notices magic, nothing for
+                          one that only notices scent), the names off and no links, Color by threat
+                          on and off, its place in the printout, and real monsters from the
+                          generated data through a real /check
   test_elements.lua       the elements part: every step of the rule (nullify, absorb, ranks 11, 10
                           and 4, damage taken for one element and the 5% band, the lowest rank,
                           extra magic evasion), the magic damage note, the scripted mark, a level's
@@ -84,58 +94,77 @@ What's here
                           Show how strong and names sharing a strength, the label divider, every
                           color down to the bytes, every skin's colors, its place in the printout,
                           a settings file without it, the sample, and real monsters through a /check
-  test_printout.lua       the chat lines: name and level first, the level range, part order, new
-                          lines, the extras on their own line or the same line, labels, colors and
-                          grades, number styles and cleaning labels. It also covers every con and
-                          evasion and defense reading, where the reading goes, every chat color
-                          down to the bytes, every divider and label divider, the plain /check line
-                          and can't be gauged with the game's line hidden, the lines that wait for
-                          hit and evade, and settings files with missing or broken settings
+  test_pet.lua            the pet part: which pet, avatars left out, its level for each kind
+                          including the jug window, levels kept through a level-up and moved by a
+                          sync but not by the sync's level moving, a sync or level cap end whose new
+                          level comes before its buff goes, Monster Gloves when it comes out
+                          at their level until a sync picks the level again, and Beast Affinity
+                          from the merit list, the math against worked examples, when /checkparam
+                          <pet> goes, including after another addon's, and which five lines it
+                          hides, replies in either order, timeouts, a second /check, zoning, a
+                          dismissed pet alone on its line or sharing one, the pet line never
+                          holding up the lines under it and still printing after a layout change,
+                          and the printout down to the bytes
+  test_printout.lua       the chat lines: name and level first, the level range, the monster's ID,
+                          the PH note, part order, new lines, the extras on their own line or the same
+                          line, labels, colors and grades, number styles and cleaning labels. It also
+                          covers every con and evasion and defense reading, where the reading goes,
+                          every chat color down to the bytes, every divider and label divider, the
+                          plain /check line and can't be gauged with the game's line hidden, the lines
+                          that wait for hit and evade, the line holding the pet part, and settings
+                          files with missing or broken settings
   test_commands.lua       every /checkmate command and the words it refuses, with what each one says
-                          back and that each change is saved. That takes in color and windowcolor
-                          for every setting, every part's label, New line and move, each cutoff,
-                          every stand-in spell, each immunity and its label, the number commands at
-                          and past their limits, quotes, empty quotes and text cleaned to plain
-                          ASCII, profile rename and job links, the font commands with a font that's
-                          missing and one that won't load, /cmate for every command, and the one
-                          line an unknown word gets. Text typed in chat comes in Shift-JIS, and
-                          every command that keeps text drops Japanese characters, half-width
-                          katakana and auto-translate phrases whole, even a phrase a space or quote
-                          splits, and a lone lead byte at the end. A profile name with nothing left
-                          is refused, and one cut at 32 characters loses a space at the cut and says
-                          the name it saved. It also covers help, every help topic, help
-                          windowcolors, help with a word that isn't a topic, and a help line for
-                          every command
+                          back and that each change is saved. That takes in color and windowcolor for
+                          every setting, every part's label, New line and move, each cutoff, the pet
+                          part's switches and words, linkhow, every stand-in spell, each immunity and
+                          its label, the number commands at and past their limits, quotes, empty
+                          quotes and text cleaned to plain ASCII, profile rename and job links, the
+                          font commands with a font that's missing and one that won't load, /cmate
+                          for every command, and the one line an unknown word gets. Text typed in
+                          chat comes in Shift-JIS, and every command that keeps text drops Japanese
+                          characters, half-width katakana and auto-translate phrases whole, even a
+                          phrase a space or quote splits, and a lone lead byte at the end. A profile
+                          name with nothing left is refused, and one cut at 32 characters loses a
+                          space at the cut and says the name it saved. It also covers help, every
+                          help topic, help windowcolors, help with a word that isn't a topic, and a
+                          help line for every command
   test_colorblind.lua     the Colorblind safe skin: every two colors that mean different things stay
                           far enough apart with normal vision, protanopia and deuteranopia
   test_skins.lua          what each skin holds, every skin setting every chat color and all 41 window
                           colors, picking one, Reset to skin, Custom, Undo, the Colorblind safe tip,
                           skins leaving the dividers and the font alone, and /checkmate reset asking
                           first. It also fills the window look on a first install, after a reset
-                          and from a broken file
+                          and from a broken file, and a Classic settings file without the pet, ID
+                          and PH colors gets them from Classic
   test_profiles.lua       save, load, rename and delete, what the shared file holds (window colors,
-                          the font, the label divider and the level range included), a profile with
-                          settings missing, one with wrong types, a broken file, and job links
-                          loading a profile when you zone in on another job
+                          the font, the label divider, the level range, the ID, the PH note and Show
+                          how each one links included), a profile with settings missing, chat colors
+                          it lacks filled from its own skin, one with wrong types, a broken file, and
+                          job links loading a profile when you zone in on another job
   test_window.lua         every control in the settings window and the setting it edits, what greys
                           out and when, every window color, the font list and size, a missing font
                           and ones that failed to load, what saves when, and a frame error stopping
                           checkmate once. It also checks a (?) with a tip on every control, the tips
                           on each tab, the short note when a part or the grade colors are off,
-                          where the window opens and saves (pulled back onto the screen, cut down
+                          the PET section, the Pet row and Show how each one links, where the
+                          window opens and saves (pulled back onto the screen, cut down
                           to a smaller screen, left out of profiles, put back by reset), and two
                           columns going by the window's width, with colors two to a row only where
                           they fit
   test_window_commands.lua
-                          each settings window control and its /checkmate command, from the
-                          defaults, setting the same value and saving the same copy. Print a sample
-                          matching /checkmate sample, the window showing what a command set, and a
-                          profile keeping every value those commands set, in profiles.json and
-                          after a reset and a load
-  test_zone_data.lua      every generated zone file loads with the shape the addon reads, rows worked
-                          out by hand match (open world, NMs, battlefields, Limbus, Dynamis, Assault,
-                          The Ashu Talif and the Nyzul Isle mission fights), and real monsters print
-                          through the addon, with the level range too
+                          each settings window control and its /checkmate command, the pet ones and
+                          linkhow included, from the defaults, setting the same value and saving the
+                          same copy. Print a sample matching /checkmate sample, the window showing
+                          what a command set, and a profile keeping every value those commands set,
+                          in profiles.json and after a reset and a load
+  test_zone_data.lua      every generated zone file loads with the shape the addon reads, with each
+                          link list written once and grouped by how each one links, and each
+                          placeholder naming an NM in the same file, rows worked out by hand match
+                          (open world, NMs, placeholders, battlefields, Limbus, Dynamis, Assault,
+                          The Ashu Talif and the Nyzul Isle mission fights), real monsters print
+                          through the addon, with the level range, ID and PH note too, and
+                          data\pets.lua holds the jug pets, the avatars, the jug level gear and Beast
+                          Affinity
   test_addon.lua          the header, the file layout, every font loading on the load event and
                           never after, a /check printing, a quiet frame reading no game memory,
                           reading your job once after zoning, and saving on unload

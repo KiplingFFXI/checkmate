@@ -1,6 +1,5 @@
--- Every /checkmate command, the words it refuses, and that each change is saved. The font commands use a
--- test fonts folder with a missing font and one that won't load.
--- The fonts folder is a test folder with a made-up Segoe UI, Tahoma and Arial in it, and Verdana missing.
+-- Every /checkmate command, the words it refuses, and that each change is saved.
+-- The font commands use a test fonts folder with a made-up Segoe UI, Tahoma and Arial in it, and Verdana missing.
 -- Tahoma raises an error while it loads.
 local window_font = require('ui.window_font');
 window_font.FOLDER = MOCK_INSTALL_PATH .. '\\config\\addons\\checkmate\\';
@@ -68,7 +67,7 @@ check('and closes it', not window.is_open());
 
 -- Parts.
 for _, id in ipairs({ 'name', 'difficulty', 'reading', 'hit', 'evade', 'crit', 'aggro', 'magic', 'immunities', 'elements',
-    'drops' }) do
+    'drops', 'pet' }) do
     local saves = MOCK.saved;
     said = run('/checkmate show ' .. id);
     check('show ' .. id, cur().printout.parts[id].on == true and MOCK.saved > saves
@@ -83,7 +82,7 @@ run('/checkmate show reading');
 run('/checkmate show aggro');
 said = run('/checkmate show bogus');
 check('an unknown part lists the parts', has(said, 'There is no part called "bogus". The parts are name, difficulty, '
-    .. 'reading (evasion and defense), hit, evade, crit, aggro, magic, immunities, elements, drops.'), said);
+    .. 'reading (evasion and defense), hit, evade, crit, aggro, magic, immunities, elements, drops, pet.'), said);
 -- Settings tables are Ashita T{} tables, which answer "sort" or "copy" with a table function.
 said = run('/checkmate show sort');
 check('a table function name is an unknown part', has(said, 'There is no part called "sort"'), said);
@@ -91,7 +90,7 @@ said = run('/checkmate hide copy');
 check('so is copy', has(said, 'There is no part called "copy"'), said);
 said = run('/checkmate show');
 check('show with no part prints its usage', said == '[checkmate] Type /checkmate show|hide <part>. The parts are name, '
-    .. 'difficulty, reading (evasion and defense), hit, evade, crit, aggro, magic, immunities, elements, drops.', said);
+    .. 'difficulty, reading (evasion and defense), hit, evade, crit, aggro, magic, immunities, elements, drops, pet.', said);
 
 -- Level.
 said = run('/checkmate level off');
@@ -141,6 +140,79 @@ check('rangeword alone prints its usage and keeps the word', cur().printout.rang
     and said == '[checkmate] Type /checkmate rangeword <text>. Put text with spaces in quotes, and "" leaves the word out.', said);
 run('/checkmate rangeword range');
 
+-- The monster's ID and its word.
+check('the ID is off by default, with the word ID', cur().printout.show_id == false and cur().printout.id_word == 'ID');
+saves = MOCK.saved;
+said = run('/checkmate id on');
+check('id on', cur().printout.show_id == true and MOCK.last_save.printout.show_id == true and MOCK.saved > saves
+    and said == '[checkmate] The monster\'s ID now shows after its name and level.', said);
+said = run('/checkmate ID OFF');
+check('id off, in any case', cur().printout.show_id == false
+    and said == '[checkmate] The monster\'s ID no longer shows after its name and level.', said);
+for _, text in ipairs({ '/checkmate id', '/checkmate id maybe', '/checkmate id sort' }) do
+    said = run(text);
+    check('usage for: ' .. text, said == '[checkmate] Type /checkmate id on|off.' and cur().printout.show_id == false, said);
+end
+saves = MOCK.saved;
+said = run('/checkmate idword Mob');
+check('idword keeps its case', cur().printout.id_word == 'Mob' and MOCK.last_save.printout.id_word == 'Mob'
+    and MOCK.saved > saves and said == '[checkmate] The monster\'s ID now prints like (Mob 17199202).', said);
+said = run('/checkmate idword "Mob ID"');
+check('a quoted word keeps its spaces', cur().printout.id_word == 'Mob ID'
+    and said == '[checkmate] The monster\'s ID now prints like (Mob ID 17199202).', said);
+run('/checkmate idword server id');
+check('words without quotes', cur().printout.id_word == 'server id', cur().printout.id_word);
+run('/checkmate idword "\129\154ID\9"');
+check('the word keeps printable ASCII only', cur().printout.id_word == 'ID', cur().printout.id_word);
+run('/checkmate idword "' .. string.rep('x', 40) .. '"');
+check('and 32 characters at most', cur().printout.id_word == string.rep('x', 32), cur().printout.id_word);
+said = run('/checkmate idword ""');
+check('empty quotes clear it', cur().printout.id_word == '' and MOCK.last_save.printout.id_word == ''
+    and said == '[checkmate] The monster\'s ID now prints like (17199202).', said);
+said = run('/checkmate idword');
+check('idword alone prints its usage and keeps the word', cur().printout.id_word == ''
+    and said == '[checkmate] Type /checkmate idword <text>. Put text with spaces in quotes, and "" leaves the word out.', said);
+run('/checkmate idword ID');
+
+-- The PH note and its word.
+check('the PH note is off by default, with the word PH for', cur().printout.show_ph == false
+    and cur().printout.ph_word == 'PH for');
+saves = MOCK.saved;
+said = run('/checkmate ph on');
+check('ph on', cur().printout.show_ph == true and MOCK.last_save.printout.show_ph == true and MOCK.saved > saves
+    and said == '[checkmate] The PH note now shows after a placeholder\'s name and level.', said);
+said = run('/checkmate PH OFF');
+check('ph off, in any case', cur().printout.show_ph == false
+    and said == '[checkmate] The PH note no longer shows after a placeholder\'s name and level.', said);
+for _, text in ipairs({ '/checkmate ph', '/checkmate ph maybe', '/checkmate ph sort' }) do
+    said = run(text);
+    check('usage for: ' .. text, said == '[checkmate] Type /checkmate ph on|off.' and cur().printout.show_ph == false, said);
+end
+saves = MOCK.saved;
+said = run('/checkmate phword PH:');
+check('phword keeps its case', cur().printout.ph_word == 'PH:' and MOCK.last_save.printout.ph_word == 'PH:'
+    and MOCK.saved > saves and said == '[checkmate] The PH note now prints like (PH: Valkurm Emperor).', said);
+said = run('/checkmate phword "Placeholder for"');
+check('a quoted word keeps its spaces', cur().printout.ph_word == 'Placeholder for'
+    and said == '[checkmate] The PH note now prints like (Placeholder for Valkurm Emperor).', said);
+said = run('/checkmate phword "  PH  "');
+check('and the answer trims it the way the note does', cur().printout.ph_word == '  PH  '
+    and said == '[checkmate] The PH note now prints like (PH Valkurm Emperor).', said);
+run('/checkmate phword ph of');
+check('words without quotes', cur().printout.ph_word == 'ph of', cur().printout.ph_word);
+run('/checkmate phword "\129\154PH\9"');
+check('the word keeps printable ASCII only', cur().printout.ph_word == 'PH', cur().printout.ph_word);
+run('/checkmate phword "' .. string.rep('x', 40) .. '"');
+check('and 32 characters at most', cur().printout.ph_word == string.rep('x', 32), cur().printout.ph_word);
+said = run('/checkmate phword ""');
+check('empty quotes clear it', cur().printout.ph_word == '' and MOCK.last_save.printout.ph_word == ''
+    and said == '[checkmate] The PH note now prints like (Valkurm Emperor).', said);
+said = run('/checkmate phword');
+check('phword alone prints its usage and keeps the word', cur().printout.ph_word == ''
+    and said == '[checkmate] Type /checkmate phword <text>. Put text with spaces in quotes, and "" leaves the word out.', said);
+run('/checkmate phword PH for');
+check('two words need no quotes', cur().printout.ph_word == 'PH for', cur().printout.ph_word);
+
 -- The elements words.
 check('the elements words are Weak and Resists by default, with how strong on', cur().elements.weak_word == 'Weak'
     and cur().elements.resist_word == 'Resists' and cur().elements.strength == true);
@@ -167,15 +239,44 @@ end
 check('and keeps the words', cur().elements.weak_word == 'Weak' and cur().elements.resist_word == '');
 run('/checkmate resistword Resists');
 
+-- The pet part's words.
+check('the pet words are Hit and Evade by default', cur().pet.hit_word == 'Hit' and cur().pet.evade_word == 'Evade');
+saves = MOCK.saved;
+said = run('/checkmate pethitword Acc');
+check('pethitword keeps its case', cur().pet.hit_word == 'Acc' and MOCK.last_save.pet.hit_word == 'Acc'
+    and MOCK.saved > saves and said == '[checkmate] The pet part now puts "Acc" before your pet\'s hit rate.', said);
+said = run('/checkmate petevadeword "Dodges at"');
+check('a quoted pet evade word keeps its spaces', cur().pet.evade_word == 'Dodges at' and said == '[checkmate] The pet '
+    .. 'part now puts "Dodges at" before how often the monster misses your pet.', said);
+run('/checkmate pethitword "\129\154Hit\9"');
+check('a pet word keeps printable ASCII only', cur().pet.hit_word == 'Hit', cur().pet.hit_word);
+run('/checkmate petevadeword "' .. string.rep('x', 40) .. '"');
+check('and 32 characters at most', cur().pet.evade_word == string.rep('x', 32), cur().pet.evade_word);
+saves = MOCK.saved;
+said = run('/checkmate pethitword ""');
+check('empty quotes clear the pet hit word', cur().pet.hit_word == '' and MOCK.last_save.pet.hit_word == ''
+    and MOCK.saved > saves and said == '[checkmate] The pet part now shows your pet\'s hit rate with no word before it.', said);
+said = run('/checkmate petevadeword ""');
+check('and the pet evade word', cur().pet.evade_word == '' and said == '[checkmate] The pet part now shows how often the '
+    .. 'monster misses your pet with no word before it.', said);
+for _, sub in ipairs({ 'pethitword', 'petevadeword' }) do
+    said = run('/checkmate ' .. sub);
+    check(sub .. ' alone prints its usage', said == ('[checkmate] Type /checkmate %s <text>. Put text with spaces in '
+        .. 'quotes, and "" leaves the word out.'):format(sub), said);
+end
+check('and keeps the pet words', cur().pet.hit_word == '' and cur().pet.evade_word == '');
+run('/checkmate pethitword Hit');
+run('/checkmate petevadeword Evade');
+
 -- The extras line.
 check('the extras start on their own line by default', cur().printout.extras_own_line == true);
 said = run('/checkmate extras same');
 check('extras same', cur().printout.extras_own_line == false and MOCK.last_save.printout.extras_own_line == false
-    and said == '[checkmate] Hit, evade, crit, aggro, magic, immunities, elements and drops now stay on the /check line. A part '
-    .. 'with New line checked still starts a new line.', said);
+    and said == '[checkmate] Hit, evade, crit, aggro, magic, immunities, elements, drops and pet now stay on the /check line. '
+    .. 'A part with New line checked still starts a new line.', said);
 said = run('/checkmate extras NEW');
-check('extras new, in any case', cur().printout.extras_own_line == true
-    and said == '[checkmate] Hit, evade, crit, aggro, magic, immunities, elements and drops now start on a new line.', said);
+check('extras new, in any case', cur().printout.extras_own_line == true and said == '[checkmate] Hit, evade, crit, aggro, '
+    .. 'magic, immunities, elements, drops and pet now start on a new line.', said);
 for _, text in ipairs({ '/checkmate extras', '/checkmate extras on', '/checkmate extras sort' }) do
     said = run(text);
     check('usage for: ' .. text, said == '[checkmate] Type /checkmate extras same|new.' and cur().printout.extras_own_line == true,
@@ -206,12 +307,18 @@ local SWITCHES = {
         'Every difficulty now prints in the same color.' },
     { 'threatcolors', 'aggro', 'threat_colors', 'Aggressive now prints in the Threat color, and the other answers in '
         .. 'the Safe color.', 'Every aggro answer now prints in the Words color.' },
-    { 'grades', 'grades', 'on', 'The hit rate, evade and crit numbers now print in the Good, OK or Bad color.',
-        'The hit rate, evade and crit numbers now print in each part\'s Number color.' },
+    { 'grades', 'grades', 'on', 'The hit rate, evade, crit and pet numbers now print in the Good, OK or Bad color.',
+        'The hit rate, evade, crit and pet numbers now print in each part\'s Number color.' },
+    { 'petname', 'pet', 'show_name', 'The pet part now shows your pet\'s name.',
+        'The pet part no longer shows your pet\'s name and level.' },
+    { 'petlevel', 'pet', 'show_level', 'The pet part now shows your pet\'s level after its name.',
+        'The pet part no longer shows your pet\'s level.' },
     { 'detection', 'aggro', 'detection', 'The aggro part now shows how a monster finds you.',
         'The aggro part no longer shows how a monster finds you.' },
+    { 'linkhow', 'aggro', 'link_how', 'The aggro part now shows how each monster it links with joins, like Goblin Thug '
+        .. '(Sight).', 'The aggro part no longer shows how the monsters it links with join.' },
     { 'linknames', 'aggro', 'link_names', 'The aggro part now names what a monster links with.',
-        'The aggro part now just says whether a monster links, without the names.' },
+        'The aggro part no longer names what a monster links with.' },
     { 'strength', 'elements', 'strength', 'The elements part now shows how strong each one is, like (half), and the '
         .. 'magic damage note.', 'The elements part no longer shows how strong each one is or the magic damage note.' },
     { 'thlabel', 'drops', 'th_in_label', 'The drops label now shows your Treasure Hunter, like Drops (TH 2).',
@@ -260,6 +367,8 @@ for _, key in ipairs(printout.COLOR_KEYS) do
     check('color ' .. key, cur().colors[key] == 105 and MOCK.last_save.colors[key] == 105 and MOCK.saved > saves
         and said == ('[checkmate] The %s color is now Plum.'):format(key), said);
 end
+said = run('/checkmate color pet_name coral');
+check('color pet_name coral', cur().colors.pet_name == 8 and said == '[checkmate] The pet_name color is now Coral.', said);
 said = run('/checkmate color HIT_LABEL "Lawn green"');
 check('a quoted color name, and the setting in any case', cur().colors.hit_label == 2
     and said == '[checkmate] The hit_label color is now Lawn green.', said);
@@ -305,6 +414,8 @@ for _, entry in ipairs(printout.PALETTE) do
 end
 check('help colors lists every setting and color', listed and has(said, '[checkmate] Hit rate  hit_label, hit_number, '
     .. 'hit_detail') and has(said, '[checkmate] Tag and lines  tag_brackets, tag_word, line, replies'), said);
+check('and the ID and the PH note under Name and level', has(said, '[checkmate] Name and level  name, level, level_range, id, '
+    .. 'ph'), said);
 local longest = 0;
 for i = n + 1, #MOCK.printed do longest = math.max(longest, #MOCK.plain(MOCK.printed[i])); end
 check('and no line of it runs past 200 characters', longest <= 200, longest);
@@ -477,12 +588,14 @@ check('divider with no name prints its usage', said == '[checkmate] Type /checkm
 run('/checkmate divider pipe');
 said = run('/checkmate sample');
 check('the sample shows the divider you picked', said == '[checkmate] Sample Goblin (Lv 42) | Decent Challenge (Low Defense) / '
-    .. '[checkmate] Aggro: Aggressive (Sight) | Links with Goblin Butcher, Goblin Leecher, Goblin Tinkerer', said);
+    .. '[checkmate] Aggro: Aggressive (Sight) | Links with Goblin Butcher (Sight), Goblin Leecher (Sight), Goblin Tinkerer '
+    .. '(Sight)', said);
 cur().printout.separator = '++';
 run('/checkmate divider custom');
 said = run('/checkmate sample');
 check('and Custom with your text', said == '[checkmate] Sample Goblin (Lv 42)++Decent Challenge (Low Defense) / '
-    .. '[checkmate] Aggro: Aggressive (Sight)++Links with Goblin Butcher, Goblin Leecher, Goblin Tinkerer', said);
+    .. '[checkmate] Aggro: Aggressive (Sight)++Links with Goblin Butcher (Sight), Goblin Leecher (Sight), Goblin Tinkerer '
+    .. '(Sight)', said);
 cur().printout.separator = '  ';
 run('/checkmate divider star');
 
@@ -515,7 +628,8 @@ check('custom text in quotes keeps its spaces', cur().printout.label_separator =
 run('/checkmate divider pipe');
 said = run('/checkmate sample');
 check('and the sample prints it with a space after', said == '[checkmate] Sample Goblin (Lv 42) | Decent Challenge (Low Defense) / '
-    .. '[checkmate] Aggro > Aggressive (Sight) | Links with Goblin Butcher, Goblin Leecher, Goblin Tinkerer', said);
+    .. '[checkmate] Aggro > Aggressive (Sight) | Links with Goblin Butcher (Sight), Goblin Leecher (Sight), Goblin Tinkerer '
+    .. '(Sight)', said);
 run('/checkmate labeldivider CUSTOM - >');
 check('custom text without quotes, in any case', cur().printout.label_divider == 'custom' and cur().printout.label_separator == '- >',
     cur().printout.label_separator);
@@ -545,7 +659,7 @@ run('/checkmate divider star');
 
 -- The rest of the window's settings. Each block puts its settings back to the defaults after.
 local fresh = require('ui.defaults').make();
-local PARTS = 'difficulty, hit, evade, crit, aggro, magic, immunities, elements, drops';
+local PARTS = 'difficulty, hit, evade, crit, aggro, magic, immunities, elements, drops, pet';
 local LABEL_PARTS = 'name, ' .. PARTS;
 local IMMUNITY_LIST = 'sleep, lullaby, bind, gravity, silence, stun, paralyze, slow, elegy, blind, poison, requiem, petrify, '
     .. 'terror, plague, curse';
@@ -628,23 +742,28 @@ for id in PARTS:gmatch('%a+') do
 end
 
 -- Moving parts, like the arrows.
-local ORDER = 'difficulty hit evade crit aggro magic immunities elements drops';
+local ORDER = 'difficulty hit evade crit aggro magic immunities elements drops pet';
 check('the parts start in the default order', cur().printout.order == ORDER, cur().printout.order);
 saves = MOCK.saved;
 said = run('/checkmate move hit up');
-check('move hit up', cur().printout.order == 'hit difficulty evade crit aggro magic immunities elements drops'
+check('move hit up', cur().printout.order == 'hit difficulty evade crit aggro magic immunities elements drops pet'
     and MOCK.last_save.printout.order == cur().printout.order and MOCK.saved > saves
     and said == '[checkmate] The hit part moved up, so the parts after the name now go hit, difficulty, evade, crit, '
-    .. 'aggro, magic, immunities, elements, drops.', said);
+    .. 'aggro, magic, immunities, elements, drops, pet.', said);
 saves = MOCK.saved;
 said = run('/checkmate move hit up');
 check('the first part can\'t go up', said == '[checkmate] The hit part is already first.' and MOCK.saved == saves
     and cur().printout.order:find('^hit') ~= nil, said);
-said = run('/checkmate move DROPS DOWN');
-check('the last part can\'t go down, in any case', said == '[checkmate] The drops part is already last.', said);
+said = run('/checkmate move PET DOWN');
+check('the last part can\'t go down, in any case', said == '[checkmate] The pet part is already last.', said);
 said = run('/checkmate move hit down');
 check('move hit down', cur().printout.order == ORDER and said == '[checkmate] The hit part moved down, so the parts '
-    .. 'after the name now go difficulty, hit, evade, crit, aggro, magic, immunities, elements, drops.', said);
+    .. 'after the name now go difficulty, hit, evade, crit, aggro, magic, immunities, elements, drops, pet.', said);
+said = run('/checkmate move drops down');
+check('drops moves down past pet', cur().printout.order == 'difficulty hit evade crit aggro magic immunities elements pet drops'
+    and said == '[checkmate] The drops part moved down, so the parts after the name now go difficulty, hit, evade, crit, '
+    .. 'aggro, magic, immunities, elements, pet, drops.', said);
+run('/checkmate move drops up');
 said = run('/checkmate move name up');
 check('the name part doesn\'t move', said == '[checkmate] The name part always comes first, so it doesn\'t move.'
     and cur().printout.order == ORDER, said);
@@ -662,7 +781,7 @@ run('/checkmate show crit');
 run('/checkmate move aggro up');
 said = run('/checkmate sample');
 check('the sample follows the new order', has(said, '[checkmate] Aggro: Aggressive (Sight) \129\154 Links with Goblin '
-    .. 'Butcher, Goblin Leecher, Goblin Tinkerer \129\154 Crit: 7%'), said);
+    .. 'Butcher (Sight), Goblin Leecher (Sight), Goblin Tinkerer (Sight) \129\154 Crit: 7%'), said);
 run('/checkmate move aggro down');
 run('/checkmate hide crit');
 check('and back', cur().printout.order == ORDER, cur().printout.order);
@@ -973,8 +1092,12 @@ local TYPED_COMMANDS = {
     { 'divider custom',      function (s) return s.printout.separator; end },
     { 'labeldivider custom', function (s) return s.printout.label_separator; end },
     { 'rangeword',           function (s) return s.printout.range_word; end },
+    { 'idword',              function (s) return s.printout.id_word; end },
+    { 'phword',              function (s) return s.printout.ph_word; end },
     { 'weakword',            function (s) return s.elements.weak_word; end },
     { 'resistword',          function (s) return s.elements.resist_word; end },
+    { 'pethitword',          function (s) return s.pet.hit_word; end },
+    { 'petevadeword',        function (s) return s.pet.evade_word; end },
 };
 for _, entry in ipairs(TYPED_COMMANDS) do
     local saves = MOCK.saved;
@@ -988,7 +1111,10 @@ cur().immunities.bind.label = 'Bind';
 cur().printout.divider, cur().printout.separator = 'star', '  ';
 cur().printout.label_divider, cur().printout.label_separator = 'colon', ':';
 cur().printout.range_word = 'range';
+cur().printout.id_word = 'ID';
+cur().printout.ph_word = 'PH for';
 cur().elements.weak_word, cur().elements.resist_word = 'Weak', 'Resists';
+cur().pet.hit_word, cur().pet.evade_word = 'Hit', 'Evade';
 said = run('/checkmate profile save "Solo' .. SOLO .. '"');
 check('profile save keeps the plain part of a name and says that name', profiles.exists('Solo')
     and said == '[checkmate] Your settings are saved as the profile "Solo".', said);
@@ -1134,13 +1260,29 @@ check('deleting the profile takes its link too', cur().job_links.RDM == nil and 
 -- Sample, info, help, reset.
 said = run('/checkmate sample');
 check('sample prints a made-up monster with the star', said == '[checkmate] Sample Goblin (Lv 42) \129\154 Decent Challenge '
-    .. '(Low Defense) / [checkmate] Aggro: Aggressive (Sight) \129\154 Links with Goblin Butcher, Goblin Leecher, '
-    .. 'Goblin Tinkerer', said);
+    .. '(Low Defense) / [checkmate] Aggro: Aggressive (Sight) \129\154 Links with Goblin Butcher (Sight), Goblin Leecher '
+    .. '(Sight), Goblin Tinkerer (Sight)', said);
 run('/checkmate levelrange on');
 said = run('/checkmate sample');
 check('the sample shows the level range when it\'s on', has(said, '[checkmate] Sample Goblin (Lv 42, range 40-44) \129\154 '
     .. 'Decent Challenge (Low Defense)'), said);
+run('/checkmate id on');
+said = run('/checkmate sample');
+check('and its made-up ID after that with Show its ID on', has(said, '[checkmate] Sample Goblin (Lv 42, range 40-44) '
+    .. '(ID 17199202) \129\154 Decent Challenge (Low Defense)'), said);
 run('/checkmate levelrange off');
+said = run('/checkmate sample');
+check('or right after the level', has(said, '[checkmate] Sample Goblin (Lv 42) (ID 17199202) \129\154 Decent Challenge '
+    .. '(Low Defense)'), said);
+run('/checkmate ph on');
+said = run('/checkmate sample');
+check('and its made-up NM after the ID with Show if it\'s a PH on', has(said, '[checkmate] Sample Goblin (Lv 42) (ID 17199202) '
+    .. '(PH for Valkurm Emperor) \129\154 Decent Challenge (Low Defense)'), said);
+run('/checkmate id off');
+said = run('/checkmate sample');
+check('or right after the level with the ID off', has(said, '[checkmate] Sample Goblin (Lv 42) (PH for Valkurm Emperor) '
+    .. '\129\154 Decent Challenge (Low Defense)'), said);
+run('/checkmate ph off');
 said = run('/checkmate info');
 check('info prints the version and the data stamp', has(said, 'checkmate ' .. addon.version .. '. The monster data was built from '
     .. bands.built .. '.'), said);
@@ -1171,7 +1313,7 @@ check('and so does help with a word that isn\'t a topic', run('/checkmate help m
 -- /checkmate help <topic> prints the commands for that tab. Help colors lists the colors after them, so it
 -- has one more.
 local TOPICS = { 'printout', 'colors', 'numbers', 'aggro', 'magic', 'drops', 'immunities', 'look', 'profiles' };
-local TOPIC_LINES = { printout = 17, colors = 4, numbers = 2, aggro = 3, magic = 6, drops = 6, immunities = 2, look = 7,
+local TOPIC_LINES = { printout = 21, colors = 4, numbers = 6, aggro = 4, magic = 6, drops = 6, immunities = 2, look = 7,
     profiles = 4 };
 local topic_text = {};
 for _, topic in ipairs(TOPICS) do
@@ -1189,11 +1331,12 @@ for _, topic in ipairs(TOPICS) do
 end
 
 -- Every command has its line in a topic.
-for _, word in ipairs({ 'show|hide', 'label', 'newline', 'move', 'level', 'levelrange', 'rangeword', 'reading', 'extras',
-    'tag', 'divider', 'labeldivider', 'ranges', 'replace', 'sample', 'concolors', 'threatcolors', 'grades', 'color', 'cutoff',
-    'detection', 'linknames', 'maxlinks', 'school', 'spell', 'macc', 'weakword', 'resistword', 'strength', 'th', 'maxitems',
-    'minchance', 'sort', 'thlabel', 'dropnotes', 'immunity', 'immunitylabel', 'skin', 'font', 'fontsize', 'rounding',
-    'spacing', 'windowcolor', 'profile', 'joblink' }) do
+for _, word in ipairs({ 'show|hide', 'label', 'newline', 'move', 'level', 'levelrange', 'rangeword', 'id', 'idword',
+    'reading', 'extras', 'tag', 'divider', 'labeldivider', 'ranges', 'replace', 'sample', 'concolors', 'threatcolors',
+    'grades', 'color', 'cutoff', 'detection', 'linknames', 'maxlinks', 'school', 'spell', 'macc', 'weakword', 'resistword',
+    'strength', 'th', 'maxitems', 'minchance', 'sort', 'thlabel', 'dropnotes', 'immunity', 'immunitylabel', 'skin', 'font',
+    'fontsize', 'rounding', 'spacing', 'windowcolor', 'profile', 'joblink', 'petname', 'petlevel', 'pethitword',
+    'petevadeword', 'linkhow', 'ph', 'phword' }) do
     check('a topic names /checkmate ' .. word, has(topics, '[checkmate] /checkmate ' .. word .. ' '));
 end
 
@@ -1201,6 +1344,14 @@ check('help printout names the level range and its word', has(topic_text.printou
     .. 'or hides the levels a monster can spawn at, like (Lv 42, range 40-44). It only shows once checkmate knows the exact '
     .. 'level.') and has(topic_text.printout, '/checkmate rangeword <text>  sets the word before that range. Put text with '
     .. 'spaces in quotes, and "" leaves the word out.'), topic_text.printout);
+check('help printout names the ID and its word', has(topic_text.printout, '/checkmate id on|off  shows or hides the '
+    .. 'monster\'s ID after its name and level, like (ID 17199202).') and has(topic_text.printout, '/checkmate idword '
+    .. '<text>  sets the word before the ID. Put text with spaces in quotes, and "" leaves the word out.'),
+    topic_text.printout);
+check('help printout names the PH note and its word', has(topic_text.printout, '/checkmate ph on|off  shows or hides the PH '
+    .. 'note after a placeholder\'s name and level, like (PH for Valkurm Emperor).') and has(topic_text.printout,
+    '/checkmate phword <text>  sets the word before the NM in the PH note. Put text with spaces in quotes, and "" leaves '
+    .. 'the word out.'), topic_text.printout);
 check('help look names the window colors and the font', has(topic_text.look, '/checkmate windowcolor <what> <rrggbb>  sets '
     .. 'one settings window color. /checkmate help windowcolors lists them.')
     and has(topic_text.look, '/checkmate font <name>  sets the settings window\'s font. The fonts are ' .. FONT_LIST .. '.')
@@ -1216,11 +1367,11 @@ check('help printout names the label dividers', has(topic_text.printout, '/check
 check('help printout names replace', has(topic_text.printout, '/checkmate replace on|off  hides the game\'s own /check line '
     .. 'so checkmate\'s lines take its place, or shows it again.'), topic_text.printout);
 check('help printout names the extras', has(topic_text.printout, '/checkmate extras same|new  same keeps hit, evade, crit, '
-    .. 'aggro, magic, immunities, elements and drops on the /check line, and new starts them on a line of their own. A part '
-    .. 'with New line checked starts a new line either way.'), topic_text.printout);
+    .. 'aggro, magic, immunities, elements, drops and pet on the /check line, and new starts them on a line of their own. A '
+    .. 'part with New line checked starts a new line either way.'), topic_text.printout);
 check('help printout names the parts', has(topic_text.printout, '/checkmate show|hide <part>  shows or hides a part. The '
     .. 'parts are name, difficulty, reading (evasion and defense), hit, evade, crit, aggro, magic, immunities, elements, '
-    .. 'drops.'), topic_text.printout);
+    .. 'drops, pet.'), topic_text.printout);
 check('help printout names the label, new line, move, tag and ranges commands', has(topic_text.printout,
     '/checkmate label <part> <text>  sets a part\'s label, like Acc instead of Hit. Every part but reading has one. Put '
     .. 'text with spaces in quotes, and "" leaves the label out.')
@@ -1229,8 +1380,8 @@ check('help printout names the label, new line, move, tag and ranges commands', 
     and has(topic_text.printout, '/checkmate move <part> up|down  moves a part up or down. The name always comes first, '
     .. 'and the reading goes with difficulty.')
     and has(topic_text.printout, '/checkmate tag on|off  starts each /check line with [checkmate], or leaves it off.')
-    and has(topic_text.printout, '/checkmate ranges range|middle  prints a range of hit rate, evade, crit or magic like '
-    .. '64-72%, or as its middle, like ~68%.'), topic_text.printout);
+    and has(topic_text.printout, '/checkmate ranges range|middle  prints a range of hit rate, evade, crit, magic or pet '
+    .. 'numbers like 64-72%, or as its middle, like ~68%.'), topic_text.printout);
 check('help magic names the elements commands', has(topic_text.magic, '/checkmate weakword <text>  sets the word before the '
     .. 'elements a monster is weak to. Put text with spaces in quotes, and "" leaves the word out.')
     and has(topic_text.magic, '/checkmate resistword <text>  sets the word before the elements a monster resists. Put text '
@@ -1244,8 +1395,11 @@ check('help magic names the spell and macc commands', has(topic_text.magic, '/ch
 check('help aggro names the aggro commands', has(topic_text.aggro, '/checkmate detection on|off  shows or hides how an '
     .. 'aggressive monster finds you, like (Sight, Sound).')
     and has(topic_text.aggro, '/checkmate linknames on|off  shows or hides the names a monster links with.')
-    and has(topic_text.aggro, '/checkmate maxlinks <0-12>  sets the most link names shown. 0 shows every name.'),
-    topic_text.aggro);
+    and has(topic_text.aggro, '/checkmate maxlinks <0-12>  sets the most link names shown. 0 shows every name.')
+    and has(topic_text.aggro, '/checkmate linkhow on|off  shows or hides how each monster it links with joins, like Goblin '
+    .. 'Thug (Sight).'), topic_text.aggro);
+check('help aggro puts linkhow right after detection', topic_text.aggro:find('/checkmate detection on|off  [^/]+/ '
+    .. '%[checkmate%] /checkmate linkhow on|off  ') ~= nil, topic_text.aggro);
 check('help colors names the color switches', has(topic_text.colors, '/checkmate concolors on|off  ')
     and has(topic_text.colors, '/checkmate threatcolors on|off  paints Aggressive in the Threat color and the other answers '
     .. 'in the Safe color, or every answer in the Words color.') and has(topic_text.colors, '/checkmate grades on|off  '),
@@ -1254,7 +1408,14 @@ check('help printout names the reading', has(topic_text.printout, '/checkmate re
     .. 'defense first in the reading after the difficulty.'), topic_text.printout);
 check('help numbers names the cutoffs and grade colors', has(topic_text.numbers, '/checkmate cutoff <hit|evade|crit> '
     .. '<good|ok> <0-100>  sets where a number counts as Good or OK. By default hit is Good at 85 and OK at 70, evade at '
-    .. '30 and 15, and crit at 15 and 8.') and has(topic_text.numbers, '/checkmate grades on|off  '), topic_text.numbers);
+    .. '30 and 15, and crit at 15 and 8.') and has(topic_text.numbers, '/checkmate grades on|off  colors the hit rate, '
+    .. 'evade, crit and pet numbers in the Good, OK or Bad color, or in each part\'s Number color.'), topic_text.numbers);
+check('help numbers names the pet commands', has(topic_text.numbers, '/checkmate petname on|off  shows or hides your '
+    .. 'pet\'s name and level in the pet part.') and has(topic_text.numbers, '/checkmate petlevel on|off  shows or hides '
+    .. 'your pet\'s level after its name, like (Lv 75).') and has(topic_text.numbers, '/checkmate pethitword <text>  sets '
+    .. 'the word before your pet\'s hit rate. Put text with spaces in quotes, and "" leaves the word out.')
+    and has(topic_text.numbers, '/checkmate petevadeword <text>  sets the word before how often the monster misses your '
+    .. 'pet. Put text with spaces in quotes, and "" leaves the word out.'), topic_text.numbers);
 check('help drops names its commands', has(topic_text.drops, '/checkmate th <0-4>  sets the Treasure Hunter for drop '
     .. 'chances.') and has(topic_text.drops, '/checkmate maxitems <0-12>  sets the most items shown. 0 shows every item.')
     and has(topic_text.drops, '/checkmate minchance <0-50>  leaves out items under this chance in percent, like 2.5. 0 '
@@ -1294,9 +1455,19 @@ cur().aggro.detection = false;
 cur().aggro.max_links = 0;
 cur().printout.show_range = true;
 cur().printout.range_word = 'x';
+cur().printout.show_id = true;
+cur().printout.id_word = 'x';
+cur().colors.id = 73;
+cur().printout.show_ph = true;
+cur().printout.ph_word = 'x';
+cur().colors.ph = 73;
 cur().printout.parts.elements.on = true;
 cur().elements.weak_word = 'x';
 cur().elements.strength = false;
+cur().printout.parts.pet.on = true;
+cur().pet.show_name = false;
+cur().pet.hit_word = 'x';
+cur().aggro.link_how = false;
 saves = MOCK.saved;
 -- The first /checkmate reset only says what it does. The second one does it.
 run('/checkmate reset');
@@ -1310,8 +1481,14 @@ check('reset puts every setting back', s.printout.parts.hit.on == false and s.pr
 check('and fills the window look', type(s.look.imgui.background) == 'table' and s.look.imgui.rounding == 0);
 check('and brings back Ashita\'s font at 18', s.look.font == 'ashita' and s.look.font_size == 18);
 check('and the aggro part and its settings', s.printout.parts.aggro.on == true and s.aggro.detection == true
-    and s.aggro.max_links == 5);
+    and s.aggro.max_links == 5 and s.aggro.link_how == true);
+check('and the pet part off, with its settings', s.printout.parts.pet.on == false and s.pet.show_name == true
+    and s.pet.show_level == true and s.pet.hit_word == 'Hit' and s.pet.evade_word == 'Evade');
 check('and the level range off with the word range', s.printout.show_range == false and s.printout.range_word == 'range');
+check('and Show its ID off with the word ID and the Phoenix ID color', s.printout.show_id == false
+    and s.printout.id_word == 'ID' and s.colors.id == 8);
+check('and Show if it\'s a PH off with the word PH for and the Phoenix PH color', s.printout.show_ph == false
+    and s.printout.ph_word == 'PH for' and s.colors.ph == 8);
 check('and the elements part off, with its words and how strong', s.printout.parts.elements.on == false
     and s.elements.weak_word == 'Weak' and s.elements.resist_word == 'Resists' and s.elements.strength == true);
 run('/checkmate show hit');

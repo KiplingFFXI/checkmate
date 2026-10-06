@@ -288,7 +288,7 @@ dofile(ADDON_DIR .. '/checkmate.lua');
 MOCK.fire('load');
 local cur = MOCK.settings.current;
 check('a file without it gets it after immunities, off, on its own line', cur.printout.order
-    == 'difficulty hit evade crit aggro magic immunities elements drops' and cur.printout.parts.elements.on == false
+    == 'difficulty hit evade crit aggro magic immunities elements drops pet' and cur.printout.parts.elements.on == false
     and cur.printout.parts.elements.new_line == true and cur.printout.parts.elements.label == 'Elements', cur.printout.order);
 check('with its words, Show how strong and the Phoenix colors', cur.elements.weak_word == 'Weak'
     and cur.elements.resist_word == 'Resists' and cur.elements.strength == true and cur.colors.elements_label == 106

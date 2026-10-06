@@ -4,9 +4,10 @@ Compares two checkmate data folders and writes what changed as a short markdown 
     python tools\\data_report.py OLD NEW [--report FILE] [--bullets FILE]
 
 It loads the generated files in LuaJIT the way the addon does and compares the monsters row by row. Link names are
-put in place first, so a link list that only got a new number isn't a change. The build stamp alone isn't a change
-either. When something changed, it writes the report to --report, or prints it, and a few CHANGELOG.md lines to
---bullets. When nothing changed, it says so and writes nothing.
+put in place first, each with how it links, so a link list that only got a new number isn't a change. Each
+placeholder's NMs are put in place by name too. The build stamp alone isn't a change either. It also compares
+pets.lua, but only says whether it changed. When something changed, it writes the report to --report, or prints it,
+and a few CHANGELOG.md lines to --bullets. When nothing changed, it says so and writes nothing.
 """
 import argparse
 import os
@@ -17,6 +18,7 @@ from lupa import luajit21
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DROPS_LUA = os.path.join(os.path.dirname(HERE), 'checkmate', 'core', 'drops.lua')
+AGGRO_LUA = os.path.join(os.path.dirname(HERE), 'checkmate', 'core', 'aggro.lua')
 
 # GitHub refuses a pull request body over 65536 characters, so the zone list stops before that.
 REPORT_LIMIT = 60000
@@ -28,15 +30,15 @@ MOST_BULLETS = 5
 TH_LEVELS = range(5)
 
 # Row fields in the order the data files write them.
-FIELD_ORDER = ['ids', 'nm', 'levels', 'spawn_levels', 'level_mod', 'ranks', 'meva', 'resist', 'magic_dmg', 'absorb',
-               'nullify', 'undead', 'immune', 'drops', 'aggro', 'any_level', 'no_aggro', 'true_detect', 'ambush',
-               'detects', 'aggro_note', 'aggro_hours', 'links', 'flags']
+FIELD_ORDER = ['ids', 'nm', 'levels', 'spawn_levels', 'ph_for', 'level_mod', 'ranks', 'meva', 'resist', 'magic_dmg',
+               'absorb', 'nullify', 'undead', 'immune', 'drops', 'aggro', 'any_level', 'no_aggro', 'true_detect',
+               'ambush', 'detects', 'aggro_note', 'aggro_hours', 'links', 'flags']
 
 # Fields that are a list of names or indexes, where only what's in the list matters.
-SET_FIELDS = {'ids', 'immune', 'detects', 'links'}
+SET_FIELDS = {'ids', 'immune', 'detects', 'links', 'ph_for'}
 
 # Names for the fields whose own name reads badly in the report.
-LABELS = {'ids': 'spawn indexes', 'immune': 'immunities', 'detects': 'detection'}
+LABELS = {'ids': 'spawn indexes', 'immune': 'immunities', 'detects': 'detection', 'ph_for': 'PH spawns'}
 
 # Fields that are only written when true.
 TRUE_FIELDS = {'nm', 'undead', 'aggro', 'any_level', 'no_aggro', 'true_detect', 'ambush'}
@@ -47,7 +49,7 @@ PLAIN = {'ids': 'spawns', 'nm': 'notorious flag', 'levels': 'levels', 'spawn_lev
          'magic_dmg': 'magic damage', 'absorb': 'magic damage', 'nullify': 'magic damage', 'undead': 'undead flag',
          'immune': 'immunities', 'drops': 'drops', 'aggro': 'aggro', 'any_level': 'aggro', 'no_aggro': 'aggro',
          'true_detect': 'aggro', 'ambush': 'aggro', 'detects': 'aggro', 'aggro_note': 'aggro',
-         'aggro_hours': 'aggro', 'links': 'links', 'flags': 'notes'}
+         'aggro_hours': 'aggro', 'links': 'links', 'ph_for': 'PH spawns', 'flags': 'notes'}
 
 # The first line of a zone file, like "-- Valkurm Dunes (zone 103)."
 TITLE = re.compile(r'^-- (.+) \(zone \d+\)\.$')
@@ -64,9 +66,14 @@ load_file = lua.eval('function(path) return assert(loadfile(path))() end')
 lua.execute('AshitaCore = { GetResourceManager = function() return {} end }')
 drops = load_file(DROPS_LUA)
 
+# aggro.lua finds data\too_weak.lua through the addon folder.
+lua.execute("package.path = [[%s/?.lua;]] .. package.path"
+            % os.path.join(os.path.dirname(HERE), 'checkmate').replace('\\', '/'))
+aggro = load_file(AGGRO_LUA)
+
 
 class Folder:
-    """One data folder with each zone's name and rows, the bands, the Too Weak table and the stamps."""
+    """One data folder with each zone's name and rows, the bands, the Too Weak table, the pet tables and the stamps."""
 
     def __init__(self, root):
         self.zones, self.names = {}, {}
@@ -80,6 +87,9 @@ class Folder:
         self.built, self.content = bands['built'], bands['content']
         self.bands = {row[0]: row[1:] for row in bands['rows']}
         self.too_weak = by_number(plain(load_file(os.path.join(root, 'too_weak.lua')))['highest'])
+        # pets.lua without its stamps.
+        pets = plain(load_file(os.path.join(root, 'pets.lua')))
+        self.pets = {key: value for key, value in pets.items() if key not in ('built', 'content')}
         self.rows = sum(len(rows) for _, rows in self.zones.values())
 
     def read_item_names(self, path):
@@ -116,15 +126,28 @@ def zone_title(path):
 
 
 def zone_rows(zone):
-    """The zone's rows with levels keyed by level and each links number swapped for its list of names."""
+    """
+    The zone's rows with levels keyed by level, each links number swapped for its names, each with how it links, and
+    each placeholder's NMs swapped for their names.
+    """
+    words = plain(aggro.LINK_WORDS)
     lists = zone['link_lists'] or []
     rows = zone['monsters'] or []
+    name_at = {index: row['name'] for row in rows for index in row['ids']}
     for row in rows:
         row['levels'] = by_number(row['levels'])
         if 'spawn_levels' in row:
             row['spawn_levels'] = by_number(row['spawn_levels'])
         if 'links' in row:
-            row['links'] = lists[row['links'] - 1]
+            # Each name with how it links, in the addon's words, so a name that links another way is a change. A
+            # group the addon has no words for gives the name on its own, the way the addon prints it.
+            groups = lists[row['links'] - 1]
+            row['links'] = sorted('%s (%s)' % (name, ', '.join(words[way])) if words[way] else name
+                                  for way, names in groups.items() for name in names)
+        if 'ph_for' in row:
+            # Each PH spawn as "330 for Valkurm Emperor", so an NM that only moved to a new spawn index isn't a change.
+            row['ph_for'] = ['%d for %s' % (index, join_words(sorted({name_at.get(nm, str(nm)) for nm in nms})))
+                             for index, nms in sorted(by_number(row['ph_for']).items())]
     return rows
 
 
@@ -318,6 +341,10 @@ def compare(old, new):
     if too_weak:
         notes.append('too_weak.lua changed for main %s.' % levels_text(too_weak))
         extra_bullets.append('The levels that check Too Weak changed.')
+    if old.pets != new.pets:
+        notes.append('pets.lua changed.')
+        extra_bullets.append('The jug pet levels, the avatar names, the gear that narrows a jug pet\'s level or the '
+                             'Beast Affinity merit changed.')
     if not entries and not notes:
         return None, None
 

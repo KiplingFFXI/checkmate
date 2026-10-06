@@ -61,7 +61,7 @@ jobs:
           python tools/export_data.py --repo "$RUNNER_TEMP/Phoenix" --ref phoenix/live
           python tools/data_report.py "$RUNNER_TEMP/data_before" checkmate/data \
             --report "$RUNNER_TEMP/report.md" --bullets "$RUNNER_TEMP/bullets.md"
-          # data_report.py writes the report only when a monster changed.
+          # data_report.py writes the report only when the data changed, not just its build stamp.
           if [ -f "$RUNNER_TEMP/report.md" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi

@@ -1,25 +1,32 @@
 -- West Ronfaure (zone 100).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Ding Bats', 'Mouse Bat' },
-        [2] = { 'Fungus Beetle', 'Lancing Lamorak', 'Scarab Beetle' },
-        [3] = { 'Marauder Dvogzog', 'Orcish Chasseur', 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Fighterchief',
-                'Orcish Fodder', 'Orcish Grappler', 'Orcish Mesmerizer', 'Orcish Serjeant' },
-        [4] = { 'Forest Funguar' },
-        [5] = { 'Wild Sheep' },
-        [6] = { 'Goblin Digger', 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' },
-        [7] = { 'Lancing Lamorak', 'Scarab Beetle' },
-        [8] = { 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' },
-        [9] = { 'Orcish Chasseur', 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Fighterchief', 'Orcish Fodder',
-                'Orcish Grappler', 'Orcish Mesmerizer', 'Orcish Serjeant' },
-        [10] = { 'Marauder Dvogzog', 'Orcish Chasseur', 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Fodder',
-                 'Orcish Grappler', 'Orcish Mesmerizer', 'Orcish Serjeant' },
+        [1] = { sound = { 'Ding Bats', 'Mouse Bat' } },
+        [2] = { sight = { 'Fungus Beetle', 'Lancing Lamorak', 'Scarab Beetle' } },
+        [3] = {
+            sight = { 'Marauder Dvogzog', 'Orcish Chasseur', 'Orcish Cursemaker', 'Orcish Fighter',
+                      'Orcish Fighterchief', 'Orcish Fodder', 'Orcish Grappler', 'Orcish Mesmerizer',
+                      'Orcish Serjeant' },
+        },
+        [4] = { sound = { 'Forest Funguar' } },
+        [5] = { sight = { 'Wild Sheep' } },
+        [6] = { sight = { 'Goblin Digger', 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' } },
+        [7] = { sight = { 'Lancing Lamorak', 'Scarab Beetle' } },
+        [8] = { sight = { 'Goblin Fisher', 'Goblin Thug', 'Goblin Weaver' } },
+        [9] = {
+            sight = { 'Orcish Chasseur', 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Fighterchief',
+                      'Orcish Fodder', 'Orcish Grappler', 'Orcish Mesmerizer', 'Orcish Serjeant' },
+        },
+        [10] = {
+            sight = { 'Marauder Dvogzog', 'Orcish Chasseur', 'Orcish Cursemaker', 'Orcish Fighter', 'Orcish Fodder',
+                      'Orcish Grappler', 'Orcish Mesmerizer', 'Orcish Serjeant' },
+        },
     },
     monsters = {
         {
@@ -200,6 +207,7 @@ return {
                              [408] = { 5, 6 }, [409] = { 5, 6 }, [410] = { 5, 6 }, [425] = { 5, 6 },
                              [426] = { 5, 6 }, [427] = { 5, 6 }, [428] = { 5, 6 }, [440] = { 5, 6 },
                              [441] = { 5, 6 }, [442] = { 5, 6 } },
+            ph_for = { [294] = { 295 } },
             ranks  = { fire = -2, ice = -1, wind = -2, earth = -1, thunder = -3, water = -3, light = -1, dark = -3,
                        paralyze = -1, bind = -1, silence = -2, slow = -1, poison = -3, light_sleep = -1,
                        dark_sleep = -3, blind = -3, stun = -3, gravity = -2 },
@@ -254,6 +262,7 @@ return {
                              [299] = { 5, 6 }, [321] = { 5, 6 }, [322] = { 5, 6 }, [342] = { 6, 7 },
                              [343] = { 6, 7 }, [344] = { 6, 7 }, [365] = { 6, 7 }, [366] = { 6, 7 },
                              [367] = { 6, 7 }, [392] = { 6, 7 }, [393] = { 6, 7 }, [430] = { 6, 7 } },
+            ph_for = { [210] = { 231 } },
             ranks  = { ice = -3, light = -3, paralyze = -3, bind = -3, light_sleep = -3 },
             drops  = {
                 { rate = 100, item = 846 },  -- insect wing

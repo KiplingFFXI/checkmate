@@ -1,20 +1,20 @@
 -- Throne Room (zone 165).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Shadow Lord' },
-        [2] = { 'Shadow of Rage', 'Zeid' },
-        [3] = { 'Count Andromalius', 'Duke Amduscias', 'Duke Dantalian' },
-        [4] = { 'Count Andromalius', 'Duke Dantalian', 'Grand Marquis Chomiel' },
-        [5] = { 'Duke Amduscias', 'Duke Dantalian', 'Grand Marquis Chomiel' },
-        [6] = { 'Count Andromalius', 'Duke Amduscias', 'Grand Marquis Chomiel' },
-        [7] = { 'Henchman Moogle' },
-        [8] = { 'Henchman Moogle', 'Riko Kupenreich' },
+        [1] = { sight = { 'Shadow Lord' } },
+        [2] = { true_sight = { 'Shadow of Rage', 'Zeid' } },
+        [3] = { superlink = { 'Count Andromalius', 'Duke Amduscias', 'Duke Dantalian' } },
+        [4] = { superlink = { 'Count Andromalius', 'Duke Dantalian', 'Grand Marquis Chomiel' } },
+        [5] = { superlink = { 'Duke Amduscias', 'Duke Dantalian', 'Grand Marquis Chomiel' } },
+        [6] = { superlink = { 'Count Andromalius', 'Duke Amduscias', 'Grand Marquis Chomiel' } },
+        [7] = { superlink = { 'Henchman Moogle' } },
+        [8] = { superlink = { 'Henchman Moogle', 'Riko Kupenreich' } },
     },
     monsters = {
         {

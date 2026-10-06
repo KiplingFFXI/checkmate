@@ -1,23 +1,26 @@
 -- Riverne-Site B01 (zone 29).
--- Built by tools\export_data.py from phoenix/live f125de32dc.
+-- Built by tools\export_data.py from phoenix/live 465ac4c076.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live f125de32dc',
+    built   = 'phoenix/live 465ac4c076',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
-    -- Each list of link names, written once. A row's links is the number of its list.
+    -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
-        [1] = { 'Lesser Roc' },
-        [2] = { 'Book Browser Bokabraq', 'Chemical Cook Chemachiq' },
-        [3] = { 'Book Browser Bokabraq', 'Spell Spitter Spilospok' },
-        [4] = { 'Chemical Cook Chemachiq', 'Spell Spitter Spilospok' },
-        [5] = { 'Airi', 'Iruci', 'Jormungand', 'Ouryu', 'Pey', 'Tiamat', 'Vrtra' },
-        [6] = { 'Airi', 'Bahamut', 'Iruci', 'Jormungand', 'Pey', 'Tiamat', 'Vrtra' },
-        [7] = { 'Airi', 'Bahamut', 'Iruci', 'Jormungand', 'Ouryu', 'Pey', 'Vrtra' },
-        [8] = { 'Airi', 'Bahamut', 'Iruci', 'Ouryu', 'Pey', 'Tiamat', 'Vrtra' },
-        [9] = { 'Airi', 'Bahamut', 'Iruci', 'Jormungand', 'Ouryu', 'Pey', 'Tiamat' },
-        [10] = { 'Ziryu' },
-        [11] = { 'Airi', 'Bahamut', 'Iruci', 'Jormungand', 'Ouryu', 'Pey', 'Tiamat', 'Vrtra' },
+        [1] = { sight = { 'Lesser Roc' } },
+        [2] = { superlink = { 'Chemical Cook Chemachiq' }, true_both = { 'Book Browser Bokabraq' } },
+        [3] = { superlink = { 'Spell Spitter Spilospok' }, true_both = { 'Book Browser Bokabraq' } },
+        [4] = {
+            superlink = { 'Chemical Cook Chemachiq', 'Spell Spitter Spilospok' },
+            true_both = { 'Chemical Cook Chemachiq', 'Spell Spitter Spilospok' },
+        },
+        [5] = { superlink = { 'Airi', 'Iruci', 'Jormungand', 'Ouryu', 'Pey', 'Tiamat', 'Vrtra' } },
+        [6] = { superlink = { 'Airi', 'Bahamut', 'Iruci', 'Jormungand', 'Pey', 'Tiamat', 'Vrtra' } },
+        [7] = { superlink = { 'Airi', 'Bahamut', 'Iruci', 'Jormungand', 'Ouryu', 'Pey', 'Vrtra' } },
+        [8] = { superlink = { 'Airi', 'Bahamut', 'Iruci', 'Ouryu', 'Pey', 'Tiamat', 'Vrtra' } },
+        [9] = { superlink = { 'Airi', 'Bahamut', 'Iruci', 'Jormungand', 'Ouryu', 'Pey', 'Tiamat' } },
+        [10] = { sound = { 'Ziryu' } },
+        [11] = { superlink = { 'Airi', 'Bahamut', 'Iruci', 'Jormungand', 'Ouryu', 'Pey', 'Tiamat', 'Vrtra' } },
     },
     monsters = {
         {
@@ -69,6 +72,7 @@ return {
                 [51] = { acc = 190, eva = 222, agi = 59, int = 56, mnd = 38, chr = 38 },
                 [52] = { acc = 195, eva = 227, agi = 59, int = 56, mnd = 38, chr = 38 },
             },
+            ph_for = { [106] = { 107 } },
             ranks  = { fire = -1, ice = -1, wind = 3, earth = -3, thunder = 3, water = -1, light = -1, dark = -1,
                        paralyze = -1, bind = -1, silence = 3, slow = -3, poison = -1, light_sleep = -1,
                        dark_sleep = -1, blind = -1, stun = 3, gravity = 3 },

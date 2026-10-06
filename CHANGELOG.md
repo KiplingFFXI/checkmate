@@ -12,10 +12,20 @@ Your pet on the same /check, how each monster that links joins the fight, and a 
 - The data now has `data\pets.lua`, with each jug pet's highest level, the avatars' names, the gear that narrows a jug pet's level and the Beast Affinity merit, built from Phoenix's source with the rest.
 - A chat color your settings file or a profile doesn't have yet, like the new Pet colors, now comes from your own skin, so a skin you picked stays picked after an update.
 - The aggro part now says how each monster it links with joins the fight, after its name, like `Links with Abyssdiver (Sight), Helldiver (Sight), Zu (Sound)`. Sight means it has to be facing the fight, Sound means it joins from any side, and Superlink means it joins from anywhere in the zone. A monster that sees through Invisible or hears through Sneak says True Sight or True Sound, like after Aggressive. One that neither sees nor hears says what it notices instead, like `(Magic)`, and one that only notices scent gets nothing after its name. With the names off it says them all together, like `Links (Sight, Sound)`. Untick Show how each one links on the Aggro tab, or type `/checkmate linkhow off`, to leave them out.
-- The monster data now keeps how each monster links, and it reads the fomor patrols and guards in Lufaise Meadows, Misareaux Coast, Phomiuna Aqueducts and the Sacrarium, which superlink. So the fomors there now link with the monsters the server gives them, like a Fomor Paladin at Bluefell Falls linking only with its guard. An antlion waiting underground, like the Pit Antlions in Attohwa Chasm and Tuchulcha's hunters, no longer shows as a link, since the server never lets one link while it's hidden. It's built from phoenix/live 465ac4c076 now, which also changes a few monsters. Mimas and Porphyrion in Upper Delkfutt's Tower have new stats, Porphyrion now resists Virus instead of Poison, Goblin Leechers and Witchetty Grubs in Dangruf Wadi have new drops, and Slendlix Spindlethumb is gone from Inner Horutoto Ruins, so the goblins there no longer link with it.
+- The monster data now keeps how each monster links, and it reads the fomor patrols and guards in Lufaise Meadows, Misareaux Coast, Phomiuna Aqueducts and the Sacrarium, which superlink. So the fomors there now link with the monsters the server gives them, like a Fomor Paladin at Bluefell Falls linking only with its guard. An antlion waiting underground, like the Pit Antlions in Attohwa Chasm and Tuchulcha's hunters, no longer shows as a link, since the server never lets one link while it's hidden. It's built from the same Phoenix commit as 1.0.1, so nothing else in it changed, apart from the placeholders below.
 - Show its ID, off by default, adds the monster's ID after its level, like `Goblin Tinkerer (Lv 19) (ID 17199202)`. Tick it on the Printout tab or type `/checkmate id on`. You can change the word `ID` or leave it out, and the ID has its own color.
 - Show if it's a PH, off by default, adds the NM a placeholder can pop, after its level and ID, like `Damselfly (Lv 21) (ID 17199434) (PH for Valkurm Emperor)`. Tick it on the Printout tab or type `/checkmate ph on`. You can change `PH for` or leave it out, and the note has its own color. It only says the monster is a PH, not when the NM can pop again, the chance it pops or whether it's up.
 - The monster data now keeps which spawns are placeholders and the NMs each one can pop, from Phoenix's own scripts. A spawn only counts when its own despawn rolls for the NM and the NM's list holds that spawn, so list entries Phoenix never rolls, like the Dynamis ones, are left out.
+
+## 1.0.1
+
+Monster data rebuilt from phoenix/live 465ac4c076 (2026-10-05).
+
+- Mimas in Upper Delkfutts Tower changed its levels.
+- Porphyrion in Upper Delkfutts Tower changed its levels and resist traits.
+- Goblin Leecher in Dangruf Wadi changed its drops.
+- Witchetty Grub in Dangruf Wadi changed its drops.
+- 9 more monsters changed too.
 
 ## 1.0.0
 

@@ -1,5 +1,5 @@
 """
-The level-band fallback (data/bands.lua) holds typical monster accuracy, evasion and AGI by level, for monsters
+The level-band fallback (data/bands.lua) holds typical monster accuracy, evasion, AGI and DEX by level, for monsters
 checkmate has no row for.
 
 It counts every monster in an era zone that has a level in the data and isn't notorious, a pet (called),
@@ -34,7 +34,7 @@ def quantile(pairs, share):
 
 
 def build(tables, kinds):
-    """Rows of (level, acc low, acc high, eva low, eva high, agi low, agi high)."""
+    """Rows of (level, acc low, acc high, eva low, eva high, agi low, agi high, dex low, dex high)."""
     by_level = {}
     for kind in kinds:
         if not counted(kind):
@@ -46,14 +46,15 @@ def build(tables, kinds):
             for level in levels:
                 if level not in numbers:
                     numbers[level] = stats.at_level(tables, monster, level)[0]
-                entry = by_level.setdefault(level, ([], [], []))
+                entry = by_level.setdefault(level, ([], [], [], []))
                 weight = 1.0 / len(levels)
                 entry[0].append((numbers[level]['acc'], weight))
                 entry[1].append((numbers[level]['eva'], weight))
                 entry[2].append((numbers[level]['agi'], weight))
+                entry[3].append((numbers[level]['dex'], weight))
     out = []
     for level in sorted(by_level):
-        acc, eva, agi = (sorted(values) for values in by_level[level])
+        acc, eva, agi, dex = (sorted(values) for values in by_level[level])
         out.append((level, quantile(acc, LOW), quantile(acc, HIGH), quantile(eva, LOW), quantile(eva, HIGH),
-                    quantile(agi, LOW), quantile(agi, HIGH)))
+                    quantile(agi, LOW), quantile(agi, HIGH), quantile(dex, LOW), quantile(dex, HIGH)))
     return out

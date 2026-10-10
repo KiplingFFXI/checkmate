@@ -4,10 +4,21 @@
 -- file without it, the sample and a real /check.
 local elements = require('core.elements');
 local printout = require('core.printout');
+local wording  = require('core.wording');
 local defaults = require('ui.defaults');
 local skins    = require('ui.skins');
 
 local function color(code) return '\30' .. string.char(code); end
+
+-- An entry's strength the way the printout words it with short words off, like "absorbs 50%" or "+100%", or nil.
+-- The readout hands over a key in core\wording.lua and the amount that prints with it.
+local function strength_of(entry)
+    if (entry.strength == nil) then
+        return entry.amount;
+    end
+    local word = wording.BY_KEY[entry.strength].full;
+    return entry.amount and (word .. ' ' .. entry.amount) or word;
+end
 
 -- What the readout holds, like "Weak Ice, Thunder | Resists Water (half) | all -25% ?". Each list keeps
 -- one strength per name, and "-" stands for an empty list.
@@ -20,7 +31,9 @@ local function shown(row, level)
     for _, kind in ipairs({ { 'weak', 'Weak' }, { 'resists', 'Resists' } }) do
         local names = {};
         for _, entry in ipairs(e[kind[1]]) do
-            names[#names + 1] = entry.name .. (entry.strength and (' (' .. entry.strength .. ')') or '');
+            local strength = strength_of(entry);
+            names[#names + 1] = wording.BY_KEY[wording.ELEMENT_KEYS[entry.element]].full
+                .. (strength and (' (' .. strength .. ')') or '');
         end
         lists[#lists + 1] = kind[2] .. ' ' .. (#names > 0 and table.concat(names, ', ') or '-');
     end
@@ -48,6 +61,8 @@ expect('rank 4 to 9 resists with half the damage', shown({ ranks = { fire = 4, i
     'Weak - | Resists Fire (half), Ice (half) | all nil');
 expect('rank 10 rarely lands', shown({ ranks = { fire = 10 } }), 'Weak - | Resists Fire (rarely lands) | all nil');
 expect('rank 11 never lands', shown({ ranks = { fire = 11 } }), 'Weak - | Resists Fire (never lands) | all nil');
+expect('and the same with its own damage taken, which only the tip tells', shown({ ranks = { fire = 11 },
+    magic_dmg = { fire = -95 } }), 'Weak - | Resists Fire (never lands) | all nil');
 
 -- Damage taken for one element, alone and with the rank's half.
 expect('damage taken up is weak, with how much more', shown({ magic_dmg = { fire = 100, ice = 50 } }),
@@ -100,10 +115,10 @@ check('under 5% is nothing', shown({ magic_dmg = { all = 4.9 } }) == 'nothing' a
 expect('it never makes an element weak or resisted', shown({ ranks = { ice = 4 }, magic_dmg = { all = 100 } }),
     'Weak - | Resists Ice (half) | all +100%');
 
--- Either script flag marks it, since scripted_stats covers ranks too.
-check('scripted elements and scripted stats both mark it', shown({ ranks = { ice = -1 }, flags = { scripted_elements = true } })
+-- The exporter separates changes to these fields from unrelated stat scripts.
+check('only elemental script changes mark it', shown({ ranks = { ice = -1 }, flags = { scripted_elements = true } })
     == 'Weak Ice | Resists - | all nil ?' and shown({ ranks = { ice = -1 }, flags = { scripted_stats = true } })
-    == 'Weak Ice | Resists - | all nil ?' and shown({ ranks = { ice = -1 }, flags = { scripted_drops = true } })
+    == 'Weak Ice | Resists - | all nil' and shown({ ranks = { ice = -1 }, flags = { scripted_drops = true } })
     == 'Weak Ice | Resists - | all nil');
 check('a flag alone is still nothing', shown({ flags = { scripted_elements = true } }) == 'nothing');
 
@@ -128,6 +143,8 @@ end
 
 -- Each by zone and index, with what the rule says.
 local REAL = {
+    { 'Airi, Central Temenos, only general stat changes', 37, 278,
+        'Weak Fire, Light | Resists Ice (half), Dark (half) | all nil' },
     { 'Fire Elemental, Valkurm Dunes', 103, 82, 'Weak Water | Resists Fire (never lands), Ice (never lands) | all nil' },
     { 'Fire Elemental, Cloister of Flames', 207, 8, 'Weak Water | Resists Fire (absorbs), Ice (never lands) | all nil' },
     { 'Ifrit Prime, Waking the Beast', 207, 7, 'Weak Water | Resists Fire (absorbs), Ice (never lands), Wind (half), '
@@ -153,12 +170,13 @@ end
 
 -- Printing --------------------------------------------------------------------------------------
 
--- Only the elements part on, with two spaces between parts.
+-- Only elements in the Weaknesses row, with two spaces between groups.
 local function settings()
     local s = defaults.make();
     s.printout.divider = 'spaces';
     for _, part in pairs(s.printout.parts) do part.on = false; end
-    s.printout.parts.elements.on = true;
+    s.printout.parts.weaknesses.on = true;
+    s.weaknesses.chat = { elements = true, weapons = false, immunities = false, charm = false };
     s.printout.replace_game_line = false;
     return s;
 end
@@ -171,78 +189,122 @@ local function line(s, e)
 end
 
 local GOBLIN = elements.readout({ ranks = { ice = -3, thunder = -3, water = 4 } });
+check('the readout hands each element over by its name in elements.ORDER, for its icon', GOBLIN.weak[1].element == 'ice'
+    and GOBLIN.weak[2].element == 'thunder' and GOBLIN.resists[1].element == 'water' and GOBLIN.weak[1].name == nil);
+check('and why each one is there, for the overlay\'s tips', GOBLIN.weak[1].why == 'lowest'
+    and GOBLIN.weak[1].amount == nil and GOBLIN.weak[2].why == 'lowest' and GOBLIN.weak[2].amount == nil
+    and GOBLIN.resists[1].why == 'half' and GOBLIN.resists[1].amount == nil);
+-- Each reason, with the amount a tip puts in, the nuke share for never and rarely, and the strength as it prints.
+-- The first element in either list is the one each row is about.
+local function first(row)
+    local e = elements.readout(row);
+    local entry = e.weak[1] or e.resists[1];
+    return entry.why .. ' ' .. tostring(entry.share or entry.amount) .. ' ' .. tostring(strength_of(entry));
+end
+local REASONS = {
+    { 'nullifies always', { nullify = { fire = 100 } }, 'nullify nil nullifies' },
+    { 'nullifies half the time', { nullify = { fire = 50 } }, 'nullify 50% nullifies 50%' },
+    { 'absorbs always', { absorb = { fire = 100 } }, 'absorb nil absorbs' },
+    { 'absorbs half the time', { absorb = { fire = 50 } }, 'absorb 50% absorbs 50%' },
+    { 'rank 11', { ranks = { fire = 11 } }, 'never nil never lands' },
+    { 'rank 11 with its own damage taken', { ranks = { fire = 11 }, magic_dmg = { fire = -95 } },
+        'never 0.6% never lands' },
+    { 'rank 11 with more damage taken', { ranks = { fire = 11 }, magic_dmg = { fire = 100 } },
+        'never 25% never lands' },
+    { 'rank 10', { ranks = { fire = 10 } }, 'rarely nil rarely lands' },
+    { 'rank 10 with its own damage taken', { ranks = { fire = 10 }, magic_dmg = { fire = -50 } },
+        'rarely 25% rarely lands' },
+    { 'rank 4', { ranks = { fire = 4 } }, 'half nil half' },
+    { 'half the damage at rank 0', { magic_dmg = { fire = -50 } }, 'halved nil half' },
+    { 'less damage at rank 0', { magic_dmg = { fire = -75 } }, 'less -75% -75%' },
+    { 'less damage at rank 5', { ranks = { fire = 5 }, magic_dmg = { fire = -50 } }, 'half_less -75% -75%' },
+    { 'more damage', { magic_dmg = { fire = 100 } }, 'more +100% +100%' },
+    { 'the lowest rank alone', { ranks = { ice = -3, fire = -2, wind = -2, earth = -2, thunder = -2, water = -2,
+        light = -2, dark = -2 } }, 'lowest nil nil' },
+    { 'extra magic evasion', { meva = { fire = 10 } }, 'meva nil lands less' },
+};
+for _, case in ipairs(REASONS) do
+    expect(('%s gives its reason, amount and strength'):format(case[1]), first(case[2]), case[3]);
+end
+-- The amount is what prints after the word. A never or rarely with its own damage taken prints nothing after it, so
+-- its nuke share is only for the tip.
+local never_dmg = elements.readout({ ranks = { fire = 11 }, magic_dmg = { fire = -95 } }).resists[1];
+local rarely_dmg = elements.readout({ ranks = { fire = 10 }, magic_dmg = { fire = -50 } }).resists[1];
+check('never and rarely print no amount, and keep their nuke share apart for the tip', never_dmg.strength == 'str_never'
+    and never_dmg.amount == nil and never_dmg.share == '0.6%' and rarely_dmg.strength == 'str_rarely'
+    and rarely_dmg.amount == nil and rarely_dmg.share == '25%');
 local s = settings();
-expect('weak, then resists with its strength', line(s, GOBLIN), 'Elements: Weak: Ice, Thunder  Resists: Water (half)');
+expect('weak, then resists with its strength', line(s, GOBLIN), 'Weaknesses: Weak: Ice, Thunder  Resists: Water (half)');
 s.printout.divider = 'star';
 expect('the regular divider goes between the two', line(s, GOBLIN),
-    'Elements: Weak: Ice, Thunder \129\154 Resists: Water (half)');
+    'Weaknesses: Weak: Ice, Thunder \129\154 Resists: Water (half)');
 s.printout.divider = 'spaces';
 s.elements.strength = false;
-expect('Show how strong off leaves the strength out', line(s, GOBLIN), 'Elements: Weak: Ice, Thunder  Resists: Water');
+expect('Show how strong off leaves the strength out', line(s, GOBLIN), 'Weaknesses: Weak: Ice, Thunder  Resists: Water');
 
 -- Names in a row that share a strength print it once, after the last of them.
 local MYSTIC = elements.readout(row_at(37, 223));
 s = settings();
-expect('a shared strength prints once', line(s, MYSTIC), 'Elements: Weak: Water  Resists: Fire (absorbs), Ice, Wind, Earth, '
+expect('a shared strength prints once', line(s, MYSTIC), 'Weaknesses: Weak: Water  Resists: Fire (absorbs), Ice, Wind, Earth, '
     .. 'Thunder, Light, Dark (never lands)');
 local IFRIT = elements.readout(row_at(207, 7));
-expect('each run of one strength gets its own', line(s, IFRIT), 'Elements: Weak: Water  Resists: Fire (absorbs), Ice (never '
+expect('each run of one strength gets its own', line(s, IFRIT), 'Weaknesses: Weak: Water  Resists: Fire (absorbs), Ice (never '
     .. 'lands), Wind, Earth, Thunder, Light, Dark (half)  Magic damage -20%');
 local ARMORY = elements.readout(row_at(38, 168));
-expect('every element nullified', line(s, ARMORY), 'Elements: Resists: Fire, Ice, Wind, Earth, Thunder, Water, Light, Dark '
+expect('every element nullified', line(s, ARMORY), 'Weaknesses: Resists: Fire, Ice, Wind, Earth, Thunder, Water, Light, Dark '
     .. '(nullifies)  Magic damage -12.5%?');
 expect('the same strength apart in the list prints twice',
     line(s, elements.readout({ ranks = { fire = 4, ice = 11, wind = 4 } })),
-    'Elements: Resists: Fire (half), Ice (never lands), Wind (half)');
+    'Weaknesses: Resists: Fire (half), Ice (never lands), Wind (half)');
 
 -- The note for every element, with Show how strong on only.
 local MUUT = elements.readout(row_at(7, 374));
-expect('the magic damage note follows the lists', line(s, MUUT), 'Elements: Weak: Light  Magic damage -25%');
+expect('the magic damage note follows the lists', line(s, MUUT), 'Weaknesses: Weak: Light  Magic damage -25%');
 local NOTE_ONLY = elements.readout({ magic_dmg = { all = -50 } });
-expect('the note alone prints', line(s, NOTE_ONLY), 'Elements: Magic damage -50%');
+expect('the note alone prints', line(s, NOTE_ONLY), 'Weaknesses: Magic damage -50%');
 s.elements.strength = false;
-expect('Show how strong off leaves the note out', line(s, MUUT), 'Elements: Weak: Light');
+expect('Show how strong off leaves the note out', line(s, MUUT), 'Weaknesses: Weak: Light');
 expect('and a monster with only the note leaves the part out', line(s, NOTE_ONLY), nil);
 check('nothing to say leaves the part out', line(settings(), nil) == nil
     and line(settings(), elements.readout({ ranks = { fire = 2 } })) == nil);
 
 -- The "?" when a script can change any of it.
-expect('the ? at the end', line(settings(), elements.readout(row_at(3, 9))), 'Elements: Weak: Thunder?');
+expect('the ? at the end', line(settings(), elements.readout(row_at(3, 9))), 'Weaknesses: Weak: Thunder?');
 
 -- Your words, cleaned like labels. An empty word leaves the word and its label divider out.
 s = settings();
 s.elements.weak_word = 'Soft \226\152\133spot';
 s.elements.resist_word = 'Tough';
-expect('your own words, printable ASCII only', line(s, GOBLIN), 'Elements: Soft spot: Ice, Thunder  Tough: Water (half)');
+expect('your own words, printable ASCII only', line(s, GOBLIN), 'Weaknesses: Soft spot: Ice, Thunder  Tough: Water (half)');
 s.elements.weak_word = '';
 s.elements.resist_word = '   ';
-expect('empty words leave the word and divider out', line(s, GOBLIN), 'Elements: Ice, Thunder  Water (half)');
+expect('empty words leave the word and divider out', line(s, GOBLIN), 'Weaknesses: Ice, Thunder  Water (half)');
 s.elements.weak_word = '  Weak  ';
 s.elements.resist_word = 'Resists';
-expect('spaces around a word go', line(s, GOBLIN), 'Elements: Weak: Ice, Thunder  Resists: Water (half)');
+expect('spaces around a word go', line(s, GOBLIN), 'Weaknesses: Weak: Ice, Thunder  Resists: Water (half)');
 
 -- The label divider follows the part's label and each word.
 s = settings();
 s.printout.label_divider = 'arrow';
-expect('the label divider after the label and the words', line(s, GOBLIN), 'Elements \129\168 Weak \129\168 Ice, Thunder  '
+expect('the label divider after the label and the words', line(s, GOBLIN), 'Weaknesses \129\168 Weak \129\168 Ice, Thunder  '
     .. 'Resists \129\168 Water (half)');
 s.printout.label_divider = 'custom';
 s.printout.label_separator = '>';
-expect('a custom one too', line(s, GOBLIN), 'Elements> Weak> Ice, Thunder  Resists> Water (half)');
+expect('a custom one too', line(s, GOBLIN), 'Weaknesses> Weak> Ice, Thunder  Resists> Water (half)');
 s = settings();
-s.printout.parts.elements.label = 'Elem';
+s.printout.parts.weaknesses.label = 'Elem';
 expect('your own label', line(s, GOBLIN), 'Elem: Weak: Ice, Thunder  Resists: Water (half)');
-s.printout.parts.elements.label = '';
+s.printout.parts.weaknesses.label = '';
 expect('no label starts with the first word', line(s, GOBLIN), 'Weak: Ice, Thunder  Resists: Water (half)');
 
 -- Every color, down to the bytes.
 s = settings();
 s.colors.line, s.colors.elements_label, s.colors.elements_weak, s.colors.elements_resist, s.colors.elements_detail = 106, 7, 2, 68, 67;
-local want = color(106) .. color(7) .. 'Elements' .. color(7) .. ': ' .. color(7) .. 'Weak: ' .. color(2) .. 'Ice' .. color(67)
+local want = color(106) .. color(7) .. 'Weaknesses' .. color(7) .. ': ' .. color(7) .. 'Weak: ' .. color(2) .. 'Ice' .. color(67)
     .. ', ' .. color(2) .. 'Thunder' .. color(67) .. '  ' .. color(7) .. 'Resists: ' .. color(68) .. 'Water' .. color(67)
     .. ' (half)';
 check('label, words, names and details each in their color', raw_line(s, GOBLIN) == want, MOCK.plain(raw_line(s, GOBLIN)));
-want = color(106) .. color(7) .. 'Elements' .. color(7) .. ': ' .. color(7) .. 'Weak: ' .. color(2) .. 'Light' .. color(67)
+want = color(106) .. color(7) .. 'Weaknesses' .. color(7) .. ': ' .. color(7) .. 'Weak: ' .. color(2) .. 'Light' .. color(67)
     .. '  ' .. color(67) .. 'Magic damage -25%';
 check('the note in the detail color', raw_line(s, MUUT) == want, MOCK.plain(raw_line(s, MUUT)));
 check('the ? in the detail color', raw_line(s, elements.readout(row_at(3, 9))):sub(-3) == color(67) .. '?');
@@ -261,9 +323,9 @@ check('the Colorblind safe skin paints weak cyan and resists coral', skins.find(
 -- Its place --------------------------------------------------------------------------------------
 
 local d = defaults.make();
-check('off by default, labeled Elements, on its own line', d.printout.parts.elements.on == false
-    and d.printout.parts.elements.label == 'Elements' and d.printout.parts.elements.new_line == true);
-check('after immunities in the default order', printout.DEFAULT_ORDER:find('immunities elements drops', 1, true) ~= nil,
+check('Weaknesses starts off on its own line', d.printout.parts.weaknesses.on == false
+    and d.printout.parts.weaknesses.label == 'Weaknesses' and d.printout.parts.weaknesses.new_line == true);
+check('Weaknesses follows Magic in the default order', printout.DEFAULT_ORDER:find('magic weaknesses effects family', 1, true) ~= nil,
     printout.DEFAULT_ORDER);
 check('its words and Show how strong', d.elements.weak_word == 'Weak' and d.elements.resist_word == 'Resists'
     and d.elements.strength == true);
@@ -271,13 +333,13 @@ check('its words and Show how strong', d.elements.weak_word == 'Weak' and d.elem
 -- The default layout puts it on a line of its own.
 s = defaults.make();
 s.printout.divider = 'spaces';
-s.printout.parts.immunities.on = true;
-s.printout.parts.elements.on = true;
+s.printout.parts.weaknesses.on = true;
+s.weaknesses.chat = { elements = true, weapons = false, immunities = true, charm = false };
 local lines = printout.lines(s, { name = 'Goblin', low = 20, high = 20, con = 3, elements = GOBLIN,
     immune = { 'bind' } });
 for i, each in ipairs(lines) do lines[i] = MOCK.plain(each); end
-check('a line of its own after immunities', #lines == 3 and lines[2] == 'Immune: Bind'
-    and lines[3] == 'Elements: Weak: Ice, Thunder  Resists: Water (half)', table.concat(lines, ' / '));
+check('elements and immunities share one Weaknesses line', #lines == 2
+    and lines[2] == 'Weaknesses: Weak: Ice, Thunder  Resists: Water (half)  Immune: Bind', table.concat(lines, ' / '));
 
 -- Through the addon ------------------------------------------------------------------------------
 
@@ -287,9 +349,10 @@ MOCK.settings_file = { printout = { order = 'difficulty hit evade crit aggro mag
 dofile(ADDON_DIR .. '/checkmate.lua');
 MOCK.fire('load');
 local cur = MOCK.settings.current;
-check('a file without it gets it after immunities, off, on its own line', cur.printout.order
-    == 'difficulty hit evade crit aggro magic immunities elements drops pet' and cur.printout.parts.elements.on == false
-    and cur.printout.parts.elements.new_line == true and cur.printout.parts.elements.label == 'Elements', cur.printout.order);
+check('an older file gets one Weaknesses row, off and on its own line', cur.printout.order
+    == 'difficulty hit pdif offhand offhandpdif ranged rangedpdif evade block parry crit crittaken job aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet'
+    and cur.printout.parts.weaknesses.on == false
+    and cur.printout.parts.weaknesses.new_line == true and cur.printout.parts.weaknesses.label == 'Weaknesses', cur.printout.order);
 check('with its words, Show how strong and the Phoenix colors', cur.elements.weak_word == 'Weak'
     and cur.elements.resist_word == 'Resists' and cur.elements.strength == true and cur.colors.elements_label == 106
     and cur.colors.elements_weak == 2 and cur.colors.elements_resist == 68 and cur.colors.elements_detail == 106
@@ -305,15 +368,16 @@ local function run(text)
     return MOCK.printed_since(n);
 end
 check('the sample leaves it out while it\'s off', not table.concat(run('/checkmate sample'), ' / '):find('Elements', 1, true));
-MOCK.command('/checkmate show elements');
+cur.weaknesses.chat = { elements = true, weapons = false, immunities = false, charm = false };
+MOCK.command('/checkmate show weaknesses');
 cur.printout.divider = 'spaces';
 local printed = run('/checkmate sample');
-check('and shows it when it\'s on', printed[3] == '[checkmate] Elements: Weak: Ice, Thunder  Resists: Water (half)',
+check('and shows it when it\'s on', printed[3] == '[checkmate] Weaknesses: Weak: Ice, Thunder  Resists: Water (half)',
     table.concat(printed, ' / '));
 MOCK.command('/checkmate strength off');
 MOCK.command('/checkmate resistword ""');
 printed = run('/checkmate sample');
-check('with your words and Show how strong off', printed[3] == '[checkmate] Elements: Weak: Ice, Thunder  Water',
+check('with your words and Show how strong off', printed[3] == '[checkmate] Weaknesses: Weak: Ice, Thunder  Water',
     table.concat(printed, ' / '));
 MOCK.command('/checkmate strength on');
 MOCK.command('/checkmate resistword Resists');
@@ -328,14 +392,15 @@ local function readout(zone, index, name, level, con, message)
     return MOCK.printed_since(n);
 end
 printed = readout(207, 7, 'Ifrit Prime', 0, nil, 249);
-check('Ifrit Prime in Waking the Beast', printed[3] == '[checkmate] Elements: Weak: Water  Resists: Fire (absorbs), Ice '
+check('Ifrit Prime in Waking the Beast', printed[3] == '[checkmate] Weaknesses: Weak: Water  Resists: Fire (absorbs), Ice '
     .. '(never lands), Wind, Earth, Thunder, Light, Dark (half)  Magic damage -20%', table.concat(printed, ' / '));
 printed = readout(103, 82, 'Fire Elemental', 39, 0);
-check('Fire Elemental in Valkurm Dunes', printed[3] == '[checkmate] Elements: Weak: Water  Resists: Fire, Ice (never lands)',
+check('Fire Elemental in Valkurm Dunes', printed[3] == '[checkmate] Weaknesses: Weak: Water  Resists: Fire, Ice (never lands)',
     table.concat(printed, ' / '));
 MOCK.command('/checkmate hide aggro');
+MOCK.command('/checkmate hide links');
 printed = readout(103, 98, 'Goblin Tinkerer', 19, 3);
-check('a Goblin Tinkerer', #printed == 2 and printed[2] == '[checkmate] Elements: Weak: Light', table.concat(printed, ' / '));
+check('a Goblin Tinkerer', #printed == 2 and printed[2] == '[checkmate] Weaknesses: Weak: Light', table.concat(printed, ' / '));
 printed = readout(8, 1, 'Shikaree Z', 0, nil, 249);
 check('Shikaree Z has nothing to say, so only the /check line prints', #printed == 1
     and printed[1]:find('^%[checkmate%] Shikaree Z') ~= nil, table.concat(printed, ' / '));

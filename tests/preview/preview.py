@@ -53,7 +53,7 @@ def parse_args(argv):
     p.add_argument('--window-size', nargs=2, type=float, metavar=('W', 'H'),
                    help='force the settings window to this size every frame (like a user resize)')
     p.add_argument('--scroll', type=float, metavar='Y',
-                   help='scroll the settings window down Y pixels every frame (ImGui stops at the bottom), to see '
+                   help='scroll the settings page down Y pixels every frame, keeping navigation fixed (ImGui stops at the bottom), to see '
                         'the end of a tab taller than the screen')
     p.add_argument('--window', help='substring of the window name to crop to (default: the largest window '
                                     'whose name does not start with ##)')
@@ -67,6 +67,12 @@ def parse_args(argv):
                    help='draw this Lua file instead of the settings window. The file returns a function that\'s '
                         'called once per frame. It can use PREVIEW.log(text), PREVIEW.frame and PREVIEW.last_frame, '
                         'and the last frame\'s log lines print on stderr as "log: ..."')
+    p.add_argument('--mouse-icon', type=int, metavar='N',
+                   help='from the second frame on, put the mouse in the middle of the Nth icon the last frame drew, 1 '
+                        'for the first, so the overlay shows its tip. The crop takes the tip in, and the run fails if '
+                        'ImGui ever wants the mouse')
+    p.add_argument('--mouse-text', help='hover the first overlay text run containing this text; requires a tooltip '
+                   'on the final frame and checks that clicks still reach the game')
     p.add_argument('--font', default=None, help='TTF for the default ImGui font (default: Ashita\'s Agave)')
     p.add_argument('--font-size', type=float, default=18.0, help='default ImGui font size, Ashita uses 18')
     p.add_argument('--no-crop', action='store_true', help='save the whole screen instead of cropping to the window')
@@ -185,6 +191,8 @@ class Preview:
         self.warnings = []
         self.frame = 0
         self.last_windows = {}
+        self.last_tooltip = None        # The tooltip on the last frame, for the crop (--mouse-icon).
+        self.tip_frames = 0             # Frames that drew a tooltip (--mouse-icon).
         self.lua = None
         self.font_name = None
         self.style_done = False
@@ -218,6 +226,7 @@ class Preview:
         g.ASHITA_LIBS = ASHITA_LIBS
         g.ADDON_FILES = L.table_from([])
         L.execute(open(os.path.join(HARNESS, 'mock_ashita.lua'), encoding='utf-8').read())
+        L.execute('MOCK.navigation_real = true')
 
         self.bridge = imgui_bridge.Bridge(select_tab=a.tab, window_filter=a.window,
                                           forced_size=tuple(a.window_size) if a.window_size else None,
@@ -348,8 +357,19 @@ class Preview:
         if not self.style_done:
             self.setup_style()
             self.style_done = True
-        # No mouse over anything, so nothing renders hovered.
-        imgui.get_io().add_mouse_pos_event(-imgui_bridge.FLT_MAX, -imgui_bridge.FLT_MAX)
+        # No mouse over anything, so nothing renders hovered, unless --mouse-icon puts it on an icon the last frame
+        # drew. This runs before the next frame's begin_frame, so the icons are the last frame's.
+        x = y = -imgui_bridge.FLT_MAX
+        n = self.args.mouse_icon
+        if n is not None and 0 < n <= len(self.bridge.dummies):
+            (x0, y0), (x1, y1) = self.bridge.dummies[n - 1]
+            x, y = (x0 + x1) / 2, (y0 + y1) / 2
+        if self.args.mouse_text is not None:
+            for text, (x0, y0), (x1, y1) in self.bridge.text_rects:
+                if self.args.mouse_text in text:
+                    x, y = (x0 + x1) / 2, (y0 + y1) / 2
+                    break
+        imgui.get_io().add_mouse_pos_event(x, y)
 
     def gui(self):
         self.frame += 1
@@ -359,6 +379,10 @@ class Preview:
             return
         self.bridge.begin_frame()
         del self.logs[:]
+        # The overlay never takes the mouse, tip or no tip, so ImGui must never want it with the mouse on an icon.
+        if (self.args.mouse_icon is not None or self.args.mouse_text is not None) and imgui.get_io().want_capture_mouse:
+            self.errors.append('frame %d: ImGui wants the mouse with it on an icon, so a click there would not reach '
+                               'the game' % self.frame)
         before = imgui.internal.ErrorRecoveryState()
         imgui.internal.error_recovery_store_state(before)
         raised = False
@@ -388,11 +412,14 @@ class Preview:
             params.app_shall_exit = True
         if self.args.full:
             for line in self.lua.globals().MOCK.printed.values():
-                if 'Stopped after an error' in str(line):
+                if 'Stopped after an error' in str(line) or 'The overlay stopped after an error' in str(line) or 'Effects stopped after an error' in str(line):
                     self.errors.append('frame %d: checkmate caught a frame error: %s' % (self.frame, line))
                     params.app_shall_exit = True
             self.lua.execute('MOCK.printed = {}')
         self.last_windows = dict(self.bridge.windows)
+        self.last_tooltip = self.bridge.tooltip
+        if self.bridge.tooltip is not None:
+            self.tip_frames += 1
         if self.frame >= self.args.frames:
             params.app_shall_exit = True
 
@@ -449,6 +476,11 @@ class Preview:
             self.warn('the screenshot is %dx%d, not the %dx%d asked for, because the monitor is smaller. Every pixel '
                       'is resampled and thin lines can show under text. Use a smaller --size'
                       % (w, h, a.size[0], a.size[1]))
+        if a.mouse_icon is not None and self.last_tooltip is None:
+            self.warn('no tip showed on the last frame. That icon may not be there, or it needs more --frames')
+        if a.mouse_text is not None and self.last_tooltip is None:
+            self.errors.append('no tooltip showed for overlay text %r on the final frame' % a.mouse_text)
+            return None, None
         target = self.pick_window()
         if target is None:
             self.errors.append('no settings window was drawn (windows seen: %s)' % (list(self.last_windows) or 'none'))
@@ -462,6 +494,11 @@ class Preview:
                           'use --frames 2 or more' % target)
             x0, y0 = info['pos']
             x1, y1 = x0 + info['size'][0], y0 + info['size'][1]
+            tip = self.last_tooltip if a.mouse_icon is not None or a.mouse_text is not None else None
+            if tip is not None:
+                # The overlay's tip sits outside the panel, so the crop takes it in too.
+                x0, y0 = min(x0, tip['pos'][0]), min(y0, tip['pos'][1])
+                x1, y1 = max(x1, tip['pos'][0] + tip['size'][0]), max(y1, tip['pos'][1] + tip['size'][1])
             if x0 < 0 or y0 < 0 or x1 > w or y1 > h:
                 self.warn('window %r runs off the %dx%d screen, so the crop is clipped' % (target, w, h))
             m = a.margin
@@ -533,6 +570,10 @@ def main(argv=None):
     if b is not None:
         parts.append('tab=%s' % (','.join(b.tab_open) or '-'))
     parts.append('screen=%dx%d frames=%d font=%s' % (args.size[0], args.size[1], args.frames, pv.font_name))
+    if args.mouse_icon is not None:
+        parts.append('mouse_icon=%d tip_frames=%d' % (args.mouse_icon, pv.tip_frames))
+    if args.mouse_text is not None:
+        parts.append('mouse_text=%r tip_frames=%d' % (args.mouse_text, pv.tip_frames))
     if b is not None and b.fonts_added:
         parts.append('loaded=%s' % ','.join('%s@%g' % (os.path.basename(p), s) for p, s in b.fonts_added))
     if box is not None and not pv.errors:

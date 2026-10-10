@@ -1,7 +1,7 @@
 -- The look skins. Every skin sets every chat color and every window color. Picking one copies its values in
--- and leaves the dividers and font alone. It also covers Reset to skin, Custom, Undo, the Colorblind safe tip,
--- /checkmate reset asking first, and the window look filled on a first install, after /checkmate reset and from a
--- broken file.
+-- and leaves the dividers, the font and the overlay's own settings alone. It also covers Reset to skin, Custom,
+-- Undo, the Colorblind safe tip, /checkmate reset asking first, the overlay's element badge colors, and the window
+-- look filled on a first install, after /checkmate reset and from a broken file.
 local skins    = require('ui.skins');
 local defaults = require('ui.defaults');
 local printout = require('core.printout');
@@ -11,8 +11,8 @@ local ROLES = { 'background', 'card', 'control', 'hover', 'border', 'text', 'hea
 local offered = {};
 for _, entry in ipairs(printout.PALETTE) do offered[entry.code] = true; end
 
-check('six skins, Phoenix first', #skins.LIST == 6 and skins.LIST[1].id == 'phoenix'
-    and skins.IDS == 'phoenix, classic, minimal, contrast, ember, colorblind', skins.IDS);
+check('eight skins, Phoenix first', #skins.LIST == 8 and skins.LIST[1].id == 'phoenix'
+    and skins.IDS == 'phoenix, classic, minimal, contrast, ember, mint, lavender, colorblind', skins.IDS);
 for _, skin in ipairs(skins.LIST) do
     local whole = type(skin.imgui.rounding) == 'number' and type(skin.imgui.spacing) == 'number';
     for _, role in ipairs(ROLES) do
@@ -107,7 +107,7 @@ for _, skin in ipairs(skins.LIST) do
 end
 local count = 0;
 for _ in pairs(looks) do count = count + 1; end
-check('six different chat looks', count == 6, count);
+check('eight different chat looks', count == 8, count);
 
 -- Every skin paints the level range in its level color, so the range matches the level until you pick a color for it.
 local range_as_level = true;
@@ -123,6 +123,46 @@ check('every skin paints the ID in its level color', id_as_level);
 local ph_as_level = true;
 for _, skin in ipairs(skins.LIST) do ph_as_level = ph_as_level and skin.chat.ph == skin.chat.level; end
 check('every skin paints the PH note in its level color', ph_as_level);
+
+-- Off-hand and ranged take each skin's hit rate colors.
+local like_hit, unlike = true, {};
+for _, skin in ipairs(skins.LIST) do
+    for _, id in ipairs({ 'offhand', 'ranged' }) do
+        for _, piece in ipairs({ 'label', 'number', 'detail' }) do
+            if (skin.chat[id .. '_' .. piece] ~= skin.chat['hit_' .. piece]) then
+                like_hit = false;
+                unlike[#unlike + 1] = skin.id .. ' ' .. id .. '_' .. piece;
+            end
+        end
+    end
+end
+check('every skin paints off-hand and ranged in its hit rate colors', like_hit, table.concat(unlike, ', '));
+
+-- Steal takes each skin's drops colors.
+local like_drops = true;
+unlike = {};
+for _, skin in ipairs(skins.LIST) do
+    for _, piece in ipairs({ 'label', 'name', 'number', 'detail' }) do
+        if (skin.chat['steal_' .. piece] == nil or skin.chat['steal_' .. piece] ~= skin.chat['drops_' .. piece]) then
+            like_drops = false;
+            unlike[#unlike + 1] = skin.id .. ' steal_' .. piece;
+        end
+    end
+end
+check('every skin paints steal in its drops colors', like_drops, table.concat(unlike, ', '));
+
+-- Crit taken takes each skin's crit colors.
+local like_crit = true;
+unlike = {};
+for _, skin in ipairs(skins.LIST) do
+    for _, piece in ipairs({ 'label', 'number', 'detail' }) do
+        if (skin.chat['crittaken_' .. piece] == nil or skin.chat['crittaken_' .. piece] ~= skin.chat['crit_' .. piece]) then
+            like_crit = false;
+            unlike[#unlike + 1] = skin.id .. ' crittaken_' .. piece;
+        end
+    end
+end
+check('every skin paints crit taken in its crit colors', like_crit, table.concat(unlike, ', '));
 
 -- Minimal prints in one chat color, the tag, difficulty and reading included.
 local minimal = defaults.make();
@@ -183,6 +223,36 @@ s.printout.replace_game_line = false;
 skins.apply(s, 'contrast');
 check('a skin leaves the extras line alone', s.printout.extras_own_line == false);
 check('and Replace the game\'s /check line', s.printout.replace_game_line == false);
+s.overlay.on, s.overlay.font, s.overlay.font_size, s.overlay.opacity, s.overlay.border = true, 'arial', 22, 30, false;
+s.overlay.divider, s.overlay.wrap = 'slash', 300;
+skins.apply(s, 'classic');
+check('and the overlay\'s own settings', s.overlay.on == true and s.overlay.font == 'arial' and s.overlay.font_size == 22
+    and s.overlay.opacity == 30 and s.overlay.border == false and s.overlay.divider == 'slash' and s.overlay.wrap == 300);
+s.overlay.icons, s.overlay.icons_only, s.overlay.element_look = false, true, 'badges';
+skins.apply(s, 'ember');
+check('and its icon settings', s.overlay.icons == false and s.overlay.icons_only == true
+    and s.overlay.element_look == 'badges');
+
+-- Every skin sets the overlay's eight element badge colors. Minimal's are all cream, and every other skin gives the
+-- eight elements eight different colors.
+local BADGE_KEYS = { 'badge_fire', 'badge_ice', 'badge_wind', 'badge_earth', 'badge_thunder', 'badge_water', 'badge_light',
+    'badge_dark' };
+for _, skin in ipairs(skins.LIST) do
+    local codes, seen_codes, set = {}, {}, true;
+    for _, key in ipairs(BADGE_KEYS) do
+        local code = skin.chat[key];
+        set = set and offered[code] == true;
+        if (not seen_codes[code]) then
+            seen_codes[code] = true;
+            codes[#codes + 1] = code;
+        end
+    end
+    if (skin.id == 'minimal') then
+        check('Minimal\'s badges are all cream', set and #codes == 1 and codes[1] == 106);
+    else
+        check(skin.name .. ' sets eight different badge colors', set and #codes == 8, #codes);
+    end
+end
 
 -- The skin you picked stays current until anything it set differs. The Look tab shows that as Custom.
 local classic = skins.find('classic');
@@ -203,6 +273,9 @@ s.printout.divider = 'note';
 s.look.font = 'arial';
 s.look.font_size = 22;
 check('the divider and font don\'t make it Custom', skins.current(s) == classic);
+s.overlay.on, s.overlay.font, s.overlay.font_size, s.overlay.opacity, s.overlay.border = true, 'arial', 22, 0, false;
+s.overlay.parts.drops, s.overlay.divider, s.overlay.wrap = true, 'dash', 0;
+check('nor do the overlay\'s own settings', skins.current(s) == classic);
 s.colors.good = 69;
 check('a changed chat color makes it Custom', skins.current(s) == nil);
 s = fresh_classic();
@@ -268,12 +341,13 @@ check('forgetting it leaves nothing to undo', not skins.can_undo() and skins.und
 local tip = skins.find('Colorblind safe').tip;
 check('Colorblind safe has a tip', type(tip) == 'string' and tip:find('never puts red against green', 1, true) ~= nil
     and tip:find('the shades in game can differ a little', 1, true) ~= nil
+    and tip:find('The element badges stay apart too, with wind in grey.', 1, true) ~= nil
     and tip:find('Print a sample', 1, true) ~= nil, tip);
 local tips = 0;
 for _, skin in ipairs(skins.LIST) do
     if (skin.tip ~= nil) then tips = tips + 1; end
 end
-check('and the only one', tips == 1, tips);
+check('Mint, Lavender and Colorblind safe have tips', tips == 3, tips);
 
 -- Filling the window look.
 s = defaults.make();
@@ -336,13 +410,13 @@ said = run('/checkmate skin UNDO');
 check('a second undo has nothing to take back', cur.look.skin == 'phoenix' and said == '[checkmate] There\'s nothing '
     .. 'to undo. Undo only takes back your last skin pick or Reset to skin.', said);
 
--- The Look tab. The skin list says Custom once a color changes, and Undo greys out with nothing to undo.
-local look_path = 'Look/##skin';
+-- The Appearance tab. The skin list says Custom once a color changes, and Undo greys out with nothing to undo.
+local look_path = 'Appearance/##skin';
 MOCK.command('/checkmate');
 MOCK.frame();
 check('a first install shows Phoenix, not Custom', MOCK.gui.previews[look_path] == 'Phoenix'
     and skins.current(cur) == skins.find('phoenix'), MOCK.gui.previews[look_path]);
-check('with Undo greyed out', MOCK.gui.paths['Look/Undo'] == 'Button' and MOCK.gui.disabled['Look/Undo'] == true);
+check('with Undo greyed out', MOCK.gui.paths['Appearance/Undo'] == 'Button' and MOCK.gui.disabled['Appearance/Undo'] == true);
 cur.colors.good = 69;
 MOCK.frame();
 check('a changed color shows Custom', MOCK.gui.previews[look_path] == 'Custom', MOCK.gui.previews[look_path]);
@@ -353,7 +427,7 @@ check('picking Colorblind safe copies it in', cur.look.skin == 'colorblind' and 
     and cur.colors.easy_prey == 71);
 MOCK.frame();
 check('and the list shows it, with Undo ready', MOCK.gui.previews[look_path] == 'Colorblind safe'
-    and MOCK.gui.disabled['Look/Undo'] == nil);
+    and MOCK.gui.disabled['Appearance/Undo'] == nil);
 -- Its tip goes in the list's (?), after what every skin sets, and never in the window itself.
 MOCK.hover = true;
 MOCK.frame();
@@ -361,12 +435,12 @@ MOCK.hover = false;
 local skin_tip = MOCK.gui.tips[look_path] or '';
 check('its tip shows in the list\'s (?)', skin_tip:find('^Sets every window color') ~= nil
     and skin_tip:find('Colorblind safe never puts red against green.', 1, true) ~= nil
-    and skin_tip:find('Print a sample on the Printout or Colors tab to see the real ones.', 1, true) ~= nil
+    and skin_tip:find('Print a sample on the Display or Appearance tab to see the real ones.', 1, true) ~= nil
     and not MOCK.drew('Colorblind safe never'), skin_tip);
 MOCK.clicks[look_path .. '/Colorblind safe'] = true;
 MOCK.frame();
 MOCK.open[look_path] = nil;
-MOCK.clicks['Look/Undo'] = true;
+MOCK.clicks['Appearance/Undo'] = true;
 local saves = MOCK.saved;
 MOCK.frame();
 check('picking the skin you have does nothing, so Undo still goes back before it', cur.look.skin == 'phoenix'
@@ -375,21 +449,21 @@ MOCK.hover = true;
 MOCK.frame();
 MOCK.hover = false;
 check('then it\'s Custom again and Undo greys out', MOCK.gui.previews[look_path] == 'Custom'
-    and MOCK.gui.disabled['Look/Undo'] == true);
+    and MOCK.gui.disabled['Appearance/Undo'] == true);
 check('and the list\'s (?) has no skin tip of its own', (MOCK.gui.tips[look_path] or ''):find('Colorblind safe never',
     1, true) == nil and MOCK.gui.tips[look_path] ~= nil);
-MOCK.clicks['Look/Reset to skin'] = true;
+MOCK.clicks['Appearance/Reset to skin'] = true;
 MOCK.frame();
 check('Reset to skin brings Phoenix back', cur.colors.good == 2 and skins.current(cur) == skins.find('phoenix'));
-MOCK.clicks['Look/Undo'] = true;
+MOCK.clicks['Appearance/Undo'] = true;
 MOCK.frame();
 check('and Undo takes it back', cur.colors.good == 69 and cur.look.skin == 'phoenix' and skins.current(cur) == nil);
 MOCK.command('/checkmate');
 
 -- /checkmate reset asks first. A second one within 10 seconds does it.
 local RESET_SAID = '[checkmate] This puts every one of this character\'s settings back to its default, including '
-    .. 'the skin and every color, the window\'s font, size and position, and the job links. Your saved profiles '
-    .. 'stay. Type /checkmate reset again within 10 seconds to go ahead.';
+    .. 'the skin and every color, the window\'s font, size and position, where the overlay sits, your merits and the '
+    .. 'job links. Your saved profiles stay. Type /checkmate reset again within 10 seconds to go ahead.';
 skins.apply(cur, 'ember');
 cur.drops.th = 3;
 cur.job_links.WAR = 'Solo';
@@ -413,8 +487,10 @@ said = run('/checkmate reset');
 check('the next reset asks first again', said == RESET_SAID, said);
 said = run('/checkmate help');
 check('help says what reset puts back', said:find('[checkmate] /checkmate reset  puts every one of this character\'s '
-    .. 'settings back to its default, including the skin and every color, the window\'s font, size and position, and '
-    .. 'the job links. Your saved profiles stay. Type it twice within 10 seconds.', 1, true) ~= nil, said);
+    .. 'settings back to its default, including the skin and every color, the window\'s font, size and position, '
+    .. 'where the overlay sits, your merits and the job links. Your saved profiles stay. Type it twice within 10 '
+    .. 'seconds.', 1, true)
+    ~= nil, said);
 said = run('/checkmate help look');
 check('help look names skin undo', said:find('[checkmate] /checkmate skin undo  takes back your last skin pick or Reset to '
     .. 'skin. It only goes back one step.', 1, true) ~= nil, said);
@@ -437,5 +513,71 @@ check('a Classic settings file without the pet colors fills them from Classic', 
 check('and the ID color from Classic too', cur.colors.id == 106, cur.colors.id);
 check('and the PH color', cur.colors.ph == 106, cur.colors.ph);
 check('and it\'s still Classic', cur.look.skin == 'classic' and skins.current(cur) == classic);
+
+-- An Ember settings file from before the off-hand and ranged colors gets them from Ember, so it's still Ember.
+local ember_skin = skins.find('ember');
+old_colors = {};
+for _, key in ipairs(printout.COLOR_KEYS) do
+    if (not key:find('^offhand_') and not key:find('^ranged_')) then old_colors[key] = ember_skin.chat[key]; end
+end
+MOCK.settings.switch_character({ look = { skin = 'ember' }, colors = old_colors,
+    printout = { con_colors = ember_skin.chat.con_colors } });
+cur = MOCK.settings.current;
+local weapon_colors = {};
+for _, key in ipairs({ 'offhand_label', 'offhand_number', 'offhand_detail', 'ranged_label', 'ranged_number',
+    'ranged_detail' }) do
+    weapon_colors[#weapon_colors + 1] = tostring(cur.colors[key]);
+end
+check('an Ember settings file without the off-hand and ranged colors fills them from Ember', table.concat(weapon_colors, ',')
+    == '78,7,85,78,7,85', table.concat(weapon_colors, ','));
+check('and it\'s still Ember', cur.look.skin == 'ember' and skins.current(cur) == ember_skin);
+
+-- A High contrast settings file from before the steal colors gets them from High contrast, so it's still High contrast.
+local contrast = skins.find('contrast');
+old_colors = {};
+for _, key in ipairs(printout.COLOR_KEYS) do
+    if (not key:find('^steal_')) then old_colors[key] = contrast.chat[key]; end
+end
+MOCK.settings.switch_character({ look = { skin = 'contrast' }, colors = old_colors,
+    printout = { con_colors = contrast.chat.con_colors } });
+cur = MOCK.settings.current;
+local steal_colors = {};
+for _, key in ipairs({ 'steal_label', 'steal_name', 'steal_number', 'steal_detail' }) do
+    steal_colors[#steal_colors + 1] = tostring(cur.colors[key]);
+end
+check('a High contrast settings file without the steal colors fills them from High contrast',
+    table.concat(steal_colors, ',') == '82,1,1,92', table.concat(steal_colors, ','));
+check('and it\'s still High contrast', cur.look.skin == 'contrast' and skins.current(cur) == contrast);
+
+-- A Colorblind safe settings file from before the element badges gets them from Colorblind safe, its grey wind too.
+local colorblind = skins.find('colorblind');
+old_colors = {};
+for _, key in ipairs(printout.COLOR_KEYS) do
+    if (not key:find('^badge_')) then old_colors[key] = colorblind.chat[key]; end
+end
+MOCK.settings.switch_character({ look = { skin = 'colorblind' }, colors = old_colors,
+    printout = { con_colors = colorblind.chat.con_colors } });
+cur = MOCK.settings.current;
+local badge_colors = {};
+for _, key in ipairs(BADGE_KEYS) do badge_colors[#badge_colors + 1] = tostring(cur.colors[key]); end
+check('a Colorblind safe settings file without the badge colors fills them from Colorblind safe',
+    table.concat(badge_colors, ',') == '76,92,67,69,105,3,106,72', table.concat(badge_colors, ','));
+check('and it\'s still Colorblind safe', cur.look.skin == 'colorblind' and skins.current(cur) == colorblind);
+
+-- A Classic settings file from before the crit taken colors gets them from Classic, so it's still Classic.
+old_colors = {};
+for _, key in ipairs(printout.COLOR_KEYS) do
+    if (not key:find('^crittaken_')) then old_colors[key] = classic.chat[key]; end
+end
+MOCK.settings.switch_character({ look = { skin = 'classic' }, colors = old_colors,
+    printout = { con_colors = classic.chat.con_colors } });
+cur = MOCK.settings.current;
+local taken_colors = {};
+for _, key in ipairs({ 'crittaken_label', 'crittaken_number', 'crittaken_detail' }) do
+    taken_colors[#taken_colors + 1] = tostring(cur.colors[key]);
+end
+check('a Classic settings file without the crit taken colors fills them from Classic', table.concat(taken_colors, ',')
+    == '7,1,67', table.concat(taken_colors, ','));
+check('and that one is still Classic', cur.look.skin == 'classic' and skins.current(cur) == classic);
 
 return MOCK.report();

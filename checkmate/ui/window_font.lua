@@ -1,6 +1,6 @@
 --[[
     The settings window's font. Ashita's own font is always there. Every other one is a file in the
-    Windows fonts folder.
+    Windows fonts folder. The overlay picks its own font from the same list.
 
     Adding a font in the middle of a frame can crash the game. So every font in the list loads once,
     on the load event, and stays loaded until the game closes. Picking a font only switches between
@@ -29,7 +29,7 @@ window_font.SIZE_MIN     = 12;
 window_font.SIZE_MAX     = 24;
 window_font.SIZE_DEFAULT = 18;
 
--- The Windows fonts folder. The tests point it somewhere else.
+-- The Windows fonts folder.
 window_font.FOLDER = ('%s\\Fonts\\'):format(os.getenv('WINDIR') or 'C:\\Windows');
 
 -- The size a font loads at. ImGui draws it at any size from there.

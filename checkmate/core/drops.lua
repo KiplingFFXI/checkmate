@@ -3,9 +3,10 @@
 
     Every roll in the data is a per-mille rate. The server turns it into basis points, snaps it down
     to one of seven columns and reads the chance from the Treasure Hunter row
-    (scripts/combat/basic/treasure_hunter.lua). A rate of 1000 always drops and ignores Treasure
-    Hunter. A group rolls its rate the same way, then gives one member by weight. An item that more
-    than one roll can give is counted once, as the chance that any of them gives it.
+    (scripts/combat/basic/treasure_hunter.lua). A rate of 1000 passes its roll and ignores Treasure
+    Hunter. The monster must still be eligible to drop it. A group rolls its rate the same way, then
+    gives one member by weight. An item that more than one roll can give is counted once, as the chance
+    that any of them gives it.
     Phoenix allows Treasure Hunter 0 to 4.
 ]]
 
@@ -103,7 +104,7 @@ end
 local resources = AshitaCore:GetResourceManager();
 
 -- The item's English name, or "Item <id>" when the client doesn't know it.
-local function item_name(id)
+function drops.item_name(id)
     local item = resources:GetItemById(id);
     local name = item and item.Name and item.Name[1];
     if (name == nil or name == '') then
@@ -125,7 +126,7 @@ end
 
 --[[
     The drop list for a data row with the drop settings, or nil when there's nothing to show.
-    Returns { th, items = { { name, chance }, ... }, more, scripted, exp_only } with chance in percent.
+    Returns { th, items = { { id, name, chance }, ... }, more, scripted, exp_only } with chance in percent.
     Items under the minimum chance are left out. `more` counts the items past the most shown.
 ]]
 function drops.readout(row, setting)
@@ -135,7 +136,7 @@ function drops.readout(row, setting)
     for id, chance in pairs(drops.chances(row.drops, th)) do
         local percent = chance * 100;
         if (percent > 0 and percent >= (setting.min_chance or 0)) then
-            items[#items + 1] = { name = item_name(id), chance = percent };
+            items[#items + 1] = { id = id, name = drops.item_name(id), chance = percent };
         end
     end
     table.sort(items, setting.sort == 'name' and by_name or by_chance);
@@ -155,6 +156,7 @@ function drops.readout(row, setting)
         more     = more,
         scripted = flags.scripted_drops == true,
         exp_only = flags.exp_only == true,
+        conditions = row.loot_conditions,
     };
     if (#items == 0 and more == 0 and not out.scripted and not out.exp_only) then
         return nil;

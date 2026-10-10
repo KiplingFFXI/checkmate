@@ -12,6 +12,7 @@ does to move where an NM pops. Either way the PHs are the same whether the modul
 phList, calls phOnDespawn outside an onMobDespawn override, or changes onMobDespawn or phOnDespawn any other way stops
 the export.
 """
+from pathlib import Path
 import os
 import re
 
@@ -19,6 +20,7 @@ from . import aggro
 from . import battlefields
 from . import dynamis
 from . import lua_source
+from . import ph_rules
 
 # The call a PH's onMobDespawn makes.
 PH_CALL = 'xi.mob.phOnDespawn'
@@ -66,7 +68,7 @@ class ZoneIds:
         self.entries = {}
         path = os.path.join(tree, 'scripts', 'zones', script_dir, 'IDs.lua')
         if os.path.exists(path):
-            text = lua_source.strip_comments(open(path, encoding='utf-8', errors='replace').read())
+            text = lua_source.strip_comments(Path(path).read_text(encoding='utf-8', errors='replace'))
             start = re.search(r'^    mob\s*=', text, re.M)
             if start is not None:
                 body = lua_source.block(text, start.end(), path)
@@ -126,7 +128,7 @@ def module_overrides(tree):
     """
     found = {}
     for path in aggro.lua_files_loaded(tree):
-        text = lua_source.strip_comments(open(os.path.join(tree, path), encoding='utf-8', errors='replace').read())
+        text = lua_source.strip_comments(Path(os.path.join(tree, path)).read_text(encoding='utf-8', errors='replace'))
         if 'phList' in text:
             raise RuntimeError('%s touches a phList. %s' % (path, NEEDS_UPDATE))
         # Every onMobDespawn here has to be a call or an override the loop below can read, and every phOnDespawn a
@@ -162,7 +164,7 @@ def module_overrides(tree):
                 raise RuntimeError('%s line %d calls %s for a list of monsters, which the PH reader can\'t follow. %s'
                                    % (path, first + 1, PH_CALL, NEEDS_UPDATE))
             if not formatted:
-                found.setdefault((script_dir, script), []).append((path, keeps, calls, aliases))
+                found.setdefault((script_dir, script), []).append((path, keeps, calls, aliases, "\n".join(body[1:-1])))
         if len(CALL.findall(text)) != read:
             raise RuntimeError('%s calls %s outside an onMobDespawn override. %s' % (path, PH_CALL, NEEDS_UPDATE))
     return found
@@ -176,6 +178,8 @@ class Reader:
         self.scripts = scripts
         self.dynamis = dynamis
         self.overrides = module_overrides(tree)
+        ph_rules.check_helper(tree)
+        self.nm_rules = ph_rules.NmRules(tree)
 
     def mark(self, dir_name, script_dir, tables, placed):
         """
@@ -184,10 +188,11 @@ class Reader:
         """
         ids = ZoneIds(self.tree, dir_name, script_dir, tables)
         kinds = dict(placed)
-        calls, lists = {}, {}
+        calls, lists, rules = {}, {}, {}
         for spawn_id, kind in placed:
             if kind.script not in calls:
                 calls[kind.script] = self.despawn_nms(ids, script_dir, kind.script)
+                rules[kind.script] = self.despawn_rules(ids, script_dir, kind.script) if calls[kind.script] else {}
             for called in calls[kind.script]:
                 # An NM the server never makes, like a WotG one, has no script for the call to read.
                 if called not in kinds:
@@ -204,6 +209,10 @@ class Reader:
                                            'print the wrong name. %s'
                                            % (dir_name, kinds[nm].name, kinds[nm].link_name, NEEDS_UPDATE))
                     kind.ph_for.setdefault(spawn_id & 0xFFF, set()).add(nm & 0xFFF)
+                    rule = rules[kind.script].get(called)
+                    if rule is not None:
+                        kind.ph_rules.setdefault(spawn_id & 0xFFF, {})[nm & 0xFFF] = self.nm_rules.apply(
+                            script_dir, kinds[nm].script, rule)
 
     def despawn_nms(self, ids, script_dir, script):
         """The NM ids a monster's onMobDespawn names in its phOnDespawn calls, as Phoenix runs it."""
@@ -224,7 +233,7 @@ class Reader:
                     raise RuntimeError('%s calls %s in %s, not onMobDespawn. %s'
                                        % (where, PH_CALL, handler, NEEDS_UPDATE))
                 nms.update(ids.ids(call_nm(lines[number - 1], where), aliases, where))
-        for module, keeps, texts, aliases in self.overrides.get((script_dir, script), []):
+        for module, keeps, texts, aliases, _ in self.overrides.get((script_dir, script), []):
             ran = set(nms) if keeps else set()
             for text in texts:
                 ran.update(ids.ids(text, aliases, module))
@@ -232,6 +241,34 @@ class Reader:
                 raise RuntimeError('%s changes which NMs %s %s can pop. %s'
                                    % (module, script_dir, script, NEEDS_UPDATE))
         return nms
+
+    def despawn_rules(self, ids, script_dir, script):
+        """The rules of the call that actually runs, after named loaded overrides."""
+        if script_dir in self.dynamis.zone_dirs and not self.dynamis.keeps(script_dir, script, 'onMobDespawn'):
+            return {}
+        source = self.scripts.lua(self.scripts.mob_script_path(script_dir, script))
+        rules = {}
+
+        def add(body, aliases, where):
+            for nm_text, rule in ph_rules.read(body):
+                for nm in ids.ids(nm_text, aliases, where):
+                    if nm in rules and rules[nm] != rule:
+                        rules[nm] = {'conditions': ['Lottery rules vary between scripted calls.']}
+                    else:
+                        rules[nm] = rule
+
+        if source is not None:
+            match = re.search(r'entity\.onMobDespawn\s*=\s*function\([^)]*\)(.*?)\nend', source.text, re.S)
+            if match:
+                add(match[1], dict(ALIAS.findall(source.text)), source.path)
+        for module, keeps, _, aliases, body in self.overrides.get((script_dir, script), []):
+            if not keeps:
+                rules.clear()
+            elif re.search(r'\b(if|for|while)\b', body.split('super(', 1)[0]):
+                for rule in rules.values():
+                    rule['conditions'] = list(rule['conditions']) + ['A loaded module adds scripted eligibility.']
+            add(body, aliases, module)
+        return rules
 
     def ph_list(self, ids, script_dir, script):
         """{PH id: [NM ids]} from the phList in an NM's script, or {} when it has none."""

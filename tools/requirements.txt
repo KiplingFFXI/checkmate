@@ -1,4 +1,4 @@
-# Python 3.12. The exporter needs PyYAML. data_report.py needs lupa, and with lupa installed the exporter also
-# loads every file it writes in LuaJIT as a check. The lupa pin is the same as in tests\requirements.txt.
+# Python 3.12. PyYAML reads Phoenix data. Lupa checks source parity, loads generated files and runs the
+# offline suite. The lupa pin is the same as in tests\requirements.txt.
 PyYAML
 lupa==2.8

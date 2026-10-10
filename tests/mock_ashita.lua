@@ -12,6 +12,30 @@
     lines, MOCK.merit_packet builds a merit list, and MOCK.send_out fires the packet_out event for a packet
     going out. QueueCommand never fires packet_out.
 
+    Your target is in MOCK.target. MOCK.monster puts a monster in, MOCK.target_monster targets one, and
+    MOCK.pick and MOCK.pick_with_nothing bring up the cursor you pick a spell's target with.
+    MOCK.plant_flags puts the game's cutscene, hidden interface and map flags where the overlay looks for
+    them, and MOCK.set_flag turns one on or off. MOCK.level_up sends your stats packet with a new level.
+    Your HP, the max HP the game shows with your gear and food, and your TP are MOCK.player.hp, hp_max and
+    tp, which party and player memory answer.
+    MOCK.job_info_packet builds the job info packet with your max HP before gear and food.
+    MOCK.shift = true holds Shift down. Each time checkmate asks Windows about Shift it's counted in
+    MOCK.shift_reads. MOCK.chat_input is what the chat manager's IsInputOpen answers, 0 for closed and 0x11
+    with the chat line open, and each time it's asked is counted in MOCK.input_checks. MOCK.text_input = true
+    is ImGui's WantTextInput, true while an ImGui text box has the caret, and each read of it is counted in
+    MOCK.text_input_reads. It's only there to show the overlay never asks.
+    The ffi and d3d8 stand-ins turn MOCK.picture's made-up pictures into numbered textures, and count each load
+    in MOCK.texture_loads and each time d3d8 is required in MOCK.d3d8_requires. MOCK.picture can also give one
+    status effect another's picture, like the game's own shared ones. A texture load with an argument the real
+    call wouldn't get is counted in MOCK.bad_texture_calls, MOCK.texture_error = true makes the load raise an
+    error and MOCK.d3d8_error = true makes requiring d3d8 fail. The resource manager counts item and status
+    lookups in MOCK.item_lookups and MOCK.status_lookups, and each item's own lookups in MOCK.item_lookups_of.
+
+    MOCK.action_packet and MOCK.action_packet_multi pack action results, added effects and reactions like the
+    server. MOCK.entity_packet supplies entity updates. The bit reader counts calls in MOCK.bit_reads and fails
+    on an out-of-bounds read. MOCK.strings holds client text and MOCK.party holds other party/alliance members.
+    Non-square overlay Dummy items are timer slots; their AddText is recorded as the displayed time.
+
     run.py sets ADDON_DIR, ADDON_PATH (the addon folder with a trailing backslash, like addon.path in
     game), ADDON_FILES, FIXTURES_PATH, ASHITA_LIBS and MOCK_INSTALL_PATH before this runs.
 ]]
@@ -25,11 +49,30 @@ MOCK = {
     commands = {},       -- Every QueueCommand as { mode, command }.
     saved    = 0,        -- settings.save() calls.
     zoning   = false,    -- True hides your entity, like the zone screen.
-    reads    = 0,        -- Game memory reads through AshitaCore:GetMemoryManager().
+    reads    = 0,        -- Game memory reads through AshitaCore:GetMemoryManager() and ashita.memory.
+    entity_reads = 0,    -- GetEntity calls.
+    player_entity_calls = 0,   -- GetPlayerEntity calls.
+    memory_finds = 0,    -- ashita.memory.find calls.
+    get_font_calls = 0,  -- imgui GetFont calls.
+    get_io_calls = 0,    -- imgui GetIO calls.
+    shift        = false,   -- True holds Shift down.
+    shift_reads  = 0,       -- GetAsyncKeyState calls.
+    chat_input   = 0,       -- What IsInputOpen answers. 0x11 is the chat line open.
+    input_checks = 0,       -- IsInputOpen calls.
+    text_input   = false,   -- What GetIO().WantTextInput answers.
+    text_input_reads = 0,   -- GetIO().WantTextInput reads.
+    -- The game's target list. Slot 0 is your target, or the cursor while you pick one for a spell, and
+    -- slot 1 the target you had while you pick.
+    target   = { slot0 = 0, slot1 = 0, picking = false },
+    patterns = {},       -- [pattern] = the address ashita.memory.find answers for it.
+    bytes    = {},       -- [address] = what ashita.memory.read_uint8 answers, 0 when it's not there.
+    words    = {},       -- [address] = what ashita.memory.read_uint32 answers, 0 when it's not there.
     player = {
         server_id = 1001, name = 'Tester', zone = 103,
         main_job = 4, main_level = 75, sub_job = 0, sub_level = 0,
+        status_server = 0,                                   -- Your status. 4 is a cutscene or NPC talk.
         pet_index = 0,                                       -- Your pet's entity index, 0 with no pet.
+        hp = 1000, hp_max = 1000, tp = 0,                    -- Your HP, the game's max HP and TP. TP runs 0 to 3000.
         -- Base stats by Ashita's index, 0 to 6 for STR DEX VIT AGI INT MND CHR, and the gear and buff
         -- bonus on top by the same index.
         stats     = { [0] = 60, [1] = 70, [2] = 60, [3] = 65, [4] = 90, [5] = 70, [6] = 60 },
@@ -41,6 +84,21 @@ MOCK = {
     items    = {},       -- [id] = { Name = { 'name' }, Skill = n }
     entities = {},       -- [index] = { Name = 'name' }
     screen   = { 1600, 1200 },
+    status_icons = {},   -- [status effect id] = { Bitmap, ImageSize }, what GetStatusIconByIndex answers.
+    pictures = {},       -- [texture number] = what its picture was made from, like 'item 930'.
+    item_lookups = 0,    -- GetItemById calls.
+    item_lookups_of = {},   -- [item id] = GetItemById calls for that item.
+    status_lookups = 0,  -- GetStatusIconByIndex calls.
+    texture_loads = 0,   -- D3DXCreateTextureFromFileInMemoryEx calls.
+    bad_texture_calls = 0,   -- Of those, the ones with an argument the real call wouldn't get.
+    d3d8_requires = 0,   -- Times the d3d8 library was required.
+    overlay_tips_shown = 0,   -- Tooltips the overlay drew.
+    other_window = nil,  -- true, 'popup' or 'active' puts another window under the mouse, over the overlay.
+    party = {},         -- [slot] = { id, name }, slots 1 to 17 after you.
+    strings = {},       -- [resource table][id] = text, like buffs.names.
+    string_reads = 0,
+    bit_reads = 0,
+    clock_reads = 0,
 };
 
 -- Each test file records its results with check() or expect() and ends by returning MOCK.report().
@@ -56,7 +114,101 @@ function MOCK.report()
 end
 
 -- os.clock is driven by the tests.
-os.clock = function () return MOCK.now; end
+os.clock = function () MOCK.clock_reads = MOCK.clock_reads + 1; return MOCK.now; end
+
+-- The texture loads made so far, so each texture gets a number of its own.
+local textures = 0;
+
+--[[
+    Keyboard input and picture loads are mocked. Profile replacements use the real Windows API,
+    or os.rename on other systems. Tests can force a replacement failure without touching the old file.
+    MOCK.picture gives each fake texture a number; invalid image data fails to load.
+]]
+local file_ffi = require('ffi');
+file_ffi.cdef[[
+    unsigned long __stdcall GetCurrentProcessId(void);
+    int __stdcall MoveFileExA(const char* existing, const char* replacement, unsigned long flags);
+]];
+package.loaded['ffi'] = {
+    cdef = function () end,
+    new = function () return {}; end,
+    cast = function (ctype, value)
+        if (ctype == 'uint32_t') then return value.handle; end
+        return value;
+    end,
+    C = {
+        GetCurrentProcessId = function () return file_ffi.os == 'Windows' and file_ffi.C.GetCurrentProcessId() or 1; end,
+        MoveFileExA = function (existing, replacement, flags)
+            if (MOCK.profile_replace_error) then return 0; end
+            if (file_ffi.os ~= 'Windows') then return os.rename(existing, replacement) and 1 or 0; end
+            return file_ffi.C.MoveFileExA(existing, replacement, flags);
+        end,
+        GetAsyncKeyState = function (key)
+            MOCK.shift_reads = MOCK.shift_reads + 1;
+            return (key == 0x10 and MOCK.shift) and -32768 or 0;
+        end,
+        S_OK = 0, D3DFMT_A8R8G8B8 = 21, D3DPOOL_MANAGED = 1, D3DX_DEFAULT = 0xFFFFFFFF,
+        D3DXCreateTextureFromFileInMemoryEx = function (device, data, size, width, height, mips, usage, format, pool,
+                filter, mip_filter, key, info, palette, out)
+            MOCK.texture_loads = MOCK.texture_loads + 1;
+            if (MOCK.texture_error) then error('the texture would not load'); end
+            local png = type(data) == 'string' and data:sub(1, 8) == '\137PNG\13\10\26\10';
+            -- The loader's pcall would hide an error, so a wrong argument is counted instead.
+            if (device == nil or type(data) ~= 'string' or size ~= #data or width ~= 0xFFFFFFFF
+                or height ~= 0xFFFFFFFF or mips ~= 1 or usage ~= 0 or format ~= 21 or pool ~= 1
+                or filter ~= 0xFFFFFFFF or mip_filter ~= 0xFFFFFFFF or key ~= (png and 0 or 0xFF000000) or info ~= nil
+                or palette ~= nil or type(out) ~= 'table') then
+                MOCK.bad_texture_calls = MOCK.bad_texture_calls + 1;
+            end
+            if (not png and (type(data) ~= 'string' or data:sub(1, 8) ~= 'picture ')) then
+                return -2005530516;
+            end
+            textures = textures + 1;
+            MOCK.pictures[textures] = png and ('weapon PNG ' .. size) or data:sub(9);
+            out[0] = { handle = textures };
+            return 0;
+        end,
+    },
+};
+
+-- d3d8 stand-in. run.py puts Ashita's real libs on the path, and the real one needs the real ffi.
+package.preload['d3d8'] = function ()
+    MOCK.d3d8_requires = MOCK.d3d8_requires + 1;
+    if (MOCK.d3d8_error) then error('d3d8 would not load'); end
+    return { get_device = function () return {}; end, gc_safe_release = function (o) return o; end };
+end;
+
+--[[
+    Gives an item or a status effect a picture, made up as 'picture item 930' or 'picture status 179'. An item
+    with no MOCK.items entry gets one named like "Item 930". `how` is 'broken' for one the decoder refuses,
+    'empty' for an ImageSize of 0, 'raises' for one whose Bitmap raises an error when it's read, or a status
+    effect id to give it that effect's picture, the way the game's own Bind, Stun and Terror share one.
+]]
+function MOCK.picture(kind, id, how)
+    local entry;
+    if (kind == 'item') then
+        MOCK.items[id] = MOCK.items[id] or { Name = { ('Item %d'):format(id) } };
+        entry = MOCK.items[id];
+    else
+        MOCK.status_icons[id] = MOCK.status_icons[id] or {};
+        entry = MOCK.status_icons[id];
+    end
+    local bitmap = ('picture %s %d'):format(kind, id);
+    if (type(how) == 'number') then
+        bitmap = MOCK.status_icons[how].Bitmap;
+    elseif (how == 'broken') then
+        bitmap = 'broken ' .. bitmap;
+    end
+    entry.Bitmap, entry.ImageSize = bitmap, #bitmap;
+    if (how == 'empty') then
+        entry.ImageSize = 0;
+    elseif (how == 'raises') then
+        entry.Bitmap = nil;
+        setmetatable(entry, { __index = function (_, key)
+            if (key == 'Bitmap') then error('the picture would not read'); end
+        end });
+    end
+end
 
 addon = { name = 'checkmate', path = ADDON_PATH };
 
@@ -76,7 +228,18 @@ function struct.unpack(fmt, data, pos)
     error('unsupported struct format ' .. fmt);
 end
 
-ashita = { events = {}, fs = {} };
+ashita = { events = {}, fs = {}, bits = {} };
+-- The server packs each field low bit first. A read beyond the supplied bytes fails the test.
+function ashita.bits.unpack_be(data, byte_offset, bit_offset, length)
+    MOCK.bit_reads = MOCK.bit_reads + 1;
+    local value, start = 0, byte_offset * 8 + bit_offset;
+    for i = 0, length - 1 do
+        local at = start + i;
+        local byte = assert(data[math.floor(at / 8)], 'bit read outside packet');
+        value = value + (math.floor(byte / 2 ^ (at % 8)) % 2) * 2 ^ i;
+    end
+    return value;
+end
 function ashita.events.register(name, alias, fn)
     MOCK.events[name] = MOCK.events[name] or {};
     MOCK.events[name][alias] = fn;
@@ -106,8 +269,15 @@ end
 
 local function party()
     return {
-        GetMemberServerId = function (_, i) return MOCK.player.server_id; end,
+        GetMemberServerId = function (_, i)
+            return (i == 0) and MOCK.player.server_id or (MOCK.party[i] and MOCK.party[i].id or 0);
+        end,
+        GetMemberName = function (_, i)
+            return (i == 0) and MOCK.player.name or (MOCK.party[i] and MOCK.party[i].name);
+        end,
         GetMemberZone = function (_, i) return MOCK.player.zone; end,
+        GetMemberHP = function (_, i) return MOCK.player.hp; end,
+        GetMemberTP = function (_, i) return MOCK.player.tp; end,
     };
 end
 
@@ -115,9 +285,20 @@ local function player_memory()
     local p = MOCK.player;
     return {
         GetMainJob = function () return p.main_job; end,
+        HasSpellData = function ()
+            if (MOCK.spell_api_error) then error('spell data unavailable'); end
+            return p.spell_data == true;
+        end,
+        HasSpell = function (_, id)
+            MOCK.spell_reads = (MOCK.spell_reads or 0) + 1;
+            if (MOCK.spell_api_error) then error('spell data unavailable'); end
+            return p.known_spells ~= nil and p.known_spells[id] == true;
+        end,
         GetMainJobLevel = function () return p.main_level; end,
+        GetAttack = function () return p.attack or 400; end,
         GetSubJob = function () return p.sub_job; end,
         GetSubJobLevel = function () return p.sub_level; end,
+        GetHPMax = function () return p.hp_max; end,
         GetStat = function (_, i) return p.stats[i] or 0; end,
         GetStatModifier = function (_, i) return p.stat_mods[i] or 0; end,
         GetCombatSkill = function (_, id)
@@ -146,13 +327,72 @@ local function inventory()
     };
 end
 
+-- The target list. Each slot or flag read is counted.
+local function target_list()
+    return {
+        GetTargetIndex = function (_, slot)
+            MOCK.reads = MOCK.reads + 1;
+            return (slot == 0) and MOCK.target.slot0 or MOCK.target.slot1;
+        end,
+        GetIsSubTargetActive = function ()
+            MOCK.reads = MOCK.reads + 1;
+            return MOCK.target.picking and 1 or 0;
+        end,
+    };
+end
+
 -- Each read of your memory is counted, so a test can see a frame doing nothing.
 local memory = {};
-for name, fn in pairs({ GetParty = party, GetPlayer = player_memory, GetInventory = inventory }) do
+for name, fn in pairs({ GetParty = party, GetPlayer = player_memory, GetInventory = inventory, GetTarget = target_list }) do
     memory[name] = function (...)
         MOCK.reads = MOCK.reads + 1;
         return fn(...);
     end;
+end
+
+-- Pattern scans and reads of the game's memory. Each read is counted with the others.
+ashita.memory = {
+    find = function (module, _, pattern)
+        MOCK.memory_finds = MOCK.memory_finds + 1;
+        return (module == 'FFXiMain.dll' and MOCK.patterns[pattern]) or 0;
+    end,
+    read_uint8 = function (address)
+        MOCK.reads = MOCK.reads + 1;
+        return MOCK.bytes[address] or 0;
+    end,
+    read_uint32 = function (address)
+        MOCK.reads = MOCK.reads + 1;
+        return MOCK.words[address] or 0;
+    end,
+};
+
+-- Where MOCK.plant_flags puts each flag the overlay hides by, and the chain of words the map check follows:
+-- the code it finds, the focus slot inside the interface object, the menu with focus, its header and the
+-- header's short name.
+local FLAG_AT = { event = 0x5000, hidden = 0x6000 + 0xB4, short_name = 0x8000 + 0x46 + 8 };
+
+-- Plants the three patterns so the overlay finds the game's cutscene, hidden interface and map flags,
+-- each off.
+function MOCK.plant_flags()
+    local patterns = require('core.player').PATTERNS;
+    MOCK.patterns[patterns.event] = 0x1000;
+    MOCK.patterns[patterns.interface] = 0x2000;
+    MOCK.patterns[patterns.menu] = 0x3000;
+    MOCK.words[0x1000 + 1] = FLAG_AT.event;
+    MOCK.words[0x2000 + 10] = 0x6000;        -- The interface object.
+    MOCK.words[0x3000] = 0x6000 + 0x54;      -- Its focus slot.
+    MOCK.words[0x6000 + 0x54] = 0x7000;      -- The menu with focus.
+    MOCK.words[0x7000 + 4] = 0x8000;         -- Its header.
+    MOCK.words[FLAG_AT.short_name] = 0x676F6C6C;   -- 'llog', the chat log.
+end
+
+-- Turns a planted flag on or off: 'event' for a cutscene, 'hidden' for the hidden interface, 'map' for the map.
+function MOCK.set_flag(name, on)
+    if (name == 'map') then
+        MOCK.words[FLAG_AT.short_name] = on and 0x3070616D or 0x676F6C6C;   -- 'map0' or 'llog'.
+    else
+        MOCK.bytes[FLAG_AT[name]] = on and 1 or 0;
+    end
 end
 
 --[[
@@ -167,24 +407,62 @@ end
     SliderInt or SliderFloat, or sets the first number of a ColorEdit4. Each of those is used once.
     MOCK.open[path] = true keeps a BeginCombo open.
     MOCK.deactivate = true makes IsItemDeactivatedAfterEdit answer true. MOCK.close_x = true clicks
-    the window's X once. MOCK.window_size = { w, h } resizes the window and MOCK.window_pos = { x, y }
-    moves it, each frame while it's set. The window keeps its spot and size between frames like ImGui's,
-    and SetNextWindowPos and SetNextWindowSize only change them on the frame it appears or with
-    ImGuiCond_Always. MOCK.avail is the room GetContentRegionAvail
-    answers, 680 wide by default. MOCK.hover = true makes IsItemHovered answer true, so every (?)
-    draws its tip.
+    the window's X once. MOCK.window_size = { w, h } resizes the settings window and MOCK.window_pos =
+    { x, y } moves it, each frame while it's set. Each window keeps its own spot and size between frames
+    like ImGui's, and SetNextWindowPos and SetNextWindowSize only change them on the frame it appears or
+    with ImGuiCond_Always. The overlay is MOCK.overlay_size big, 200 x 60 by default, and
+    MOCK.overlay_drag = { x, y } drags it there each frame while it's set, unless it can't move.
+    GetWindowPos and GetWindowSize answer for the window being drawn. MOCK.avail is the room
+    GetContentRegionAvail answers, 680 wide by default. MOCK.hover = true makes IsItemHovered answer
+    true, so every (?) draws its tip.
+    Navigation normally draws every matching page for broad control coverage. MOCK.navigation_real = true
+    uses the real selection and wrapping; gui.nav_buttons records button sizes and SameLine joins.
     After each frame MOCK.gui holds what was drawn, in calls, names, paths (path -> widget), disabled
     (paths drawn greyed out), texts, formats (slider path -> format), previews (combo path -> the text
     it shows closed), tabs, colors (ImGuiCol id -> the first color pushed for it), fonts (each
     PushFont as { font, size }), tables (table id -> its column count), next_pos and next_pos_cond
     (the last SetNextWindowPos), helps (the path of each thing a (?) follows -> true) and, while
     MOCK.hover is on, tips (that path -> the text of its tip). A text's path is its tab and ids, then
-    the text itself, like 'Profiles/PROFILES'.
+    the text itself, like 'Profiles/PROFILES'. It also holds flags (window name -> its Begin flags),
+    placed (window name -> { pos, cond } from its SetNextWindowPos), bg_alpha (the last
+    SetNextWindowBgAlpha), styles (each PushStyleVar as { id, value }), pushed (each PushStyleColor as
+    { id, color }) and colored (each TextColored as { text, color, window, joined }, where joined means
+    a SameLine came right before it). MOCK.overlay_lines() puts the overlay's colored text back
+    together as lines.
     GetFont() answers MOCK.ashita_font. AddFontFromFileTTF answers a made-up font table { path, size }
     and records it in MOCK.fonts_loaded. MOCK.broken_fonts[file name] = 'error' makes it raise an error
     for that file instead, and 'nil' makes it answer nil. Every call, broken or not, goes in
     MOCK.font_calls as { path, event }, with the event that was running then.
-    GetFontSize() answers the size last pushed, or 18 with nothing pushed.
+    GetFontSize() answers the size last pushed, or 18 with nothing pushed. GetFont and GetIO calls are
+    counted in MOCK.get_font_calls and MOCK.get_io_calls.
+    MOCK.mouse = { x, y } is where the mouse is, and MOCK.mouse_clicked = true makes IsMouseClicked answer
+    true, the frame the button goes down. MOCK.mouse_down = true holds it down, and MOCK.mouse_button says
+    which button that is, the left one when it's nil. IsAnyMouseDown answers for any of them.
+    IsWindowHovered answers true when the mouse is inside the window being drawn and it took the mouse last
+    frame, since ImGui works out what's under the mouse from last frame's windows. MOCK.other_window = true
+    puts another window under the mouse, over the one being drawn, so IsWindowHovered answers false, and true
+    with ImGuiHoveredFlags_AnyWindow. 'popup' is one with a dropdown open and 'active' one with the caret in the
+    text box under the mouse, and with AnyWindow they only count when the flags also allow a window blocked by a
+    popup or an active item, the way ImGui answers. Each IsWindowHovered call's flags go in MOCK.gui.hover_flags,
+    0 for none. GetWindowDrawList answers a draw list whose methods must be in Ashita's ImDrawList annotations.
+    Its PushClipRect and PopClipRect must balance by the end of each frame, and each AddTriangleFilled goes in
+    MOCK.gui.triangles as { points, color, window }. A Dummy in a window is an icon: it goes in MOCK.gui.colored
+    as { icon = true, text = '', size, window, joined }, and the AddImage, or the AddRectFilled and AddText of a
+    badge, that come after it fill in its picture (the made-up name MOCK.picture gave it), fill, rounding, letter
+    and letter_size. Each AddImage goes in MOCK.gui.images as { texture, low, high }. GetColorU32 hands back the
+    color table it's given, so a test can tell which color was used, MOCK.gui.cursor is the last SetMouseCursor
+    and MOCK.gui.capture_mouse the last SetNextFrameWantCaptureMouse.
+    GetCursorScreenPos starts each window at its spot, and MOCK.gui.cursor_pos is the last
+    SetCursorScreenPos. In the overlay each text and icon sits at the cursor, 7 px a character or the icon's
+    width, and the cursor goes on to the next line, down by the font size pushed, unless a SameLine puts it
+    right after that item. So each icon has its own spot, its top left corner as at in MOCK.gui.colored, and
+    MOCK.overlay_icon_spot(n) gives the middle of the nth icon drawn last frame, or nil past the last one. The
+    window's own PushClipRect and PopClipRect must balance by the end of each frame too, and each
+    InvisibleButton goes in MOCK.gui.buttons as { id, size, flags, at, clip, window }, where at is the cursor
+    then and clip the window's clip rect then, or nil. It's never pressed.
+    BeginTooltip answers true, like Ashita's. A tooltip begun outside every window is the overlay's: its text
+    goes in MOCK.gui.overlay_tip as { text, font_size, wrap }, with the font size pushed when it began and the
+    PushTextWrapPos inside it, and MOCK.overlay_tips_shown counts each one. Any other goes in MOCK.gui.tips.
 ]]
 
 local GUI_NAMES = {};
@@ -196,16 +474,31 @@ do
     f:close();
 end
 
+-- ImDrawList's methods.
+local DRAW_LIST_NAMES = {};
+do
+    local f = assert(io.open(ASHITA_LIBS .. '/annotations/SDK/IGuiManagerTypes.lua', 'r'));
+    for name in f:read('*a'):gmatch('function ImDrawList:([%w_]+)%(') do
+        DRAW_LIST_NAMES[name] = true;
+    end
+    f:close();
+end
+
 MOCK.clicks, MOCK.typing, MOCK.slide, MOCK.open = {}, {}, {}, {};
+MOCK.mouse = { 0, 0 };
 MOCK.ashita_font = { name = 'Ashita font' };
 MOCK.fonts_loaded = {};
 MOCK.font_calls = {};
 MOCK.broken_fonts = {};
 
 local stack = {};        -- Tab, PushID and open combo labels, for widget paths.
+local joined = false;    -- A SameLine came after the last text or widget.
 local last_item = nil;   -- The path of the last widget or text drawn.
 local help_owner = nil;  -- The path the last (?) follows.
 local tip_lines = nil;   -- The text drawn in the open tooltip.
+local tip_owner = nil;   -- Whose tip that is, 'overlay' or the path of the (?) it's for.
+local tip_font = 0;      -- The font size pushed when it began.
+local tip_wrap = nil;    -- The PushTextWrapPos inside it.
 local font_sizes = {};   -- Sizes pushed with PushFont.
 local balance = {};      -- Open Begin/Push calls by kind.
 local disabled = {};     -- BeginDisabled flags.
@@ -224,6 +517,7 @@ end
 local function seen(label, widget)
     local p = path(label);
     last_item = p;
+    joined = false;
     MOCK.gui.paths[p] = widget;
     if (greyed > 0) then MOCK.gui.disabled[p] = true; end
     return p;
@@ -242,6 +536,7 @@ local function push(label)
 end
 -- Text drawn in the window, or in the open tooltip.
 local function drew_text(text)
+    joined = false;
     if (tip_lines ~= nil) then
         tip_lines[#tip_lines + 1] = text;
         return;
@@ -252,37 +547,183 @@ end
 local function pop()
     table.remove(stack);
 end
+local function is_point(p)
+    return type(p) == 'table' and type(p[1]) == 'number' and type(p[2]) == 'number';
+end
 
--- The window's spot and size as ImGui keeps them, the frame it last drew in, and the SetNextWindowPos and
--- SetNextWindowSize that wait for the next Begin.
-local window = { pos = { 120, 20 }, size = { 720, 560 }, drawn = nil };
+-- Each window's spot and size as ImGui keeps them, by name, with the frame it last drew in. Then the windows
+-- being drawn, the innermost last, and the SetNextWindowPos and SetNextWindowSize that wait for the next Begin.
+local OVERLAY = '##checkmate_overlay';
+local windows = {};
+local drawing = {};
 local pending = {};
 local frames = 0;
+local clips = {};   -- The window clip rects pushed with PushClipRect, as { low, high }.
+
+local function window_named(name)
+    windows[name] = windows[name] or { name = name, pos = { 120, 20 }, size = { 720, 560 }, drawn = nil };
+    return windows[name];
+end
+-- The window being drawn.
+local function this_window()
+    need(#drawing > 0, 'a window function outside Begin and End');
+    return drawing[#drawing];
+end
+-- An item `width` wide at the overlay's cursor, which then goes on to the next line like ImGui's. Hands back the
+-- item's top left corner, or nil in any other window.
+local function place_item(window, width)
+    if (window.name ~= OVERLAY) then
+        return nil;
+    end
+    local at = { window.cursor[1], window.cursor[2] };
+    window.last_end = { at[1] + width, at[2] };
+    window.cursor = { window.pos[1], at[2] + (font_sizes[#font_sizes] or 18) };
+    return at;
+end
+
+-- The window's draw list. Every call is checked like the GUI manager's, and called with a colon.
+local DRAW_LIST = {
+    AddLine = function (low, high, color, width)
+        need(is_point(low) and is_point(high) and color ~= nil and type(width) == 'number', 'AddLine args');
+        MOCK.gui.draw_lines[#MOCK.gui.draw_lines + 1] = { low = low, high = high, color = color, width = width };
+    end,
+    AddRect = function (low, high, color)
+        need(is_point(low) and is_point(high) and color ~= nil, 'AddRect args');
+        MOCK.gui.highlights[#MOCK.gui.highlights + 1] = last_item;
+    end,
+    PushClipRect = function (low, high, intersect)
+        need(is_point(low) and is_point(high) and type(intersect) == 'boolean', 'PushClipRect args');
+        bump('clip rect', 1);
+    end,
+    PopClipRect = function () bump('clip rect', -1); end,
+    AddTriangleFilled = function (a, b, c, color)
+        need(is_point(a) and is_point(b) and is_point(c) and color ~= nil, 'AddTriangleFilled args');
+        MOCK.gui.triangles[#MOCK.gui.triangles + 1] = { points = { { a[1], a[2] }, { b[1], b[2] }, { c[1], c[2] } },
+            color = color, window = this_window().name };
+    end,
+    -- The picture, the badge's square and its letter go on the icon the last Dummy drew.
+    AddImage = function (texture, low, high)
+        need(type(texture) == 'number' and is_point(low) and is_point(high), 'AddImage args');
+        MOCK.gui.images[#MOCK.gui.images + 1] = { texture = texture, low = { low[1], low[2] },
+            high = { high[1], high[2] } };
+        local icon = MOCK.gui.colored[#MOCK.gui.colored];
+        if (icon ~= nil and icon.icon) then icon.picture = MOCK.pictures[texture]; end
+    end,
+    AddRectFilled = function (low, high, color, rounding)
+        need(is_point(low) and is_point(high) and color ~= nil, 'AddRectFilled args');
+        local icon = MOCK.gui.colored[#MOCK.gui.colored];
+        if (icon ~= nil and icon.icon) then icon.fill, icon.rounding = color, rounding; end
+    end,
+    AddText = function (...)
+        local count = select('#', ...);
+        local args = { ... };
+        need((count == 3 or count == 5) and type(args[count]) == 'string', 'AddText args');
+        local icon = MOCK.gui.colored[#MOCK.gui.colored];
+        if (icon ~= nil and icon.clock) then
+            icon.text = args[count];
+        elseif (icon ~= nil and icon.icon) then
+            icon.letter, icon.ink = args[count], args[count - 1];
+            if (count == 5) then icon.letter_size = args[2]; end
+        end
+    end,
+};
+local draw_list;
+draw_list = setmetatable({}, { __index = function (_, name)
+    if (not DRAW_LIST_NAMES[name]) then
+        error('imgui misuse: ImDrawList has no method ' .. tostring(name), 2);
+    end
+    return function (self, ...)
+        need(self == draw_list, name .. ' called without a colon');
+        local special = DRAW_LIST[name];
+        if (special) then return special(...); end
+    end;
+end });
+
+-- GetIO's fields that are read as they're asked for. Each read of WantTextInput is counted.
+local IO_FIELDS = { __index = function (_, key)
+    if (key == 'WantTextInput') then
+        MOCK.text_input_reads = MOCK.text_input_reads + 1;
+        return MOCK.text_input;
+    end
+end };
 
 local SPECIAL = {
+    GetItemRectMin = function () return 0, 0; end,
+    GetItemRectMax = function () return 100, 20; end,
+    SetScrollHereY = function (ratio)
+        need(type(ratio) == 'number', 'SetScrollHereY ratio');
+        MOCK.gui.scrolled[#MOCK.gui.scrolled + 1] = last_item;
+        MOCK.gui.scrolled_windows = MOCK.gui.scrolled_windows or {};
+        MOCK.gui.scrolled_windows[#MOCK.gui.scrolled_windows + 1] = this_window().name;
+    end,
+    SetNextItemOpen = function (value) MOCK.next_header_open = value; end,
+    CollapsingHeader = function (label, flags)
+        drew_text(label);
+        local p = seen(label, 'CollapsingHeader');
+        help_owner = p;
+        if (MOCK.next_header_open ~= nil) then MOCK.open[p], MOCK.next_header_open = MOCK.next_header_open, nil; end
+        if (MOCK.open[p] == nil) then MOCK.open[p] = bit.band(flags or 0, ImGuiTreeNodeFlags_DefaultOpen) ~= 0; end
+        if (MOCK.clicks[p]) then MOCK.clicks[p], MOCK.open[p] = nil, not MOCK.open[p]; end
+        return MOCK.open[p];
+    end,
     Begin = function (name, open, flags)
         need(type(name) == 'string' and type(open) == 'table' and type(flags) == 'number', 'Begin args');
         bump('window', 1);
         MOCK.gui.window = name;
+        MOCK.gui.flags[name] = flags;
+        local window = window_named(name);
+        drawing[#drawing + 1] = window;
         local appearing = window.drawn ~= frames - 1;
+        -- What's under the mouse comes from last frame's windows, like ImGui.
+        window.hoverable = not appearing and bit.band(window.flags, ImGuiWindowFlags_NoMouseInputs) == 0;
+        window.flags = flags;
         window.drawn = frames;
+        if (pending.pos ~= nil) then
+            MOCK.gui.placed[name] = { pos = pending.pos.value, cond = pending.pos.cond };
+        end
         for key, next_ in pairs(pending) do
             if (appearing or next_.cond == ImGuiCond_Always) then
                 window[key] = next_.value;
             end
         end
         pending = {};
+        joined = false;
+        if (name == OVERLAY) then
+            -- It sizes itself to its text, and you can only drag it while it can move.
+            local fixed = bit.band(flags, ImGuiWindowFlags_NoMove) ~= 0;
+            window.pos = (not fixed and MOCK.overlay_drag) or window.pos;
+            window.size = MOCK.overlay_size or { 200, 60 };
+            window.cursor, window.last_end = { window.pos[1], window.pos[2] }, nil;
+            return true;
+        end
         window.pos = MOCK.window_pos or window.pos;
         window.size = MOCK.window_size or window.size;
+        window.cursor = { window.pos[1], window.pos[2] };
         if (MOCK.close_x) then open[1] = false; MOCK.close_x = false; end
         return true;
     end,
-    End = function () bump('window', -1); end,
+    End = function () bump('window', -1); table.remove(drawing); end,
+    BeginChild = function (id, size, child_flags, flags)
+        need(type(id) == 'string' and is_point(size) and type(child_flags) == 'number'
+            and type(flags) == 'number', 'BeginChild args');
+        bump('child', 1);
+        local parent = this_window();
+        local name = parent.name .. '/' .. path(id);
+        local window = window_named(name);
+        window.pos, window.size = { parent.pos[1], parent.pos[2] }, { parent.size[1], parent.size[2] };
+        window.cursor, window.flags, window.drawn = { window.pos[1], window.pos[2] }, flags, frames;
+        drawing[#drawing + 1] = window;
+        MOCK.gui.children = MOCK.gui.children or {};
+        MOCK.gui.children[#MOCK.gui.children + 1] = { name = name, parent = parent.name, flags = flags };
+        return MOCK.child_clipped ~= true;
+    end,
+    EndChild = function () bump('child', -1); table.remove(drawing); end,
     BeginTabBar = function () bump('tab bar', 1); return true; end,
     EndTabBar = function () bump('tab bar', -1); end,
     BeginTabItem = function (label)
         need(type(label) == 'string', 'BeginTabItem label');
         bump('tab', 1); push(label); MOCK.gui.tabs[label] = true;
+        MOCK.gui.tab_open[#MOCK.gui.tab_open + 1] = label;
         return true;
     end,
     EndTabItem = function () bump('tab', -1); pop(); end,
@@ -310,7 +751,11 @@ local SPECIAL = {
         return true;
     end,
     EndListBox = function () bump('list box', -1); last_item = path(''):sub(1, -2); pop(); end,
-    PushID = function (id) need(type(id) == 'string', 'PushID string'); bump('id', 1); push(id); end,
+    PushID = function (id)
+        need(type(id) == 'string', 'PushID string');
+        if (#stack == 0 and MOCK.gui.tabs[id]) then MOCK.gui.tab_open[#MOCK.gui.tab_open + 1] = id; end
+        bump('id', 1); push(id);
+    end,
     PopID = function () bump('id', -1); pop(); end,
     BeginDisabled = function (flag)
         need(type(flag) == 'boolean', 'BeginDisabled boolean');
@@ -322,12 +767,16 @@ local SPECIAL = {
         bump('disabled', -1);
         if (table.remove(disabled)) then greyed = greyed - 1; end
     end,
-    PushTextWrapPos = function () bump('wrap', 1); end,
+    PushTextWrapPos = function (x)
+        bump('wrap', 1);
+        if (tip_lines ~= nil) then tip_wrap = x; end
+    end,
     PopTextWrapPos = function () bump('wrap', -1); end,
     PushStyleColor = function (id, color)
         need(type(id) == 'number' and is_color(color), 'PushStyleColor args');
         bump('style color', 1);
         if (MOCK.gui.colors[id] == nil) then MOCK.gui.colors[id] = color; end
+        MOCK.gui.pushed[#MOCK.gui.pushed + 1] = { id = id, color = color };
     end,
     PushFont = function (font, size)
         need(type(font) == 'table' and type(size) == 'number' and size > 0, 'PushFont args');
@@ -336,7 +785,7 @@ local SPECIAL = {
         MOCK.gui.fonts[#MOCK.gui.fonts + 1] = { font = font, size = size };
     end,
     PopFont = function () bump('font', -1); table.remove(font_sizes); end,
-    GetFont = function () return MOCK.ashita_font; end,
+    GetFont = function () MOCK.get_font_calls = MOCK.get_font_calls + 1; return MOCK.ashita_font; end,
     GetFontSize = function () return font_sizes[#font_sizes] or 18; end,
     AddFontFromFileTTF = function (path, size)
         need(type(path) == 'string' and type(size) == 'number', 'AddFontFromFileTTF args');
@@ -352,11 +801,32 @@ local SPECIAL = {
     PushStyleVar = function (id, v)
         need(type(id) == 'number' and (type(v) == 'number' or (type(v) == 'table' and #v == 2)), 'PushStyleVar args');
         bump('style var', 1);
+        MOCK.gui.styles[#MOCK.gui.styles + 1] = { id = id, value = (type(v) == 'table') and { v[1], v[2] } or v };
     end,
     PopStyleVar = function (n) bump('style var', -(n or 1)); end,
     TextColored = function (color, text)
         need(is_color(color) and type(text) == 'string', 'TextColored args');
+        local window = this_window();
+        place_item(window, #text * 7);
+        MOCK.gui.colored[#MOCK.gui.colored + 1] = { text = text, color = color, window = window.name,
+            joined = joined };
         drew_text(text);
+    end,
+    -- In the overlay the cursor goes back to right after the last item.
+    SameLine = function ()
+        joined = true;
+        local window = drawing[#drawing];
+        if (window ~= nil and window.name == OVERLAY and window.last_end ~= nil) then
+            window.cursor = { window.last_end[1], window.last_end[2] };
+        end
+    end,
+    Dummy = function (size)
+        need(is_point(size) and size[1] > 0 and size[2] > 0, 'Dummy size');
+        local window = this_window();
+        MOCK.gui.colored[#MOCK.gui.colored + 1] = { icon = size[1] == size[2], clock = size[1] ~= size[2],
+            text = '', size = { size[1], size[2] },
+            window = window.name, joined = joined, at = place_item(window, size[1]) };
+        joined = false;
     end,
     TextUnformatted = function (text)
         need(type(text) == 'string', 'TextUnformatted string');
@@ -373,17 +843,33 @@ local SPECIAL = {
         end
     end,
     IsItemHovered = function () return MOCK.hover == true; end,
+    -- One begun outside every window is the overlay's, begun after its End.
     BeginTooltip = function ()
         bump('tooltip', 1);
-        tip_lines = {};
+        tip_lines, tip_owner = {}, (#drawing == 0) and 'overlay' or help_owner or last_item;
+        tip_font, tip_wrap = font_sizes[#font_sizes] or 18, nil;
+        return true;
     end,
     EndTooltip = function ()
         bump('tooltip', -1);
-        MOCK.gui.tips[help_owner] = table.concat(tip_lines, ' ');
+        local text = table.concat(tip_lines, ' ');
+        if (tip_owner == 'overlay') then
+            MOCK.gui.overlay_tip = { text = text, font_size = tip_font, wrap = tip_wrap };
+            MOCK.overlay_tips_shown = MOCK.overlay_tips_shown + 1;
+        else
+            MOCK.gui.tips[tip_owner] = text;
+        end
         tip_lines = nil;
     end,
-    Button = function (label)
+    Button = function (label, size)
         need(type(label) == 'string', 'Button label');
+        if (size ~= nil) then need(is_point(size), 'Button size'); end
+        local name = label:match('^(.-)##checkmate_tab$');
+        if (name ~= nil) then
+            MOCK.gui.tabs[name] = true;
+            MOCK.gui.nav_buttons[#MOCK.gui.nav_buttons + 1] = { name = name, joined = joined,
+                size = size and { size[1], size[2] } or nil };
+        end
         return take(MOCK.clicks, seen(label, 'Button')) == true;
     end,
     ArrowButton = function (id, dir)
@@ -430,14 +916,80 @@ local SPECIAL = {
         return false;
     end,
     IsItemDeactivatedAfterEdit = function () return MOCK.deactivate == true; end,
-    IsMouseDown = function () return MOCK.mouse_down == true; end,
+    IsMouseDown = function (button)
+        need(type(button) == 'number', 'IsMouseDown button');
+        return MOCK.mouse_down == true and button == (MOCK.mouse_button or ImGuiMouseButton_Left);
+    end,
+    IsAnyMouseDown = function () return MOCK.mouse_down == true; end,
+    IsMouseClicked = function (button)
+        need(type(button) == 'number', 'IsMouseClicked button');
+        return MOCK.mouse_clicked == true and button == (MOCK.mouse_button or ImGuiMouseButton_Left);
+    end,
+    GetMousePos = function () return MOCK.mouse[1], MOCK.mouse[2]; end,
+    IsWindowHovered = function (flags)
+        need(flags == nil or type(flags) == 'number', 'IsWindowHovered flags');
+        flags = flags or 0;
+        MOCK.gui.hover_flags[#MOCK.gui.hover_flags + 1] = flags;
+        local window = this_window();
+        local other = MOCK.other_window;
+        if (other ~= nil) then
+            return bit.band(flags, ImGuiHoveredFlags_AnyWindow) ~= 0 and (other == true
+                or (other == 'popup' and bit.band(flags, ImGuiHoveredFlags_AllowWhenBlockedByPopup) ~= 0)
+                or (other == 'active' and bit.band(flags, ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) ~= 0));
+        end
+        local x, y = MOCK.mouse[1], MOCK.mouse[2];
+        return window.hoverable and x >= window.pos[1] and x < window.pos[1] + window.size[1]
+            and y >= window.pos[2] and y < window.pos[2] + window.size[2];
+    end,
+    GetWindowDrawList = function () this_window(); return draw_list; end,
+    GetColorU32 = function (color)
+        need(is_color(color), 'GetColorU32 color');
+        return color;
+    end,
+    SetMouseCursor = function (cursor)
+        need(type(cursor) == 'number', 'SetMouseCursor cursor');
+        MOCK.gui.cursor = cursor;
+    end,
+    SetNextFrameWantCaptureMouse = function (want)
+        need(type(want) == 'boolean', 'SetNextFrameWantCaptureMouse boolean');
+        MOCK.gui.capture_mouse = want;
+    end,
+    GetCursorScreenPos = function ()
+        local window = this_window();
+        return window.cursor[1], window.cursor[2];
+    end,
+    SetCursorScreenPos = function (pos)
+        need(is_point(pos), 'SetCursorScreenPos point');
+        this_window().cursor = { pos[1], pos[2] };
+        MOCK.gui.cursor_pos = { pos[1], pos[2] };
+    end,
+    PushClipRect = function (low, high, intersect)
+        need(is_point(low) and is_point(high) and type(intersect) == 'boolean', 'PushClipRect args');
+        this_window();
+        bump('window clip rect', 1);
+        clips[#clips + 1] = { { low[1], low[2] }, { high[1], high[2] } };
+    end,
+    PopClipRect = function () bump('window clip rect', -1); table.remove(clips); end,
+    InvisibleButton = function (id, size, flags)
+        need(type(id) == 'string' and is_point(size) and size[1] > 0 and size[2] > 0 and type(flags) == 'number',
+            'InvisibleButton args');
+        local window = this_window();
+        MOCK.gui.buttons[#MOCK.gui.buttons + 1] = { id = id, size = { size[1], size[2] }, flags = flags,
+            at = { window.cursor[1], window.cursor[2] }, clip = clips[#clips], window = window.name };
+        return false;
+    end,
     SetNextWindowSize = function (size, cond)
         need(type(size) == 'table' and size[1] > 0 and size[2] > 0 and type(cond) == 'number', 'SetNextWindowSize');
         MOCK.gui.next_size = { size[1], size[2] };
         pending.size = { value = MOCK.gui.next_size, cond = cond };
     end,
     GetWindowSize = function ()
+        local window = this_window();
         return window.size[1], window.size[2];
+    end,
+    SetNextWindowBgAlpha = function (alpha)
+        need(type(alpha) == 'number' and alpha >= 0 and alpha <= 1, 'SetNextWindowBgAlpha');
+        MOCK.gui.bg_alpha = alpha;
     end,
     SetNextWindowPos = function (pos, cond)
         need(type(pos) == 'table' and type(pos[1]) == 'number' and type(pos[2]) == 'number'
@@ -447,12 +999,19 @@ local SPECIAL = {
         pending.pos = { value = MOCK.gui.next_pos, cond = cond };
     end,
     GetWindowPos = function ()
+        local window = this_window();
         return window.pos[1], window.pos[2];
     end,
     GetFrameHeight = function () return 22; end,
-    GetIO = function () return { DisplaySize = { x = MOCK.screen[1], y = MOCK.screen[2] } }; end,
+    IsWindowFocused = function () return MOCK.window_focused ~= false; end,
+    GetIO = function ()
+        MOCK.get_io_calls = MOCK.get_io_calls + 1;
+        return setmetatable({ DisplaySize = { x = MOCK.screen[1], y = MOCK.screen[2] } }, IO_FIELDS);
+    end,
     GetContentRegionAvail = function () return MOCK.avail or 680, 400; end,
     CalcTextSize = function (text) return #text * 7, 14; end,
+    SetClipboardText = function (text) need(type(text) == 'string', 'SetClipboardText'); MOCK.clipboard = text; end,
+    GetClipboardText = function () return MOCK.clipboard or ''; end,
 };
 SPECIAL.SliderFloat = SPECIAL.SliderInt;
 
@@ -464,7 +1023,9 @@ local gui = setmetatable({}, { __index = function (_, name)
         local count = select('#', ...);
         local args = { ... };
         for i = 1, count do
-            if (args[i] == nil) then error(('imgui misuse: %s got nil for argument %d'):format(name, i), 2); end
+            if (args[i] == nil and not (name == 'BeginTabItem' and i == 2)) then
+                error(('imgui misuse: %s got nil for argument %d'):format(name, i), 2);
+            end
         end
         MOCK.gui.calls[#MOCK.gui.calls + 1] = name;
         MOCK.gui.names[name] = true;
@@ -474,12 +1035,47 @@ local gui = setmetatable({}, { __index = function (_, name)
 end });
 
 local function fresh_gui()
-    MOCK.gui = { calls = {}, names = {}, paths = {}, disabled = {}, texts = {}, formats = {}, previews = {}, tabs = {},
+    MOCK.gui = { calls = {}, names = {}, paths = {}, disabled = {}, texts = {}, formats = {}, previews = {}, tabs = {}, tab_open = {}, nav_buttons = {},
         colors = {}, fonts = {}, tables = {}, helps = {}, tips = {}, next_size = MOCK.gui and MOCK.gui.next_size,
-        next_pos = MOCK.gui and MOCK.gui.next_pos };
-    last_item, help_owner, tip_lines = nil, nil, nil;
+        next_pos = MOCK.gui and MOCK.gui.next_pos, flags = {}, placed = {}, styles = {}, pushed = {}, colored = {},
+        triangles = {}, draw_lines = {}, buttons = {}, images = {}, hover_flags = {}, highlights = {}, scrolled = {} };
+    last_item, help_owner, tip_lines, joined = nil, nil, nil, false;
 end
 fresh_gui();
+
+-- The middle of the nth icon the overlay drew last frame, as x, y, or nil past the last one.
+function MOCK.overlay_icon_spot(n)
+    local count = 0;
+    for _, each in ipairs(MOCK.gui.colored) do
+        if (each.icon and each.window == OVERLAY) then
+            count = count + 1;
+            if (count == n) then
+                return each.at[1] + each.size[1] / 2, each.at[2] + each.size[2] / 2;
+            end
+        end
+    end
+    return nil;
+end
+
+-- The overlay's lines as it drew them this frame. A text starts a new line unless a SameLine came right before it.
+-- An icon reads as its picture or its badge's letter in square brackets, like [item 930] or [I].
+function MOCK.overlay_lines()
+    local lines = {};
+    for _, each in ipairs(MOCK.gui.colored) do
+        if (each.window == OVERLAY) then
+            local text = each.text;
+            if (each.icon) then
+                text = '[' .. (each.picture or each.letter or '?') .. ']';
+            end
+            if (each.joined and #lines > 0) then
+                lines[#lines] = lines[#lines] .. text;
+            else
+                lines[#lines + 1] = text;
+            end
+        end
+    end
+    return lines;
+end
 
 -- Every font load that ran outside the load event, as "path during event" lines.
 function MOCK.stray_font_loads()
@@ -507,20 +1103,66 @@ AshitaCore = {
             QueueCommand = function (_, mode, command)
                 MOCK.commands[#MOCK.commands + 1] = { mode = mode, command = command };
             end,
+            IsInputOpen = function ()
+                MOCK.input_checks = MOCK.input_checks + 1;
+                return MOCK.chat_input;
+            end,
         };
     end,
     GetResourceManager = function ()
-        return { GetItemById = function (_, id) return MOCK.items[id]; end };
+        return {
+            GetString = function (_, list, id)
+                MOCK.string_reads = MOCK.string_reads + 1;
+                return MOCK.strings[list] and MOCK.strings[list][id];
+            end,
+            GetItemById = function (_, id)
+                MOCK.item_lookups = MOCK.item_lookups + 1;
+                MOCK.item_lookups_of[id] = (MOCK.item_lookups_of[id] or 0) + 1;
+                return MOCK.items[id];
+            end,
+            GetStatusIconByIndex = function (_, index)
+                MOCK.status_lookups = MOCK.status_lookups + 1;
+                return MOCK.status_icons[index];
+            end,
+        };
     end,
     GetGuiManager = function () return gui; end,
     GetInstallPath = function () return MOCK_INSTALL_PATH; end,
 };
 
+-- Both are counted, apart from game memory reads, so the pet tests' counts stay the same.
 function GetPlayerEntity()
+    MOCK.player_entity_calls = MOCK.player_entity_calls + 1;
     if (MOCK.zoning) then return nil; end
-    return { Name = MOCK.player.name, ServerId = MOCK.player.server_id, PetTargetIndex = MOCK.player.pet_index or 0 };
+    return { Name = MOCK.player.name, ServerId = MOCK.player.server_id, PetTargetIndex = MOCK.player.pet_index or 0,
+        StatusServer = MOCK.player.status_server };
 end
-function GetEntity(index) return MOCK.entities[index]; end
+function GetEntity(index)
+    MOCK.entity_reads = MOCK.entity_reads + 1;
+    return MOCK.entities[index];
+end
+
+-- Puts a monster named `name` at entity index `index` in your zone. `flags` are its spawn flags, 0x10 for a
+-- monster by default. Players have 0x01 and NPCs 0x02.
+function MOCK.monster(index, name, flags)
+    MOCK.entities[index] = { Name = name, ServerId = MOCK.mob_id(MOCK.player.zone, index), SpawnFlags = flags or 0x10,
+        HPPercent = 100 };
+end
+
+-- Puts a monster at `index` and targets it.
+function MOCK.target_monster(index, name)
+    MOCK.monster(index, name);
+    MOCK.target.slot0, MOCK.target.slot1, MOCK.target.picking = index, 0, false;
+end
+
+-- Brings up the cursor you pick a spell's target with, on the entity at `cursor`. Slot 0 is the cursor and
+-- slot 1 the target you had. With nothing targeted, the game leaves slot 0 at 0 and puts the cursor in slot 1.
+function MOCK.pick(cursor)
+    MOCK.target.slot0, MOCK.target.slot1, MOCK.target.picking = cursor, MOCK.target.slot0, true;
+end
+function MOCK.pick_with_nothing(cursor)
+    MOCK.target.slot0, MOCK.target.slot1, MOCK.target.picking = 0, cursor, true;
+end
 
 -- Chat lines land in MOCK.printed. MOCK.plain() takes the color codes out.
 print = function (x) MOCK.printed[#MOCK.printed + 1] = tostring(x); end
@@ -602,6 +1244,70 @@ local function packet(id, b, size)
     return { id = id, size = size, data = table.concat(chars), blocked = false };
 end
 
+-- Writes one field the way the server's action packet packer does.
+function MOCK.pack_bits(b, at, length, value)
+    for i = 0, length - 1 do
+        local k, one = at + i, math.floor(value / 2 ^ i) % 2;
+        local byte, mask = math.floor(k / 8), 2 ^ (k % 8);
+        local old = b[byte] or 0;
+        b[byte] = old + (one - math.floor(old / mask) % 2) * mask;
+    end
+    return at + length;
+end
+
+-- An action with targets { id, results = { { message, param, added = { message, param }, reaction } } }.
+function MOCK.action_packet_multi(actor, category, action, targets)
+    local b, at = bytes(512), 40;
+    at = MOCK.pack_bits(b, at, 32, actor);
+    at = MOCK.pack_bits(b, at, 6, #targets);
+    at = MOCK.pack_bits(b, at, 4, 0);
+    at = MOCK.pack_bits(b, at, 4, category);
+    at = MOCK.pack_bits(b, at, 32, action or 0);
+    at = MOCK.pack_bits(b, at, 32, 0);
+    for _, target in ipairs(targets) do
+        at = MOCK.pack_bits(b, at, 32, target.id);
+        at = MOCK.pack_bits(b, at, 4, #target.results);
+        for _, r in ipairs(target.results) do
+            at = MOCK.pack_bits(b, at, 3, r.resolution or 0);
+            at = MOCK.pack_bits(b, at, 24, 0);
+            at = MOCK.pack_bits(b, at, 17, r.param or 0);
+            at = MOCK.pack_bits(b, at, 10, r.message or 0);
+            at = MOCK.pack_bits(b, at, 31, 0);
+            at = MOCK.pack_bits(b, at, 1, r.added and 1 or 0);
+            if (r.added) then
+                at = MOCK.pack_bits(b, at, 10, 1);
+                at = MOCK.pack_bits(b, at, 17, r.added.param or 0);
+                at = MOCK.pack_bits(b, at, 10, r.added.message or 0);
+            end
+            at = MOCK.pack_bits(b, at, 1, r.reaction and 1 or 0);
+            if (r.reaction) then at = MOCK.pack_bits(b, at, 34, 0); end
+        end
+    end
+    local size = math.ceil(at / 32) * 4;
+    local out = packet(0x028, b, size);
+    out.data_raw = b;
+    return out;
+end
+
+-- The common one-target action, or pass a targets table as the fourth argument.
+function MOCK.action_packet(actor, category, action, target, results)
+    local targets = type(target) == 'table' and target or { { id = target, results = results } };
+    return MOCK.action_packet_multi(actor, category, action, targets);
+end
+
+-- An entity update. Mask 0x30 means it left your sight.
+function MOCK.entity_packet(id, mask, index)
+    local b = bytes(0x20);
+    put(b, 0x04, id, 4);
+    if (index == nil) then
+        index = bit.band(id, 0xFFF);
+        if (index >= 0x800) then index = index - 0x100; end
+    end
+    put(b, 0x08, index, 2);
+    b[0x0A] = mask;
+    return packet(0x00E, b, 0x20);
+end
+
 -- The server id of the monster at `index` in `zone`.
 function MOCK.mob_id(zone, index)
     return 0x01000000 + zone * 0x1000 + index;
@@ -632,14 +1338,17 @@ function MOCK.check_packet(index, level, con, message)
     return MOCK.message_packet(me, MOCK.mob_id(MOCK.player.zone, index), level, param2, message, index);
 end
 
--- The six /checkparam reply lines about `who` (you by default), 712 with `accuracy` and 715 with `evasion`.
+-- The six /checkparam reply lines about `who` (you by default), 712 with `accuracy`, 713 with `offhand`, 714 with
+-- `ranged` and 715 with `evasion`. 713 and 714 are 0 when they're left out, like the server sends without an off-hand
+-- weapon or anything to shoot.
 MOCK.CHECKPARAM_LINES = { 733, 731, 712, 713, 714, 715 };
-function MOCK.checkparam_packets(accuracy, evasion, who)
+function MOCK.checkparam_packets(accuracy, evasion, who, offhand, ranged, attack, offhand_attack, ranged_attack)
     who = who or MOCK.player.server_id;
+    local values = { [712] = accuracy, [713] = offhand or 0, [714] = ranged or 0, [715] = evasion };
+    local attacks = { [712] = attack or 0, [713] = offhand_attack or 0, [714] = ranged_attack or 0 };
     local out = {};
     for _, message in ipairs(MOCK.CHECKPARAM_LINES) do
-        local value = (message == 712) and accuracy or ((message == 715) and evasion or 7);
-        out[#out + 1] = MOCK.message_packet(who, who, value, 0, message, 0);
+        out[#out + 1] = MOCK.message_packet(who, who, values[message] or 7, attacks[message] or 0, message, 0);
     end
     return out;
 end
@@ -667,11 +1376,28 @@ function MOCK.widescan_packet(index, level)
     return packet(0x0F4, b, 0x10);
 end
 
--- 0x00A zone in.
+-- 0x00A zone in, with your server id at 0x04 and the zone you're coming into at 0x30.
 function MOCK.zone_packet(id)
-    local b = bytes(0x20);
+    local b = bytes(0x100);
     put(b, 0x04, id or MOCK.player.server_id, 4);
-    return packet(0x00A, b, 0x20);
+    put(b, 0x30, MOCK.player.zone, 2);
+    return packet(0x00A, b, 0x100);
+end
+
+-- 0x01B job info, with your max HP before gear and food at 0x3C.
+function MOCK.job_info_packet(base_hp)
+    local b = bytes(0x84);
+    put(b, 0x3C, base_hp, 4);
+    return packet(0x01B, b, 0x84);
+end
+
+-- 0x061 your stats, with your main level at 0x0D, and your support job and level from MOCK.player at 0x0E and
+-- 0x0F.
+function MOCK.stats_packet(level)
+    local b = bytes(0x68);
+    b[0x0D] = level or MOCK.player.main_level;
+    b[0x0E], b[0x0F] = MOCK.player.sub_job, MOCK.player.sub_level;
+    return packet(0x061, b, 0x68);
 end
 
 -- 0x068 pet update with your pet's entity index at 0x0C, 0 with no pet. This is the short form the server
@@ -705,9 +1431,9 @@ function MOCK.packet(e)
 end
 
 -- Your /checkparam reply. Returns how many of its six lines were hidden.
-function MOCK.reply(accuracy, evasion, who)
+function MOCK.reply(accuracy, evasion, who, offhand, ranged)
     local hidden = 0;
-    for _, e in ipairs(MOCK.checkparam_packets(accuracy, evasion, who)) do
+    for _, e in ipairs(MOCK.checkparam_packets(accuracy, evasion, who, offhand, ranged)) do
         if (MOCK.packet(e).blocked) then hidden = hidden + 1; end
     end
     return hidden;
@@ -717,6 +1443,12 @@ end
 function MOCK.zone_in(zone)
     MOCK.player.zone = zone or MOCK.player.zone;
     MOCK.packet(MOCK.zone_packet());
+end
+
+-- Your main level changes, like a level up or a level sync, and the server sends your stats.
+function MOCK.level_up(level)
+    MOCK.player.main_level = level;
+    return MOCK.packet(MOCK.stats_packet(level));
 end
 
 -- The pet update packet for `index`.
@@ -786,3 +1518,24 @@ end
 function MOCK.command(text)
     return MOCK.fire('command', { command = text, blocked = false });
 end
+
+-- Control tests keep the old all-pages coverage. Navigation tests and real previews opt into selection.
+package.preload['ui.navigation'] = function ()
+    local navigation = dofile(ADDON_DIR .. '/ui/navigation.lua');
+    local draw = navigation.draw;
+    navigation.draw = function (settings, tabs, matches, search_changed, draw_page, options)
+        if (MOCK.navigation_real) then
+            return draw(settings, tabs, matches, search_changed, draw_page, options);
+        end
+        local imgui = require('imgui');
+        for _, tab in ipairs(tabs) do
+            if (matches[tab[1]] and navigation.visible((settings.window or {}).tabs, tab[1])) then
+                MOCK.gui.tabs[tab[1]] = true;
+                imgui.PushID(tab[1]);
+                draw_page(tab, settings);
+                imgui.PopID();
+            end
+        end
+    end;
+    return navigation;
+end;

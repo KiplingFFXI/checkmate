@@ -21,8 +21,9 @@ local s = MOCK.settings.current;
 -- Two spaces between parts keep the lines below easy to read. test_printout.lua covers the dividers.
 s.printout.divider = 'spaces';
 
--- This file is about the pet part, so the aggro part stays out of its lines until a test needs it.
+-- This file is about the pet part, so the aggro and links parts stay out of its lines until a test needs them.
 s.printout.parts.aggro.on = false;
+s.printout.parts.links.on = false;
 s.printout.parts.pet.on = true;
 
 local WAR, BST, DRG, SMN, PUP = 1, 9, 14, 15, 18;
@@ -167,13 +168,22 @@ MOCK.dismiss();
 MOCK.summon('FunguarFamiliar');
 expect('FunguarFamiliar before any merit list, 63-71', found(), 'jug 63-71');
 MOCK.packet(MOCK.merit_packet({ { 2564, 2 } }));
+expect('a merit list cannot recover the rank of a pet already out', found(), 'jug 63-71');
+MOCK.dismiss();
+MOCK.summon('FunguarFamiliar');
 expect('Beast Affinity 2, 67-69', found(), 'jug 67-69');
 MOCK.packet(MOCK.merit_packet({ { 2564, 0 } }));
+expect('changing merits leaves an existing jug at its summon rank', found(), 'jug 67-69');
+MOCK.dismiss();
+MOCK.summon('FunguarFamiliar');
 expect('Beast Affinity 0, 63-65', found(), 'jug 63-65');
 local entries = {};
 for i = 1, 61 do entries[i] = { 0x40 + i * 64, i % 4 }; end
 entries[31] = { 2564, 1 };
 MOCK.packet(MOCK.merit_packet(entries));
+expect('adding a merit also leaves an existing jug alone', found(), 'jug 63-65');
+MOCK.dismiss();
+MOCK.summon('FunguarFamiliar');
 expect('a whole merit list with Beast Affinity 1 in the middle, 65-67', found(), 'jug 65-67');
 MOCK.packet(MOCK.merit_packet({ { 2563, 3 } }));
 expect('a merit list without it leaves it alone', found(), 'jug 65-67');
@@ -181,7 +191,7 @@ jobs(PUP, 75, BST, 37);
 expect('BST support gets no merits', found(), 'jug 63-65');
 MOCK.zone_in(900);
 jobs(BST, 75);
-expect('zoning forgets them', found(), 'jug 63-71');
+expect('without the returning pet update, zoning leaves its summon unknown', found(), 'jug 1-71');
 MOCK.dismiss();
 jobs(PUP, 75, BST, 37);
 MOCK.summon('CourierCarrie');
@@ -236,9 +246,9 @@ expect('PUP30 levels to 31 and the automaton follows', found(), 'automaton 31');
 MOCK.dismiss();
 jobs(DRG, 31);
 MOCK.summon_quietly('Azure');
-expect('a wyvern out before checkmate saw it counts from your level at the first /check', found(), 'wyvern 31');
+expect('a wyvern already out has an unknown summon level', found(), 'wyvern 1-31');
 jobs(DRG, 32);
-expect('so a level-up after that, 31-32', found(), 'wyvern 31-32');
+expect('a later level-up cannot recover its earlier summon level', found(), 'wyvern 1-32');
 MOCK.dismiss();
 jobs(DRG, 30);
 MOCK.summon('Azure');
@@ -482,6 +492,93 @@ jobs(BST, 75);
 expect('and still 33-35 once the gloves come off and the sync ends', found(), 'jug 33-35');
 MOCK.dismiss();
 
+-- Summon snapshots and the original jug cap ---------------------------------------------------------
+
+jobs(BST, 50);
+MOCK.summon('CourierCarrie');
+expect('a level-50 summon starts at48-50', found(), 'jug 48-50');
+jobs(BST, 60);
+expect('leveling does not raise the original jug cap', found(), 'jug 48-50');
+MOCK.player.buffs = { LEVEL_SYNC };
+jobs(BST, 40);
+expect('an observed sync rolls under that original cap', found(), 'jug 38-40');
+MOCK.player.buffs = {};
+jobs(BST, 60);
+expect('ending the sync cannot raise the original48-50 spawn cap', found(), 'jug 48-50');
+MOCK.dismiss();
+
+jobs(BST, 75);
+MOCK.packet(MOCK.merit_packet({ { 2564, 0 } }));
+MOCK.summon('FunguarFamiliar');
+expect('zero-rank original spawn is63-65', found(), 'jug 63-65');
+MOCK.packet(MOCK.merit_packet({ { 2564, 3 } }));
+MOCK.player.buffs = { LEVEL_SYNC };
+jobs(BST, 50);
+found();
+MOCK.player.buffs = {};
+jobs(BST, 75);
+expect('new merits at a sync reset cannot raise the original spawn cap', found(), 'jug 63-65');
+MOCK.dismiss();
+MOCK.summon('FunguarFamiliar');
+expect('a new summon uses the newly observed ranks', found(), 'jug 69-71');
+MOCK.packet(MOCK.merit_packet({ { 2564, 0 } }));
+MOCK.player.buffs = { LEVEL_SYNC };
+jobs(BST, 50);
+found();
+MOCK.player.buffs = {};
+jobs(BST, 75);
+expect('a reset with fewer merits can lower the original pet', found(), 'jug 63-65');
+MOCK.dismiss();
+
+MOCK.player.equipment[6] = 15110;
+MOCK.summon_quietly('FunguarFamiliar');
+pet.on_load();
+expect('loading beside a jug cannot recover its summon level or gear', found(), 'jug 1-71');
+MOCK.packet(MOCK.merit_packet({ { 2564, 3 } }));
+MOCK.pet_sync(MOCK.player.pet_index);
+expect('later merits and a routine pet update do not invent its original rank', found(), 'jug 1-71');
+check('the preexisting jug reports its missing summon observation', pet.find(GOBLIN_ID).summon_known == false);
+MOCK.player.equipment[6] = nil;
+MOCK.player.buffs = { LEVEL_SYNC };
+jobs(BST, 50);
+expect('a known reset still cannot recover an unknown original jug cap', found(), 'jug 1-50');
+MOCK.player.buffs = {};
+jobs(BST, 75);
+expect('ending that sync keeps the original unknown lower bound', found(), 'jug 1-71');
+check('a jug reset does not claim to recover its original summon', pet.find(GOBLIN_ID).summon_known == false);
+MOCK.dismiss();
+
+jobs(DRG, 50);
+MOCK.player.buffs = { LEVEL_SYNC };
+MOCK.summon_quietly('Azure');
+pet.on_load();
+expect('a wyvern loaded mid-sync may predate a falling sync level', found(), 'wyvern 1-75');
+jobs(DRG, 49);
+expect('another falling sync level cannot narrow an unknown wyvern', found(), 'wyvern 1-75');
+MOCK.player.buffs = {};
+jobs(DRG, 75);
+expect('an observed sync end recalculates a wyvern at the new level', found(), 'wyvern 75');
+check('the wyvern is known after that recalculation', pet.find(GOBLIN_ID).summon_known == true);
+MOCK.dismiss();
+
+jobs(PUP, 50);
+MOCK.player.buffs = { LEVEL_SYNC };
+MOCK.summon_quietly('Azure');
+pet.on_load();
+expect('an automaton loaded under an existing sync also keeps a safe upper bound', found(), 'automaton 1-75');
+MOCK.dismiss();
+jobs(WAR, 50, PUP, 25);
+MOCK.summon_quietly('Azure');
+pet.on_load();
+expect('a support-job automaton has the era support-level upper bound', found(), 'automaton 1-37');
+MOCK.dismiss();
+jobs(BST, 50);
+MOCK.summon_quietly('FunguarFamiliar');
+pet.on_load();
+expect('a preexisting synced jug retains its source jug cap plus possible merits', found(), 'jug 1-71');
+MOCK.player.buffs = {};
+MOCK.dismiss();
+
 -- Math --------------------------------------------------------------------------------------------
 
 local fixture = dofile(FIXTURES_PATH .. 'data\\zones\\900.lua');
@@ -642,13 +739,13 @@ expect('the first reply is hidden', MOCK.pet_reply(150, 140), 5);
 expect('the second shows', MOCK.pet_reply(150, 140), 0);
 settle();
 
--- advcheck asks for <me> 0.99 s after a /check. Its reply moves when <pet> can go, to a second and a half
+-- another addon asks for <me> 0.99 s after a /check. Its reply moves when <pet> can go, to a second and a half
 -- after it, and with hit on checkmate uses it and sends no <me>.
 s.printout.parts.hit.on, s.printout.parts.evade.on = true, true;
 n = #MOCK.printed;
 check_at(1, 39);
 MOCK.wait(1.0);
-expect('advcheck\'s reply shows', MOCK.reply(310, 240), 0);
+expect('another addon\'s reply shows', MOCK.reply(310, 240), 0);
 MOCK.wait(1.45);
 expect('nothing sent a second and a half after the /check', sent(), 0);
 MOCK.wait(0.1);
@@ -656,11 +753,11 @@ check('<pet> goes a second and a half after that reply, and no <me>', sent() == 
     command(1));
 MOCK.pet_reply(150, 140);
 MOCK.frame();
-check('with the hit rate from advcheck\'s reply', since(n):find('Hit: 95%  Evade: 68%', 1, true) ~= nil, since(n));
+check('with the hit rate from another addon\'s reply', since(n):find('Hit: 95%  Evade: 68%', 1, true) ~= nil, since(n));
 settle();
 s.printout.parts.hit.on, s.printout.parts.evade.on = false, false;
 
--- Another /check or /checkparam going out at 0.99 s, like advcheck's with no reply yet, moves <pet> to 2.49 s.
+-- Another /check or /checkparam going out at 0.99 s, like another addon's with no reply yet, moves <pet> to 2.49 s.
 check_at(1, 39);
 MOCK.wait(0.99);
 MOCK.send_out(0x0DD);
@@ -864,6 +961,7 @@ s.printout.parts.crit.on = false;
 
 -- Pet moved above Aggro. The Aggro line under it prints at once, and the pet line after its reply.
 s.printout.parts.aggro.on = true;
+s.printout.parts.links.on = true;
 s.printout.order = 'difficulty hit evade crit pet aggro magic immunities elements drops';
 -- Fixture Tinkerer at 55 has accuracy 210 and evasion 280.
 local TINKERER = '[checkmate] Fixture Tinkerer (Lv 55)  Even Match';
@@ -948,6 +1046,7 @@ MOCK.summon('Azure');
 settle();
 s.printout.parts.pet.new_line = true;
 s.printout.parts.aggro.on = false;
+s.printout.parts.links.on = false;
 
 -- A layout change while <pet> is out. Crit ticked a second in puts its line above the pet line, under the
 -- lines that already printed, and the pet line still prints once its reply is in.

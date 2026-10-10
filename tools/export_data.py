@@ -4,7 +4,9 @@ Builds checkmate's monster data from the Phoenix server source.
     python tools\\export_data.py [--repo PATH] [--ref phoenix/live] [--out checkmate\\data] [content options]
 
 It copies the ref into a new temp folder with git archive and works out every monster row. It writes
-data\\zones\\<zone id>.lua, data\\bands.lua, data\\too_weak.lua and data\\pets.lua, then prints a short summary.
+data\\zones\\<zone id>.lua, data\\bands.lua, data\\too_weak.lua, data\\pets.lua, data\\steal.lua,
+data\\crit.lua, data\\effects.lua, data\\modifiers.lua, data\\pdif.lua, data\\defenses.lua and data\\blue_finder.lua,
+then prints a short summary.
 See tools\\README.txt.
 """
 import argparse
@@ -14,23 +16,34 @@ import sys
 import time
 
 from export import aggro
+from export import defenses
 from export import bands
+from export import blue_finder
 from export import battlefields
 from export import content
+from export import crit
 from export import drops
 from export import dynamis
+from export import effects
+from export import encounters
+from export import exists
 from export import instances
+from export import info
 from export import launch
 from export import lua_writer
 from export import mobscripts
+from export import modifiers
 from export import outside
 from export import overlays
 from export import pets
+from export import pdif
 from export import placeholders
 from export import rows
 from export import species
+from export import source_parity
 from export import sqlfile
 from export import stats
+from export import steal
 from export import tables
 from export import tree
 from export import zones
@@ -87,19 +100,29 @@ class Context:
         built_dirs = {name for number, name in self.script_dirs.items() if number not in EXCLUDED_ZONE_IDS}
         self.outside = outside.scan(folder, self.scripts, built_dirs)
         self.aggro = aggro.Reader(folder, self.tables, self.scripts)
-        self.fights = battlefields.load(folder, set(self.tables.zones))
+        self.fights = battlefields.load(folder, set(self.tables.zones), allowed)
+        # The Lua that spawns monsters, read once for exists.py to work out which spawns ever come up.
+        self.exists = exists.Index(folder, allowed)
+        # The mob scripts whose onSteal returns one item, and the ones a row has checked against its loot.
+        self.fixed_steal = steal.check_scripts(folder)
+        self.fixed_seen = set()
+        # Any script that changes a job, other than the few the readers know, stops the export.
+        outside.check_job_changes(folder)
         self.unreadable = []
         self.skipped = []
+        self.info = info.Reader(folder, self.tables, self.scripts, self.roots, allowed)
+        self.encounters = encounters.Reader(folder, self.tables, self.scripts, self.roots, allowed)
 
 
 def map_settings(folder):
     """The plain NAME = value lines of settings/default/map.lua."""
     values = {}
-    for line in open(os.path.join(folder, 'settings', 'default', 'map.lua'), encoding='utf-8'):
-        match = re.match(r'\s*([A-Z0-9_]+)\s*=\s*([^,]+),', line.split('--')[0])
-        if match:
-            text = match.group(2).strip()
-            values[match.group(1)] = text == 'true' if text in ('true', 'false') else text
+    with open(os.path.join(folder, 'settings', 'default', 'map.lua'), encoding='utf-8') as source_file:
+        for line in source_file:
+            match = re.match(r'\s*([A-Z0-9_]+)\s*=\s*([^,]+),', line.split('--')[0])
+            if match:
+                text = match.group(2).strip()
+                values[match.group(1)] = text == 'true' if text in ('true', 'false') else text
     return values
 
 
@@ -156,7 +179,25 @@ def load_check(paths):
 
 def build_files(folder, allowed, stamp, out):
     """Reads the source tree in folder and writes every data file. Returns the numbers for the summary."""
+    parity_note = source_parity.check(folder)
     ctx = Context(folder, allowed)
+    modifier_data = modifiers.build(folder, ctx.roots, allowed)
+    source_parity.check_modifiers(folder, modifier_data)
+    # The Steal and crit checks and tables come first, since they're quick and the zones take most of the run.
+    steal.check_roll(folder)
+    steal.check_traits(ctx.tables)
+    steal_ability, steal_items, steal_latents = steal.ability(folder), steal.gear(folder), steal.latents(folder)
+    steal.check_module_sql(folder, set(steal_items) | set(steal_latents))
+    defense_data = defenses.build(folder, overlays.data_roots(folder), allowed)
+    pdif_data = pdif.build(folder, ctx.roots, allowed)
+    effect_data = effects.build(folder, ctx.roots, allowed)
+    crit.check_traits(ctx.tables)
+    crit_items = crit.gear(folder)
+    crit.check_latents(folder)
+    crit.check_module_sql(folder, set(crit_items))
+    crit.check_yonin(folder, allowed)
+    crit.check_scripts(folder)
+    exists.check_module_sql(folder, ctx.exists)
     built, band_kinds = [], []
     for number, name, script_dir, types in zone_list(ctx):
         if 'instanced' in types:
@@ -169,6 +210,10 @@ def build_files(folder, allowed, stamp, out):
             kind.flags |= ctx.outside.get((script_dir, kind.script), set())
         built.append((number, script_dir, kinds))
     check_unreadable(ctx)
+    unseen = sorted(set(ctx.fixed_steal) - ctx.fixed_seen)
+    if unseen:
+        raise RuntimeError('scripts/zones/%s/mobs/%s.lua has an onSteal for a monster with no row. Check FIXED_STEAL '
+                           'in export\\steal.py.' % unseen[0])
 
     out_zones = os.path.join(out, 'zones')
     os.makedirs(out_zones, exist_ok=True)
@@ -176,12 +221,25 @@ def build_files(folder, allowed, stamp, out):
         if old.endswith('.lua'):
             os.remove(os.path.join(out_zones, old))
     written, zone_sizes, total_rows = [], [], 0
+    finder = blue_finder.Builder()
     for number, script_dir, kinds in built:
-        finished = [rows.finish(kind, ctx.tables) for kind in kinds]
+        finished = []
+        for kind in kinds:
+            row = rows.finish(kind, ctx.tables)
+            details, by_index = ctx.info.read(kind, row['levels'])
+            encounter, encounter_indexes = ctx.encounters.read(kind, row['levels'])
+            details.update(encounter)
+            for index, sections in encounter_indexes.items():
+                by_index.setdefault(index, {}).update(sections)
+            row['info'] = details
+            if by_index:
+                row['info_by_index'] = by_index
+            finished.append(row)
         if not finished:
             continue
         finished.sort(key=lambda row: row['ids'][0])
         display = script_dir.replace('_', ' ')
+        finder.add_zone(number, display, finished)
         path = os.path.join(out_zones, '%d.lua' % number)
         text = lua_writer.write_zone(path, number, display, finished, stamp)
         constants = count_constants(text)
@@ -201,11 +259,39 @@ def build_files(folder, allowed, stamp, out):
     affinity = pets.beast_affinity(ctx.tree, ctx.roots)
     pets_path = os.path.join(out, 'pets.lua')
     pets_size = len(lua_writer.write_pets(pets_path, jugs, avatars, pets.jug_range_items(ctx.tree), affinity, stamp))
-    note = load_check(written + [bands_path, too_weak_path, pets_path])
-    total_size = sum(entry[0] for entry in zone_sizes) + bands_size + too_weak_size + pets_size
+    steal_path = os.path.join(out, 'steal.lua')
+    steal_size = len(lua_writer.write_steal(steal_path, steal_ability, steal_items, steal_latents, stamp))
+    crit_merits, crit_caps = crit.merits(ctx.tree, ctx.roots)
+    crit_path = os.path.join(out, 'crit.lua')
+    crit_size = len(lua_writer.write_crit(crit_path, crit_merits, crit_caps, crit_items, stamp))
+    effects_path = os.path.join(out, 'effects.lua')
+    effects_size = len(lua_writer.write_effects(effects_path, effect_data, stamp))
+    modifiers_path = os.path.join(out, 'modifiers.lua')
+    modifiers.write(modifiers_path, modifier_data, stamp.built, stamp.content)
+    modifiers_size = os.path.getsize(modifiers_path)
+    pdif_path = os.path.join(out, 'pdif.lua')
+    pdif_text = pdif.write(pdif_path, pdif_data, stamp)
+    if count_constants(pdif_text) > CONSTANT_LIMIT:
+        raise RuntimeError('pDIF metadata exceeds the LuaJIT constant limit.')
+    pdif_size = len(pdif_text)
+    defenses_path = os.path.join(out, 'defenses.lua')
+    defenses_text = defenses.write(defenses_path, defense_data, stamp)
+    if count_constants(defenses_text) > CONSTANT_LIMIT:
+        raise RuntimeError('Shield and Parry metadata exceeds the LuaJIT constant limit.')
+    finder_data = finder.finish()
+    finder_path = os.path.join(out, 'blue_finder.lua')
+    finder_text = blue_finder.write(finder_path, finder_data, stamp)
+    if count_constants(finder_text) > CONSTANT_LIMIT:
+        raise RuntimeError('Blue finder exceeds the LuaJIT constant limit; review its layout before exporting')
+    note = load_check(written + [bands_path, too_weak_path, pets_path, steal_path, crit_path, effects_path, modifiers_path, finder_path, pdif_path, defenses_path])
+    total_size = (sum(entry[0] for entry in zone_sizes) + bands_size + too_weak_size + pets_size + steal_size
+                  + crit_size + effects_size + modifiers_size + len(finder_text) + pdif_size + len(defenses_text))
     return {'files': len(written), 'rows': total_rows, 'zone_sizes': zone_sizes, 'total_size': total_size,
             'bands': band_rows, 'note': note, 'skipped': len(ctx.skipped), 'too_weak': too_weak,
-            'too_weak_sources': sources, 'jugs': len(jugs), 'avatars': len(avatars), 'affinity': affinity}
+            'too_weak_sources': sources, 'jugs': len(jugs), 'avatars': len(avatars), 'affinity': affinity,
+            'steal_ability': steal_ability, 'steal_items': len(steal_items), 'steal_latents': len(steal_latents),
+            'crit_merits': crit_merits, 'crit_caps': crit_caps, 'crit_items': len(crit_items),
+            'effects': effect_data, 'modifiers': modifier_data, 'blue_finder': finder_data, 'parity_note': parity_note}
 
 
 def export(args):
@@ -221,18 +307,34 @@ def export(args):
     biggest = max(result['zone_sizes'])
     level_75 = [band for band in result['bands'] if band[0] == 75]
     print('Built from %s (%s).' % (stamp.built, stamp.content))
-    print('%d zone files, %d rows, %.2f MB with bands.lua, too_weak.lua and pets.lua. Biggest is %s (zone %d) at '
-          '%.1f KB.' % (result['files'], result['rows'], result['total_size'] / 1048576.0,
-                        biggest[2], biggest[1], biggest[0] / 1024.0))
+    print('%d zone files, %d rows, %.2f MB with bands.lua, too_weak.lua, pets.lua, steal.lua, crit.lua, effects.lua, modifiers.lua, pdif.lua, defenses.lua and blue_finder.lua. Biggest '
+          'is %s (zone %d) at %.1f KB.' % (result['files'], result['rows'], result['total_size'] / 1048576.0,
+                                         biggest[2], biggest[1], biggest[0] / 1024.0))
     print('bands.lua has %d levels. Level 75 is %s.' % (len(result['bands']), level_75[0] if level_75 else 'missing'))
     print('too_weak.lua comes from %s. At level 75, level %d and below checks Too Weak.'
           % (' and '.join(result['too_weak_sources']), result['too_weak'][75]))
     affinity = result['affinity']
     print('pets.lua has %d jug pets and %d avatars. Beast Affinity adds %d levels a merit, up to %d merits.'
           % (result['jugs'], result['avatars'], affinity['per_merit'], affinity['most']))
+    latents = result['steal_latents']
+    print('steal.lua has %d items that add Steal and %d more that only add%s it at low HP. Steal is %s\'s from '
+          'level %d.' % (result['steal_items'], latents, 's' if latents == 1 else '',
+                         tables.JOBS[result['steal_ability']['job']].upper(), result['steal_ability']['level']))
+    rate, enemy = (result['crit_merits'][name] for name in crit.MERITS)
+    most = max(rate['most'], enemy['most'])
+    print('crit.lua has %d items with critical hit evasion. Critical Hit Rate adds %d%% a merit, up to %d, and Enemy '
+          'Critical Hit Rate takes off %d%% a merit, up to %d, all of them from level %d.'
+          % (result['crit_items'], rate['per_merit'], rate['most'], enemy['per_merit'], enemy['most'],
+             next(level for level, cap in result['crit_caps'] if cap >= most)))
+    effect_data = result['effects']
+    print('effects.lua has %d spells, %d abilities, %d TP moves, %d pet moves, %d effects, %d icons and %d gear items.'
+          % tuple([len(effect_data[key]) for key in ('spells', 'abilities', 'skills', 'pacts', 'effects', 'pictured')]
+                  + [len(set().union(*(set(items) for items in effect_data['gear'].values())))]))
     if result['skipped']:
         count = result['skipped']
         print('Skipped %d instance spawn%s with no mob_groups or mob_pools row.' % (count, '' if count == 1 else 's'))
+    print(result['parity_note'])
+    print('modifiers.lua has %d items with supported bonuses or named conditions.' % len(result['modifiers']['items']))
     print(result['note'])
     print('Took %.0f s.' % (time.time() - started))
 

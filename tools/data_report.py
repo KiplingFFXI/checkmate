@@ -3,11 +3,13 @@ Compares two checkmate data folders and writes what changed as a short markdown 
 
     python tools\\data_report.py OLD NEW [--report FILE] [--bullets FILE]
 
-It loads the generated files in LuaJIT the way the addon does and compares the monsters row by row. Link names are
-put in place first, each with how it links, so a link list that only got a new number isn't a change. Each
-placeholder's NMs are put in place by name too. The build stamp alone isn't a change either. It also compares
-pets.lua, but only says whether it changed. When something changed, it writes the report to --report, or prints it,
-and a few CHANGELOG.md lines to --bullets. When nothing changed, it says so and writes nothing.
+Loads the generated files in LuaJIT and compares the monsters row by row. Links, PHs and steal items are
+compared by name so a changed index alone does not count. The build stamp is ignored too.
+Zone-level family labels are compared separately from actual link memberships.
+
+Also reports whether pets.lua, steal.lua, crit.lua, effects.lua, modifiers.lua or blue_finder.lua or pdif.lua or defenses.lua changed. Writes the report
+and short changelog entries when requested, or prints the report. With no changes, it writes nothing.
+Older data may have no jobs; those comparisons leave jobs out and say why.
 """
 import argparse
 import os
@@ -30,26 +32,32 @@ MOST_BULLETS = 5
 TH_LEVELS = range(5)
 
 # Row fields in the order the data files write them.
-FIELD_ORDER = ['ids', 'nm', 'levels', 'spawn_levels', 'ph_for', 'level_mod', 'ranks', 'meva', 'resist', 'magic_dmg',
-               'absorb', 'nullify', 'undead', 'immune', 'drops', 'aggro', 'any_level', 'no_aggro', 'true_detect',
-               'ambush', 'detects', 'aggro_note', 'aggro_hours', 'links', 'flags']
+FIELD_ORDER = ['ids', 'nm', 'job', 'levels', 'spawn_levels', 'ph_for', 'ph_rules', 'loot_conditions', 'level_mod', 'crit', 'tp_moves', 'no_swings',
+               'counters', 'ranks', 'meva', 'resist', 'magic_dmg', 'absorb', 'nullify', 'undead', 'immune', 'drops',
+               'steal', 'aggro', 'any_level', 'no_aggro', 'true_detect', 'ambush', 'detects', 'aggro_note',
+               'aggro_hours', 'links', 'flags']
 
-# Fields that are a list of names or indexes, where only what's in the list matters.
-SET_FIELDS = {'ids', 'immune', 'detects', 'links', 'ph_for'}
+# Fields that are a list of names or indexes, where only what's in the list matters. Steal picks evenly from its
+# items, so their order doesn't matter either.
+SET_FIELDS = {'ids', 'immune', 'detects', 'links', 'ph_for', 'steal'}
 
 # Names for the fields whose own name reads badly in the report.
-LABELS = {'ids': 'spawn indexes', 'immune': 'immunities', 'detects': 'detection', 'ph_for': 'PH spawns'}
+LABELS = {'ids': 'spawn indexes', 'immune': 'immunities', 'detects': 'detection', 'ph_for': 'PH spawns',
+          'steal': 'steal items', 'ph_rules': 'PH lottery rules', 'loot_conditions': 'loot conditions'}
 
 # Fields that are only written when true.
-TRUE_FIELDS = {'nm', 'undead', 'aggro', 'any_level', 'no_aggro', 'true_detect', 'ambush'}
+TRUE_FIELDS = {'nm', 'tp_moves', 'no_swings', 'counters', 'undead', 'aggro', 'any_level', 'no_aggro', 'true_detect',
+               'ambush'}
 
 # Plain words for each field in the CHANGELOG bullets. A field that isn't here goes by its own name.
-PLAIN = {'ids': 'spawns', 'nm': 'notorious flag', 'levels': 'levels', 'spawn_levels': 'levels', 'level_mod': 'level',
+PLAIN = {'ids': 'spawns', 'nm': 'notorious flag', 'job': 'job', 'levels': 'levels', 'spawn_levels': 'levels',
+         'level_mod': 'level', 'crit': 'crit rate', 'tp_moves': 'TP move flag', 'no_swings': 'no swing flag',
+         'counters': 'counter flag',
          'ranks': 'magic resistance', 'meva': 'magic evasion', 'resist': 'resist traits',
          'magic_dmg': 'magic damage', 'absorb': 'magic damage', 'nullify': 'magic damage', 'undead': 'undead flag',
-         'immune': 'immunities', 'drops': 'drops', 'aggro': 'aggro', 'any_level': 'aggro', 'no_aggro': 'aggro',
-         'true_detect': 'aggro', 'ambush': 'aggro', 'detects': 'aggro', 'aggro_note': 'aggro',
-         'aggro_hours': 'aggro', 'links': 'links', 'ph_for': 'PH spawns', 'flags': 'notes'}
+         'immune': 'immunities', 'drops': 'drops', 'steal': 'steal items', 'aggro': 'aggro', 'any_level': 'aggro',
+         'no_aggro': 'aggro', 'true_detect': 'aggro', 'ambush': 'aggro', 'detects': 'aggro', 'aggro_note': 'aggro',
+         'aggro_hours': 'aggro', 'links': 'links', 'ph_for': 'PH spawns', 'ph_rules': 'PH lottery rules', 'loot_conditions': 'loot conditions', 'flags': 'notes'}
 
 # The first line of a zone file, like "-- Valkurm Dunes (zone 103)."
 TITLE = re.compile(r'^-- (.+) \(zone \d+\)\.$')
@@ -58,6 +66,9 @@ TITLE = re.compile(r'^-- (.+) \(zone \d+\)\.$')
 ITEM_LINE = re.compile(r'item = (\d+) \},  -- (.+?)(?:, the despoil entry)?$', re.M)
 MEMBER_LINE = re.compile(r'^\s*\{ (\d+), \d+ \},  -- (.+)$', re.M)
 GROUP_LINE = re.compile(r'group = \{ (.+) \} \},  -- one of (.+)$', re.M)
+# The steal line, or one of its ids on a line of its own when it runs long.
+STEAL_LINE = re.compile(r'^\s*steal  = \{ ([\d, ]+) \},  -- (.+)$', re.M)
+STEAL_MEMBER = re.compile(r'^\s*(\d+),  -- (.+)$', re.M)
 
 lua = luajit21.LuaRuntime()
 load_file = lua.eval('function(path) return assert(loadfile(path))() end')
@@ -70,38 +81,72 @@ drops = load_file(DROPS_LUA)
 lua.execute("package.path = [[%s/?.lua;]] .. package.path"
             % os.path.join(os.path.dirname(HERE), 'checkmate').replace('\\', '/'))
 aggro = load_file(AGGRO_LUA)
+# The link words are keys in core\wording.lua, found through the same folder.
+wording = lua.eval("require('core.wording')")
 
 
 class Folder:
-    """One data folder with each zone's name and rows, the bands, the Too Weak table, the pet tables and the stamps."""
+    """
+    One data folder with each zone's name and rows, the bands, the Too Weak table, the pet, Steal and crit tables and
+    the stamps.
+    """
 
     def __init__(self, root):
-        self.zones, self.names = {}, {}
+        self.zones, self.names, self.link_families = {}, {}, {}
         folder = os.path.join(root, 'zones')
         for file_name in os.listdir(folder):
             if file_name.endswith('.lua'):
                 path = os.path.join(folder, file_name)
-                self.zones[int(file_name[:-4])] = (zone_title(path), zone_rows(plain(load_file(path))))
+                # The names first, since the rows name their steal items with them.
                 self.read_item_names(path)
+                zone = plain(load_file(path))
+                number = int(file_name[:-4])
+                self.link_families[number] = zone.get('link_families') or {}
+                self.zones[number] = (zone_title(path), zone_rows(zone, self.names))
         bands = plain(load_file(os.path.join(root, 'bands.lua')))
         self.built, self.content = bands['built'], bands['content']
         self.bands = {row[0]: row[1:] for row in bands['rows']}
         self.too_weak = by_number(plain(load_file(os.path.join(root, 'too_weak.lua')))['highest'])
-        # pets.lua without its stamps.
-        pets = plain(load_file(os.path.join(root, 'pets.lua')))
-        self.pets = {key: value for key, value in pets.items() if key not in ('built', 'content')}
+        # The extra tables without their stamps. Older builds may not have all of them.
+        self.pets = without_stamps(load_file(os.path.join(root, 'pets.lua')))
+        steal = os.path.join(root, 'steal.lua')
+        self.steal = without_stamps(load_file(steal)) if os.path.exists(steal) else None
+        crit = os.path.join(root, 'crit.lua')
+        self.crit = without_stamps(load_file(crit)) if os.path.exists(crit) else None
+        effects = os.path.join(root, 'effects.lua')
+        self.effects = without_stamps(load_file(effects)) if os.path.exists(effects) else None
+        modifiers = os.path.join(root, 'modifiers.lua')
+        self.modifiers = without_stamps(load_file(modifiers)) if os.path.exists(modifiers) else None
+        pdif = os.path.join(root, 'pdif.lua')
+        self.pdif = without_stamps(load_file(pdif)) if os.path.exists(pdif) else None
+        defenses = os.path.join(root, 'defenses.lua')
+        self.defenses = without_stamps(load_file(defenses)) if os.path.exists(defenses) else None
+        blue_finder = os.path.join(root, 'blue_finder.lua')
+        self.blue_finder = without_stamps(load_file(blue_finder)) if os.path.exists(blue_finder) else None
         self.rows = sum(len(rows) for _, rows in self.zones.values())
+        # Data built before jobs came along has none.
+        self.has_jobs = any('job' in row for _, rows in self.zones.values() for row in rows)
 
     def read_item_names(self, path):
         with open(path, encoding='ascii') as handle:
             text = handle.read()
-        for item, name in ITEM_LINE.findall(text) + MEMBER_LINE.findall(text):
+        for item, name in ITEM_LINE.findall(text) + MEMBER_LINE.findall(text) + STEAL_MEMBER.findall(text):
             self.names[int(item)] = name
         for members, listed in GROUP_LINE.findall(text):
             items = re.findall(r'\{ (\d+), \d+ \}', members)
             listed = listed.split(', ')
             if len(items) == len(listed):
                 self.names.update(zip(map(int, items), listed))
+        for members, listed in STEAL_LINE.findall(text):
+            items = members.split(', ')
+            listed = listed.split(', ')
+            if len(items) == len(listed):
+                self.names.update(zip(map(int, items), listed))
+
+
+def without_stamps(table):
+    """A generated file's table without its built and content stamps."""
+    return {key: value for key, value in plain(table).items() if key not in ('built', 'content')}
 
 
 def plain(value):
@@ -125,12 +170,12 @@ def zone_title(path):
     return match.group(1) if match else os.path.basename(path)
 
 
-def zone_rows(zone):
+def zone_rows(zone, item_names):
     """
-    The zone's rows with levels keyed by level, each links number swapped for its names, each with how it links, and
-    each placeholder's NMs swapped for their names.
+    The zone's rows with levels keyed by level, each links number swapped for its names, each with how it links, each
+    placeholder's NMs swapped for their names, and the steal items swapped for their names.
     """
-    words = plain(aggro.LINK_WORDS)
+    words = {way: [wording.BY_KEY[key].full for key in keys] for way, keys in plain(aggro.LINK_WORDS).items()}
     lists = zone['link_lists'] or []
     rows = zone['monsters'] or []
     name_at = {index: row['name'] for row in rows for index in row['ids']}
@@ -148,6 +193,9 @@ def zone_rows(zone):
             # Each PH spawn as "330 for Valkurm Emperor", so an NM that only moved to a new spawn index isn't a change.
             row['ph_for'] = ['%d for %s' % (index, join_words(sorted({name_at.get(nm, str(nm)) for nm in nms})))
                              for index, nms in sorted(by_number(row['ph_for']).items())]
+        if 'steal' in row:
+            # By name and sorted, so an item that only got a new id or a new place in the list isn't a change.
+            row['steal'] = sorted(item_names.get(item, 'item %d' % item) for item in row['steal'])
     return rows
 
 
@@ -210,6 +258,14 @@ def value_text(value):
     return str(value).lower() if isinstance(value, bool) else str(value)
 
 
+def job_text(job):
+    """A row's job as players write it, like DRK/WAR, DRK/DRK or WAR with no support job, or no job."""
+    if not job:
+        return 'no job'
+    main, sub = job.upper().split('/')
+    return ('%s with no support job' % main) if sub == 'NONE' else '%s/%s' % (main, sub)
+
+
 def describe(field, old, new):
     """A few words on how one field changed, like "ranks (ice 4 to 3)"."""
     if field == 'levels':
@@ -221,6 +277,8 @@ def describe(field, old, new):
         return 'levels (%s at %s)' % (join_words(sorted(stats)), levels_text(moved))
     if field == 'drops':
         return 'drops'
+    if field == 'job':
+        return 'job (%s to %s)' % (job_text(old), job_text(new))
     if field in SET_FIELDS:
         gained = [str(value) for value in new or [] if value not in (old or [])]
         lost = [str(value) for value in old or [] if value not in (new or [])]
@@ -321,16 +379,30 @@ def changed_levels(old, new):
 def compare(old, new):
     """The report and the CHANGELOG bullets, or (None, None) when nothing but the stamp changed."""
     names = {**old.names, **new.names}
-    sections, entries = [], []
+    notes, extra_bullets = [], []
+    # When only one side has jobs, every row would change its job, so they're left out this time.
+    if old.has_jobs != new.has_jobs:
+        for folder in (old, new):
+            for _, rows in folder.zones.values():
+                for row in rows:
+                    row.pop('job', None)
+        notes.append('The %s data has each monster\'s job and the %s data doesn\'t, so jobs aren\'t compared this '
+                     'time.' % (('new', 'old') if new.has_jobs else ('old', 'new')))
+    sections, entries, family_zones = [], [], []
     for zone_id in sorted(set(old.zones) | set(new.zones)):
         old_title, old_rows = old.zones.get(zone_id, (None, []))
         new_title, new_rows = new.zones.get(zone_id, (None, []))
+        if old.link_families.get(zone_id, {}) != new.link_families.get(zone_id, {}):
+            family_zones.append('%s (zone %d)' % (new_title or old_title, zone_id))
         lines, zone_entries = zone_section(new_title or old_title, zone_id, pair_rows(old_rows, new_rows), names)
         if zone_entries:
             sections.append(lines)
             entries += zone_entries
 
-    notes, extra_bullets = [], []
+    if family_zones:
+        notes.append('Link family labels changed in %s.' % join_words(shorten(family_zones)))
+        extra_bullets.append('Updated family grouping for Links.')
+
     if old.content != new.content:
         notes.append('The content settings changed from "%s" to "%s".' % (old.content, new.content))
     bands = changed_levels(old.bands, new.bands)
@@ -345,6 +417,27 @@ def compare(old, new):
         notes.append('pets.lua changed.')
         extra_bullets.append('The jug pet levels, the avatar names, the gear that narrows a jug pet\'s level or the '
                              'Beast Affinity merit changed.')
+    if old.steal != new.steal:
+        notes.append('steal.lua changed.')
+        extra_bullets.append('The gear that adds Steal or the level Steal is learned at changed.')
+    if old.crit != new.crit:
+        notes.append('crit.lua changed.')
+        extra_bullets.append('The crit merits or the gear that changes the crits you take changed.')
+    if old.effects != new.effects:
+        notes.append('effects.lua changed.')
+        extra_bullets.append('The effect durations, removal rules, gear or merits changed.')
+    if old.modifiers != new.modifiers:
+        notes.append('modifiers.lua changed.')
+        extra_bullets.append('The supported combat bonuses, merits or their conditions changed.')
+    if old.defenses != new.defenses:
+        notes.append('defenses.lua changed.')
+        extra_bullets.append('Updated Shield and Parry inputs.')
+    if old.pdif != new.pdif:
+        notes.append('pdif.lua changed.')
+        extra_bullets.append('The physical damage multiplier rules changed.')
+    if old.blue_finder != new.blue_finder:
+        notes.append('blue_finder.lua changed.')
+        extra_bullets.append('The Blue Magic source catalogue changed.')
     if not entries and not notes:
         return None, None
 

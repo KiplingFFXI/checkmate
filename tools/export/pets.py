@@ -7,18 +7,17 @@ gear with JUG_LEVEL_RANGE takes levels off that spread (petutils.cpp CalculateJu
 counts with BST as your main job at 75 or higher. LoadPet in petutils.cpp tells an avatar from a jug pet by its
 petid. Each reader stops the export when the server stops looking the way it expects, so the weekly job catches it.
 """
+from pathlib import Path
 import os
 import re
 
+from . import items
 from . import overlays
 from . import sqlfile
 from . import tables
 
 # LoadPet's test for an avatar or spirit. Every other pet_list row with a time is a jug pet.
 AVATAR_TEST = 'PetID <= PETID_CAIT_SITH || PetID == PETID_SIREN'
-
-# One item_mods row. A few lines have spaces around the values.
-ITEM_MOD = re.compile(r'^INSERT INTO `item_mods` VALUES \(\s*(\d+)\s*,\s*(\d+)\s*,\s*(-?\d+)\s*\);')
 
 # Monster Gloves, the era gloves with JUG_LEVEL_RANGE. If they're gone, the reader is reading the wrong thing.
 MONSTER_GLOVES = 15110
@@ -45,14 +44,14 @@ def jugs(tree):
 def avatars(tree):
     """The sorted names of a summoner's avatars and spirits, the pet_list rows LoadPet types as an avatar."""
     utils = os.path.join(tree, 'src', 'map', 'utils')
-    header = open(os.path.join(utils, 'petutils.h'), encoding='utf-8', errors='replace').read()
+    header = Path(os.path.join(utils, 'petutils.h')).read_text(encoding='utf-8', errors='replace')
     ids = {}
     for name in ('PETID_CAIT_SITH', 'PETID_SIREN'):
         match = re.search(r'\b%s\s*=\s*(\d+)' % name, header)
         if match is None:
             raise RuntimeError('petutils.h has no %s, which the pet reader needs to find the avatars.' % name)
         ids[name] = int(match.group(1))
-    source = open(os.path.join(utils, 'petutils.cpp'), encoding='utf-8', errors='replace').read()
+    source = Path(os.path.join(utils, 'petutils.cpp')).read_text(encoding='utf-8', errors='replace')
     if AVATAR_TEST not in source:
         raise RuntimeError('petutils.cpp no longer picks avatars with %s. The pet reader needs updating.'
                            % AVATAR_TEST)
@@ -69,25 +68,11 @@ def jug_range_items(tree):
     {item id: (value, level)} of the items with JUG_LEVEL_RANGE, which narrows how far under its top a jug pet can be.
     An item only counts at its own level or higher (battleutils.cpp GetScaledItemModifier).
     """
-    mod = tables.read_enum(tree, 'mod')['jug_level_range']
-    found = {}
-    for line in open(os.path.join(tree, 'sql', 'item_mods.sql'), encoding='utf-8', errors='replace'):
-        if not line.startswith('INSERT'):
-            continue
-        match = ITEM_MOD.match(line)
-        if match is None:
-            raise RuntimeError('The pet reader can\'t read this item_mods line: %s' % line.strip())
-        if int(match.group(2)) == mod:
-            found[int(match.group(1))] = int(match.group(3))
+    found = items.mod_values(tree, tables.read_enum(tree, 'mod')['jug_level_range'])
     if MONSTER_GLOVES not in found:
         raise RuntimeError('item_mods has no JUG_LEVEL_RANGE on Monster Gloves (%d). The pet reader needs updating.'
                            % MONSTER_GLOVES)
-    levels = {row['itemId']: row['level'] for row in sqlfile.rows(os.path.join(tree, 'sql', 'item_equipment.sql'),
-                                                                  'item_equipment') if row['itemId'] in found}
-    missing = sorted(set(found) - set(levels))
-    if missing:
-        raise RuntimeError('item_equipment has no level for the JUG_LEVEL_RANGE items %s. The pet reader needs '
-                           'updating.' % ', '.join(str(item) for item in missing))
+    levels = items.levels(tree, found, 'JUG_LEVEL_RANGE')
     return {item: (found[item], levels[item]) for item in found}
 
 

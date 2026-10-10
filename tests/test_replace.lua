@@ -18,8 +18,9 @@ local function cur() return MOCK.settings.current; end
 -- Two spaces between parts keep the lines below easy to read. test_printout.lua covers the dividers.
 cur().printout.divider = 'spaces';
 
--- This file is about the game's /check line, so the aggro part stays out of its lines.
+-- This file is about the game's /check line, so the aggro and links parts stay out of its lines.
 cur().printout.parts.aggro.on = false;
+cur().printout.parts.links.on = false;
 
 local CHECK_LINE  = '[checkmate] Fixture Goblin (Lv 39)  Even Match';
 local HIT_LINE    = '[checkmate] Hit: 95%  Evade: 73%  Crit: 8%';
@@ -297,16 +298,18 @@ MOCK.command('/checkmate extras new');
 -- A /check that gives up on the reply --------------------------------------------------------------
 
 -- A newer /check or zoning ends an older /check's wait. It prints every line it hasn't yet except the
--- ones holding hit or evade, so its aggro, magic, immunities and drops still show.
+-- ones holding hit or evade, so its aggro, links, magic, immunities and drops still show.
 MOCK.items[4358] = { Name = { 'Hare Meat' } };
 MOCK.entities[30] = { Name = 'Fixture Knight' };
 MOCK.player.skills[36] = 200;
 s.magic.schools.elemental.on = true;
-for _, id in ipairs({ 'hit', 'evade', 'aggro', 'magic', 'immunities', 'drops' }) do s.printout.parts[id].on = true; end
+for _, id in ipairs({ 'hit', 'evade', 'aggro', 'links', 'magic', 'weaknesses', 'drops' }) do s.printout.parts[id].on = true; end
+
+s.weaknesses.chat = { elements = false, weapons = false, immunities = true, charm = false };
 
 local AGGRO_LINE    = '[checkmate] Aggro: Not aggressive  Doesn\'t link';
 local GOBLIN_MAGIC  = '[checkmate] Magic: Elemental 95% (Ice)';
-local GOBLIN_IMMUNE = '[checkmate] Immune: Bind, Paralyze';
+local GOBLIN_IMMUNE = '[checkmate] Weaknesses: Immune: Bind, Paralyze';
 local GOBLIN_DROPS  = '[checkmate] Drops (TH 0): Ice Crystal 100%, Fire Crystal 16%';
 local RABBIT_HIT    = '[checkmate] Hit: 95%  Evade: 80%  Crit: 20%';
 local RABBIT_DROPS  = '[checkmate] Drops (TH 0): Hare Meat 15% (only drops if you get EXP)';
@@ -468,6 +471,34 @@ check('the reply to the request from before shows', MOCK.reply(300, 250) == 0);
 MOCK.wait(5);
 check('and nothing more', since(n) == zoned, since(n));
 
+-- With Aggro off, Links takes its place on a line of its own, so the older /check's links still show.
+s.printout.parts.aggro.on = false;
+local LINKS_LINE = '[checkmate] Doesn\'t link';
+MOCK.commands = {};
+n = #MOCK.printed;
+MOCK.packet(MOCK.check_packet(1, 39, 4, 174));
+MOCK.wait(0.5);
+MOCK.packet(MOCK.check_packet(5, 3, 2, 174));
+MOCK.frame();
+check('with Aggro off, a second /check prints the older one\'s links', since(n) == joined({ CHECK_LINE, LINKS_LINE,
+    GOBLIN_MAGIC, GOBLIN_IMMUNE, GOBLIN_DROPS, RABBIT_LINE }), since(n));
+MOCK.wait(1.6);
+MOCK.reply(300, 250);
+MOCK.frame();
+MOCK.wait(5);
+check('and the newer gets its links on their own line after the reply', since(n) == joined({ CHECK_LINE, LINKS_LINE,
+    GOBLIN_MAGIC, GOBLIN_IMMUNE, GOBLIN_DROPS, RABBIT_LINE, RABBIT_HIT, LINKS_LINE, FIRE_MAGIC, RABBIT_DROPS }), since(n));
+n = #MOCK.printed;
+MOCK.packet(MOCK.check_packet(1, 39, 4, 174));
+MOCK.wait(1.6);
+MOCK.zone_in(900);
+MOCK.frame();
+zoned = joined({ CHECK_LINE, LINKS_LINE, GOBLIN_MAGIC, GOBLIN_IMMUNE, GOBLIN_DROPS });
+check('and zoning while it waits prints them too', since(n) == zoned, since(n));
+MOCK.reply(300, 250);
+MOCK.wait(5);
+s.printout.parts.aggro.on = true;
+
 -- Three /checks in a row. Each older one prints its rest when the next comes, and only the newest gets
 -- the reply, from one request.
 MOCK.commands = {};
@@ -503,13 +534,14 @@ lines = MOCK.printed_since(n);
 check('and prints the plain /check line in its place', #lines == 1 and lines[1] == CHECK_LINE .. ' (High Evasion)', lines[1]);
 
 -- The same when the parts that are on have nothing to say. Fixture Rabbit has no immunities.
-s.printout.parts.immunities.on = true;
+s.printout.parts.weaknesses.on = true;
+s.weaknesses.chat = { elements = false, weapons = false, immunities = true, charm = false };
 n = #MOCK.printed;
 MOCK.packet(MOCK.check_packet(5, 3, 2, 174));
 MOCK.frame();
 lines = MOCK.printed_since(n);
 check('parts with nothing to say get the plain line too', #lines == 1 and lines[1] == RABBIT_LINE, lines[1]);
-s.printout.parts.immunities.on = false;
+s.printout.parts.weaknesses.on = false;
 
 MOCK.command('/checkmate replace off');
 n = #MOCK.printed;
@@ -556,6 +588,7 @@ MOCK.command('/checkmate reset');
 MOCK.command('/checkmate reset');
 cur().printout.divider = 'spaces';
 cur().printout.parts.aggro.on = false;
+cur().printout.parts.links.on = false;
 MOCK.command('/checkmate');
 n = #MOCK.printed;
 MOCK.wait(2);

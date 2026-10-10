@@ -4,6 +4,7 @@ The extra launch-day monsters from modules/phoenix/lua/custom/pxi_launch_names.l
 Each starter zone has 200 extra spawns. The first kind uses indexes 824-923 and the second 924-1023. The module
 renames them on spawn and turns their drops off until the credited killer earns combat EXP.
 """
+from pathlib import Path
 import os
 import re
 
@@ -23,7 +24,7 @@ def load(tree):
     loaded = any(module.startswith('modules/%s/' % entry) for entry in overlays.init_entries(tree))
     if not os.path.exists(path) or not loaded:
         return {}
-    text = open(path, encoding='utf-8').read()
+    text = Path(path).read_text(encoding='utf-8')
     if '824 + (index - 1) * 100' not in text:
         raise RuntimeError('%s changed its index layout. The launch reader needs updating.' % MODULE)
     extras = {}

@@ -19,10 +19,11 @@ local loaded = { zone = nil, file = nil, by_index = {} };
 
 -- Widescan levels seen in this zone, by entity index.
 local scanned = {};
+local scan_times = {};
 
 -- The true levels your own /checks and widescan saw in this zone, by entity index, whichever came last.
 -- Only a charmed pet's level reads them, so a /check level never changes the level shown for another
--- monster at the same index. A monster dying near you drops its own, since it comes back at a new level.
+-- monster at the same index. Death or disappearance clears them before that index can be reused.
 local checked = {};
 
 local function load_zone(zone)
@@ -55,6 +56,7 @@ function monsters.resolve_links(file)
     for _, row in ipairs(file.monsters) do
         if (row.links ~= nil) then
             row.links = lists[row.links];
+            row.link_families = file.link_families;
         end
     end
 end
@@ -86,7 +88,7 @@ end
     in a row that runs 17 to 20. Any other spawn takes the row's range. Returns nil when the row has
     no level.
 ]]
-local function spawn_range(row, index)
+function monsters.spawn_range(row, index)
     local own = row.spawn_levels and row.spawn_levels[index];
     if (own ~= nil) then
         return own[1], own[2];
@@ -105,7 +107,7 @@ end
     only that cap's levels. Returns nil when `level` isn't in that range.
 ]]
 function monsters.range_around(row, index, level)
-    local low, high = spawn_range(row, index);
+    local low, high = monsters.spawn_range(row, index);
     local levels = row.levels or {};
     if (low == nil or level < low or level > high or levels[level] == nil) then
         return nil;
@@ -141,6 +143,28 @@ function monsters.ph_for(row, index)
     return #names > 0 and names or nil;
 end
 
+-- Source rules for this placeholder. They say nothing about whether its NM's window is open now.
+function monsters.ph_details(row, index)
+    local rules = row and row.ph_rules and row.ph_rules[index];
+    if (rules == nil) then return nil; end
+    local out = {};
+    for nm, rule in pairs(rules) do
+        local nm_row = loaded.by_index[nm];
+        if (nm_row ~= nil) then
+            out[#out + 1] = { name = nm_row.name, chance = rule.chance,
+                cooldown_min = rule.cooldown_min, cooldown_max = rule.cooldown_max, conditions = rule.conditions };
+        end
+    end
+    table.sort(out, function (a, b) return a.name < b.name; end);
+    return #out > 0 and out or nil;
+end
+
+function monsters.level_source(row, check_level, index)
+    if (check_level ~= nil and check_level >= 1) then return 'check', os.clock(); end
+    if (scanned[index] ~= nil) then return 'widescan', scan_times[index]; end
+    return row and 'spawn' or 'unknown', nil;
+end
+
 --[[
     The monster's true level as low, high. They match when the level is known exactly.
     The /check level comes first when it is 1 or more, less the row's level_mod. The widescan level
@@ -159,7 +183,7 @@ function monsters.level(row, check_level, index)
     end
 
     if (row ~= nil) then
-        return spawn_range(row, index);
+        return monsters.spawn_range(row, index);
     end
     return nil;
 end
@@ -168,6 +192,7 @@ end
 function monsters.on_widescan(index, level)
     if (level >= 1) then
         scanned[index], checked[index] = level, level;
+        scan_times[index] = os.clock();
     end
 end
 
@@ -176,20 +201,22 @@ function monsters.on_check(index, level)
     checked[index] = level;
 end
 
--- The monster at entity index `index` died near you.
-function monsters.on_death(index)
-    checked[index] = nil;
+-- The monster at this index left sight. It may return as a different spawn.
+function monsters.on_disappear(index)
+    checked[index], scanned[index], scan_times[index] = nil, nil, nil;
 end
 
+monsters.on_death = monsters.on_disappear;
+
 -- A charmed pet's level as low, high: your /check or widescan of it in this zone, whichever came last, unless
--- it died since, else the levels it spawns at.
+-- it died or left sight since, else the levels it spawns at.
 function monsters.pet_level(row, index)
     local level = checked[index];
     if (level ~= nil) then
         return level, level;
     end
     if (row ~= nil) then
-        return spawn_range(row, index);
+        return monsters.spawn_range(row, index);
     end
     return nil;
 end
@@ -204,10 +231,22 @@ function monsters.built()
     return loaded.file and loaded.file.built or nil;
 end
 
+function monsters.content()
+    return loaded.file and loaded.file.content or nil;
+end
+
+-- Loads a zone's data now, while the zone screen is up, so the overlay doesn't stutter on your first target there.
+function monsters.preload(zone)
+    if (loaded.zone ~= zone) then
+        load_zone(zone);
+    end
+end
+
 -- Entity indexes are reused in the next zone, and its data is a different file.
 function monsters.forget_zone()
     loaded.zone, loaded.file, loaded.by_index = nil, nil, {};
     scanned, checked = {}, {};
+    scan_times = {};
 end
 
 return monsters;

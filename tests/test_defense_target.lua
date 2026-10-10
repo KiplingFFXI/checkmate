@@ -1,0 +1,64 @@
+package.loaded['data.defenses'] = { shield_rates = { 55, 40, 45, 30, 50, 100 },
+    shields = { [100] = { size = 1, level = 1 } }, gear = {},
+    job_ranks = { [1] = { block = 3, parry = 3 } }, parry_caps = { [10] = 30, [11] = 33, [12] = 36 },
+    prevent_effects = {}, reprisal_effect = 403, issekigan_effect = 470, palisade_effect = 478 };
+addon.path = FIXTURES_PATH;
+local player = require('core.player');
+local reads = 0;
+local read = player.defense_inputs;
+player.defense_inputs = function(...) reads = reads + 1; return read(...); end;
+player.read = function() error('full combat read is not needed'); end;
+local target = require('core.target');
+local monsters = require('core.monsters');
+local s = require('ui.defaults').make();
+for id in pairs(s.overlay.parts) do s.overlay.parts[id] = false; end
+MOCK.player.zone, MOCK.player.main_job, MOCK.player.main_level = 900, 1, 40;
+MOCK.player.skills = { [30] = 30, [31] = 30 };
+MOCK.player.equipment = { [0] = 10, [1] = 100 };
+MOCK.items[10], MOCK.items[100] = { Skill = 3 }, { Skill = 0, ShieldSize = 1 };
+MOCK.target_monster(1, 'Fixture Goblin');
+target.on_zone(900);
+target.take_in();
+target.read(s.overlay);
+target.readout(s);
+expect('disabled rows never read defensive inputs', reads, 0);
+local row = monsters.find(900, MOCK.mob_id(900, 1), 'Fixture Goblin');
+local caps = package.loaded['data.defenses'].parry_caps;
+for level, stats in pairs(row.levels) do stats.attack_skill, caps[level] = level * 3, level * 3; end
+s.overlay.parts.block, s.overlay.parts.parry = true, true;
+target.mark_stale();
+local out = target.readout(s);
+check('shield row works without a full combat read', out.block.low ~= nil);
+check('parry row works without a full combat read', out.parry.low ~= nil);
+expect('defensive rows retain current input time', out.block.observed_at, MOCK.now);
+local before = reads;
+MOCK.now = MOCK.now + 0.1;
+local quiet, changed = target.readout(s);
+expect('quiet frame keeps the snapshot', quiet, out);
+expect('quiet frame does not rebuild', changed, false);
+expect('quiet frame does not reread defensive inputs', reads, before);
+MOCK.player.skills[30] = 50;
+MOCK.now = MOCK.now + 0.3;
+local newer = target.readout(s);
+check('shield skill change refreshes the rate', newer.block.low > out.block.low);
+expect('old snapshot keeps its own time', out.block.observed_at, 0);
+MOCK.player.equipment[1] = nil;
+MOCK.now = MOCK.now + 0.3;
+out = target.readout(s);
+expect('shield removal becomes unavailable', out.block.eligible, false);
+MOCK.player.equipment[0] = nil;
+MOCK.now = MOCK.now + 0.3;
+out = target.readout(s);
+expect('main weapon removal becomes unavailable', out.parry.eligible, false);
+s.overlay.parts.block, s.overlay.parts.parry = false, false;
+target.mark_stale();
+target.readout(s);
+before = reads;
+MOCK.now = MOCK.now + 1;
+target.readout(s);
+expect('turning both rows off stops defensive polling', reads, before);
+target.on_death(1);
+target.take_in();
+expect('target death clears the display', target.readout(s), nil);
+expect('passive defensive rows send no commands', #MOCK.commands, 0);
+return MOCK.report();

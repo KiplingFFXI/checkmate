@@ -9,6 +9,7 @@ import re
 
 # Mods whose value feeds a number in the data files, by their data/enums/mod.yaml name.
 STAT_MODS = {'acc', 'eva', 'dex', 'agi', 'int', 'mnd', 'chr', 'eva_percent'}
+DEFENSE_MODS = {'def', 'defp', 'vit', 'food_defp', 'food_def_cap'}
 ELEMENTS = ['fire', 'ice', 'wind', 'earth', 'thunder', 'water', 'light', 'dark']
 STATUSES = ['paralyze', 'bind', 'silence', 'slow', 'poison', 'light_sleep', 'dark_sleep', 'blind', 'stun', 'gravity']
 RESIST_EFFECTS = ['sleep', 'poison', 'paralyze', 'blind', 'silence', 'virus', 'petrify', 'bind', 'curse', 'gravity',
@@ -17,7 +18,10 @@ MEVA_MODS = {'meva'} | {e + '_meva' for e in ELEMENTS} | {e + '_meva' for e in R
 RANK_MODS = {e + '_res_rank' for e in ELEMENTS + STATUSES}
 RESIST_MODS = {e + 'res' for e in RESIST_EFFECTS}
 LEVEL_MOD = 'exp_lvl_mod'
-RELEVANT_MODS = STAT_MODS | MEVA_MODS | RANK_MODS | RESIST_MODS | {LEVEL_MOD}
+# The monster's own crit rate on you, for the Crit taken part, and the critical hit evasion that would lower your crit.
+# The Crit part doesn't count that, so the export stops on it.
+CRIT_RATE, CRIT_EVASION = 'crithitrate', 'critical_hit_evasion'
+RELEVANT_MODS = STAT_MODS | MEVA_MODS | RANK_MODS | RESIST_MODS | {LEVEL_MOD, CRIT_RATE}
 
 # Mods that change the damage magic does to a monster, for one element or for every element. Thunder's null and
 # absorb mods are named ltng. A change to one of these during a fight gives the monster scripted_elements.
@@ -28,6 +32,17 @@ ELEMENT_DAMAGE_MODS = (MAGIC_DAMAGE_MODS | {element + '_sdt' for element in ELEM
                        | {element + '_null' for element in MOD_ELEMENTS}
                        | {element + '_absorb' for element in MOD_ELEMENTS})
 
+# Elements also reads elemental ranks and evasion, but not general MEVA or status-specific ranks.
+ELEMENT_STAT_MODS = {element + suffix for element in ELEMENTS for suffix in ('_res_rank', '_meva')}
+ELEMENT_READOUT_MODS = ELEMENT_DAMAGE_MODS | ELEMENT_STAT_MODS
+
+WEAPON_TYPES = [('slashing', 'slash_sdt'), ('piercing', 'pierce_sdt'), ('blunt', 'impact_sdt'),
+                ('hand_to_hand', 'hth_sdt')]
+WEAPON_DAMAGE_MODS = {mod for _, mod in WEAPON_TYPES} | {
+    'dmg', 'dmgphys', 'dmgphys_ii', 'udmgphys', 'dmgrange', 'udmgrange',
+    'absorb_dmg_chance', 'phys_absorb', 'null_damage', 'null_physical_damage', 'null_ranged_damage',
+}
+
 # Stat ranks setStatRank can change that feed a number in the data files.
 RELEVANT_STAT_RANKS = {'DEX', 'AGI', 'INT', 'MND', 'CHR', 'EVA', 'ACC'}
 
@@ -36,9 +51,9 @@ RESTAT_METHODS = {'setMobLevel', 'changeJob', 'setPetStats', 'recalculateStats'}
 
 HANDLER_START = re.compile(r'^(entity\.\w+|xi\.[\w.]+|g_mixins\.[\w.]+)\s*=\s*function\s*\(([^)]*)\)')
 FUNCTION_START = re.compile(r'^function\s+(xi\.[\w.]+)\s*\(([^)]*)\)')
-METHOD_CALL = re.compile(r'(\w+|\))\s*:\s*(setMod|addMod|delMod|addImmunity|delImmunity|setMobMod|setStatRank|'
+METHOD_CALL = re.compile(r'(\w+|\))\s*:\s*(setMod|addMod|delMod|addImmunity|delImmunity|setMobMod|addMobMod|setStatRank|setSpellList|'
                          r'setMobLevel|changeJob|setPetStats|recalculateStats|addListener|setAggressive|'
-                         r'setTrueDetection|setLink)\s*\(')
+                         r'setTrueDetection|setLink|setMobSkillAttack|setAutoAttackEnabled)\s*\(')
 HELPER_CALL = re.compile(r'(?<![\w.:])(xi\.[\w.]+)\s*\(\s*(\w+)\s*[,)]')
 MIXIN_REQUIRE = re.compile(r"require\('scripts/mixins/([\w/]+)'\)")
 INTEGER = re.compile(r'^-?\d+$')
@@ -58,6 +73,11 @@ LINK_MOB_MODS = {'superlink', 'sublink', 'no_link', 'one_way_linking'}
 
 # The names above that are about aggro. The rest are about links.
 AGGRO_NAMES = {'aggressive', 'true_detection'} | AGGRO_MOB_MODS
+
+# Calls that change how a monster swings at you, which the crit reader reads. setMobSkillAttack gives it a list of TP
+# moves to swing with in place of its normal hits, and 0 gives the normal hits back. setAutoAttackEnabled(false) stops
+# its swings, and true gives them back.
+SWING_METHODS = {'setMobSkillAttack', 'setAutoAttackEnabled'}
 
 
 def strip_comments(text):
@@ -210,6 +230,43 @@ def immunity_name(arg):
     return match.group(1).lower() if match else None
 
 
+def changes_elements(call, aliases):
+    """Whether a runtime call can change a displayed Elements field. Unknown mods stay marked."""
+    if call.method in RESTAT_METHODS:
+        return True
+    if call.method not in ('setMod', 'addMod', 'delMod'):
+        return False
+    if not call.args:
+        return True
+    name = mod_name(call.args[0]) or aliases.get(call.args[0])
+    return name is None or name in ELEMENT_READOUT_MODS
+
+
+def changes_weapons(call, aliases):
+    """Whether a runtime call can change a weapon type or its separate damage-taken notes."""
+    if call.method in RESTAT_METHODS:
+        return True
+    if call.method not in ('setMod', 'addMod', 'delMod'):
+        return False
+    if not call.args:
+        return True
+    name = mod_name(call.args[0]) or aliases.get(call.args[0])
+    return name is None or name in WEAPON_DAMAGE_MODS
+
+
+def changes_defense(call, aliases):
+    if call.method in RESTAT_METHODS:
+        return True
+    if call.method == 'setStatRank':
+        return not call.args or call.args[0] in ('xi.stat.DEF', 'xi.stat.VIT')
+    if call.method not in ('setMod', 'addMod', 'delMod'):
+        return False
+    if not call.args:
+        return True
+    name = mod_name(call.args[0]) or aliases.get(call.args[0])
+    return name is None or name in DEFENSE_MODS
+
+
 def call_effect(call, static, immunities, aliases):
     """
     What one call does to the monster, as (kind, detail).
@@ -221,7 +278,7 @@ def call_effect(call, static, immunities, aliases):
     """
     args = call.args
     text = '%s %s(%s)' % (call.where(), call.method, ', '.join(args or ['...']))
-    if call.method in ('setMobMod', 'addListener'):
+    if call.method in ('setMobMod', 'addListener') or call.method in SWING_METHODS:
         return None, None
     if args is None:
         return ('unreadable', text) if static else ('runtime', text)
@@ -235,6 +292,14 @@ def call_effect(call, static, immunities, aliases):
             if static and name is not None and INTEGER.match(value):
                 return 'op', (call.method[:3], name, int(value))
             return 'element_runtime', text
+        if name in DEFENSE_MODS:
+            if static and INTEGER.match(value):
+                return 'op', (call.method[:3], name, int(value))
+            return 'defense_runtime', text
+        if name in WEAPON_DAMAGE_MODS:
+            if static and INTEGER.match(value):
+                return 'op', (call.method[:3], name, int(value))
+            return 'weapon_runtime', text
         if name is not None and name not in RELEVANT_MODS:
             return None, None
         if name is None or not INTEGER.match(value):
@@ -247,6 +312,8 @@ def call_effect(call, static, immunities, aliases):
         op = ('immune_' + call.method[:3], name, None)
     elif call.method == 'setStatRank':
         stat = re.fullmatch(r'xi\.stat\.([A-Z]+)', args[0] if args else '')
+        if stat and stat.group(1) in {'DEF', 'VIT'}:
+            return 'defense_runtime', text
         if stat and stat.group(1) not in RELEVANT_STAT_RANKS:
             return None, None
         return 'runtime', text
@@ -286,6 +353,11 @@ def aggro_effect(call, static):
     if value is None:
         return 'unreadable', name, text
     return 'op', name, (name, value)
+
+
+def attack_list(args):
+    """The TP move list a setMobSkillAttack call gives, 0 for none, or None when the reader can't read it."""
+    return int(args[0]) if args and len(args) == 1 and INTEGER.match(args[0]) else None
 
 
 def drop_effect(call, static):

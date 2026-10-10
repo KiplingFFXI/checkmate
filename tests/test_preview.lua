@@ -1,0 +1,66 @@
+local preview = require('ui.preview');
+local printout = require('core.printout');
+local s = require('ui.defaults').make();
+local imgui = require('imgui');
+local result = { name = 'Example monster', low = 75, high = 75,
+    block = { low = 25.5, high = 25.5 }, crit = { low = 10, high = 10 } };
+for _, row in pairs(s.printout.parts) do row.on = false; end
+for id in pairs(s.overlay.parts) do s.overlay.parts[id] = false; end
+s.printout.parts.name.on, s.printout.parts.block.on = true, true;
+s.overlay.parts.name, s.overlay.parts.crit = true, true;
+s.overlay.own_lines, s.overlay.wrap, s.overlay.font_size = true, 130, 24;
+local function text(lines) return (MOCK.plain(table.concat(lines, '\n')):gsub('\29[^\29]+\29', '')); end
+local chat = preview.lines(s, result, { display = 'chat' });
+local overlay = preview.lines(s, result, { display = 'overlay' });
+check('chat preview uses production values and chat row switches', text(chat):find('Shield block: 25.5%%') and not text(chat):find('Crit:'));
+check('overlay preview has independent row switches', not text(overlay):find('Shield block') and text(overlay):find('Crit: 10%%'), text(overlay));
+expect('chat example uses the actual production line formatter', text(chat), text(printout.lines(s, result)));
+s.printout.number_style = 'midpoint';
+result.crit = { low = 10, high = 20 };
+local varied = preview.lines(s, result, { display = 'overlay' });
+check('overlay preview retains inherited number style', text(varied):find('Crit: ~15%%') ~= nil, text(varied));
+s.overlay.show_range, s.printout.range_word = true, 'Spawn';
+result.range_low, result.range_high = 70, 80;
+varied = preview.lines(s, result, { display = 'overlay' });
+expect('overlay preview retains inherited printout preferences', text(varied), text(printout.lines(printout.overlay_view(s), result)));
+s.printout.number_style, s.overlay.show_range = 'range', false;
+result.crit = { low = 10, high = 10 };
+local absent, reason = preview.lines(s, nil, { source = 'current' });
+check('missing current readout is explicit', #absent == 0 and reason:find('No current target readout', 1, true));
+local runs = preview.runs('plain' .. string.char(30, 73) .. 'pink' .. string.char(30, 255) .. 'fallback' .. string.char(30));
+expect('safe parser preserves uncolored leading text', runs[1].text, 'plain');
+expect('safe parser keeps valid colors', runs[2].code, 73);
+check('invalid color uses a known palette code', printout.in_palette(runs[3].code));
+expect('incomplete color escape is discarded', #runs, 3);
+local safe = preview.runs(string.char(30, 1, 129, 65, 27) .. 'safe%value');
+expect('chat glyph bytes and controls cannot leak as ImGui text', safe[1].text, ' safe%value');
+local original = { GetMemoryManager = AshitaCore.GetMemoryManager, GetResourceManager = AshitaCore.GetResourceManager };
+AshitaCore.GetMemoryManager = function() error('preview read game memory'); end;
+AshitaCore.GetResourceManager = function() error('preview read resources'); end;
+local saved, textures, commands, fonts = MOCK.saved, MOCK.texture_loads, #MOCK.commands, #MOCK.font_calls;
+local child_sizes, begin_child = {}, imgui.BeginChild;
+imgui.BeginChild = function(id, size, ...) child_sizes[#child_sizes + 1] = { size[1], size[2] }; return begin_child(id, size, ...); end;
+MOCK.frame(0);
+imgui.Begin('Preview test', { true }, 0);
+local base_font = { name = 'Unpushed Ashita font' };
+preview.draw(s, result, { display = 'overlay', source = 'current', width = 180, height = 100, default_font = base_font });
+preview.draw(s, result, { display = 'chat', source = 'sample', width = 90, height = 999, id = 'small' });
+imgui.End();
+imgui.BeginChild = begin_child;
+expect('preview child honors its explicit width', child_sizes[1][1], 180);
+expect('preview height is bounded', child_sizes[2][2], 240);
+AshitaCore.GetMemoryManager, AshitaCore.GetResourceManager = original.GetMemoryManager, original.GetResourceManager;
+expect('preview does not save settings', MOCK.saved, saved);
+expect('preview does not allocate icons', MOCK.texture_loads, textures);
+expect('preview sends no commands', #MOCK.commands, commands);
+expect('preview loads no fonts', #MOCK.font_calls, fonts);
+check('source overlay size is used', MOCK.gui.fonts[1].size == 24);
+expect('default overlay face does not inherit the settings font', MOCK.gui.fonts[1].font, base_font);
+check('each preview has its own bounded child', #MOCK.gui.children == 2);
+check('preview did not change row switches', s.printout.parts.block.on and not s.overlay.parts.block and s.overlay.parts.crit);
+check('preview did not change icon choices', s.overlay.icons and not s.overlay.icons_only);
+check('preview did not change the supplied result', result.block.low == 25.5 and result.provenance == nil);
+local drawn = {};
+for _, run in ipairs(MOCK.gui.colored) do drawn[#drawn + 1] = run.text; end
+check('preview actually draws formatted values', table.concat(drawn):find('25.5%%') ~= nil);
+return MOCK.report();

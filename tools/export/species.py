@@ -3,7 +3,7 @@ The monster attribute chain runs ecosystem, family, species (data/ecosystems.yam
 the spawn.
 
 Each layer overrides its parent field by field (mob_attributes/dataset.cpp applyOverrides). Stat ranks and
-jobs replace. Resistance ranks, magic damage, mods and mob mods merge key by key, and a key a child sets replaces
+jobs replace. Resistance ranks, damage types, mods and mob mods merge key by key, and a key a child sets replaces
 the parent's value. immune_status, detects and the behavior flags replace the whole list. aggressive, links and
 true_detection each replace.
 """
@@ -18,6 +18,7 @@ RANK_BLOCKS = ('rank_element', 'rank_status')
 
 # The dmg_magic keys and the mods they set (convertResists). all is on top of every element.
 MAGIC_DAMAGE_KEYS = dict({'all': 'udmgmagic'}, **{element: element + '_sdt' for element in ELEMENTS})
+PHYSICAL_DAMAGE_KEYS = {'slashing': 'slash_sdt', 'piercing': 'pierce_sdt', 'blunt': 'impact_sdt', 'h2h': 'hth_sdt'}
 
 
 # The behaviors switches that each replace the parent's value. They default to false (dataset.h).
@@ -37,7 +38,7 @@ def new_attributes():
     stats['att'] = RANKS['a']
     stats['acc'] = RANKS['a']
     out = {'stats': stats, 'jobs': None, 'resists': {}, 'mods': {}, 'immune': None, 'entity_flags': None,
-           'detects': [], 'behavior_flags': [], 'mob_mods': {}, 'animation_sub': 0}
+           'detects': [], 'behavior_flags': [], 'mob_mods': {}, 'animation_sub': 0, 'source': {}}
     for key in BEHAVIOR_SWITCHES:
         out[key] = False
     return out
@@ -51,6 +52,8 @@ def apply(attributes, source):
         out[key] = dict(attributes[key])
     if not source:
         return out
+    # Keep the other inherited fields for the source-information readers.
+    out['source'] = overlays.merge_patch(attributes.get('source', {}), source)
     for key, value in (source.get('stats') or {}).items():
         if key in out['stats']:
             out['stats'][key] = RANKS[str(value).lower()]
@@ -62,6 +65,8 @@ def apply(attributes, source):
             out['resists'][key + '_res_rank'] = int(value)
     for key, value in (resists.get('dmg_magic') or {}).items():
         out['resists'][MAGIC_DAMAGE_KEYS[key]] = int(value)
+    for key, value in (resists.get('dmg_physical') or {}).items():
+        out['resists'][PHYSICAL_DAMAGE_KEYS[key]] = int(value)
     if 'immune_status' in resists:
         out['immune'] = [str(name) for name in (resists['immune_status'] or [])]
     for key, value in (source.get('mods') or {}).items():
@@ -105,6 +110,8 @@ def load(tree, roots):
                 entry = entry or {}
                 species = Species(int(entry['id']), eco_name, int(family['id']),
                                   apply(family_attrs, entry.get('attributes')))
+                species.name = name
+                species.family_name = family_name
                 by_name[name] = species
                 by_id[species.id] = species
     return by_name, by_id

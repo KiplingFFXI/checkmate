@@ -1,13 +1,13 @@
 --[[
     The look skins. A skin sets the settings window's colors, corner roundness and spacing, every
-    chat color on the Colors tab, and Color by difficulty. It leaves your dividers and the window's
-    font alone.
+    color on the Appearance tab, and Color by difficulty. It leaves your dividers and the window's font
+    alone.
 
     Each skin holds eleven role colors, like its background and accent. Picking a skin spreads them
     over every window color in WINDOW_COLOR_GROUPS and copies them into look.imgui, so each one
     stays editable. "Reset to skin" copies them in again.
 
-    The Look tab shows Custom once anything a skin set differs from it. Undo takes back the last
+    The Appearance tab shows Custom once anything a skin set differs from it. Undo takes back the last
     skin pick or Reset to skin, one step only.
 ]]
 
@@ -42,8 +42,8 @@ for _, key in ipairs(printout.COLOR_KEYS) do
 end
 
 --[[
-    Every skin, in the order the Look tab lists them. `id` is the one word /checkmate skin takes.
-    `tip`, when a skin has one, shows on the Look tab while that skin is picked. Phoenix is the
+    Every skin, in the order the Appearance tab lists them. `id` is the one word /checkmate skin takes.
+    `tip`, when a skin has one, shows on the Appearance tab while that skin is picked. Phoenix is the
     default and uses the phoenix-xi.com colors with square corners.
 ]]
 skins.LIST = {
@@ -80,14 +80,26 @@ skins.LIST = {
             even_match = 8, tough = 68, very_tough = 76, incredibly_tough = 76, impossible_to_gauge = 5,
             reading = 106, reading_detail = 67,
             hit_label = 7, hit_number = 1, hit_detail = 67,
+            offhand_label = 7, offhand_number = 1, offhand_detail = 67,
+            ranged_label = 7, ranged_number = 1, ranged_detail = 67,
             evade_label = 7, evade_number = 1, evade_detail = 67,
             crit_label = 7, crit_number = 1, crit_detail = 67,
+            crittaken_label = 7, crittaken_number = 1, crittaken_detail = 67,
+            job_label = 7, job_name = 106, job_detail = 67,
             aggro_label = 7, aggro_words = 106, aggro_detail = 67, aggro_threat = 76, aggro_safe = 83,
+            links_label = 7, links_words = 106, links_detail = 67,
             magic_label = 7, magic_name = 106, magic_number = 1, magic_detail = 67,
             immunities_label = 7, immunities_name = 106, immunities_detail = 67,
+            effects_label = 7, effects_name = 106, effects_buff = 106,
+            effects_time = 1, effects_guess = 67, effects_detail = 67,
             elements_label = 7, elements_weak = 83, elements_resist = 76, elements_detail = 67,
+            weapons_label = 7, weapons_weak = 83, weapons_resist = 76, weapons_detail = 67,
+            info_label = 7, info_name = 7, info_value = 106, info_detail = 67,
             drops_label = 7, drops_name = 106, drops_number = 1, drops_detail = 67,
+            steal_label = 7, steal_name = 106, steal_number = 1, steal_detail = 67,
             pet_label = 7, pet_name = 106, pet_level = 106, pet_number = 1, pet_detail = 67,
+            badge_fire = 76, badge_ice = 6, badge_wind = 83, badge_earth = 69, badge_thunder = 73, badge_water = 71,
+            badge_light = 1, badge_dark = 72,
             good = 83, ok = 96, bad = 76,
         },
         imgui = {
@@ -138,14 +150,26 @@ skins.LIST = {
             even_match = 8, tough = 68, very_tough = 76, incredibly_tough = 76, impossible_to_gauge = 5,
             reading = 1, reading_detail = 92,
             hit_label = 82, hit_number = 1, hit_detail = 92,
+            offhand_label = 82, offhand_number = 1, offhand_detail = 92,
+            ranged_label = 82, ranged_number = 1, ranged_detail = 92,
             evade_label = 82, evade_number = 1, evade_detail = 92,
             crit_label = 82, crit_number = 1, crit_detail = 92,
+            crittaken_label = 82, crittaken_number = 1, crittaken_detail = 92,
+            job_label = 82, job_name = 1, job_detail = 92,
             aggro_label = 82, aggro_words = 1, aggro_detail = 92, aggro_threat = 76, aggro_safe = 79,
+            links_label = 82, links_words = 1, links_detail = 92,
             magic_label = 82, magic_name = 1, magic_number = 1, magic_detail = 92,
             immunities_label = 82, immunities_name = 1, immunities_detail = 92,
+            effects_label = 82, effects_name = 1, effects_buff = 1,
+            effects_time = 1, effects_guess = 92, effects_detail = 92,
             elements_label = 82, elements_weak = 79, elements_resist = 76, elements_detail = 92,
+            weapons_label = 82, weapons_weak = 79, weapons_resist = 76, weapons_detail = 92,
+            info_label = 82, info_name = 82, info_value = 106, info_detail = 92,
             drops_label = 82, drops_name = 1, drops_number = 1, drops_detail = 92,
+            steal_label = 82, steal_name = 1, steal_number = 1, steal_detail = 92,
             pet_label = 82, pet_name = 1, pet_level = 1, pet_number = 1, pet_detail = 92,
+            badge_fire = 76, badge_ice = 6, badge_wind = 83, badge_earth = 69, badge_thunder = 73, badge_water = 71,
+            badge_light = 1, badge_dark = 72,
             good = 79, ok = 69, bad = 76,
         },
         imgui = {
@@ -177,14 +201,26 @@ skins.LIST = {
             even_match = 8, tough = 68, very_tough = 76, incredibly_tough = 76, impossible_to_gauge = 5,
             reading = 78, reading_detail = 85,
             hit_label = 78, hit_number = 7, hit_detail = 85,
+            offhand_label = 78, offhand_number = 7, offhand_detail = 85,
+            ranged_label = 78, ranged_number = 7, ranged_detail = 85,
             evade_label = 78, evade_number = 7, evade_detail = 85,
             crit_label = 78, crit_number = 7, crit_detail = 85,
+            crittaken_label = 78, crittaken_number = 7, crittaken_detail = 85,
+            job_label = 78, job_name = 96, job_detail = 85,
             aggro_label = 78, aggro_words = 96, aggro_detail = 85, aggro_threat = 68, aggro_safe = 80,
+            links_label = 78, links_words = 96, links_detail = 85,
             magic_label = 78, magic_name = 96, magic_number = 7, magic_detail = 85,
             immunities_label = 78, immunities_name = 96, immunities_detail = 85,
+            effects_label = 78, effects_name = 96, effects_buff = 96,
+            effects_time = 7, effects_guess = 85, effects_detail = 85,
             elements_label = 78, elements_weak = 80, elements_resist = 68, elements_detail = 85,
+            weapons_label = 78, weapons_weak = 80, weapons_resist = 68, weapons_detail = 85,
+            info_label = 78, info_name = 78, info_value = 106, info_detail = 85,
             drops_label = 78, drops_name = 96, drops_number = 7, drops_detail = 85,
+            steal_label = 78, steal_name = 96, steal_number = 7, steal_detail = 85,
             pet_label = 78, pet_name = 96, pet_level = 85, pet_number = 7, pet_detail = 85,
+            badge_fire = 76, badge_ice = 6, badge_wind = 83, badge_earth = 69, badge_thunder = 73, badge_water = 71,
+            badge_light = 1, badge_dark = 72,
             good = 80, ok = 69, bad = 68,
         },
         imgui = {
@@ -204,16 +240,118 @@ skins.LIST = {
         },
     },
     {
+        id   = 'mint',
+        name = 'Mint',
+        tip  = 'Dark green panels with mint highlights and cool white text. Threats and resisted damage stay coral.',
+        chat = {
+            con_colors = true,
+            tag_brackets = 102, tag_word = 88, line = 90, replies = 90,
+            name = 80, level = 90, level_range = 90, id = 90, ph = 90,
+            difficulty = 90, too_weak = 67, incredibly_easy_prey = 90, easy_prey = 80, decent_challenge = 102,
+            even_match = 78, tough = 8, very_tough = 68, incredibly_tough = 76, impossible_to_gauge = 105,
+            reading = 90, reading_detail = 102,
+            hit_label = 88, hit_number = 1, hit_detail = 102,
+            offhand_label = 88, offhand_number = 1, offhand_detail = 102,
+            ranged_label = 88, ranged_number = 1, ranged_detail = 102,
+            evade_label = 88, evade_number = 1, evade_detail = 102,
+            crit_label = 88, crit_number = 1, crit_detail = 102,
+            crittaken_label = 88, crittaken_number = 1, crittaken_detail = 102,
+            job_label = 88, job_name = 90, job_detail = 102,
+            aggro_label = 88, aggro_words = 90, aggro_detail = 102, aggro_threat = 68, aggro_safe = 80,
+            links_label = 88, links_words = 90, links_detail = 102,
+            magic_label = 88, magic_name = 90, magic_number = 1, magic_detail = 102,
+            immunities_label = 88, immunities_name = 90, immunities_detail = 102,
+            effects_label = 88, effects_name = 90, effects_buff = 90,
+            effects_time = 1, effects_guess = 102, effects_detail = 102,
+            elements_label = 88, elements_weak = 80, elements_resist = 68, elements_detail = 102,
+            weapons_label = 88, weapons_weak = 80, weapons_resist = 68, weapons_detail = 102,
+            info_label = 88, info_name = 88, info_value = 90, info_detail = 102,
+            drops_label = 88, drops_name = 90, drops_number = 1, drops_detail = 102,
+            steal_label = 88, steal_name = 90, steal_number = 1, steal_detail = 102,
+            pet_label = 88, pet_name = 90, pet_level = 90, pet_number = 1, pet_detail = 102,
+            badge_fire = 76, badge_ice = 6, badge_wind = 83, badge_earth = 69, badge_thunder = 73, badge_water = 71,
+            badge_light = 1, badge_dark = 72,
+            good = 88, ok = 78, bad = 68,
+        },
+        imgui = {
+            background   = hex('101f1b', 0.96),
+            card         = hex('192f29'),
+            control      = hex('233d34'),
+            hover        = hex('2e5446'),
+            border       = hex('8fe3ba', 0.35),
+            text         = hex('edf9f1'),
+            heading      = hex('b1ebd0'),
+            muted        = hex('9bbbad'),
+            accent       = hex('74d9ad'),
+            accent_hover = hex('a4edcc'),
+            success      = hex('8fe3b7'),
+            rounding     = 4,
+            spacing      = 7,
+        },
+    },
+    {
+        id   = 'lavender',
+        name = 'Lavender',
+        tip  = 'Dark plum panels with soft purple highlights and pale lavender text. Threats and resisted damage stay coral.',
+        chat = {
+            con_colors = true,
+            tag_brackets = 102, tag_word = 105, line = 90, replies = 90,
+            name = 105, level = 90, level_range = 90, id = 90, ph = 90,
+            difficulty = 90, too_weak = 67, incredibly_easy_prey = 90, easy_prey = 80, decent_challenge = 102,
+            even_match = 78, tough = 8, very_tough = 68, incredibly_tough = 76, impossible_to_gauge = 105,
+            reading = 90, reading_detail = 102,
+            hit_label = 105, hit_number = 1, hit_detail = 102,
+            offhand_label = 105, offhand_number = 1, offhand_detail = 102,
+            ranged_label = 105, ranged_number = 1, ranged_detail = 102,
+            evade_label = 105, evade_number = 1, evade_detail = 102,
+            crit_label = 105, crit_number = 1, crit_detail = 102,
+            crittaken_label = 105, crittaken_number = 1, crittaken_detail = 102,
+            job_label = 105, job_name = 90, job_detail = 102,
+            aggro_label = 105, aggro_words = 90, aggro_detail = 102, aggro_threat = 68, aggro_safe = 80,
+            links_label = 105, links_words = 90, links_detail = 102,
+            magic_label = 105, magic_name = 90, magic_number = 1, magic_detail = 102,
+            immunities_label = 105, immunities_name = 90, immunities_detail = 102,
+            effects_label = 105, effects_name = 90, effects_buff = 90,
+            effects_time = 1, effects_guess = 102, effects_detail = 102,
+            elements_label = 105, elements_weak = 80, elements_resist = 68, elements_detail = 102,
+            weapons_label = 105, weapons_weak = 80, weapons_resist = 68, weapons_detail = 102,
+            info_label = 105, info_name = 105, info_value = 90, info_detail = 102,
+            drops_label = 105, drops_name = 90, drops_number = 1, drops_detail = 102,
+            steal_label = 105, steal_name = 90, steal_number = 1, steal_detail = 102,
+            pet_label = 105, pet_name = 90, pet_level = 90, pet_number = 1, pet_detail = 102,
+            badge_fire = 76, badge_ice = 6, badge_wind = 83, badge_earth = 69, badge_thunder = 73, badge_water = 71,
+            badge_light = 1, badge_dark = 72,
+            good = 80, ok = 78, bad = 68,
+        },
+        imgui = {
+            background   = hex('191523', 0.96),
+            card         = hex('262033'),
+            control      = hex('342b45'),
+            hover        = hex('463858'),
+            border       = hex('cdb1f4', 0.35),
+            text         = hex('f3ecff'),
+            heading      = hex('deccf7'),
+            muted        = hex('b5a5c9'),
+            accent       = hex('c3a0ed'),
+            accent_hover = hex('e4ccff'),
+            success      = hex('a8d9c0'),
+            rounding     = 4,
+            spacing      = 7,
+        },
+    },
+    {
         id   = 'colorblind',
         name = 'Colorblind safe',
         tip  = 'Colorblind safe never puts red against green. Good numbers, Safe and weak elements are cyan, OK is '
             .. 'yellow, and bad numbers, Threat and resisted elements are coral. The difficulty runs from royal blue '
             .. 'for easy prey, through light cyan and cream, to yellow and coral for tough ones. Impossible to Gauge '
-            .. 'is plum. The swatches are close to the game\'s colors, but the shades in game can differ a little. '
-            .. 'Print a sample on the Printout or Colors tab to see the real ones.',
+            .. 'is plum. The element badges stay apart too, with wind in grey. The swatches are close to the game\'s '
+            .. 'colors, but the shades in game can differ a little. '
+            .. 'Print a sample on the Display or Appearance tab to see the real ones.',
         -- Every color that means something stays apart for protanopia and deuteranopia. Cyan is good and
         -- safe, yellow is in between and coral is bad. Weak elements are cyan and resisted ones coral. Very
-        -- Tough and Incredibly Tough share coral, and Incredibly Easy Prey and Easy Prey share royal blue.
+        -- Tough and Incredibly Tough share coral, and Incredibly Easy Prey and Easy Prey share royal blue. The
+        -- element badges have no green, so wind is grey.
         chat = {
             con_colors = true,
             tag_brackets = 81, tag_word = 6, line = 106, replies = 106,
@@ -222,14 +360,26 @@ skins.LIST = {
             even_match = 106, tough = 69, very_tough = 8, incredibly_tough = 8, impossible_to_gauge = 105,
             reading = 106, reading_detail = 67,
             hit_label = 106, hit_number = 1, hit_detail = 67,
+            offhand_label = 106, offhand_number = 1, offhand_detail = 67,
+            ranged_label = 106, ranged_number = 1, ranged_detail = 67,
             evade_label = 106, evade_number = 1, evade_detail = 67,
             crit_label = 106, crit_number = 1, crit_detail = 67,
+            crittaken_label = 106, crittaken_number = 1, crittaken_detail = 67,
+            job_label = 106, job_name = 106, job_detail = 67,
             aggro_label = 106, aggro_words = 106, aggro_detail = 67, aggro_threat = 8, aggro_safe = 6,
+            links_label = 106, links_words = 106, links_detail = 67,
             magic_label = 106, magic_name = 106, magic_number = 1, magic_detail = 67,
             immunities_label = 106, immunities_name = 106, immunities_detail = 67,
+            effects_label = 106, effects_name = 106, effects_buff = 106,
+            effects_time = 1, effects_guess = 67, effects_detail = 67,
             elements_label = 106, elements_weak = 6, elements_resist = 8, elements_detail = 67,
+            weapons_label = 106, weapons_weak = 6, weapons_resist = 8, weapons_detail = 67,
+            info_label = 106, info_name = 106, info_value = 106, info_detail = 67,
             drops_label = 106, drops_name = 106, drops_number = 1, drops_detail = 67,
+            steal_label = 106, steal_name = 106, steal_number = 1, steal_detail = 67,
             pet_label = 106, pet_name = 106, pet_level = 1, pet_number = 1, pet_detail = 67,
+            badge_fire = 76, badge_ice = 92, badge_wind = 67, badge_earth = 69, badge_thunder = 105, badge_water = 3,
+            badge_light = 106, badge_dark = 72,
             good = 6, ok = 69, bad = 8,
         },
         -- Okabe and Ito's sky blue for done messages and their orange for problems and highlights.
@@ -251,9 +401,18 @@ skins.LIST = {
     },
 };
 
+-- Optional combat rows use each skin's numeric colors.
+for _, skin in ipairs(skins.LIST) do
+    for _, id in ipairs({ 'pdif', 'offhandpdif', 'rangedpdif', 'block', 'parry' }) do
+        for _, role in ipairs({ 'label', 'number', 'detail' }) do
+            skin.chat[id .. '_' .. role] = skin.chat['hit_' .. role];
+        end
+    end
+end
+
 --[[
-    Every window color, grouped the way the Look tab lists them. `key` is its name in look.imgui and
-    the word /checkmate windowcolor takes. `label` is its name on the Look tab. `role` is the skin
+    Every window color, grouped the way the Appearance tab lists them. `key` is its name in look.imgui and
+    the word /checkmate windowcolor takes. `label` is its name on the Appearance tab. `role` is the skin
     color it starts from, and `paints` is the ImGui color it sets. Headings, notes and done and
     problem messages paint no ImGui color, since checkmate draws them itself. `alpha` replaces the
     role's own see-through amount.
@@ -366,7 +525,7 @@ skins.WINDOW_COLOR_GROUPS = {
     },
 };
 
--- Every window color in the Look tab's order, and each one by key.
+-- Every window color in the Appearance tab's order, and each one by key.
 skins.WINDOW_COLORS = {};
 local WINDOW_COLOR_BY_KEY = {};
 for _, group in ipairs(skins.WINDOW_COLOR_GROUPS) do
@@ -519,7 +678,7 @@ local function same_color(mine, entry, skin)
 end
 
 -- The skin you picked, or nil once a chat color, Color by difficulty, a window color, the corner
--- roundness or the spacing differs from it. The Look tab shows nil as Custom.
+-- roundness or the spacing differs from it. The Appearance tab shows nil as Custom.
 function skins.current(settings)
     local skin = skins.find(settings.look.skin);
     if (skin == nil or settings.printout.con_colors ~= skin.chat.con_colors) then

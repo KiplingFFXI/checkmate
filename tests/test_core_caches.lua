@@ -1,0 +1,82 @@
+-- Cached finder results must follow readable state changes without changing saved snapshots.
+local finder = require('core.blue_finder');
+local lessons = require('core.lessons');
+local details = require('core.check_details');
+local info = require('core.info');
+local player = require('core.player');
+local original_path = addon.path;
+addon.path = FIXTURES_PATH .. '/finder';
+MOCK.player.spell_data, MOCK.player.known_spells = true, {};
+finder.changed();
+local first = finder.spells('', true, 0);
+expect('quiet finder reuses spell results', finder.spells('', true, 0.5), first);
+expect('unchanged periodic spellbook keeps results', finder.spells('', true, 1), first);
+MOCK.player.known_spells[577] = true;
+local learned = finder.spells('', true, 2);
+check('periodic spellbook change replaces results', learned ~= first);
+expect('learned spell disappears from the filter', #learned, 1);
+expect('previous finder snapshot stays intact', #first, 2);
+MOCK.player.spell_data = false;
+local unknown = finder.spells('', true, 3);
+expect('unreadable spellbook keeps lessons visible', #unknown, 2);
+expect('unreadable state replaces known labels', unknown[1].known, nil);
+MOCK.player.spell_data, MOCK.player.known_spells = true, { [577] = true };
+MOCK.player.server_id = MOCK.player.server_id + 1;
+expect('character change refreshes without waiting for timer', #finder.spells('', true, 3.1), 1);
+MOCK.player.server_id = MOCK.player.server_id - 1;
+finder.changed();
+expect('explicit invalidation replaces cached results', finder.spells('', true, 3.1) == learned, false);
+local all = finder.spells('', false, 3.2);
+local spell = all[1].spell;
+local places = finder.places(spell, '', nil);
+expect('quiet finder reuses location results', finder.places(spell, '', nil), places);
+expect('zone filter is part of location cache', #finder.places(spell, '', 900), 1);
+expect('query change reads encounter conditions', #finder.places(spell, 'BATTLEFIELD', nil), 1);
+expect('case-only query change reuses results', finder.places(spell, 'battlefield', nil), finder.places(spell, 'BATTLEFIELD', nil));
+expect('different spell changes location cache', #finder.places(all[2].spell, '', nil), 1);
+expect('returning to first spell preserves all source places', #finder.places(spell, '', nil), 2);
+addon.path = FIXTURES_PATH .. '/missing-finder';
+local missing, problem = finder.spells('', false, 4);
+expect('source path change never returns stale catalogue', #missing, 0);
+check('missing catalogue keeps its explanation', type(problem) == 'string');
+addon.path = FIXTURES_PATH .. '/finder';
+check('catalogue reload does not reuse an old result', finder.spells('', false, 5) ~= all);
+addon.path = original_path;
+
+local refresh = info.refresh_observation;
+info.refresh_observation = function(section) return section; end;
+local check_id = {};
+local sections = { { id = 'family' }, { id = 'blue' }, { id = 'spawn' } };
+details.begin(check_id);
+details.save(check_id, { info = { sections = sections } });
+local saved = details.current();
+details.refresh(false);
+expect('unchanged manual details retain snapshot', details.current(), saved);
+local changed = { id = 'blue', value = 'move seen' };
+info.refresh_observation = function(section) return section.id == 'blue' and changed or section; end;
+details.refresh(true);
+local revised = details.current();
+expect('changed observation replaces snapshot', revised == saved, false);
+expect('snapshot keeps earlier sections', revised.info.sections[1], sections[1]);
+expect('snapshot takes changed observation', revised.info.sections[2], changed);
+expect('snapshot keeps later sections', revised.info.sections[3], sections[3]);
+expect('prior manual snapshot is unchanged', saved.info.sections[2], sections[2]);
+info.refresh_observation = refresh;
+details.forget();
+lessons.forget();
+-- The mock memory manager creates tables; exclude those from the core allocation measurement.
+local read_zone = player.zone;
+player.zone = function() return 103; end;
+local function quiet()
+    lessons.take_in(0.5);
+end
+for i = 1, 1000 do quiet(); end
+collectgarbage('collect');
+collectgarbage('stop');
+local before = collectgarbage('count');
+for i = 1, 10000 do quiet(); end
+local allocated = (collectgarbage('count') - before) * 1024 / 10000;
+collectgarbage('restart');
+player.zone = read_zone;
+check('quiet observations allocate less than one table per frame', allocated < 8, allocated);
+return MOCK.report();

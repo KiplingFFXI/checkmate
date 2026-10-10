@@ -1,14 +1,17 @@
 """
 Changes other scripts make to monsters. ??? NPCs add loot listeners to the NM they pop, and battlefield scripts
-give their monsters mixins or change their numbers or aggro mid-fight.
+give their monsters mixins or change their numbers or aggro mid-fight. Any script that changes a monster's job stops
+the export too, unless JOB_LINES knows the line.
 
 The exporter has to know every one of these calls. It reads the ??? loot listeners and battlefield group mixins
 from source. The rest sit in HAND below with what they do, and any other call stops the export.
 """
+from pathlib import Path
 import glob
 import os
 import re
 
+from . import aggro
 from . import lua_source
 
 # Calls that change a monster's numbers, magic damage, loot or aggro, whatever receives them.
@@ -16,7 +19,8 @@ CHANGE_CALL = re.compile(r'(\w+|\))\s*:\s*(?:(?:set|add|del)Mod\(xi\.mod\.(?:%s)
                          r"addListener\('ITEM_DROPS'|setAggressive\(|setTrueDetection\(|"
                          r'setMobMod\(xi\.mobMod\.(?:ALWAYS_AGGRO|NO_AGGRO|DETECTION)\b)'
                          % '|'.join(sorted(m.upper() for m in
-                                           lua_source.RELEVANT_MODS | lua_source.ELEMENT_DAMAGE_MODS)))
+                                           lua_source.RELEVANT_MODS | lua_source.ELEMENT_DAMAGE_MODS
+                                           | lua_source.WEAPON_DAMAGE_MODS | lua_source.DEFENSE_MODS)))
 
 # Receivers that are always players in these scripts. This list is shorter than lua_source.PLAYER_RECEIVERS on purpose.
 # Battlefield scripts call their monsters target, so adding target here would drop their HAND flags.
@@ -27,15 +31,18 @@ PLAYER_RECEIVERS = {'player', 'PChar', 'playerArg'}
 HAND = {
     # A partner's death gives the survivor +30 accuracy, evasion and magic evasion 15 seconds later.
     'battlefields/Temenos/central_temenos_1st_floor.lua':
-        [('Temenos', ['Airi', 'Temenos_Cleaner', 'Iruci', 'Temenos_Weapon'], 'scripted_stats')],
+        [('Temenos', ['Airi', 'Temenos_Cleaner', 'Iruci', 'Temenos_Weapon'], 'scripted_stats'),
+         ('Temenos', ['Airi', 'Temenos_Cleaner', 'Iruci', 'Temenos_Weapon'], 'scripted_defense')],
     # Carbuncle gets +100 evasion and takes more magic damage when the floor starts. Each elemental's death takes
     # away its element's damage cut.
     'battlefields/Temenos/central_temenos_2nd_floor.lua':
         [('Temenos', ['Mystic_Avatar_Carbuncle'], 'scripted_stats'),
-         ('Temenos', ['Mystic_Avatar_Carbuncle'], 'scripted_elements')],
+         ('Temenos', ['Mystic_Avatar_Carbuncle'], 'scripted_elements'),
+         ('Temenos', ['Mystic_Avatar_Carbuncle'], 'scripted_weapons')],
     # Each escort's death lowers the damage cut of the boss it guards.
     'battlefields/Temenos/central_temenos_3rd_floor.lua':
-        [('Temenos', ['Abyssdweller_Jhabdebb', 'Orichalcum_Quadav', 'Pee_Qoho_the_Python'], 'scripted_elements')],
+        [('Temenos', ['Abyssdweller_Jhabdebb', 'Orichalcum_Quadav', 'Pee_Qoho_the_Python'], 'scripted_elements'),
+         ('Temenos', ['Abyssdweller_Jhabdebb', 'Orichalcum_Quadav', 'Pee_Qoho_the_Python'], 'scripted_weapons')],
     # Each Aern adds Ancient Beastcoins for its reraises.
     'battlefields/Temenos/central_temenos_basement.lua':
         [('Temenos', ['Temenos_Aern_%s' % job for job in ('WAR', 'MNK', 'WHM', 'BLM', 'RDM', 'THF', 'PLD', 'DRK',
@@ -44,11 +51,13 @@ HAND = {
     # Evil Armory stops ignoring players once the first of its guards dies. It stops nullifying magic once all
     # eight are dead.
     'battlefields/Apollyon/se_apollyon.lua': [('Apollyon', ['Evil_Armory'], 'scripted_aggro'),
-                                              ('Apollyon', ['Evil_Armory'], 'scripted_elements')],
+                                              ('Apollyon', ['Evil_Armory'], 'scripted_elements'),
+                                              ('Apollyon', ['Evil_Armory'], 'scripted_weapons')],
     # A manticore that outlives the other while a dhalmel is still up takes 30 percent less magic damage.
     'battlefields/Apollyon/ne_apollyon.lua': [('Apollyon', ['Criosphinx', 'Hieracosphinx'], 'scripted_elements')],
     # Cynoprosopi starts the fight with a 75 percent damage cut, and each escort's death takes part of it away.
-    'battlefields/Apollyon/nw_apollyon.lua': [('Apollyon', ['Cynoprosopi'], 'scripted_elements')],
+    'battlefields/Apollyon/nw_apollyon.lua': [('Apollyon', ['Cynoprosopi'], 'scripted_elements'),
+                                             ('Apollyon', ['Cynoprosopi'], 'scripted_weapons')],
     # The chest mimics on the third floor ignore players until someone opens one.
     'battlefields/Apollyon/sw_apollyon.lua': [('Apollyon', ['Armoury_Crate_Mimic'], 'scripted_aggro')],
     # Carbuncle stops aggroing while it is away between phases.
@@ -67,13 +76,28 @@ HAND = {
 # A ??? script that adds a loot listener to the NM it pops, found through the zone's IDs.lua.
 QM_LISTENER = re.compile(r"GetMobByID\(ID\.mob\.(\w+)\):addListener\('ITEM_DROPS'")
 
+# Every line in the scripts and loaded modules that changes a job, word for word with comments out and spaces run
+# together, by file, with why the data still comes out right. Any other changeJob stops the export, whatever it's
+# called on, since the readers only follow a call on the script's own monster.
+JOB_LINES = {
+    'scripts/mixins/families/Troll_Automaton.lua': ('A random frame at spawn. mixin_changes_job reads it, so those '
+                                                    'automatons get no job.', {'mob:changeJob(automatonType.job)'}),
+    'scripts/zones/Mine_Shaft_2716/mobs/Fantoccini.lua': ('The initiator\'s job at spawn. The mob script reader '
+                                                          'reads it, so Fantoccini gets no job.',
+                                                          {'mob:changeJob(initiatorJob)'}),
+    'scripts/zones/Waughroon_Shrine/mobs/Maats_Pet.lua': ('A random pet at spawn. The mob script reader reads it, so '
+                                                          'Maat\'s pet gets no job.', {'mob:changeJob(petInfo.job)'}),
+    'scripts/globals/monstrosity.lua': ('Players only.', {'player:changeJob(mjob)', 'player:changeJob(xi.job.MON)'}),
+}
+JOB_CALL = re.compile(r'\bchangeJob\b')
+
 
 def id_names(tree, zone_dir):
     """{ID.mob name: monster script} from GetFirstID('Name') lines in the zone's IDs.lua."""
     path = os.path.join(tree, 'scripts', 'zones', zone_dir, 'IDs.lua')
     if not os.path.exists(path):
         return {}
-    text = open(path, encoding='utf-8', errors='replace').read()
+    text = Path(path).read_text(encoding='utf-8', errors='replace')
     return dict(re.findall(r"(\w+)\s*=\s*GetFirstID\('([^']+)'\)", text))
 
 
@@ -99,7 +123,7 @@ def scan(tree, scripts, zone_dirs):
         rel = os.path.relpath(path, root).replace('\\', '/')
         if rel.startswith('zones/') and rel.split('/')[1] not in zone_dirs:
             continue
-        text =lua_source.strip_comments(open(path, encoding='utf-8', errors='replace').read())
+        text =lua_source.strip_comments(Path(path).read_text(encoding='utf-8', errors='replace'))
         if rel.startswith('battlefields/'):
             zone_dir = rel.split('/')[1]
             for mobs, mixins in group_mixins(text):
@@ -112,6 +136,10 @@ def scan(tree, scripts, zone_dirs):
                             marks.setdefault((zone_dir, mob), set()).add('scripted_drops')
                         if damage:
                             marks.setdefault((zone_dir, mob), set()).add('scripted_elements')
+                        if scripts.mixin_defense(mixin):
+                            marks.setdefault((zone_dir, mob), set()).add('scripted_defense')
+                        if scripts.mixin_weapons(mixin):
+                            marks.setdefault((zone_dir, mob), set()).add('scripted_weapons')
         hits = [match for match in CHANGE_CALL.finditer(text) if match.group(1) not in PLAYER_RECEIVERS]
         if not hits:
             continue
@@ -132,3 +160,21 @@ def scan(tree, scripts, zone_dirs):
             continue
         raise RuntimeError('%s changes a monster the exporter does not know about. Add it to outside.HAND.' % rel)
     return marks
+
+
+def check_job_changes(tree):
+    """Stops on any line in the scripts or the loaded modules that changes a job, unless JOB_LINES has it."""
+    paths = aggro.lua_files_loaded(tree)
+    for folder, _, names in os.walk(os.path.join(tree, 'scripts')):
+        paths += [os.path.relpath(os.path.join(folder, name), tree).replace(os.sep, '/') for name in names
+                  if name.endswith('.lua')]
+    for path in sorted(paths):
+        text = Path(os.path.join(tree, path)).read_text(encoding='utf-8', errors='replace')
+        if not JOB_CALL.search(text):
+            continue
+        known = JOB_LINES.get(path, ('', set()))[1]
+        for line in lua_source.strip_comments(text).split('\n'):
+            if JOB_CALL.search(line) and ' '.join(line.split()) not in known:
+                raise RuntimeError('%s changes a job, which the exporter can\'t follow: "%s". Teach the readers to '
+                                   'leave that monster\'s job out, then add the line to JOB_LINES in '
+                                   'export\\outside.py.' % (path, ' '.join(line.split())))

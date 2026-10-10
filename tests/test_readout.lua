@@ -193,6 +193,19 @@ s.drops.sort = 'name';
 line = readout(1, 39, 0);
 check('sort by name', has(line, 'Fire Crystal 41%, Ice Crystal 100%'), line);
 line = readout(400, 50, 4);
-check('scripted drops note with nothing else', has(line, 'Drops (TH 2): (plus scripted drops)'), line);
+check('scripted drops note with nothing else', has(line, 'Drops (TH 2): (scripted loot conditions)'), line);
+
+-- Each item keeps its id next to its name, for its picture in the overlay, whatever the order and the cut.
+local drops = require('core.drops');
+local ROW = { drops = { { rate = 150, item = 4104 }, { rate = 1000, item = 4105 } } };
+local function ids_of(setting)
+    local out = {};
+    for _, item in ipairs(drops.readout(ROW, setting).items) do out[#out + 1] = item.id .. ' ' .. item.name; end
+    return table.concat(out, ', ');
+end
+expect('by chance, each id with its name', ids_of({ th = 0, max_items = 5, sort = 'chance' }),
+    '4105 Ice Crystal, 4104 Fire Crystal');
+expect('by name', ids_of({ th = 0, max_items = 5, sort = 'name' }), '4104 Fire Crystal, 4105 Ice Crystal');
+expect('and after the most items cut', ids_of({ th = 0, max_items = 1, sort = 'name' }), '4104 Fire Crystal');
 
 return MOCK.report();

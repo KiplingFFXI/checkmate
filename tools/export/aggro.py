@@ -10,6 +10,7 @@ The flags come from the species chain, the template and the spawn, then the top-
 battlefield group mob mods and onMobSpawn, in that order. A few mixins change them while the monster lives. Those
 become a note on the row. Every other change that doesn't always run marks the row scripted_aggro.
 """
+from pathlib import Path
 import os
 import re
 
@@ -121,7 +122,7 @@ def sleep_table(tree):
     {script name: ((first awake hour, last awake hour) or None, aggressive awake, links awake)} from the mixin.
     Each hour runs the mixin's own test, since a row's comment can say something else.
     """
-    text = open(os.path.join(tree, SLEEP_MIXIN), encoding='utf-8').read()
+    text = Path(os.path.join(tree, SLEEP_MIXIN)).read_text(encoding='utf-8')
     if text.count(SLEEP_TEST) != 2 or 'column.AGGRESSIVE]' not in text or 'column.LINK]' not in text:
         raise RuntimeError('%s changed its sleep test. The aggro reader needs updating.' % SLEEP_MIXIN)
     out = {}
@@ -276,20 +277,20 @@ def too_weak_table(tree, content):
     It runs charutils.cpp CheckMob and GetBaseExp over the table and curve the server loads.
     """
     loaded = lua_files_loaded(tree)
-    module_text = open(os.path.join(tree, ERA_EXP_MODULE), encoding='utf-8').read()
+    module_text = Path(os.path.join(tree, ERA_EXP_MODULE)).read_text(encoding='utf-8')
     gate = re.search(r"Module:new\('toau_experience_points',\s*xi\.pre\(xi\.expansion\.(\w+)\)\)", module_text)
     if gate is None:
         raise RuntimeError('%s changed its gate. The aggro reader needs updating.' % ERA_EXP_MODULE)
     for path in loaded:
-        text = open(os.path.join(tree, path), encoding='utf-8', errors='replace').read()
+        text = Path(os.path.join(tree, path)).read_text(encoding='utf-8', errors='replace')
         if path != ERA_EXP_MODULE and ('LoadExpDifficultyCurves' in text or 'experiencePoints.baseTable =' in text):
             raise RuntimeError('%s changes the experience table or curve. Teach the aggro reader.' % path)
     # xi.pre is true when content is restricted and that expansion is off. That's when content.allows is false.
     era = ERA_EXP_MODULE in loaded and not content.allows(gate.group(1).lower())
     table_file, curve_file = (ERA_EXP_MODULE, ERA_EXP_MODULE) if era else (STOCK_EXP_TABLE, STOCK_EXP_CURVE)
-    rows = exp_rows(open(os.path.join(tree, table_file), encoding='utf-8').read(), table_file)
+    rows = exp_rows(Path(os.path.join(tree, table_file)).read_text(encoding='utf-8'), table_file)
     difficulty = tables_module.lua_enum(os.path.join(tree, DIFFICULTY_ENUM), 'xi.mobDifficulty')
-    curve, iep_level, iep_exp = exp_curve(open(os.path.join(tree, curve_file), encoding='utf-8').read(),
+    curve, iep_level, iep_exp = exp_curve(Path(os.path.join(tree, curve_file)).read_text(encoding='utf-8'),
                                           curve_file, difficulty)
 
     def too_weak(player, mob):

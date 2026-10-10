@@ -53,6 +53,16 @@ jobs:
             echo "found=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Read the pinned Ashita libraries for offline tests
+        if: steps.open.outputs.found != 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: AshitaXI/Ashita-v4beta
+          ref: 4171c74c8ddb2ca2a31654f199e6c1cee40d7256
+          path: .ci/ashita
+          sparse-checkout: addons/libs
+          persist-credentials: false
+
       - name: Rebuild the data and compare it with main
         id: compare
         if: steps.open.outputs.found != 'true'
@@ -65,6 +75,14 @@ jobs:
           if [ -f "$RUNNER_TEMP/report.md" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Verify source parity, exporter regressions and the offline addon suite
+        if: steps.open.outputs.found != 'true'
+        env:
+          ASHITA_LIBS: ${{ github.workspace }}/.ci/ashita/addons/libs
+        run: |
+          python tools/check_source.py --repo "$RUNNER_TEMP/Phoenix" --ref phoenix/live
+          python tests/run.py
 
       - name: Bump the version and add a CHANGELOG section
         id: bump

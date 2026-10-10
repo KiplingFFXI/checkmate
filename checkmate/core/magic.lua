@@ -1,24 +1,15 @@
 --[[
-    The chance each magic school's stand-in spell has against the monster you /check.
+    Works out the selected spell's chance for each magic school.
+    Phoenix uses magic_hit_rate.lua for the accuracy roll and status_effect_tables.lua for retries.
+    Damage spells show the full-damage chance. Effect spells show the chance to land at all.
 
-    Every spell a player casts on a monster goes through the server's calculateResistRate
-    (scripts/combat/basic/magic_hit_rate.lua), and no Phoenix module changes it.
-        x = magic accuracy - magic evasion + 25, halved (rounded down) when below 0
-        x = x - 4 for each level the monster has over you
-        hit chance = 50 + x percent, kept between 5 and 95
-    The spell then re-rolls up to three times at that same chance, and each miss halves it. A nuke
-    does full damage on the first roll. An effect lands when it misses no more than its resist state
-    allows (status_effect_tables.lua). A resist trait can stop it before any of that.
-
-    Magic accuracy is your skill, the stat bonus, the spell's bonus, your elemental staff, Elemental
-    Seal or Dark Seal, half your wind instrument skill when singing, and the extra magic accuracy you
-    set for gear and merits the client can't see. Soul Voice doubles it for Lullaby. Troubadour's bonus
-    comes from merits the client can't see, so it's left out.
-    Magic evasion is the monster's rank C skill cap at its level plus any extra it has, times the
-    multiplier for its resistance rank. Rank 10 always gives 5%. Rank 11 never lands.
+    Client stats and skills already include their gear bonuses. Direct accuracy, staff bonuses,
+    known merits and supported buffs are added separately. Manual mode keeps the older total.
+    Monster levels and resistance ranks come from the data. Unknown inputs are named in the tips.
 ]]
 
 local spells = require('data.spells');
+local modifiers = require('core.modifiers');
 
 local magic = {};
 
@@ -59,6 +50,8 @@ local SKILL_DIVINE  = 32;
 local SKILL_DARK    = 37;
 local SKILL_SINGING = 40;
 local SKILL_WIND    = 42;
+local SCHOOL_BY_SKILL = { [32] = 'divine', [33] = 'healing', [35] = 'enfeebling', [36] = 'elemental',
+    [37] = 'dark', [39] = 'ninjutsu', [40] = 'singing', [43] = 'blue' };
 
 -- The magic evasion table stops at level 99.
 local MAX_LEVEL = 99;
@@ -132,10 +125,12 @@ local function rank_of(ranks, spell, element)
     return math.max(LOWEST_RANK, math.min(NEVER_RANK, rank));
 end
 
-local function accuracy(me, school, spell, element, mob_stat)
+local function accuracy(me, school, spell, element, mob_stat, known_inputs)
+    local staff = known_inputs ~= false and me.modifiers and me.modifiers.staff_accuracy;
     local total = me.skills[school.skill] + spell.bonus + (me.extra_accuracy or 0)
+        + modifiers.magic_accuracy(me, SCHOOL_BY_SKILL[school.skill], element, known_inputs)
         + magic.stat_bonus(me[spell.stat] - mob_stat)
-        + 10 * ((spells.STAFF[me.main_id] or NONE)[element] or 0);
+        + (staff and (staff[element] or 0) or 10 * ((spells.STAFF[me.main_id] or NONE)[element] or 0));
 
     if (me.buffs[ELEMENTAL_SEAL] and school.skill ~= SKILL_DARK and school.skill ~= SKILL_DIVINE) then
         total = total + SEAL_BONUS;
@@ -164,11 +159,11 @@ end
 
 -- The spell's chance at one monster level in whole percent. It's the full damage chance for a
 -- damage spell and the land chance for an effect.
-local function chance_at(me, mob, school, spell, element, level, stats)
+local function chance_at(me, mob, school, spell, element, level, stats, known_inputs)
     local rank = rank_of(at_level(mob.row, stats, 'ranks'), spell, element);
     local hit = HIT_FLOOR;
     if (rank < FLOOR_RANK) then
-        hit = magic.hit_percent(accuracy(me, school, spell, element, stats[spell.stat]),
+        hit = magic.hit_percent(accuracy(me, school, spell, element, stats[spell.stat], known_inputs),
             evasion(level, at_level(mob.row, stats, 'meva'), spell, element, rank), level - me.level);
     end
     if (spell.state == nil) then
@@ -189,14 +184,14 @@ end
     The monster's weakest element for the spell. The lowest rank wins, then the best chance. An element
     it absorbs or nullifies only wins when every one of the spell's elements is like that.
 ]]
-local function weakest_element(me, mob, school, spell, level, stats)
+local function weakest_element(me, mob, school, spell, level, stats, known_inputs)
     local best, best_rank, best_chance;
     for _, element in ipairs(spell.elements) do
         local rank = rank_of(at_level(mob.row, stats, 'ranks'), spell, element);
         if (wasted(mob.row, stats, element)) then
             rank = rank + WASTED_RANK;
         end
-        local chance = chance_at(me, mob, school, spell, element, level, stats);
+        local chance = chance_at(me, mob, school, spell, element, level, stats, known_inputs);
         if (best == nil or rank < best_rank or (rank == best_rank and chance > best_chance)) then
             best, best_rank, best_chance = element, rank, chance;
         end
@@ -208,9 +203,11 @@ end
     One school's result, or nil when it doesn't show. A school doesn't show when you have no skill in
     it, when it's Healing and the monster isn't undead, or when the data has no stats for the
     monster's level.
-    Returns { label, low, high, element } for a number, or { label, word } with 'immune' or 'never'.
+    Returns { school, low, high, element } for a number, or { school, word } with 'magic_immune' or
+    'magic_never'. `school` and `word` are keys in core\wording.lua, and `element` is the element's name in
+    core\elements.lua, like 'ice', for a school that picks one.
 ]]
-local function school_readout(me, mob, id, spell_id)
+local function school_readout(me, mob, id, spell_id, known_inputs)
     local school = spells.schools[id];
     if ((me.skills[school.skill] or 0) <= 0 or (school.undead_only and not mob.row.undead)) then
         return nil;
@@ -229,24 +226,31 @@ local function school_readout(me, mob, id, spell_id)
         return nil;
     end
 
-    local element = spell.element or weakest_element(me, mob, school, spell, first_level, first_stats);
-    local out = { label = school.label, element = spell.elements and spells.ELEMENT_NAMES[element] or nil };
+    local element = spell.element or weakest_element(me, mob, school, spell, first_level, first_stats, known_inputs);
+    local out = { school = 'school_' .. id, element = spell.elements and element or nil,
+        spell = spell.name, semantics = spell.state ~= nil and 'land' or 'full' };
     if ((spell.immune and has(mob.row.immune, spell.immune)) or (spell.no_undead and mob.row.undead)) then
-        out.word = 'immune';
+        out.word = 'magic_immune';
         return out;
     end
     if (rank_of(at_level(mob.row, first_stats, 'ranks'), spell, element) >= NEVER_RANK) then
-        out.word = 'never';
+        out.word = 'magic_never';
         return out;
     end
 
     for level = first_level, mob.high do
         local stats = mob.row.levels[level];
         if (stats ~= nil) then
-            local chance = chance_at(me, mob, school, spell, element, level, stats);
+            local chance = chance_at(me, mob, school, spell, element, level, stats, known_inputs);
             out.low  = math.min(out.low or chance, chance);
             out.high = math.max(out.high or chance, chance);
         end
+    end
+    local bonus, notes, uncertain = modifiers.magic_bonus(me, id, element, known_inputs);
+    out.notes, out.uncertain = notes, uncertain;
+    if (known_inputs ~= false) then
+        notes[#notes + 1] = ('Known gear and merits add %+d magic accuracy. Your extra %+d is added too.')
+            :format(bonus, me.extra_accuracy or 0);
     end
     return out;
 end
@@ -261,10 +265,19 @@ function magic.readout(me, mob, setting)
     if (mob.row == nil or mob.low == nil) then
         return out;
     end
+    local enemy;
     for _, id in ipairs(spells.SCHOOL_ORDER) do
         local school = setting.schools[id];
         if (school ~= nil and school.on) then
-            out[#out + 1] = school_readout(me, mob, id, school.spell);
+            local result = school_readout(me, mob, id, school.spell, setting.known_inputs);
+            if (result ~= nil and result.notes ~= nil) then
+                enemy = enemy or modifiers.enemy(mob);
+                for _, note in ipairs(enemy.magic or NONE) do
+                    result.notes[#result.notes + 1], result.uncertain = note, true;
+                end
+                result.notes[#result.notes + 1] = 'This is a normal cast. Weather, magic bursts and other hidden bonuses are left out.';
+            end
+            out[#out + 1] = result;
         end
     end
     return out;

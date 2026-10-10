@@ -13,7 +13,13 @@ permissions:
   contents: write
 
 jobs:
+  verify:
+    uses: ./.github/workflows/verify.yml
+    permissions:
+      contents: read
+
   draft:
+    needs: verify
     runs-on: ubuntu-24.04
     env:
       GH_TOKEN: ${{ github.token }}

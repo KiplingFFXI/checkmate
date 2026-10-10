@@ -1,21 +1,25 @@
 -- Tests the chat lines a /check prints. That covers part order, new lines, labels, dividers, colors
 -- down to the bytes that print, grades and number styles. It also covers the difficulty and the
--- evasion and defense reading, the level range, the monster's ID, the PH note, the lines that wait for
--- hit and evade, the line holding the pet part, the plain /check line with the game's line hidden, and
--- settings files with missing or broken settings.
+-- evasion and defense reading, the level range, the monster's ID, the PH note, the off-hand and ranged
+-- parts, the lines that wait for hit, off-hand, ranged and evade, the line holding the pet part, the
+-- plain /check line with the game's line hidden, settings files with missing or broken settings, and the
+-- chat's element icons, with the bytes the same while they're off.
 local printout = require('core.printout');
 local defaults = require('ui.defaults');
 
 local function color(code) return '\30' .. string.char(code); end
 
--- Every part on and on the first line, with two spaces between parts, unless a test says otherwise.
+-- These percentage/layout cases leave pDIF to test_pdif_display.lua and Crit taken to its own suite.
+-- Other parts are on the first line, with two spaces between
+-- parts, unless a test says otherwise.
 local function settings()
     local s = defaults.make();
     s.printout.divider = 'spaces';
-    for _, part in pairs(s.printout.parts) do
-        part.on = true;
+    for id, part in pairs(s.printout.parts) do
+        part.on = not id:find('pdif', 1, true) and id ~= 'block' and id ~= 'parry';
         part.new_line = false;
     end
+    s.printout.parts.crittaken.on = false;
     s.printout.extras_own_line = false;
     return s;
 end
@@ -30,15 +34,15 @@ local function result()
         signet = true,
         crit   = { low = 7, high = 7 },
         magic  = {
-            { label = 'Elemental', low = 88, high = 88, element = 'Ice' },
-            { label = 'Enfeebling', low = 81, high = 81 },
-            { label = 'Dark', word = 'immune' },
+            { school = 'school_elemental', low = 88, high = 88, element = 'ice' },
+            { school = 'school_enfeebling', low = 81, high = 81 },
+            { school = 'school_dark', word = 'magic_immune' },
         },
         immune = { 'gravity', 'bind', 'dark_sleep' },
         drops  = {
             th = 2, more = 2, scripted = false, exp_only = false,
-            items = { { name = 'Goblin Mail', chance = 15 }, { name = 'Goblin Helm', chance = 15 },
-                { name = 'Beastman Blood', chance = 7 } },
+            items = { { id = 507, name = 'Goblin Mail', chance = 15 }, { id = 508, name = 'Goblin Helm', chance = 15 },
+                { id = 930, name = 'Beastman Blood', chance = 7 } },
         },
     };
 end
@@ -54,14 +58,15 @@ local s = settings();
 local lines = plain_lines(s, result());
 check('one line with every part', #lines == 1, #lines);
 check('name and level first, then the default order', lines[1] == 'Goblin Tinkerer (Lv 42)  Hit: 64-72%  Evade: 31% with Signet'
-    .. '  Crit: 7%  Magic: Elemental 88% (Ice)  Enfeebling 81%  Dark immune  Immune: Sleep, Bind, Gravity'
+    .. '  Crit: 7%  Magic: Elemental 88% (Ice)  Enfeebling 81%  Dark immune  Weaknesses: Immune: Sleep, Bind, Gravity'
     .. '  Drops (TH 2): Goblin Mail 15%, Goblin Helm 15%, Beastman Blood 7.0%  +2 more', lines[1]);
 
--- The default new lines put magic, immunities and drops on their own lines, and the extras start
+-- The default new lines put Magic, Weaknesses and Drops on their own lines, and the extras start
 -- below the /check parts.
 s = defaults.make();
 s.printout.divider = 'spaces';
-for _, part in pairs(s.printout.parts) do part.on = true; end
+for id, part in pairs(s.printout.parts) do part.on = not id:find('pdif', 1, true) and id ~= 'block' and id ~= 'parry'; end
+s.printout.parts.crittaken.on = false;   -- test_crit_taken.lua covers it.
 local r = result();
 r.con, r.reading, r.defense = 3, 0, 2;
 lines = plain_lines(s, r);
@@ -70,7 +75,7 @@ check('default new lines give five lines', #lines == 5, #lines);
 check('line 1 is the /check', lines[1] == 'Goblin Tinkerer (Lv 42)  Decent Challenge (High Evasion, Low Defense)', lines[1]);
 check('line 2 is hit, evade and crit', lines[2] == 'Hit: 64-72%  Evade: 31% with Signet  Crit: 7%', lines[2]);
 check('line 3 is magic', lines[3] == 'Magic: Elemental 88% (Ice)  Enfeebling 81%  Dark immune', lines[3]);
-check('line 4 lists immunities in the display order', lines[4] == 'Immune: Sleep, Bind, Gravity', lines[4]);
+check('line 4 lists immunities in the display order', lines[4] == 'Weaknesses: Immune: Sleep, Bind, Gravity', lines[4]);
 check('line 5 is drops', lines[5] == 'Drops (TH 2): Goblin Mail 15%, Goblin Helm 15%, Beastman Blood 7.0%  +2 more', lines[5]);
 s.printout.extras_own_line = false;
 lines = plain_lines(s, r);
@@ -256,6 +261,76 @@ check('scripted marks magic too', lines[1]:find('Elemental 88%? (Ice)', 1, true)
 r.signet = false;
 check('no Signet', plain_lines(s, r)[1]:find('Evade: 31%?  Crit', 1, true) ~= nil);
 
+-- Off-hand and ranged print only with a weapon in each hand or something to shoot, right after hit, and go by
+-- the hit rate cutoffs. The ranged number is the one in the sweet spot, and Show it outside the sweet spot too
+-- adds the one at 25 yalms.
+local function armed()
+    local a = result();
+    a.dual_wield, a.offhand = true, { low = 62, high = 62 };
+    a.shoots, a.ranged, a.ranged_far = true, { low = 63, high = 63 }, { low = 55, high = 55 };
+    return a;
+end
+s = settings();
+check('Show it outside the sweet spot too is off by default', defaults.make().ranged.show_far == false);
+lines = plain_lines(s, armed());
+check('off-hand and ranged right after hit, ranged with only the sweet spot number', lines[1]:find('(Lv 42)  Hit: 64-72%  '
+    .. 'Off-hand: 62%  Ranged: 63%  Evade: 31% with Signet', 1, true) ~= nil, lines[1]);
+s.ranged.show_far = true;
+lines = plain_lines(s, armed());
+check('with it on, the 25 yalm number follows', lines[1]:find('  Ranged: 63% (55% at 25 yalms)  Evade', 1, true) ~= nil,
+    lines[1]);
+r = armed();
+r.dual_wield = false;
+lines = plain_lines(s, r);
+check('no off-hand weapon leaves the off-hand part out', not lines[1]:find('Off-hand', 1, true)
+    and lines[1]:find('Hit: 64-72%  Ranged: 63%', 1, true) ~= nil, lines[1]);
+r = armed();
+r.shoots = false;
+lines = plain_lines(s, r);
+check('nothing to shoot leaves the ranged part out', not lines[1]:find('Ranged', 1, true)
+    and lines[1]:find('Off-hand: 62%  Evade', 1, true) ~= nil, lines[1]);
+check('and a readout without them leaves both out', not plain_lines(s, result())[1]:find('Off-hand', 1, true)
+    and not plain_lines(s, result())[1]:find('Ranged', 1, true), plain_lines(s, result())[1]);
+r = armed();
+r.offhand, r.ranged, r.ranged_far = nil, nil, nil;
+expect('unknown without the reply', plain_lines(s, r)[1]:match('Off%-hand: [^ ]+  Ranged: [^ ]+'),
+    'Off-hand: unknown  Ranged: unknown');
+r = armed();
+r.scripted = true;
+check('the scripted mark goes on the number, before the 25 yalm one', plain_lines(s, r)[1]:find('Off-hand: 62%?  '
+    .. 'Ranged: 63%? (55% at 25 yalms)  Evade', 1, true) ~= nil, plain_lines(s, r)[1]);
+r = armed();
+r.offhand, r.ranged, r.ranged_far = { low = 61, high = 66 }, { low = 62, high = 67 }, { low = 55, high = 59 };
+check('ranges', plain_lines(s, r)[1]:find('Off-hand: 61-66%  Ranged: 62-67% (55-59% at 25 yalms)', 1, true) ~= nil,
+    plain_lines(s, r)[1]);
+s.printout.number_style = 'midpoint';
+check('and their middles', plain_lines(s, r)[1]:find('Off-hand: ~64%  Ranged: ~65% (~57% at 25 yalms)', 1, true) ~= nil,
+    plain_lines(s, r)[1]);
+r.ranged_far = { low = 64, high = 66 };
+check('the 25 yalm number is left out when it prints the same', plain_lines(s, r)[1]:find('Ranged: ~65%  Evade', 1, true)
+    ~= nil, plain_lines(s, r)[1]);
+s.printout.number_style = 'range';
+r.ranged, r.ranged_far = { low = 5, high = 5 }, { low = 5, high = 5 };
+check('like when both are 5%', plain_lines(s, r)[1]:find('Ranged: 5%  Evade', 1, true) ~= nil, plain_lines(s, r)[1]);
+s.printout.parts.offhand.label = 'OH';
+s.printout.parts.ranged.new_line = true;
+lines = plain_lines(s, armed());
+check('their labels and New line', #lines == 2 and lines[1]:find('Hit: 64%-72%%  OH: 62%%$') ~= nil
+    and lines[2]:find('^Ranged: 63%% %(55%% at 25 yalms%)  Evade') ~= nil, table.concat(lines, ' / '));
+s = settings();
+s.ranged.show_far = true;
+s.grades.hit_good, s.grades.hit_ok = 63, 62;
+s.colors.ranged_detail = 73;
+local painted = printout.lines(s, armed())[1];
+check('they grade by the hit rate cutoffs, and the 25 yalm number stays in the detail color', painted:find('Off-hand'
+    .. color(106) .. ': ' .. color(104) .. '62%' .. color(106), 1, true) ~= nil and painted:find('Ranged' .. color(106)
+    .. ': ' .. color(2) .. '63%' .. color(73) .. ' (55% at 25 yalms)' .. color(106), 1, true) ~= nil, MOCK.plain(painted));
+s.grades.on = false;
+s.colors.offhand_number, s.colors.ranged_number = 81, 82;
+painted = printout.lines(s, armed())[1];
+check('and with grades off they use their Number colors', painted:find(color(81) .. '62%', 1, true) ~= nil
+    and painted:find(color(82) .. '63%' .. color(73) .. ' (55%', 1, true) ~= nil, MOCK.plain(painted));
+
 -- Labels that are empty, renamed or need cleaning.
 s = settings();
 s.printout.parts.hit.label = '';
@@ -326,7 +401,7 @@ expect('chances under 10% keep one decimal', drop_line({ { name = 'A', chance = 
 expect('10% and up are whole', drop_line({ { name = 'A', chance = 9.96 }, { name = 'B', chance = 23.5 } }),
     'Drops (TH 0): A 10%, B 24%');
 check('notes', drop_line({ { name = 'A', chance = 50 } }, 0, true, true)
-    == 'Drops (TH 0): A 50% (plus scripted drops) (only drops if you get EXP)');
+    == 'Drops (TH 0): A 50% (scripted loot conditions) (only drops if you get EXP)');
 expect('notes on their own', drop_line({}, 0, false, true), 'Drops (TH 0): (only drops if you get EXP)');
 s.drops.notes = false;
 check('notes off', drop_line({ { name = 'A', chance = 50 } }, 0, true, true) == 'Drops (TH 0): A 50%');
@@ -413,8 +488,8 @@ s.printout.show_ph = true;
 r = { name = 'Damselfly', ph_for = { 'Valkurm Emperor' }, low = 21, high = 21, con = 0, reading = 1, defense = 1 };
 expect('the plain /check line shows the PH note', plain_lines(s, r)[1], 'Damselfly (Lv 21) (PH for Valkurm Emperor)  Too Weak');
 
--- The second number printout.lines returns is the first line holding hit or evade. The table after it
--- is true at every line holding them, listed here as their numbers in order.
+-- The second number printout.lines returns is the first line holding hit, off-hand, ranged or evade. The
+-- table after it is true at every line holding them, listed here as their numbers in order.
 local function holding_lines()
     local _, _, holding = printout.lines(s, result());
     local numbers = {};
@@ -423,7 +498,7 @@ local function holding_lines()
     return table.concat(numbers, ' ');
 end
 s = defaults.make();
-for _, part in pairs(s.printout.parts) do part.on = true; end
+for id, part in pairs(s.printout.parts) do part.on = not id:find('pdif', 1, true) and id ~= 'block' and id ~= 'parry'; end
 local _, waits_at = printout.lines(s, result());
 check('the default layout waits from line 2', waits_at == 2, waits_at);
 expect('and only line 2 holds hit or evade', holding_lines(), '2');
@@ -432,15 +507,15 @@ _, waits_at = printout.lines(s, result());
 check('the extras on the /check line wait from line 1', waits_at == 1, waits_at);
 expect('and only line 1 holds them', holding_lines(), '1');
 s.printout.extras_own_line = true;
-s.printout.order = 'difficulty drops magic immunities hit evade crit';
+s.printout.order = 'difficulty drops magic immunities hit evade block parry crit';
 s.printout.parts.hit.new_line = true;
 _, waits_at = printout.lines(s, result());
 check('drops, magic and immunities moved above hit print first', waits_at == 5, waits_at);
-s.printout.order = 'difficulty hit crit magic evade immunities drops';
+s.printout.order = 'difficulty hit crit magic evade block parry immunities drops';
 s.printout.parts.hit.new_line = false;
 s.printout.parts.evade.new_line = true;
-expect('evade on its own line under magic holds them too', holding_lines(), '2 4');
-s.printout.order = 'difficulty drops magic immunities hit evade crit';
+expect('evade block parry on its own line under magic holds them too', holding_lines(), '2 4');
+s.printout.order = 'difficulty drops magic immunities hit evade block parry crit';
 s.printout.parts.hit.new_line = true;
 s.printout.parts.evade.new_line = false;
 s.printout.parts.hit.on = false;
@@ -450,6 +525,16 @@ s.printout.parts.evade.on = false;
 _, waits_at = printout.lines(s, result());
 check('nothing waits with both off', waits_at == nil, waits_at);
 expect('and no line holds them', holding_lines(), '');
+r = armed();
+r.shoots = false;
+_, waits_at = printout.lines(s, r);
+check('off-hand waits too, on the line it joins', waits_at == 4, waits_at);
+r.dual_wield, r.shoots = false, true;
+_, waits_at = printout.lines(s, r);
+check('and ranged', waits_at == 4, waits_at);
+r.shoots = false;
+_, waits_at = printout.lines(s, r);
+check('but not when they\'re left out', waits_at == nil, waits_at);
 
 -- The fourth is the number of the line holding the pet part, or nil when it doesn't print.
 local function pet_at(r)
@@ -460,7 +545,7 @@ r = result();
 r.pet = { name = 'Azure', low = 75, high = 75, hit = { low = 95, high = 95 }, evade = { low = 61, high = 61 } };
 s = defaults.make();
 s.printout.divider = 'spaces';
-for _, part in pairs(s.printout.parts) do part.on = true; end
+for id, part in pairs(s.printout.parts) do part.on = not id:find('pdif', 1, true) and id ~= 'block' and id ~= 'parry'; end
 lines = plain_lines(s, r);
 check('the pet part is last, on a line of its own', #lines == 6 and pet_at(r) == 6
     and lines[6] == 'Pet: Azure (Lv 75)  Hit: 95%  Evade: 61%', table.concat(lines, ' / '));
@@ -550,7 +635,7 @@ s.printout.parts.difficulty.label = 'Con';
 check('with a difficulty label', plain_lines(s, r)[1]:find('| Con: Very Tough (High Evasion, High Defense) |', 1, true) ~= nil,
     plain_lines(s, r)[1]);
 s.printout.parts.difficulty.label = '';
-s.printout.order = 'hit crit difficulty evade magic immunities drops';
+s.printout.order = 'hit crit difficulty evade block parry magic weaknesses drops';
 check('it moves with the difficulty', plain_lines(s, r)[1]:find('| Crit: 7% | Very Tough (High Evasion, High Defense) | Evade',
     1, true) ~= nil, plain_lines(s, r)[1]);
 s.printout.order = printout.DEFAULT_ORDER;
@@ -616,7 +701,7 @@ check('on, the extras start one line below the /check', #lines == 2 and lines[1]
 
 -- An extra moved between the check parts gets a line of its own, so no line mixes the two kinds. The
 -- reading rides on the difficulty.
-s.printout.order = 'hit difficulty evade crit magic immunities drops';
+s.printout.order = 'hit difficulty evade block parry crit magic immunities drops';
 lines = plain_lines(s, checked());
 check('an extra between the check parts', #lines == 4 and lines[1] == 'Goblin Tinkerer (Lv 42)'
     and lines[2] == 'Hit: 64-72%' and lines[3] == 'Decent Challenge (High Evasion, Low Defense)'
@@ -658,7 +743,7 @@ check('New line on the first extra with the switch on breaks once', #lines == 2 
 -- Only one side printing never makes an empty line.
 s = settings();
 s.printout.extras_own_line = true;
-for _, id in ipairs({ 'hit', 'evade', 'crit', 'magic', 'immunities', 'drops' }) do s.printout.parts[id].on = false; end
+for _, id in ipairs({ 'hit', 'evade', 'crit', 'magic', 'weaknesses', 'drops' }) do s.printout.parts[id].on = false; end
 lines = plain_lines(s, checked());
 check('only the check parts make one line', #lines == 1 and lines[1] == CHECK_LINE, table.concat(lines, ' / '));
 s = settings();
@@ -676,34 +761,51 @@ check('check parts with nothing to say make no line either', #lines == 1 and lin
 
 -- The order string.
 expect('clean_order keeps known parts once, in order, and puts each missing one after the part before it',
-    printout.clean_order('drops crit bogus crit'), 'difficulty hit evade drops crit aggro magic immunities elements pet');
+    printout.clean_order('drops crit bogus crit'),
+    'difficulty hit pdif offhand offhandpdif ranged rangedpdif evade block parry drops steal crit crittaken job aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards pet');
 check('clean_order of nothing is the default', printout.clean_order(nil) == printout.DEFAULT_ORDER
     and printout.clean_order('') == printout.DEFAULT_ORDER);
 check('clean_order drops name', printout.clean_order('name hit') == printout.DEFAULT_ORDER);
-check('an order missing difficulty gets it first', printout.clean_order('hit evade crit magic immunities drops')
-    == printout.DEFAULT_ORDER and printout.clean_order('drops magic hit evade crit immunities')
-    == 'difficulty drops magic hit evade crit aggro immunities elements pet',
-    printout.clean_order('drops magic hit evade crit immunities'));
-check('an order missing aggro gets it after crit', printout.clean_order('difficulty hit evade crit magic immunities drops')
-    == printout.DEFAULT_ORDER and printout.DEFAULT_ORDER == 'difficulty hit evade crit aggro magic immunities elements drops pet'
-    and printout.clean_order('difficulty drops hit evade crit magic immunities')
-    == 'difficulty drops hit evade crit aggro magic immunities elements pet',
-    printout.clean_order('difficulty drops hit evade crit magic immunities'));
-check('an order missing elements gets it after immunities', printout.clean_order('difficulty hit evade crit aggro magic '
-    .. 'immunities drops') == printout.DEFAULT_ORDER and printout.clean_order('drops immunities hit')
-    == 'difficulty drops immunities elements hit evade crit aggro magic pet', printout.clean_order('drops immunities hit'));
-check('an order missing pet gets it last', printout.clean_order('difficulty hit evade crit aggro magic '
-    .. 'immunities elements drops') == printout.DEFAULT_ORDER and printout.clean_order('difficulty drops hit evade crit aggro '
-    .. 'magic immunities elements') == 'difficulty drops hit evade crit aggro magic immunities elements pet',
-    printout.clean_order('difficulty drops hit evade crit aggro magic immunities elements'));
+check('an order missing difficulty gets it first', printout.clean_order('hit evade crit magic weaknesses drops')
+    == printout.DEFAULT_ORDER and printout.clean_order('drops magic hit evade crit weaknesses')
+    == 'difficulty drops steal magic hit pdif offhand offhandpdif ranged rangedpdif evade block parry crit crittaken job aggro links weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards pet',
+    printout.clean_order('drops magic hit evade crit weaknesses'));
+check('an order missing aggro gets it after crit', printout.clean_order('difficulty hit evade crit magic weaknesses drops')
+    == printout.DEFAULT_ORDER and printout.DEFAULT_ORDER == 'difficulty hit pdif offhand offhandpdif ranged rangedpdif evade block parry crit crittaken job aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet' and printout.clean_order('difficulty drops hit evade crit magic weaknesses') == 'difficulty drops steal hit pdif offhand offhandpdif ranged rangedpdif evade block parry crit crittaken job aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards pet',
+    printout.clean_order('difficulty drops hit evade crit magic weaknesses'));
+check('an order missing source rows adds them after Weaknesses', printout.clean_order('difficulty hit evade crit aggro magic weaknesses drops') == printout.DEFAULT_ORDER and printout.clean_order('drops weaknesses hit')
+    == 'difficulty drops steal weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards hit pdif offhand offhandpdif ranged rangedpdif evade block parry crit crittaken job aggro links magic pet',
+    printout.clean_order('drops weaknesses hit'));
+check('an order missing pet gets it last', printout.clean_order('difficulty hit evade crit aggro magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops') == printout.DEFAULT_ORDER and printout.clean_order('difficulty drops hit evade crit aggro magic weaknesses effects') == 'difficulty drops steal hit pdif offhand offhandpdif ranged rangedpdif evade block parry crit crittaken job aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards pet',
+    printout.clean_order('difficulty drops hit evade crit aggro magic weaknesses effects'));
+check('an order from before off-hand and ranged gets them right after hit', printout.clean_order('difficulty hit evade crit aggro magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops pet') == printout.DEFAULT_ORDER and printout.clean_order('drops evade crit difficulty aggro magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards hit pet') == 'drops steal evade block parry crit crittaken job difficulty aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards hit pdif offhand offhandpdif ranged rangedpdif pet', printout.clean_order('drops evade crit difficulty aggro magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards hit pet'));
+check('an order from before steal gets it right after drops, wherever drops is', printout.clean_order('difficulty hit offhand ranged evade crit aggro magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops pet') == printout.DEFAULT_ORDER
+    and printout.clean_order('difficulty hit offhand ranged evade crit aggro magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards pet drops')
+    == 'difficulty hit pdif offhand offhandpdif ranged rangedpdif evade block parry crit crittaken job aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards pet drops steal',
+    printout.clean_order('difficulty hit offhand ranged evade crit aggro magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards pet drops'));
+check('an order from before job gets it right after crit taken, wherever crit is', printout.clean_order('difficulty hit offhand ranged evade crit aggro magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet') == printout.DEFAULT_ORDER
+    and printout.clean_order('crit difficulty hit offhand ranged evade aggro magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet')
+    == 'crit crittaken job difficulty hit pdif offhand offhandpdif ranged rangedpdif evade block parry aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet',
+    printout.clean_order('crit difficulty hit offhand ranged evade aggro magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet'));
+check('an order from before crit taken gets it right after crit, wherever crit is', printout.clean_order('difficulty hit offhand ranged evade crit job aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet') == printout.DEFAULT_ORDER
+    and printout.clean_order('crit difficulty hit offhand ranged evade job aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet') == 'crit crittaken difficulty hit pdif offhand offhandpdif ranged rangedpdif evade block parry job aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet', printout.clean_order('crit difficulty hit offhand ranged evade job aggro links magic weaknesses family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet'));
+check('an order from before links gets it right after aggro, wherever aggro is', printout.clean_order('difficulty hit offhand ranged evade crit job aggro magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet') == printout.DEFAULT_ORDER
+    and printout.clean_order('aggro difficulty hit offhand ranged evade crit job magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet')
+    == 'aggro links difficulty hit pdif offhand offhandpdif ranged rangedpdif evade block parry crit crittaken job magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet',
+    printout.clean_order('aggro difficulty hit offhand ranged evade crit job magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet'));
+check('and one with links kept where it is', printout.clean_order('links difficulty hit offhand ranged evade crit job aggro magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet') == 'links difficulty hit pdif offhand offhandpdif ranged rangedpdif evade block parry crit crittaken job aggro magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet');
 check('move up', printout.move(printout.DEFAULT_ORDER, 'evade', -1)
-    == 'difficulty evade hit crit aggro magic immunities elements drops pet');
+    == 'difficulty hit pdif offhand offhandpdif ranged evade rangedpdif block parry crit crittaken job aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet');
 check('move down', printout.move(printout.DEFAULT_ORDER, 'evade', 1)
-    == 'difficulty hit crit evade aggro magic immunities elements drops pet');
+    == 'difficulty hit pdif offhand offhandpdif ranged rangedpdif block evade parry crit crittaken job aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet');
 check('the first can\'t go up', printout.move(printout.DEFAULT_ORDER, 'difficulty', -1) == printout.DEFAULT_ORDER);
 check('the last can\'t go down', printout.move(printout.DEFAULT_ORDER, 'pet', 1) == printout.DEFAULT_ORDER);
-check('drops goes down past pet', printout.move(printout.DEFAULT_ORDER, 'drops', 1)
-    == 'difficulty hit evade crit aggro magic immunities elements pet drops');
+check('drops goes down past steal', printout.move(printout.DEFAULT_ORDER, 'drops', 1)
+    == 'difficulty hit pdif offhand offhandpdif ranged rangedpdif evade block parry crit crittaken job aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards steal drops pet');
+check('links moves up past aggro, and aggro moves on its own', printout.move(printout.DEFAULT_ORDER, 'links', -1)
+    == 'difficulty hit pdif offhand offhandpdif ranged rangedpdif evade block parry crit crittaken job links aggro magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet'
+    and printout.move(printout.DEFAULT_ORDER, 'aggro', -1)
+    == 'difficulty hit pdif offhand offhandpdif ranged rangedpdif evade block parry crit crittaken aggro job links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet');
 
 -- Dividers ----------------------------------------------------------------------------------------
 
@@ -755,7 +857,8 @@ check('and inside Magic in its detail color', raw:find(color(2) .. 'Magic' .. co
 
 -- A new settings table prints Star between parts and Colon after labels on every line of the default layout.
 s = defaults.make();
-for _, part in pairs(s.printout.parts) do part.on = true; end
+for id, part in pairs(s.printout.parts) do part.on = not id:find('pdif', 1, true) and id ~= 'block' and id ~= 'parry'; end
+s.printout.parts.crittaken.on = false;   -- test_crit_taken.lua covers it.
 r = result();
 r.con, r.reading, r.defense = 3, 0, 2;
 lines = plain_lines(s, r);
@@ -763,7 +866,7 @@ check('Star and Colon are the defaults on every line', #lines == 5
     and lines[1] == 'Goblin Tinkerer (Lv 42)' .. STAR .. 'Decent Challenge (High Evasion, Low Defense)'
     and lines[2] == 'Hit: 64-72%' .. STAR .. 'Evade: 31% with Signet' .. STAR .. 'Crit: 7%'
     and lines[3] == 'Magic: Elemental 88% (Ice)' .. STAR .. 'Enfeebling 81%' .. STAR .. 'Dark immune'
-    and lines[4] == 'Immune: Sleep, Bind, Gravity'
+    and lines[4] == 'Weaknesses: Immune: Sleep, Bind, Gravity'
     and lines[5] == 'Drops (TH 2): Goblin Mail 15%, Goblin Helm 15%, Beastman Blood 7.0%' .. STAR .. '+2 more',
     table.concat(lines, ' / '));
 
@@ -804,7 +907,7 @@ for _, divider in ipairs(printout.LABEL_DIVIDERS) do
         lines = plain_lines(s, result());
         check(divider.name .. ' goes after every label', divider.text == want and lines[1] == 'Goblin Tinkerer (Lv 42)  Hit' .. want
             .. '64-72%  Evade' .. want .. '31% with Signet  Crit' .. want .. '7%  Magic' .. want .. 'Elemental 88% (Ice)  '
-            .. 'Enfeebling 81%  Dark immune  Immune' .. want .. 'Sleep, Bind, Gravity  Drops (TH 2)' .. want .. 'Goblin Mail 15%, '
+            .. 'Enfeebling 81%  Dark immune  Weaknesses' .. want .. 'Immune' .. want .. 'Sleep, Bind, Gravity  Drops (TH 2)' .. want .. 'Goblin Mail 15%, '
             .. 'Goblin Helm 15%, Beastman Blood 7.0%  +2 more', lines[1]);
         raw = table.concat(printout.lines(s, result()), '');
         check(divider.name .. ' after labels prints no byte 0, 10 or 13', not raw:find('[%z\10\13]'));
@@ -838,6 +941,7 @@ check('and prints as Colon before the settings are tidied', plain_lines(s, resul
 -- A part with no label gets no label divider.
 s = settings();
 for _, part in pairs(s.printout.parts) do part.label = ''; end
+s.weaknesses.immune_word = '';
 s.drops.th_in_label = false;
 lines = plain_lines(s, result());
 check('empty labels print no label divider', lines[1] == 'Goblin Tinkerer (Lv 42)  64-72%  31% with Signet  7%  Elemental 88% '
@@ -855,12 +959,12 @@ s.printout.parts.difficulty.label = 'Con';
 s.printout.parts.hit.label = 'Acc';
 r = result();
 r.con, r.reading, r.defense = 3, 0, 2;
-r.aggro = { text = 'Aggressive', threat = true, detects = { 'Sight' }, notes = {}, links = true, names = { 'Goblin Thug' },
-    more = 0 };
+r.aggro = { verdict = 'aggro_aggressive', threat = true, detects = { 'sense_sight' }, notes = {} };
+r.links = { links = true, names = { 'Goblin Thug' }, more = 0 };
 lines = plain_lines(s, r);
 check('every part with a label gets the label divider', lines[1] == 'Mob: Goblin Tinkerer (Lv 42)  Con: Decent Challenge (High '
     .. 'Evasion, Low Defense)  Acc: 64-72%  Evade: 31% with Signet  Crit: 7%  Aggro: Aggressive (Sight)  Links with Goblin Thug  '
-    .. 'Magic: Elemental 88% (Ice)  Enfeebling 81%  Dark immune  Immune: Sleep, Bind, Gravity  Drops (TH 2): Goblin Mail 15%, '
+    .. 'Magic: Elemental 88% (Ice)  Enfeebling 81%  Dark immune  Weaknesses: Immune: Sleep, Bind, Gravity  Drops (TH 2): Goblin Mail 15%, '
     .. 'Goblin Helm 15%, Beastman Blood 7.0%  +2 more', lines[1]);
 s.printout.parts.drops.label = '';
 check('with the label empty the TH note gets a space, not the label divider', plain_lines(s, r)[1]:find('Gravity  (TH 2) Goblin '
@@ -870,7 +974,7 @@ check('with the label empty the TH note gets a space, not the label divider', pl
 local LABEL_KEYS = {
     { 'name', 'name', 'Mob' }, { 'difficulty', 'difficulty', 'Con' }, { 'hit', 'hit_label', 'Hit' },
     { 'evade', 'evade_label', 'Evade' }, { 'crit', 'crit_label', 'Crit' }, { 'aggro', 'aggro_label', 'Aggro' },
-    { 'magic', 'magic_label', 'Magic' }, { 'immunities', 'immunities_label', 'Immune' },
+    { 'magic', 'magic_label', 'Magic' }, { 'weaknesses', 'elements_label', 'Weaknesses' },
 };
 s = settings();
 s.printout.parts.name.label, s.printout.parts.difficulty.label = 'Mob', 'Con';
@@ -899,17 +1003,45 @@ local function all_cream()
     return c;
 end
 local function full_result()
-    local c = result();
+    local c = armed();
     c.con, c.reading, c.defense, c.scripted = 3, 0, 2, true;
     c.drops.scripted, c.drops.exp_only = true, true;
-    c.aggro = { text = 'Aggressive', threat = true, detects = { 'Sight' }, notes = {}, links = true, names = { 'Goblin Thug' },
-        more = 0 };
-    c.elements = { weak = { { name = 'Ice' }, { name = 'Thunder' } }, resists = { { name = 'Water', strength = 'half' } },
-        all = '-25%', scripted = true };
+    c.aggro = { verdict = 'aggro_aggressive', threat = true, detects = { 'sense_sight' }, notes = {} };
+    c.links = { links = true, names = { 'Goblin Thug' }, more = 0 };
+    c.elements = { weak = { { element = 'ice' }, { element = 'thunder' } },
+        resists = { { element = 'water', strength = 'str_half' } }, all = '-25%', scripted = true };
+    c.weapons = { weak = { { kind = 'blunt', percent = 25 } },
+        resists = { { kind = 'slashing', percent = -12.5 } }, scripted = true };
+    c.info = { sections = { { id = 'family', label = 'Family', value = 'Goblin' }, { id = 'charm', label = 'Charm', value = 'unknown' } } };
     c.pet = { name = 'Azure', low = 75, high = 75, hit = { low = 95, high = 95 }, evade = { low = 61, high = 61 } };
+    c.steal = { items = { 'Fish Scales', 'Pickaxe' }, ids = { 864, 605 }, low = 77, high = 77 };
+    c.job = 'drk/war';
+    c.effects = {
+        { effect = 4, word = 'eff_paralysis', left = 80, mine = true, debuff = true },
+        { effect = 13, word = 'eff_slow', left = 165, mine = false, debuff = true },
+        { effect = 40, name = 'Protect', left = 1630, mine = false, debuff = false },
+    };
     return c;
 end
 
+-- Crit taken on, at 11%.
+local function taken(c, r)
+    c.printout.parts.crittaken.on = true;
+    r.crittaken = { low = 11, high = 11 };
+end
+local function pdif_paint(id)
+    return function (c, r)
+        c.printout.parts[id].on = true;
+        c.pdif.mode = 'range';
+        r[id] = { low = 1.25, high = 1.75, scripted = true };
+    end
+end
+local function defense_paint(id)
+    return function (c, r)
+        c.printout.parts[id].on = true;
+        r[id] = { low = 12.5, high = 12.5, scripted = true };
+    end
+end
 -- Each key with text it paints, and a change to the settings or the /check that makes that text print.
 local PAINTS = {
     { 'line', ' | ' },
@@ -934,28 +1066,78 @@ local PAINTS = {
     { 'hit_number', '64-72%' },
     { 'hit_detail', '?' },
     { 'hit_detail', 'unknown', function (_, r) r.hit = nil; end },
+    { 'offhand_label', 'Off-hand' .. color(VIOLET) .. ': ' },
+    { 'offhand_number', '62%' },
+    { 'offhand_detail', '?' },
+    { 'offhand_detail', 'unknown', function (_, r) r.offhand = nil; end },
+    { 'ranged_label', 'Ranged' .. color(VIOLET) .. ': ' },
+    { 'ranged_number', '63%' },
+    { 'ranged_detail', '?' },
+    { 'ranged_detail', ' (55% at 25 yalms)', function (c) c.ranged.show_far = true; end },
+    { 'ranged_detail', 'unknown', function (_, r) r.ranged = nil; end },
+    { 'pdif_label', 'pDIF' .. color(VIOLET) .. ': ', pdif_paint('pdif') },
+    { 'pdif_number', '1.25-1.75x', pdif_paint('pdif') },
+    { 'pdif_detail', '?', pdif_paint('pdif') },
+    { 'offhandpdif_label', 'Off-hand pDIF' .. color(VIOLET) .. ': ', pdif_paint('offhandpdif') },
+    { 'offhandpdif_number', '1.25-1.75x', pdif_paint('offhandpdif') },
+    { 'offhandpdif_detail', '?', pdif_paint('offhandpdif') },
+    { 'rangedpdif_label', 'Ranged pDIF' .. color(VIOLET) .. ': ', pdif_paint('rangedpdif') },
+    { 'rangedpdif_number', '1.25-1.75x', pdif_paint('rangedpdif') },
+    { 'rangedpdif_detail', '?', pdif_paint('rangedpdif') },
     { 'evade_label', 'Evade' .. color(VIOLET) .. ': ' },
     { 'evade_number', '31%' },
     { 'evade_detail', ' with Signet' },
+    { 'block_label', 'Shield block' .. color(VIOLET) .. ': ', defense_paint('block') },
+    { 'block_number', '12.5%', defense_paint('block') },
+    { 'block_detail', '?', defense_paint('block') },
+    { 'parry_label', 'Parry' .. color(VIOLET) .. ': ', defense_paint('parry') },
+    { 'parry_number', '12.5%', defense_paint('parry') },
+    { 'parry_detail', '?', defense_paint('parry') },
     { 'crit_label', 'Crit' .. color(VIOLET) .. ': ' },
     { 'crit_number', '7%' },
     { 'crit_detail', '?' },
+    { 'crittaken_label', 'Crit taken' .. color(VIOLET) .. ': ', taken },
+    { 'crittaken_number', '11%', taken },
+    { 'crittaken_detail', '?', taken },
+    { 'crittaken_detail', '(TP moves)', function (c, r) taken(c, r); r.tp_moves = true; end },
+    { 'crittaken_detail', 'unknown', function (c, r) taken(c, r); r.crittaken = nil; end },
+    { 'job_label', 'Job' .. color(VIOLET) .. ': ' },
+    { 'job_name', 'DRK' },
+    { 'job_detail', '/' },
     { 'aggro_label', 'Aggro' .. color(VIOLET) .. ': ' },
-    { 'aggro_words', 'Links with ' },
     { 'aggro_words', 'Aggressive', function (c) c.aggro.threat_colors = false; end },
     { 'aggro_detail', ' (Sight)' },
-    { 'aggro_detail', ' (Sound)', function (_, r) r.aggro.tags = { 'Sound' }; end },
+    { 'aggro_detail', ' (can change in the fight)', function (_, r) r.aggro.notes = { 'note_scripted' }; end },
     { 'aggro_threat', 'Aggressive' },
-    { 'aggro_safe', 'Not aggressive', function (_, r) r.aggro.text, r.aggro.threat = 'Not aggressive', false; end },
+    { 'aggro_safe', 'Not aggressive', function (_, r) r.aggro.verdict, r.aggro.threat = 'aggro_passive', false; end },
+    { 'links_label', 'Links' .. color(VIOLET) .. ': ', function (c) c.printout.parts.links.label = 'Links'; end },
+    { 'links_words', 'Links with ' },
+    { 'links_words', 'Goblin Thug' },
+    { 'links_words', 'Doesn\'t link', function (_, r) r.links = { links = false, more = 0 }; end },
+    { 'links_words', 'Links', function (_, r) r.links.names = nil; end },
+    { 'links_detail', ' | ' .. color(106) .. 'Links with ' },
+    { 'links_detail', ' (Sound)', function (_, r) r.links.tags = { { { 'sense_sound' } } }; end },
+    { 'links_detail', ', ', function (_, r) r.links.names = { 'Goblin Thug', 'Goblin Weaver' }; end },
+    { 'links_detail', ' | +2 more', function (_, r) r.links.more = 2; end },
+    { 'links_detail', ' (Sight, Sound)', function (_, r)
+        r.links.names, r.links.senses = nil, { 'sense_sight', 'sense_sound' };
+    end },
     { 'magic_label', 'Magic' .. color(VIOLET) .. ': ' },
     { 'magic_name', 'Elemental' },
     { 'magic_number', '88%' },
     { 'magic_detail', ' (Ice)' },
     { 'magic_detail', 'immune' },
-    { 'immunities_label', 'Immune' .. color(VIOLET) .. ': ' },
+    { 'immunities_label', 'Immune: ' },
     { 'immunities_name', 'Sleep' },
     { 'immunities_detail', ', ' },
-    { 'elements_label', 'Elements' .. color(VIOLET) .. ': ' },
+    { 'effects_label', 'Effects' .. color(VIOLET) .. ': ' },
+    { 'effects_name', 'Paralyze' },
+    { 'effects_buff', 'Protect' },
+    { 'effects_time', ' 1:20' },
+    { 'effects_guess', ' 2:45' },
+    { 'effects_detail', ', ' },
+    { 'effects_detail', ' | ' },
+    { 'elements_label', 'Weaknesses' .. color(VIOLET) .. ': ' },
     { 'elements_label', 'Weak: ' },
     { 'elements_label', 'Resists: ' },
     { 'elements_weak', 'Thunder' },
@@ -965,13 +1147,33 @@ local PAINTS = {
     { 'elements_detail', ' | ' },
     { 'elements_detail', 'Magic damage -25%' },
     { 'elements_detail', '?' },
+    { 'weapons_label', 'Weak: ' },
+    { 'weapons_weak', 'Blunt (+25%)' },
+    { 'weapons_resist', 'Slashing (-12.5%)' },
+    { 'weapons_detail', '?' },
+    { 'info_label', 'Family' .. color(VIOLET) .. ': ' },
+    { 'info_name', 'Charm: ' },
+    { 'info_value', 'Goblin' },
+    { 'info_detail', ' | ', function (c, r)
+        c.blue.chat.lessons, c.blue.chat.chance = true, true;
+        r.info.sections[#r.info.sections + 1] = { id = 'blue', value = 'Bomb Toss (not learned)' };
+        r.magic[#r.magic + 1] = { school = 'school_blue', low = 65, high = 65 };
+    end },
     { 'drops_label', 'Drops' },
     { 'drops_label', ': ' },
     { 'drops_name', 'Goblin Mail' },
     { 'drops_number', '15%' },
     { 'drops_detail', ' (TH 2)' },
     { 'drops_detail', ' | +2 more' },
-    { 'drops_detail', ' (plus scripted drops) (only drops if you get EXP)' },
+    { 'drops_detail', ' (scripted loot conditions) (only drops if you get EXP)' },
+    { 'steal_label', 'Steal' .. color(VIOLET) .. ': ' },
+    { 'steal_name', 'Fish Scales' },
+    { 'steal_number', '77%' },
+    { 'steal_detail', ' (' },
+    { 'steal_detail', ' or ' },
+    { 'steal_detail', ', ', function (_, r) r.steal.items = { 'T. Whiteshell', 'O. Bronzepiece', '1 Byne Bill' }; end },
+    { 'steal_detail', 'nothing', function (_, r) r.steal.items = {}; end },
+    { 'steal_detail', ' (unknown)', function (_, r) r.steal.low, r.steal.high, r.steal.unknown = nil, nil, true; end },
     { 'pet_label', 'Pet' .. color(VIOLET) .. ': ' },
     { 'pet_label', 'Hit: ' },
     { 'pet_label', 'Evade: ' },
@@ -986,8 +1188,11 @@ local PAINTS = {
     { 'bad', '64-72%', function (c) c.grades.on = true; end },
 };
 
--- test_commands.lua covers the replies color.
+-- test_commands.lua covers the replies color, and test_overlay.lua the element badges, which never print in chat.
 local covered = { replies = true };
+for _, key in ipairs(printout.COLOR_KEYS) do
+    if (key:find('^badge_')) then covered[key] = true; end
+end
 for _, paints in ipairs(PAINTS) do
     local key, text, change = paints[1], paints[2], paints[3];
     local c, r = all_cream(), full_result();
@@ -1010,13 +1215,151 @@ local missing = {};
 for _, key in ipairs(printout.COLOR_KEYS) do
     if (not covered[key]) then missing[#missing + 1] = key; end
 end
-check('every color setting is tested', #missing == 0 and #printout.COLOR_KEYS == 58, table.concat(missing, ', '));
+check('every color setting is tested', #missing == 0 and #printout.COLOR_KEYS == 114, table.concat(missing, ', '));
 local keys_ok = true;
 for _, key in ipairs(printout.COLOR_KEYS) do
     keys_ok = keys_ok and printout.color_key(key) == key and printout.color_key(key:upper()) == key;
 end
 check('every color key is found in any case, and nothing else is', keys_ok and printout.color_key('sort') == nil
     and printout.color_key('bogus') == nil and printout.color_key(nil) == nil);
+
+-- Element icons in chat. The bytes are read as they print, never through MOCK.plain, which would take Fire's
+-- second byte for a color code. This takes out only the codes printout puts in.
+local element_order = require('core.elements').ORDER;
+-- Each element's full name, by its name in core\elements.lua.
+local element_names = {};
+for _, key in ipairs(element_order) do
+    element_names[key] = require('core.wording').BY_KEY['elem_' .. key].full;
+end
+local GLYPHS = { fire = '\239\31', ice = '\239\32', wind = '\239\33', earth = '\239\34', thunder = '\239\35',
+    water = '\239\36', light = '\239\37', dark = '\239\38' };
+local function no_codes(text) return (text:gsub('\30.', '')); end
+local function bytes(text) return (text:gsub('[^\32-\126]', function (ch) return '\\' .. ch:byte(); end)); end
+-- The full printout's bytes, after `change` has its way with all_cream's settings.
+local function full_with(change)
+    local each = all_cream();
+    if (change ~= nil) then change(each); end
+    return table.concat(printout.lines(each, full_result()), '\n');
+end
+local icon_defaults = defaults.make();
+check('Element icons and its Icons only are off by default', icon_defaults.printout.icons == false
+    and icon_defaults.printout.icons_only == false);
+local plain_bytes = full_with();
+check('and the full printout has no element symbol and no mark', not plain_bytes:find('\239[\31-\38]')
+    and not plain_bytes:find('\29'), bytes(plain_bytes));
+check('with them off the bytes are the same, even with Icons only on', full_with(function (e)
+    e.printout.icons, e.printout.icons_only = false, true; end) == plain_bytes);
+check('and with both settings missing', full_with(function (e)
+    rawset(e.printout, 'icons', nil); rawset(e.printout, 'icons_only', nil); end) == plain_bytes);
+check('and with every overlay icon setting flipped', full_with(function (e)
+    e.overlay.icons, e.overlay.icons_only, e.overlay.element_look = false, true, 'badges'; end) == plain_bytes);
+local icon_bytes = full_with(function (e) e.printout.icons = true; end);
+check('while the same readout with them on prints the ice symbol, so the checks above cover something',
+    icon_bytes:find('\239\32 Ice', 1, true) ~= nil, bytes(icon_bytes));
+check('and taking out each symbol and its space gives the bytes with them off, so only elements changed',
+    (icon_bytes:gsub('\239[\31-\38] ', '')) == plain_bytes, bytes(icon_bytes));
+local marks = 0;
+for _, chat_on in ipairs({ false, true }) do
+    for _, only in ipairs({ false, true }) do
+        for _, overlay_on in ipairs({ false, true }) do
+            local each = full_with(function (e)
+                e.printout.icons, e.printout.icons_only, e.overlay.icons = chat_on, only, overlay_on;
+            end);
+            if (each:find('\29')) then marks = marks + 1; end
+        end
+    end
+end
+check('no chat line ever has a mark, whatever the chat and overlay icon settings', marks == 0, marks);
+-- In the overlay's view each mark says which part it's in, for the icon's tip. The element after a Magic school is a
+-- school and a Steal item a steal, apart from the Elements part's elements and the drops.
+local view_text = no_codes(full_with(function (e) e.printout.marks = true; end));
+check('the overlay\'s view marks the Magic element as a school and a Steal item as a steal', view_text:find('Elemental '
+    .. '88%? (\29school:ice\29 Ice\29end:text\29)', 1, true) ~= nil and view_text:find('Steal: \29steal:864\29 Fish Scales\29end:text\29 or '
+    .. '\29steal:605\29 Pickaxe', 1, true) ~= nil, bytes(view_text));
+check('while the Elements part keeps element, Drops item and the Job part job', view_text:find('Weak: '
+    .. '\29element:ice\29 Ice\29end:text\29, \29element:thunder\29 Thunder', 1, true) ~= nil and view_text:find('Drops (TH 2): '
+    .. '\29item:507\29 Goblin Mail', 1, true) ~= nil and view_text:find('Job: \29job:drk\29 DRK\29end:text\29/\29job:war\29 WAR', 1,
+    true) ~= nil and not view_text:find('(\29element:', 1, true) and not view_text:find('\29item:864', 1, true),
+    bytes(view_text));
+check('a school still gets the chat\'s element symbol with Element icons on', icon_bytes:find('(\239\32 Ice)', 1, true)
+    ~= nil, bytes(icon_bytes));
+check('the number words a tip prints come from the same functions the lines use', printout.number_text({ low = 72,
+    high = 72 }, 'range') == '72%' and printout.number_text({ low = 64, high = 72 }, 'range') == '64-72%'
+    and printout.number_text({ low = 64, high = 72 }, 'midpoint') == '~68%' and printout.chance_text(15) == '15%'
+    and printout.chance_text(5) == '5.0%' and printout.chance_text(0.5) == '0.5%');
+
+local shown_icons = no_codes(icon_bytes);
+check('icons on: each weak element gets its symbol', shown_icons:find('Weak: \239\32 Ice, \239\35 Thunder', 1, true)
+    ~= nil, bytes(shown_icons));
+check('a resisted one too, before its strength', shown_icons:find('Resists: \239\36 Water (half)', 1, true) ~= nil);
+check('and the element after Elemental magic', shown_icons:find('Elemental 88%? (\239\32 Ice)', 1, true) ~= nil);
+check('Drops, Steal and Immune get no symbol', shown_icons:find('Immune: Sleep, Bind, Gravity', 1, true) ~= nil
+    and shown_icons:find('Drops (TH 2): Goblin Mail 15%, Goblin Helm 15%', 1, true) ~= nil
+    and shown_icons:find('Steal: Fish Scales or Pickaxe (77%)', 1, true) ~= nil, bytes(shown_icons));
+local every_element = full_result();
+every_element.elements = { weak = {}, resists = { { element = 'wind', strength = 'str_half' },
+    { element = 'earth', strength = 'str_half' } } };
+local want_weak = {};
+for _, key in ipairs(element_order) do
+    every_element.elements.weak[#every_element.elements.weak + 1] = { element = key };
+    want_weak[#want_weak + 1] = GLYPHS[key] .. ' ' .. element_names[key];
+end
+c = all_cream();
+c.printout.icons = true;
+local every_text = no_codes(table.concat(printout.lines(c, every_element), '\n'));
+check('each of the 8 elements gets its own symbol, in order', every_text:find('Weak: ' .. table.concat(want_weak, ', '),
+    1, true) ~= nil, bytes(every_text));
+check('and names that share a strength each get theirs', every_text:find('Resists: \239\33 Wind, \239\34 Earth (half)',
+    1, true) ~= nil, bytes(every_text));
+c = settings();
+c.printout.icons = true;
+local colored = table.concat(printout.lines(c, full_result()), '\n');
+check('the symbol sits in the name\'s color run', colored:find(color(c.colors.elements_weak) .. '\239\32 Ice', 1, true)
+    ~= nil and colored:find(color(c.colors.elements_resist) .. '\239\36 Water', 1, true) ~= nil, bytes(colored));
+
+local only_text = no_codes(full_with(function (e) e.printout.icons, e.printout.icons_only = true, true; end));
+check('Icons only: the symbols without their names', only_text:find('Weak: \239\32, \239\35 | Resists: \239\36 (half)', 1,
+    true) ~= nil, bytes(only_text));
+check('and in the magic part', only_text:find('Elemental 88%? (\239\32)', 1, true) ~= nil, bytes(only_text));
+-- A line that ends in Ice keeps both bytes, since Ice's second byte is a space.
+c = settings();
+c.printout.icons, c.printout.icons_only = true, true;
+for id, part in pairs(c.printout.parts) do part.on = (id == 'weaknesses'); end
+c.printout.replace_game_line = false;
+local ice_lines = printout.lines(c, { name = 'Goblin', low = 1, high = 1, elements = { weak = { { element = 'ice' } },
+    resists = {} } });
+check('an Icons only line that ends in Ice ends in both of its bytes', #ice_lines == 1 and ice_lines[1]:sub(-2) == '\239\32',
+    ice_lines[1] and bytes(ice_lines[1]));
+-- Ashita's logs addon strips color codes byte by byte, so Fire's second byte and the space after it go.
+check('stripped like the logs addon, Fire keeps its F', ('\30\2' .. GLYPHS.fire .. ' Fire'):strip_colors() == '\239Fire');
+local others_whole = true;
+for _, key in ipairs(element_order) do
+    if (key ~= 'fire') then
+        local each = GLYPHS[key] .. ' ' .. element_names[key];
+        others_whole = others_whole and ('\30\2' .. each):strip_colors() == each;
+    end
+end
+check('and the other seven keep both bytes of their symbol', others_whole);
+-- With Icons only there's no space after Fire's symbol for the logs addon to take. It takes Fire's second byte and
+-- the next color code's first byte as one code, so that code's color byte stays behind, like the j of Cream. In a
+-- Magic school's brackets it takes the ')', and a line that ends in Fire keeps its second byte. The game shows them
+-- all right.
+local detail = string.char(c.colors.elements_detail);
+local fire_line = printout.lines(c, { name = 'Goblin', low = 1, high = 1, elements = { weak = { { element = 'fire' },
+    { element = 'ice' } }, resists = {} } })[1];
+check('Icons only: Fire\'s symbol runs right into the next color code', fire_line:find('\239\31\30' .. detail .. ', ', 1,
+    true) ~= nil, bytes(fire_line));
+check('so stripped like the logs addon, that code\'s color byte stays after Fire\'s first byte',
+    fire_line:strip_colors():find('\239' .. detail .. ', ', 1, true) ~= nil, bytes(fire_line:strip_colors()));
+local fire_last = printout.lines(c, { name = 'Goblin', low = 1, high = 1, elements = { weak = { { element = 'fire' } },
+    resists = {} } })[1];
+check('and a line that ends in Fire keeps both its bytes', fire_last:strip_colors():sub(-2) == '\239\31',
+    bytes(fire_last:strip_colors()));
+c.printout.parts.weaknesses.on, c.printout.parts.magic.on = false, true;
+local fire_magic = printout.lines(c, { name = 'Goblin', low = 1, high = 1, magic = { { school = 'school_elemental', low = 88,
+    high = 88, element = 'fire' } } })[1];
+check('in the magic part Fire takes the closing bracket with it', fire_magic:find('(\239\31)', 1, true) ~= nil
+    and fire_magic:strip_colors():sub(-3) == ' (\239', bytes(fire_magic:strip_colors()));
 
 -- Colors outside the palette never print. 0, 10 and 13 would end or break the line.
 c = all_cream();
@@ -1035,33 +1378,48 @@ check('no color for other numbers or names', printout.find_color('0') == nil and
 
 -- A settings file with only a few settings, its parts in another order and a part checkmate doesn't know.
 -- Ashita merges tables key by key, so the order has to be one string or a merge would mix it up.
-MOCK.settings_file = { printout = { order = 'drops hit evade crit magic immunities bogus', header = false,
+MOCK.settings_file = { printout = { order = 'drops hit evade block parry crit magic immunities bogus', header = false,
     parts = { hit = { on = true } } } };
 dofile(ADDON_DIR .. '/checkmate.lua');
 MOCK.fire('load');
 local cur = MOCK.settings.current;
-check('an order missing parts is cleaned on load, with difficulty first, aggro right after crit, elements after immunities '
-    .. 'and pet last', cur.printout.order == 'difficulty drops hit evade crit aggro magic immunities elements pet',
-    cur.printout.order);
+check('an order missing parts is cleaned on load, with difficulty first, crit taken, job and aggro right after crit, '
+    .. 'one Weaknesses row and pet last', cur.printout.order == 'difficulty drops steal hit pdif offhand offhandpdif ranged rangedpdif evade block parry crit '
+    .. 'crittaken job aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards pet', cur.printout.order);
 check('the merge brings difficulty and reading in, on', cur.printout.parts.difficulty.on == true
     and cur.printout.parts.reading.on == true and cur.printout.con_colors == true);
 check('and the aggro part, on, on its own line, with its settings', cur.printout.parts.aggro.on == true
     and cur.printout.parts.aggro.label == 'Aggro' and cur.printout.parts.aggro.new_line == true
-    and cur.aggro.threat_colors == true and cur.aggro.detection == true and cur.aggro.link_names == true
-    and cur.aggro.max_links == 5 and cur.aggro.link_how == true and cur.colors.aggro_threat == 76
+    and cur.aggro.threat_colors == true and cur.aggro.detection == true and cur.colors.aggro_threat == 76
     and cur.colors.aggro_safe == 2);
+check('and the links part, on, with no label and no New line, with its settings and colors',
+    cur.printout.parts.links.on == true and cur.printout.parts.links.label == ''
+    and cur.printout.parts.links.new_line == false and cur.links.link_names == true and cur.links.max_links == 5
+    and cur.links.link_how == true and cur.colors.links_label == 106 and cur.colors.links_words == 106
+    and cur.colors.links_detail == 106 and cur.aggro.link_names == nil and cur.aggro.max_links == nil
+    and cur.aggro.link_how == nil);
 check('and the pet part, off, on its own line, with its settings', cur.printout.parts.pet.on == false
     and cur.printout.parts.pet.label == 'Pet' and cur.printout.parts.pet.new_line == true and cur.pet.show_name == true
     and cur.pet.show_level == true and cur.pet.hit_word == 'Hit' and cur.pet.evade_word == 'Evade'
     and cur.colors.pet_label == 106 and cur.colors.pet_detail == 106);
+check('and the off-hand and ranged parts, off, with Show it outside the sweet spot too off', cur.printout.parts.offhand.on
+    == false and cur.printout.parts.offhand.label == 'Off-hand' and cur.printout.parts.offhand.new_line == false
+    and cur.printout.parts.ranged.on == false and cur.printout.parts.ranged.label == 'Ranged'
+    and cur.printout.parts.ranged.new_line == false and cur.ranged.show_far == false and cur.colors.offhand_label == 106
+    and cur.colors.ranged_detail == 106);
 -- Ashita's merge gives the file the defaults' own tables for anything it lacks. Changing those
 -- tables must not touch the defaults that a reset or another character starts from.
 MOCK.command('/checkmate maxlinks 1');
+MOCK.command('/checkmate detection off');
 MOCK.command('/checkmate hide aggro');
-check('the merged aggro tables are the file\'s own', MOCK.settings.defaults.aggro.max_links == 5
-    and MOCK.settings.defaults.printout.parts.aggro.on == true and next(MOCK.settings.defaults.look.imgui) == nil);
+MOCK.command('/checkmate hide links');
+check('the merged aggro and links tables are the file\'s own', MOCK.settings.defaults.links.max_links == 5
+    and MOCK.settings.defaults.aggro.detection == true and MOCK.settings.defaults.printout.parts.aggro.on == true
+    and MOCK.settings.defaults.printout.parts.links.on == true and next(MOCK.settings.defaults.look.imgui) == nil);
 MOCK.command('/checkmate maxlinks 5');
+MOCK.command('/checkmate detection on');
 MOCK.command('/checkmate show aggro');
+MOCK.command('/checkmate show links');
 check('saved values survive the merge', cur.printout.header == false and cur.printout.parts.hit.on == true
     and cur.printout.parts.hit.label == 'Hit');
 check('a file without the setting gets the extras on their own line', cur.printout.extras_own_line == true);
@@ -1081,7 +1439,8 @@ addon.path = FIXTURES_PATH;
 MOCK.zone_in(900);
 MOCK.entities[1] = { Name = 'Fixture Goblin' };
 cur.printout.parts.hit.on = false;
-cur.printout.parts.immunities.on = true;
+cur.printout.parts.weaknesses.on = true;
+cur.weaknesses.chat = { elements = false, weapons = false, immunities = true, charm = false };
 cur.printout.parts.drops.on = true;
 MOCK.items[4104] = { Name = { 'Fire Crystal' } };
 local n = #MOCK.printed;
@@ -1091,16 +1450,16 @@ lines = MOCK.printed_since(n);
 check('header off prints no [checkmate]', #lines == 4 and lines[1] == 'Fixture Goblin (Lv 39)  Even Match',
     table.concat(lines, ' / '));
 check('one print per line', lines[2] == 'Drops (TH 0): Item 4105 100%, Fire Crystal 16%'
-    and lines[3] == 'Aggro: Not aggressive  Doesn\'t link' and lines[4] == 'Immune: Bind, Paralyze', table.concat(lines, ' / '));
+    and lines[3] == 'Aggro: Not aggressive  Doesn\'t link' and lines[4] == 'Weaknesses: Immune: Bind, Paralyze', table.concat(lines, ' / '));
 cur.printout.header = true;
 n = #MOCK.printed;
 MOCK.packet(MOCK.check_packet(1, 39, 4, 174));
 MOCK.frame();
 check('header on starts every line with [checkmate]', #MOCK.printed_since(n) == 4
-    and MOCK.printed_since(n)[4]:find('^%[checkmate%] Immune') ~= nil);
+    and MOCK.printed_since(n)[4]:find('^%[checkmate%] Weaknesses: Immune') ~= nil);
 
 -- Every con and every evasion and defense reading from a real /check reply.
-cur.printout.parts.immunities.on = false;
+cur.printout.parts.weaknesses.on = false;
 cur.printout.parts.drops.on = false;
 MOCK.entities[400] = { Name = 'Fixture NM' };
 local function check_line(index, level, con, message)

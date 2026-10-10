@@ -4,6 +4,7 @@ Reads the skill caps, skill ranks, job grades, job traits and enums the monster 
 The SQL dumps get the UPDATE lines of every SQL module in modules/init.txt applied first, because dbtool runs
 those on the live database.
 """
+from pathlib import Path
 import glob
 import os
 import re
@@ -22,7 +23,7 @@ UPDATED_TABLES = ('traits', 'skill_ranks')
 
 # Tables no module may change without the exporter learning about it.
 GUARDED_TABLES = ('skill_caps', 'mob_pools', 'mob_groups', 'mob_spawn_points', 'instance_entities',
-                  'instance_list', 'mob_droplist', 'pet_list')
+                  'instance_list', 'mob_droplist', 'pet_list', 'fishing_mob')
 
 # Module SQL the exporter knows is safe to skip, with why.
 KNOWN_SQL = {
@@ -40,7 +41,7 @@ def read_enum(tree, name):
 
 def lua_enum(path, table):
     """The NAME = number entries of a Lua enum table."""
-    text = open(path, encoding='utf-8').read()
+    text = Path(path).read_text(encoding='utf-8')
     body = text[text.index(table + ' ='):]
     body = body[:body.index('\n}')]
     return {name: int(value) for name, value in re.findall(r'^\s*(\w+)\s*=\s*(\d+)', body, re.M)}
@@ -48,7 +49,7 @@ def lua_enum(path, table):
 
 def lua_true_set(path, table):
     """The names in a local Lua table of [xi.trait.NAME] = true entries."""
-    text = open(path, encoding='utf-8').read()
+    text = Path(path).read_text(encoding='utf-8')
     body = text[text.index('local %s =' % table):]
     body = body[:body.index('\n}')]
     return set(re.findall(r'\[xi\.trait\.(\w+)\s*\]\s*=\s*true', body))
@@ -78,34 +79,40 @@ def parse_pairs(text, where):
     return pairs
 
 
-def apply_module_sql(tree, sql_tables):
-    """Applies simple UPDATE lines on traits and skill_ranks. Fails on anything touching a guarded table."""
+def module_statements(tree):
+    """
+    (module file, table, statement) for each statement in the SQL modules init.txt loads that changes a table, with
+    the comments taken out and the spaces run together.
+    """
     for path in module_sql_files(tree):
         rel = os.path.relpath(path, os.path.join(tree, 'modules')).replace('\\', '/')
-        allowed = KNOWN_SQL.get(rel, set())
-        text = open(path, encoding='utf-8-sig', errors='replace').read()
+        text = Path(path).read_text(encoding='utf-8-sig', errors='replace')
         text = re.sub(r'/\*.*?\*/', '', text, flags=re.S)
         text = re.sub(r'--[^\n]*', '', text)
         for statement in text.split(';'):
             statement = ' '.join(statement.split())
             target = re.match(r'(?:UPDATE|INSERT INTO|REPLACE INTO|DELETE FROM)\s+`?(\w+)`?', statement, re.I)
-            if target is None:
-                continue
-            table = target.group(1)
-            if table in GUARDED_TABLES and table not in allowed:
-                raise RuntimeError('%s changes %s, which the exporter reads. Teach it this change.' % (rel, table))
-            if table == 'item_basic' and re.search(r'\bSET\b.*`?\bname`?\s*=', statement, re.I):
-                raise RuntimeError('%s renames items, which the exporter reads by name.' % rel)
-            if table not in UPDATED_TABLES:
-                continue
-            update = re.fullmatch(r'UPDATE\s+`?\w+`?\s+SET\s+(.*?)\s+WHERE\s+(.*)', statement, re.I)
-            if update is None:
-                raise RuntimeError('%s: the exporter can\'t read "%s"' % (rel, statement))
-            changes = parse_pairs(update.group(1), rel)
-            where = parse_pairs(update.group(2), rel)
-            for row in sql_tables[table]:
-                if all(row.get(key) == value for key, value in where.items()):
-                    row.update(changes)
+            if target is not None:
+                yield rel, target.group(1), statement
+
+
+def apply_module_sql(tree, sql_tables):
+    """Applies simple UPDATE lines on traits and skill_ranks. Fails on anything touching a guarded table."""
+    for rel, table, statement in module_statements(tree):
+        if table in GUARDED_TABLES and table not in KNOWN_SQL.get(rel, set()):
+            raise RuntimeError('%s changes %s, which the exporter reads. Teach it this change.' % (rel, table))
+        if table == 'item_basic' and re.search(r'\bSET\b.*`?\bname`?\s*=', statement, re.I):
+            raise RuntimeError('%s renames items, which the exporter reads by name.' % rel)
+        if table not in UPDATED_TABLES:
+            continue
+        update = re.fullmatch(r'UPDATE\s+`?\w+`?\s+SET\s+(.*?)\s+WHERE\s+(.*)', statement, re.I)
+        if update is None:
+            raise RuntimeError('%s: the exporter can\'t read "%s"' % (rel, statement))
+        changes = parse_pairs(update.group(1), rel)
+        where = parse_pairs(update.group(2), rel)
+        for row in sql_tables[table]:
+            if all(row.get(key) == value for key, value in where.items()):
+                row.update(changes)
 
 
 class Tables:

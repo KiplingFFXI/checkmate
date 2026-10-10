@@ -1,9 +1,10 @@
 """
 A port of the server's monster stat math at spawn. It covers mobutils::CalculateMobStats, battleutils::AddTraits
-and CBattleEntity ACC(), EVA(), AGI(), INT(), MND() and CHR().
+and CBattleEntity ACC(), EVA(), DEF() and the stats they use.
 
 The server does its float math in single precision, so the float steps here round to float32 the same way.
 """
+from pathlib import Path
 import math
 import os
 import re
@@ -34,8 +35,8 @@ BASE_SKILL = {1: (SKILL_GREAT_AXE, 'war'), 2: (SKILL_STAFF, 'war'), 3: (SKILL_EV
 # JobSkillRankToBaseEvaRank, the best evasion skill rank of the two jobs to a base evasion rank. Any other rank is 3.
 EVA_RANK = {1: 1, 2: 1, 3: 2, 4: 2, 5: 2, 6: 3, 7: 3, 8: 3, 9: 4, 10: 5}
 
-# The stats the spawn math works out. DEX feeds accuracy and the rest go in the data files.
-STATS = ['dex', 'agi', 'int', 'mnd', 'chr']
+# The stats the spawn math works out. DEX feeds accuracy; VIT feeds Defense without adding a separate output field.
+STATS = ['dex', 'agi', 'int', 'mnd', 'chr', 'vit']
 
 
 def f32(x):
@@ -152,7 +153,7 @@ def add_traits(tables, traits, job, level, beastmen):
 
 def load_subjob_zones(tree, zone_ids):
     """The zone names in mobutils.cpp CheckSubJobZone, as data/enums/zone.yaml keys."""
-    source = open(os.path.join(tree, 'src', 'map', 'utils', 'mobutils.cpp'), encoding='utf-8').read()
+    source = Path(os.path.join(tree, 'src', 'map', 'utils', 'mobutils.cpp')).read_text(encoding='utf-8')
     body = source[source.index('bool CheckSubJobZone'):]
     body = body[:body.index('return false;')]
     by_plain = {re.sub(r'[^a-z0-9]', '', name): name for name in zone_ids}
@@ -199,7 +200,7 @@ class Monster:
 def at_level(tables, monster, level):
     """
     The monster's numbers at one level, after its spawn. Returns (numbers, mods) where numbers has acc, eva,
-    agi, int, mnd and chr, and mods holds every mod as the server has it once onMobSpawn has run.
+    agi, int, mnd, chr, dex and def, and mods holds every mod as the server has it once onMobSpawn has run.
     """
     mjob, sjob = monster.jobs
     stats = {}
@@ -215,6 +216,7 @@ def at_level(tables, monster, level):
         stats[stat] = u16(fmul(float(u16(family + main + sub)), monster.multiplier))
 
     mods = dict(monster.saved_mods)
+    mods['def'] = mods.get('def', 0) + base_def_eva(level, monster.stat_ranks['def'])
     mods['eva'] = mods.get('eva', 0) + base_def_eva(level, evasion_rank(tables, mjob, sjob))
     mods['acc'] = mods.get('acc', 0) + base_skill(tables, monster.stat_ranks['acc'], level)
     mods['meva'] = mods.get('meva', 0) + tables.cap_by_rank(MEVA_RANK_COLUMN, min(level, 99))
@@ -231,5 +233,18 @@ def at_level(tables, monster, level):
     eva += int(math.floor(fdiv(fmul(float(eva), float(mods.get('eva_percent', 0))), 100.0)))
     eva = max(1, min(65535, eva))
     numbers = {'acc': acc, 'eva': eva, 'agi': final['agi'], 'int': final['int'], 'mnd': final['mnd'],
-               'chr': final['chr']}
+               'chr': final['chr'], 'dex': final['dex'], 'def': defense(final['vit'], mods)}
     return numbers, mods
+
+
+def signed16(value):
+    return (int(value) + 32768) % 65536 - 32768
+
+
+def defense(vit, mods):
+    """CBattleEntity::DEF for an unbuffed monster, including C++ integer conversions."""
+    base = 8 + vit // 2 + mods.get('def', 0)
+    percent = math.trunc(base * mods.get('defp', 0) / 100)
+    food = min(signed16(math.trunc(base * mods.get('food_defp', 0) / 100)),
+               signed16(mods.get('food_def_cap', 0)))
+    return u16(max(1, base + percent + food))

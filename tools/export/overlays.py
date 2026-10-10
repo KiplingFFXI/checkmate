@@ -31,10 +31,11 @@ def merge_patch(target, patch):
 
 def init_entries(tree):
     entries = []
-    for line in open(os.path.join(tree, 'modules', 'init.txt'), encoding='utf-8'):
-        entry = line.strip()
-        if entry and not entry.startswith('#'):
-            entries.append(entry.rstrip('/'))
+    with open(os.path.join(tree, 'modules', 'init.txt'), encoding='utf-8') as source_file:
+        for line in source_file:
+            entry = line.strip()
+            if entry and not entry.startswith('#'):
+                entries.append(entry.rstrip('/'))
     return entries
 
 
@@ -64,7 +65,11 @@ def overlay_files(roots, name):
 
 def load_merged(tree, roots, name):
     """The base data/<name>.yaml with every overlay merged over it."""
-    document = load_yaml(os.path.join(tree, 'data', name + '.yaml')) or {}
+    return merge_overlays(load_yaml(os.path.join(tree, 'data', name + '.yaml')) or {}, roots, name)
+
+
+def merge_overlays(document, roots, name):
+    """Every overlay for name merged over document. document itself stays as it was."""
     for path in overlay_files(roots, name):
         patch = load_yaml(path) or {}
         for key, value in patch.items():

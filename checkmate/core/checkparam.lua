@@ -1,30 +1,28 @@
 --[[
-    The automatic /checkparam requests behind hit rate, evade and the pet part.
+    Hit, off-hand, ranged, evade and pDIF use /checkparam <me>. Pet uses /checkparam <pet> after it.
+    Requests wait 1.5 seconds after other checks because the game ignores them when sent too soon.
+    A reply that arrives before our request is reused.
 
-    Hit rate and evade need your current accuracy and evasion, so checkmate sends /checkparam <me>. The
-    pet part needs your pet's, so it sends /checkparam <pet> after that. The game ignores one of these
-    sent right after another /check or /checkparam, so each goes a second and a half after the last one
-    that went out, yours, checkmate's or another addon's, or the last reply that came back to one
-    checkmate didn't send. The reply lines to checkmate's own requests are hidden, six about you and five
-    about your pet. Each request waits 3 seconds for its last line. A /checkparam you type yourself still
-    shows in chat. When a reply comes in before checkmate sends its own, like the one advcheck asks for
-    0.99 s after a /check, checkmate uses it and sends nothing. advcheck hides that one itself.
+    Only replies to our own requests are hidden: six lines for you and five for your pet.
+    Each request waits three seconds for its last line. A checkparam you type still prints.
 ]]
 
 local checkparam = {};
 
 -- Seconds from the last /check or /checkparam to the send. The game ignores a /checkparam sent right
--- after a /check and takes one sent a second later. The extra half second lets advcheck's go first when
--- it's loaded.
+-- after a /check. Keep this gap so other pending requests can finish too.
 local SEND_DELAY = 1.5;
 
 -- How long to wait for the reply after sending, before printing without it.
 local REPLY_TIMEOUT = 3.0;
 
 -- The /checkparam reply lines. About you there are six. About your pet there are five, with no 731.
--- 712 carries the main hand accuracy and 715, always the last one, the evasion.
+-- 712 carries main-hand accuracy and Attack, 713 the off-hand's, 714 the ranged values and 715, always
+-- the last one, the evasion. The pet's 713 and 714 go by your gear, so only yours are kept.
 local REPLY_LINES = { [733] = true, [731] = true, [712] = true, [713] = true, [714] = true, [715] = true };
 local ACCURACY  = 712;
+local OFFHAND   = 713;
+local RANGED    = 714;
 local EVASION   = 715;
 local LAST_LINE = 715;
 
@@ -33,9 +31,11 @@ local ORDER = { 'me', 'pet' };
 checkparam.COMMANDS = { me = '/checkparam <me>', pet = '/checkparam <pet>' };
 
 -- Each request holds the /check waiting on it, whether it's due, when its reply is overdue once it's sent,
--- the server id its reply is about, and the accuracy and evasion that reply gave.
+-- the server id its reply is about, and the accuracy, evasion and Attack values it supplied.
 local function blank()
-    return { pending = nil, due = false, wait_until = nil, about = nil, accuracy = nil, evasion = nil };
+    return { pending = nil, due = false, wait_until = nil, about = nil, accuracy = nil, evasion = nil, offhand = nil,
+        ranged = nil, attack = nil, offhand_attack = nil, ranged_attack = nil, pdif_expected = nil,
+        parameter_expected = nil, received_at = nil };
 end
 local requests = { me = blank(), pet = blank() };
 
@@ -89,7 +89,11 @@ function checkparam.ask(kind, check, about)
         return replaced, false;
     end
     r.pending, r.about, r.due = check, about, true;
-    r.accuracy, r.evasion = nil, nil;
+    r.pdif_expected = check.pdif_expected;
+    r.parameter_expected = check.parameter_expected;
+    r.accuracy, r.evasion, r.offhand, r.ranged = nil, nil, nil, nil;
+    r.attack, r.offhand_attack, r.ranged_attack = nil, nil, nil;
+    r.received_at = nil;
     return replaced, true;
 end
 
@@ -140,7 +144,7 @@ end
     checkmate's own requests are hidden. A reply nothing waits on still moves the time the next request
     waits from.
 ]]
-function checkparam.on_reply(now, message, value, about)
+function checkparam.on_reply(now, message, value, about, attack)
     local found;
     for _, kind in ipairs(ORDER) do
         local r = requests[kind];
@@ -155,10 +159,18 @@ function checkparam.on_reply(now, message, value, about)
     end
 
     local r = requests[found];
+    if (message == ACCURACY or message == EVASION or message == OFFHAND or message == RANGED) then
+        r.received_at = now;
+    end
     if (message == ACCURACY) then
         r.accuracy = value;
+        if (found == 'me') then r.attack = attack; end
     elseif (message == EVASION) then
         r.evasion = value;
+    elseif (found == 'me' and message == OFFHAND) then
+        r.offhand, r.offhand_attack = value, attack;
+    elseif (found == 'me' and message == RANGED) then
+        r.ranged, r.ranged_attack = value, attack;
     end
 
     local ours = r.wait_until ~= nil;
@@ -171,10 +183,13 @@ function checkparam.on_reply(now, message, value, about)
     return ours, finish(r), found;
 end
 
--- The accuracy and evasion from request `kind`'s reply, nil for any that didn't come back.
+-- The reply's accuracy and evasion, off-hand and ranged accuracy, then the three player Attack values.
+-- Then come the inputs captured for this request and the last stat reply's time.
+-- Missing fields stay nil. Pet replies never supply player Attack.
 function checkparam.values(kind)
     local r = requests[kind];
-    return r.accuracy, r.evasion;
+    return r.accuracy, r.evasion, r.offhand, r.ranged, r.attack, r.offhand_attack, r.ranged_attack,
+        r.pdif_expected, r.parameter_expected, r.received_at;
 end
 
 -- Clears everything when you zone. Returns every /check that was waiting, once each.

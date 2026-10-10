@@ -1,5 +1,6 @@
 -- Tests the math on its own against the worked examples below. It covers hit rate rounding,
--- crit steps, magic examples A, B and C, and the Treasure Hunter examples at TH 0, 2 and 4.
+-- crit steps, off-hand and ranged with the Lv75 RNG and Lv30 NIN examples, magic examples A, B
+-- and C, and the Treasure Hunter examples at TH 0, 2 and 4.
 local physical = require('core.physical');
 local magic    = require('core.magic');
 local drops    = require('core.drops');
@@ -38,6 +39,76 @@ expect('high evasion at an even level is 20-59%', check_range(99, 99, 0), '20-59
 expect('normal evasion at an even level is 60-79%', check_range(99, 99, 1), '60-79');
 expect('normal evasion 1 level over is 57-77%', check_range(98, 99, 1), '57-77');
 expect('low evasion 11 levels over is 57-95%', check_range(88, 99, 2), '57-95');
+
+-- Ranged hit rate goes as low as 5% and caps at 95% like the rest. At 25 yalms you lose half your level in
+-- ranged accuracy, rounded down.
+check('ranged hit rate floors at 5%', physical.hit_percent(180, 300, 0.05) == 15 and physical.hit_percent(180, 300) == 20
+    and physical.hit_percent(0, 300, 0.05) == 5);
+check('and caps at 95%', physical.hit_percent(400, 300, 0.05) == 95);
+
+-- The /check reading is about your main hand, so another accuracy moves its range by how far that accuracy is from
+-- your main hand's.
+local function check_ranged(reading, offset)
+    local me_ = { level = 99, accuracy = 300, ranged_accuracy = 300 + offset, buffs = {}, zone = 100, dex = 50 };
+    local ranged = physical.readout(me_, { low = 99, high = 99, reading = reading, con = 4 }).ranged;
+    return ranged and (ranged.low .. '-' .. ranged.high);
+end
+expect('ranged at high evasion goes down to 5%', check_ranged(0, 0), '5-59');
+expect('20 more accuracy than your main hand moves it up 10%', check_ranged(0, 20), '5-69');
+expect('normal evasion moves the same way', check_ranged(1, 20), '70-89');
+expect('and low evasion with 30 less', check_ranged(2, -30), '65-95');
+local me_off = { level = 99, accuracy = 300, offhand_accuracy = 270, buffs = {}, zone = 100, dex = 50 };
+local offhand = physical.readout(me_off, { low = 99, high = 99, reading = 0, con = 4 }).offhand;
+expect('off-hand at high evasion still goes down to 20%', offhand and (offhand.low .. '-' .. offhand.high), '20-44');
+
+-- The worked examples, with each monster's own row.
+local function zone_row(zone, name, level)
+    for _, row in ipairs(dofile(('%s/data/zones/%d.lua'):format(ADDON_DIR, zone)).monsters) do
+        if (row.name == name and row.levels and row.levels[level]) then return row; end
+    end
+end
+local function numbers(me_, mob)
+    local out = physical.readout(me_, mob);
+    local text = {};
+    for _, key in ipairs({ 'hit', 'offhand', 'ranged', 'ranged_far', 'evade', 'crit' }) do
+        local range = out[key];
+        text[#text + 1] = key .. ' ' .. (range and (range.low == range.high and range.low or (range.low .. '-' .. range.high))
+            or 'none');
+    end
+    return table.concat(text, ', ');
+end
+
+-- A Lv75 RNG with a longbow and arrows and nothing in the sub slot, against a Lv78 Greater Manticore in Cape
+-- Teriggan (evasion 314, accuracy 329, AGI 77), with 290 main hand accuracy, 310 ranged accuracy, 280 evasion and
+-- 60 DEX. Three levels over costs 12 accuracy, so the shot is 298 against 314, 67%, and 261 at 25 yalms, 48%.
+local rng = { level = 75, accuracy = 290, ranged_accuracy = 310, evasion = 280, dex = 60, buffs = {}, zone = 113 };
+local manticore = { row = zone_row(113, 'Greater Manticore', 78), low = 78, high = 78, con = 6, reading = 1 };
+expect('a Lv75 RNG against a Greater Manticore', numbers(rng, manticore),
+    'hit 56, offhand none, ranged 67, ranged_far 48, evade 5, crit 5');
+
+-- A Lv30 NIN with a katana and a dagger and shuriken, against a Lv33 Goblin Swordmaker in Valkurm Dunes (evasion
+-- 112, accuracy 121, AGI 36), with 112 main hand, 98 off-hand and 100 ranged accuracy, 105 evasion and 30 DEX.
+local nin = { level = 30, accuracy = 112, offhand_accuracy = 98, ranged_accuracy = 100, evasion = 105, dex = 30, buffs = {},
+    zone = 103 };
+local swordmaker = { row = zone_row(103, 'Goblin Swordmaker', 33), low = 33, high = 33, con = 5, reading = 1 };
+expect('a Lv30 NIN against a Goblin Swordmaker', numbers(nin, swordmaker),
+    'hit 69, offhand 62, ranged 63, ranged_far 55, evade 11, crit 5');
+
+-- The same NIN against a Lv33 monster with no row that checks as normal evasion. The typical evasion at 33 is 104
+-- to 113, and the /check range moves with each accuracy.
+expect('and against a Lv33 monster with no row', numbers(nin, { low = 33, high = 33, con = 5, reading = 1 }),
+    'hit 68-73, offhand 61-66, ranged 62-67, ranged_far 55-59, evade 10-12, crit 5');
+
+-- At 25 yalms it's half your level rounded down. 301 against 300 at Lv31 is 75%, and less 15 it's 68%. Less 16 would
+-- be 67%.
+local odd = { level = 31, accuracy = 301, ranged_accuracy = 301, buffs = {}, zone = 100, dex = 50 };
+local level_31 = { row = { levels = { [31] = { acc = 100, eva = 300, agi = 30 } } }, low = 31, high = 31, con = 4,
+    reading = 1 };
+local far = physical.readout(odd, level_31);
+check('half an odd level rounds down', far.ranged.low == 75 and far.ranged_far.low == 68, far.ranged_far.low);
+odd.ranged_accuracy = 170;
+far = physical.readout(odd, level_31);
+check('and 25 yalms goes down to 5% too', far.ranged.low == 10 and far.ranged_far.low == 5, far.ranged_far.low);
 
 -- Magic ------------------------------------------------------------------------------------------
 
@@ -87,7 +158,7 @@ local function school(id, spell)
 end
 local function ranks(weak, rank, others)
     local t = {};
-    for name in pairs(spells.ELEMENT_NAMES) do t[name] = others; end
+    for _, name in ipairs(require('core.elements').ORDER) do t[name] = others; end
     t[weak] = rank;
     return t;
 end
@@ -96,12 +167,12 @@ local blm = me(75, { [36] = 276 }, { int = 112, mnd = 50, chr = 50 }, JUPITERS_S
 
 local war75 = { levels = { [75] = { int = 63, mnd = 50, chr = 50 } }, ranks = ranks('thunder', 0, 1) };
 local a = magic.readout(blm, { row = war75, low = 75, high = 75 }, school('elemental', 'tier4'))[1];
-check('example A through the readout', a and a.low == 95 and a.high == 95 and a.element == 'Thunder',
+check('example A through the readout', a and a.low == 95 and a.high == 95 and a.element == 'thunder',
     a and (a.low .. ' ' .. tostring(a.element)));
 
 local lv85 = { levels = { [85] = { int = 71, mnd = 50, chr = 50 } }, ranks = ranks('thunder', 4, 5) };
 local b = magic.readout(blm, { row = lv85, low = 85, high = 85 }, school('elemental', 'tier4'))[1];
-check('example B through the readout', b and b.low == 68 and b.element == 'Thunder', b and (b.low .. ' ' .. tostring(b.element)));
+check('example B through the readout', b and b.low == 68 and b.element == 'thunder', b and (b.low .. ' ' .. tostring(b.element)));
 
 local war_blm = me(75, { [35] = 105 }, { int = 70, mnd = 50, chr = 50 });
 local lv72 = { levels = { [72] = { int = 60, mnd = 50, chr = 50 } }, ranks = {} };
@@ -122,12 +193,12 @@ for _, row in ipairs(dofile(ADDON_DIR .. '/data/zones/207.lua').monsters) do
     if (row.ids and row.ids[1] == 7) then ifrit = row; end
 end
 check('Ifrit Prime absorbs fire, so its tied water rank wins', ifrit and ifrit.name == 'Ifrit Prime'
-    and nuke_element(ifrit, next(ifrit.levels)) == 'Water', ifrit and nuke_element(ifrit, next(ifrit.levels)));
+    and nuke_element(ifrit, next(ifrit.levels)) == 'water', ifrit and nuke_element(ifrit, next(ifrit.levels)));
 local tied = { levels = { [75] = { int = 63 } }, ranks = { fire = -3, water = -3 } };
 tied.nullify = { fire = 50 };
-expect('nullifying it some of the time counts too', nuke_element(tied, 75), 'Water');
+expect('nullifying it some of the time counts too', nuke_element(tied, 75), 'water');
 tied.nullify = { all = 100 };
-expect('with every element nullified it picks as if none were', nuke_element(tied, 75), 'Fire');
+expect('with every element nullified it picks as if none were', nuke_element(tied, 75), 'fire');
 
 -- Drops ------------------------------------------------------------------------------------------
 

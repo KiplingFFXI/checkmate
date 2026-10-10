@@ -1,0 +1,15 @@
+Weapon-type icons from BG Wiki
+
+Source page: https://www.bg-wiki.com/ffxi/Damage_Type
+The images are unchanged original 16x16 PNGs. The source page displays them
+at 19x19. Checkmate uses the four physical type icons.
+
+Slashing.png: https://www.bg-wiki.com/images/a/a1/Slashing.png
+Piercingv2.png: https://www.bg-wiki.com/images/0/06/Piercingv2.png
+Blunt.png: https://www.bg-wiki.com/images/7/7f/Blunt.png
+H2H.png: https://www.bg-wiki.com/images/f/ff/H2H.png
+
+These are third-party images. No asset-specific license or creator
+attribution is established here.
+The addon's GPL notice does not assert a license for these images.
+BG Wiki was used only for the icons, not for Checkmate's damage values.

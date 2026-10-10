@@ -3,7 +3,8 @@
     different things are looked at with normal vision and the way protanopia and deuteranopia see them
     (Machado, Oliveira and Fernandes 2009, full strength). They have to stay at least 15 apart by
     CIEDE2000. About 10 reads as clearly different on a thin bar. Chat text is thinner, so 15 leaves room.
-    Chat colors use the swatches the settings window draws. The game's own shades can differ a little.
+    Chat colors use the swatches the settings window draws. The game's own shades can differ a little. The
+    overlay's eight element badges are held to the same rule.
 ]]
 local skins    = require('ui.skins');
 local defaults = require('ui.defaults');
@@ -168,5 +169,30 @@ for _, pair in ipairs(PAIRS) do
     end
 end
 check('no green', #green == 0, table.concat(green, ', '));
+
+-- The overlay's element badges stay apart from each other too, and none of them is green either.
+local BADGES = { 'badge_fire', 'badge_ice', 'badge_wind', 'badge_earth', 'badge_thunder', 'badge_water', 'badge_light',
+    'badge_dark' };
+local BADGE_PAIRS = {};
+for i = 1, #BADGES do
+    for j = i + 1, #BADGES do
+        BADGE_PAIRS[#BADGE_PAIRS + 1] = { BADGES[i], BADGES[j] };
+    end
+end
+check('28 badge pairs', #BADGE_PAIRS == 28, #BADGE_PAIRS);
+worst, what, how = math.huge, nil, nil;
+for _, pair in ipairs(BADGE_PAIRS) do
+    local apart_now, seen_now = closest(window.SWATCHES[s.colors[pair[1]]], window.SWATCHES[s.colors[pair[2]]]);
+    if (apart_now < worst) then
+        worst, what, how = apart_now, pair[1] .. ' and ' .. pair[2], seen_now;
+    end
+end
+check('every two element badges stay apart', worst >= CLOSEST,
+    ('%s are only %.1f apart with %s'):format(tostring(what), worst, tostring(how)));
+green = {};
+for _, key in ipairs(BADGES) do
+    if (GREENS[s.colors[key]]) then green[#green + 1] = key; end
+end
+check('and no badge is green', #green == 0, table.concat(green, ', '));
 
 return MOCK.report();

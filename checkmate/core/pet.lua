@@ -1,33 +1,10 @@
 --[[
-    Your pet, for the pet part. checkmate looks for it when your own /check comes back, so a pet you call
-    or charm after that doesn't count. Only your own pet ever does, and never a summoner's avatar or spirit.
+    Keeps the pet seen when your /check comes back. Avatars and spirits have no Pet readout.
+    Jugs, wyverns and automatons use /checkparam <pet>. Charmed monsters use their own monster data.
 
-    A jug pet, a wyvern and an automaton get their accuracy and evasion from /checkparam <pet>. A charmed
-    monster keeps its own, so checkmate takes them from its monster data. No packet carries a pet's level,
-    so checkmate works it out the way the server does (petutils.cpp):
-    - a wyvern is at your main level when it came out. Leveling up doesn't change it, but a level sync or
-      level cap starting or ending that moves your main level sets it again at the new one,
-    - an automaton is at your main level with PUP main, or your support level with PUP support, and it
-      follows you when you level up,
-    - a jug pet is its highest level less 0 to 2, picked at random when you call it, or less 0 to 1 with
-      Monster Gloves on then and you at their level. Its highest level is the jug's own top level plus 2 for
-      each Beast Affinity merit, but never above your main level when you called it, or now if a sync holds
-      you lower. A level sync or level cap starting or ending that moves your main level picks it again with
-      the gear you have on then,
-    - a charmed monster is at its own level, from your /check or widescan of it in this zone, unless it died
-      near you after that, or else the levels it spawns at.
-    So once you've leveled up with a wyvern out, it could be anywhere from your level when it came out to
-    your level now. DRG main with PUP support can have either pet, and nothing checkmate reads tells them
-    apart, so that pet is anywhere from your support level to your main level.
-
-    A level sync's level moves when the sync target levels up or down. That moves your level but not your
-    pet's, so while a sync holds you, checkmate goes by your levels when it first saw the sync with your pet
-    out, at a pet update or a /check. A sync that ends with you already back at your own level doesn't move
-    you, so your pet stays where the sync put it, and checkmate keeps going by those levels until a sync or
-    level cap moves your main level. Only an automaton still follows a level-up of your own, so it's
-    anywhere from its level then to the highest level you've been at since. A sync or level cap ending can
-    send your new level a moment before it takes its buff off, so the buff going within a few seconds of
-    checkmate seeing your level go up under it counts as it ending too.
+    Pet levels are inferred from jobs, summon inputs and observed level changes. A jug's later rolls
+    cannot exceed its original rolled level. A pet already out when the addon loads has unknown
+    summon inputs, so its level range stays wide. README explains the sync and level-cap cases.
 ]]
 
 local monsters = require('core.monsters');
@@ -64,6 +41,8 @@ local affinity = nil;
 -- is when checkmate last saw your main level go up under one and your level before it, with `ended` set once
 -- its buff went within SYNC_END seconds of that. came_out is nil with no pet, or before checkmate has seen one.
 local came_out = nil;
+local generation = 0;
+local lost_index = nil;
 
 -- The merit list counted your Beast Affinity merits.
 function pet.on_affinity(count)
@@ -73,7 +52,16 @@ end
 -- Zoning. The next zone's merit list says Beast Affinity again, and its pet update says when your pet
 -- comes back.
 function pet.forget()
-    affinity, came_out = nil, nil;
+    affinity, came_out, lost_index = nil, nil, nil;
+    generation = generation + 1;
+end
+
+-- A returning pet at the same index no longer has known summon inputs.
+function pet.on_disappear(index)
+    if (came_out ~= nil and came_out.index == index) then
+        came_out, lost_index = nil, index;
+        generation = generation + 1;
+    end
 end
 
 -- What the gear you have on takes off how far under its highest level a jug pet can be. Gear only counts at
@@ -94,13 +82,19 @@ end
 -- level again with the gear you have on then, so the gear from when it came out stops counting. A sync's
 -- level moving under you never sets it again. Under a level sync, your levels when checkmate first sees it
 -- stand in for your levels now, and they still count after a sync that ends without moving you.
-local function watch(index, main_level, sub_level)
+local function watch(index, main_level, sub_level, observed, main)
+    local synced, capped = player.synced();
     -- Your pet at entity index `index` just came out, or checkmate is seeing it for the first time.
     if (came_out == nil or came_out.index ~= index) then
-        came_out = { index = index, level = main_level, wyvern = main_level, cut = range_cut(main_level) };
+        generation = generation + 1;
+        local cut = observed and range_cut(main_level) or 0;
+        came_out = { index = index, wyvern = main_level,
+            cut = cut, affinity = observed and affinity or nil, unknown = not observed,
+            spawn = { level = main_level, main = main, cut = cut, affinity = observed and affinity or nil,
+                known = observed == true, held = not observed and (synced or capped) } };
     end
-    local synced, capped = player.synced();
     local held, last, now = synced or capped, came_out.last or main_level, os.clock();
+    if (came_out.unknown and held) then came_out.unknown_held = true; end
     -- Your level going up under a sync or level cap, with its buff gone right after, was it ending.
     local rose = came_out.rose;
     if (rose ~= nil and not held) then
@@ -110,7 +104,10 @@ local function watch(index, main_level, sub_level)
         came_out.rose = nil;
     end
     if (main_level ~= last and (held ~= came_out.held or (not synced and main_level < last))) then
-        came_out.sync, came_out.cut = nil, 0;
+        generation = generation + 1;
+        came_out.sync, came_out.cut, came_out.affinity = nil, 0, affinity;
+        if (came_out.unknown) then came_out.wyvern = main_level; end
+        came_out.unknown, came_out.unknown_held = false, false;
         -- A sync or level cap ending is the only thing here that moves you up, and it sets a wyvern at your
         -- level now.
         if (main_level > last) then
@@ -148,18 +145,28 @@ end
 -- changes, so the first one with a new pet is when it came out. Every one looks for a level sync too.
 function pet.on_sync(index)
     if (index == 0) then
-        came_out = nil;
+        came_out, lost_index = nil, nil;
+        generation = generation + 1;
         return;
     end
-    local _, main_level, _, sub_level = player.jobs();
-    watch(index, main_level, sub_level);
+    if (index ~= lost_index) then lost_index = nil; end
+    local main, main_level, _, sub_level = player.jobs();
+    watch(index, main_level, sub_level, lost_index == nil, main);
 end
 
--- A jug pet's levels as low, high. `level` is the lower of your main level when it came out and now, with
--- the level checkmate first saw a level sync at standing in for now while it counts, and `cut` what your
--- gear took off its range.
-local function jug_levels(top, main, level, cut)
-    local fewest, most = affinity or 0, affinity or pets.beast_affinity.most;
+-- A pet already out when the addon loads has no observed summon gear or merit rank.
+function pet.on_load()
+    pet.forget();
+    local found = player.pet();
+    if (found ~= nil) then
+        local main, main_level, _, sub_level = player.jobs();
+        watch(found.index, main_level, sub_level, false, main);
+    end
+end
+
+-- One jug roll at `level`, with the gear reduction and merit rank observed for that roll.
+local function jug_roll(top, main, level, cut, rank)
+    local fewest, most = rank or 0, rank or pets.beast_affinity.most;
     if (main ~= BST or level < AFFINITY_LEVEL) then
         fewest, most = 0, 0;
     end
@@ -167,6 +174,19 @@ local function jug_levels(top, main, level, cut)
     local low_top  = math.min(top + per * fewest, level);
     local high_top = math.min(top + per * most, level);
     return math.max(1, low_top - (MOST_BELOW - cut)), high_top;
+end
+
+-- Recalculating a jug rolls again, but petutils.cpp caps it at its original rolled spawn level.
+local function jug_levels(top, main, level)
+    local spawn = came_out.spawn;
+    if (spawn.low == nil) then
+        spawn.low, spawn.high = jug_roll(top, spawn.main, spawn.held and 75 or spawn.level,
+            spawn.cut, spawn.affinity);
+        if (not spawn.known) then spawn.low = 1; end
+    end
+    if (came_out.unknown_held) then return spawn.low, spawn.high; end
+    local low, high = jug_roll(top, main, level, came_out.cut, came_out.affinity);
+    return math.min(spawn.low, low), math.min(spawn.high, high);
 end
 
 --[[
@@ -186,17 +206,15 @@ function pet.find(target)
     if ((main == SMN or sub == SMN) and pets.avatars[found.name]) then
         return nil;
     end
-    watch(found.index, main_level, sub_level);
+    watch(found.index, main_level, sub_level, false, main);
     -- Your levels, or the ones checkmate first saw a level sync at while those still count.
     local levels = came_out.sync or { main = main_level, sub = sub_level };
-    -- A jug pet keeps its level from when it came out, unless a level sync moved it since.
-    local lowest = math.min(came_out.level, levels.main);
     local beast = main == BST or sub == BST;
     local row = beast and monsters.find(player.zone(), found.id, found.name) or nil;
     local top = pets.jugs[found.name];
     if (beast and top ~= nil) then
         found.kind = 'jug';
-        found.low, found.high = jug_levels(top, main, lowest, came_out.cut);
+        found.low, found.high = jug_levels(top, main, levels.main);
     elseif (beast and (monsters.placed(found.id) or row ~= nil)) then
         found.kind, found.row = 'charmed', row;
         found.low, found.high = monsters.pet_level(row, found.index);
@@ -218,7 +236,20 @@ function pet.find(target)
     else
         return nil;
     end
+    if (found.kind == 'jug') then
+        found.summon_known = came_out.spawn.known;
+    elseif (came_out.unknown and found.kind ~= 'charmed') then
+        found.summon_known = false;
+        if (found.kind ~= 'automaton' or came_out.unknown_held) then found.low = 1; end
+        if (came_out.unknown_held) then
+            local highest = (found.kind == 'automaton' and main ~= PUP) and 37 or 75;
+            found.high = math.max(found.high or 1, highest);
+        end
+    else
+        found.summon_known = true;
+    end
     found.asks = found.kind ~= 'charmed';
+    found.generation = generation;
     return found;
 end
 

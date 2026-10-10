@@ -1,4 +1,5 @@
 """Reads the one-row INSERT lines of a Phoenix SQL dump into dicts keyed by column name."""
+from pathlib import Path
 import re
 
 
@@ -55,7 +56,7 @@ def columns(text, table):
 
 def rows(path, table):
     """Every live row of the table. Commented-out INSERT lines are skipped."""
-    text = open(path, encoding='utf-8', errors='replace').read()
+    text = Path(path).read_text(encoding='utf-8', errors='replace')
     names = columns(text, table)
     pattern = re.compile(r'^INSERT INTO `%s` VALUES \((.*)\);' % re.escape(table))
     out = []

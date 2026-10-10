@@ -1,0 +1,41 @@
+-- A late reply must not replace a newer check or restore a vanished monster.
+local details = require('core.check_details');
+local first, second = { index = 1 }, { index = 2 };
+details.begin(first);
+details.save(first, { name = 'First', provenance = { checked_at = 10 } });
+expect('manual check has a snapshot label', details.current().provenance.chat_snapshot, true);
+details.begin(second);
+expect('new check stops showing the older result immediately', details.current(), nil);
+details.save(first, { name = 'Late first reply' });
+expect('late older reply cannot replace the current result', details.current(), nil);
+details.save(second, { name = 'Second' });
+details.forget(1);
+expect('another monster disappearing does not clear this snapshot', details.current().name, 'Second');
+details.forget(2);
+details.save(second, { name = 'Late second reply' });
+expect('late reply cannot restore disappeared monster', details.current(), nil);
+
+dofile(ADDON_DIR .. '/checkmate.lua');
+MOCK.fire('load');
+local s = MOCK.settings.current;
+addon.path = FIXTURES_PATH;
+MOCK.zone_in(900);
+MOCK.target_monster(1, 'Fixture Goblin');
+for id, part in pairs(s.printout.parts) do part.on = id == 'name' or id == 'dangers'; end
+s.overlay.on = false;
+MOCK.frame();
+local row = require('core.monsters').find(900, MOCK.mob_id(900, 1), 'Fixture Goblin');
+row.info = { dangers = { value = 'Fixture move: Poison', notes = { 'Requires a hit.' } } };
+MOCK.packet(MOCK.check_packet(1, 39, 4, 174));
+MOCK.frame();
+expect('chat-only check fills details', details.current().name, 'Fixture Goblin');
+check('chat-only snapshot keeps its full enabled notes', require('ui.tips').details(s, details.current()):find('Requires a hit.', 1, true));
+expect('details do not enable the overlay', s.overlay.on, false);
+expect('source-only details send no parameter command', #MOCK.commands, 0);
+MOCK.command('/checkmate');
+MOCK.typing['Find settings'] = 'target details';
+MOCK.frame();
+check('settings explain the saved manual result', MOCK.drew('Your latest /check: Fixture Goblin.'));
+MOCK.zone_in(901);
+expect('zoning clears the saved check', details.current(), nil);
+return MOCK.report();

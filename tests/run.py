@@ -27,7 +27,8 @@ FIXTURES = os.path.join(HERE, 'fixtures')
 ASHITA_LIBS = os.environ.get('ASHITA_LIBS', r'C:/Games/PhoenixXI/addons/libs')
 
 # Files the addon writes during a test (profiles.json) go here, outside the project.
-INSTALL = os.path.join(tempfile.gettempdir(), 'checkmate_tests')
+_INSTALL = tempfile.TemporaryDirectory(prefix='checkmate_tests_')
+INSTALL = _INSTALL.name
 
 FAILED_LINE = re.compile(r'^\d+ FAILED$', re.MULTILINE)
 

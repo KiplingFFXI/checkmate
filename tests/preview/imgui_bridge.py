@@ -53,6 +53,11 @@ def _u32(v, name='color'):
     return int(_num(v, name)) & 0xFFFFFFFF
 
 
+def _col32(r, g, b, a):
+    """A packed color the way ImGui's IM_COL32 makes one."""
+    return (a << 24) | (b << 16) | (g << 8) | r
+
+
 def _str(v, name='label'):
     if isinstance(v, str):
         return v
@@ -118,13 +123,18 @@ class Bridge:
     def __init__(self, select_tab=None, window_filter=None, forced_size=None, forced_scroll=None):
         self.select_tab = select_tab.lower() if select_tab else None
         self.tab_applied = False        # SetSelected was sent and the tab came back selected.
-        self.tabs_seen = []             # Visible labels of every BeginTabItem call.
-        self.tab_open = []              # Tabs whose BeginTabItem returned true this frame.
+        self.tabs_seen = []             # Visible tab or navigation-button labels.
+        self.navigation_labels = set()
+        self.id_depth = 0
+        self.tab_open = []              # Tab pages actually drawn this frame.
         self.window_filter = window_filter
         self.forced_size = forced_size
         self.forced_scroll = forced_scroll
         self.window_stack = []
         self.windows = {}               # Top-level windows ended this frame, as name -> info.
+        self.dummies = []               # Each Dummy drawn this frame as ((x0, y0), (x1, y1)), the overlay's icons.
+        self.text_rects = []            # Overlay text and its actual ImGui item bounds.
+        self.tooltip = None             # The tooltip ended this frame, as { pos, size }, or None.
         self.fonts_added = []
         self.functions = self._build()
 
@@ -132,7 +142,12 @@ class Bridge:
     def begin_frame(self):
         self.window_stack = []
         self.windows = {}
+        self.dummies = []
+        self.text_rects = []
+        self.tooltip = None
         self.tab_open = []
+        self.navigation_labels = set()
+        self.id_depth = 0
 
     def _matches_target(self, name):
         if self.window_filter:
@@ -155,7 +170,7 @@ class Bridge:
             top = not B.window_stack
             if top and B.forced_size and B._matches_target(name):
                 imgui.set_next_window_size(imgui.ImVec2(*B.forced_size), imgui.Cond_.always)
-            if top and B.forced_scroll is not None and B._matches_target(name):
+            if top and B.forced_scroll is not None and B._matches_target(name) and name != 'checkmate##settings':
                 imgui.set_next_window_scroll(imgui.ImVec2(0, B.forced_scroll))
             B.window_stack.append(name)
             fl = _flags(flags)
@@ -190,8 +205,11 @@ class Bridge:
                                   'boolean is untested with the 1.92 binding.')
             sid = str_id if isinstance(str_id, (int, float)) and not isinstance(str_id, bool) else _str(str_id, 'BeginChild id')
             B.window_stack.append('<child>')
-            return imgui.begin_child(sid if isinstance(sid, str) else int(sid), vec2(size, 'size', imgui.ImVec2(0, 0)),
-                                     _flags(child_flags), _flags(window_flags))
+            shown = imgui.begin_child(sid if isinstance(sid, str) else int(sid), vec2(size, 'size', imgui.ImVec2(0, 0)),
+                                      _flags(child_flags), _flags(window_flags))
+            if B.forced_scroll is not None and sid == '##page':
+                imgui.set_scroll_y(float(B.forced_scroll))
+            return shown
 
         @fn
         def EndChild():
@@ -221,7 +239,7 @@ class Bridge:
             'PopID': imgui.pop_id, 'Bullet': imgui.bullet,
             'EndCombo': imgui.end_combo, 'TreePop': imgui.tree_pop, 'EndListBox': imgui.end_list_box,
             'BeginMenuBar': imgui.begin_menu_bar, 'EndMenuBar': imgui.end_menu_bar,
-            'EndMenu': imgui.end_menu, 'BeginTooltip': imgui.begin_tooltip, 'EndTooltip': imgui.end_tooltip,
+            'EndMenu': imgui.end_menu, 'BeginTooltip': imgui.begin_tooltip,
             'BeginItemTooltip': imgui.begin_item_tooltip,
             'EndPopup': imgui.end_popup, 'CloseCurrentPopup': imgui.close_current_popup,
             'EndTable': imgui.end_table, 'TableNextColumn': imgui.table_next_column,
@@ -247,6 +265,13 @@ class Bridge:
         }
         for k, f in fn_simple.items():
             F[k] = (lambda f: (lambda: f()))(f)
+
+        @fn
+        def EndTooltip():
+            # Where the tooltip is and its size, so the crop can take in the overlay's tip.
+            w = imgui.internal.get_current_window()
+            B.tooltip = {'pos': _xy(w.pos), 'size': _xy(w.size)}
+            imgui.end_tooltip()
 
         @fn
         def SetWindowFocus(name=None):
@@ -449,6 +474,9 @@ class Bridge:
         @fn
         def Dummy(size):
             imgui.dummy(vec2(size, 'size'))
+            low, high = _xy(imgui.get_item_rect_min()), _xy(imgui.get_item_rect_max())
+            if abs((high[0] - low[0]) - (high[1] - low[1])) < 0.01:
+                B.dummies.append((low, high))
 
         @fn
         def Indent(w=None):
@@ -465,7 +493,18 @@ class Bridge:
             elif isinstance(a, (int, float)) and not isinstance(a, bool):
                 imgui.push_id(int(a))
             else:
-                imgui.push_id(_str(a, 'str_id'))
+                label = _str(a, 'str_id')
+                imgui.push_id(label)
+                if B.id_depth == 0 and label in B.navigation_labels and B.window_stack and B.window_stack[0] == 'checkmate##settings':
+                    B.tab_open.append(label)
+                    if B.select_tab is not None and label.lower() == B.select_tab:
+                        B.tab_applied = True
+            B.id_depth += 1
+
+        @fn
+        def PopID():
+            imgui.pop_id()
+            B.id_depth -= 1
 
         @fn
         def GetID(a, b=None):
@@ -487,6 +526,8 @@ class Bridge:
         @fn
         def TextColored(color, text):
             imgui.text_colored(vec4(color, 'color'), _str(text, 'text'))
+            if 'checkmate_overlay' in imgui.internal.get_current_window().name:
+                B.text_rects.append((_str(text), _xy(imgui.get_item_rect_min()), _xy(imgui.get_item_rect_max())))
 
         @fn
         def TextDisabled(text):
@@ -511,7 +552,15 @@ class Bridge:
         # Main widgets ------------------------------------------------------------------------------
         @fn
         def Button(label, size=None):
-            return imgui.button(_str(label), vec2(size, 'size', imgui.ImVec2(0, 0)))
+            label = _str(label)
+            clicked = imgui.button(label, vec2(size, 'size', imgui.ImVec2(0, 0)))
+            if label.endswith('##checkmate_tab'):
+                visible = label.split('##')[0].strip()
+                B.tabs_seen.append(visible)
+                B.navigation_labels.add(visible)
+                if B.select_tab is not None and visible.lower() == B.select_tab and not B.tab_applied:
+                    return True
+            return clicked
 
         @fn
         def SmallButton(label):
@@ -964,6 +1013,10 @@ class Bridge:
         def SetMouseCursor(cursor_type):
             imgui.set_mouse_cursor(_flags(cursor_type, 'cursor_type'))
 
+        @fn
+        def SetNextFrameWantCaptureMouse(want_capture_mouse):
+            imgui.set_next_frame_want_capture_mouse(bool(want_capture_mouse))
+
         # Draw lists and objects (wrapped by imgui_bridge.lua) ------------------------------------
         F['GetWindowDrawList'] = lambda: imgui.get_window_draw_list()
         F['GetBackgroundDrawList'] = lambda viewport=None: imgui.get_background_draw_list()
@@ -1037,6 +1090,18 @@ def _dl_functions():
         else:
             dl.add_text(a, float(_num(b, 'font_size')), vec2(c, 'pos'), _u32(d), _str(e, 'text'), None,
                         float(_num(f, 'wrap_width', 0.0)))
+
+    @fn
+    def AddImage(dl, tex, p_min, p_max, uv_min=None, uv_max=None, col=None):
+        # The texture number is the mock's made-up one, so this draws a stand-in where a game picture goes: a grey
+        # square with a light edge and both diagonals. The preview has no game art and never loads a picture.
+        _num(tex, 'tex_ref')
+        low, high = vec2(p_min, 'p_min'), vec2(p_max, 'p_max')
+        light = _col32(200, 200, 200, 255)
+        dl.add_rect_filled(low, high, _col32(110, 110, 110, 255), 0.0, 0)
+        dl.add_rect(low, high, light, 0.0, 0, 1.0)
+        dl.add_line(low, high, light, 1.0)
+        dl.add_line(imgui.ImVec2(low.x, high.y), imgui.ImVec2(high.x, low.y), light, 1.0)
 
     @fn
     def PushClipRect(dl, clip_min, clip_max, intersect=None):

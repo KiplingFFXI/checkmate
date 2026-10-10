@@ -1,5 +1,6 @@
--- Tests the automatic /checkparam behind hit rate and evasion. It covers when it's sent, which reply
--- lines are hidden, a reply that comes first (advcheck), a second /check while waiting, and the timeout.
+-- Tests the automatic /checkparam behind hit rate, off-hand, ranged and evasion. It covers when it's sent,
+-- which reply lines are hidden, a reply that comes first (another addon), a second /check while waiting, the
+-- timeout, and the off-hand and ranged accuracy kept from your reply but never from your pet's.
 dofile(ADDON_DIR .. '/checkmate.lua');
 MOCK.fire('load');
 addon.path = FIXTURES_PATH;
@@ -18,8 +19,9 @@ s.printout.extras_own_line = false;
 -- only line, since that line holds hit. test_replace.lua has these flows with the game's line hidden.
 s.printout.replace_game_line = false;
 
--- This file is about the /checkparam, so the aggro part stays out of its lines.
+-- This file is about the /checkparam, so the aggro and links parts stay out of its lines.
 s.printout.parts.aggro.on = false;
+s.printout.parts.links.on = false;
 
 local function sent()
     return #MOCK.commands;
@@ -75,8 +77,8 @@ MOCK.summon('Azure');
 check('a reply about your pet with nothing waiting shows', MOCK.pet_reply(150, 140) == 0);
 MOCK.dismiss();
 
--- A reply about you that comes before checkmate sends its own request is used and still shown. advcheck
--- sends its own 0.99 s after a /check and hides the reply itself.
+-- A reply about you that comes before checkmate sends its own request is used and still shown.
+-- Another addon can request it first and hide that reply itself.
 MOCK.commands = {};
 n = #MOCK.printed;
 MOCK.packet(MOCK.check_packet(1, 39, 4, 174));
@@ -170,5 +172,56 @@ lines = MOCK.printed_since(n);
 local crit_only = '[checkmate] Fixture Goblin (Lv 39)  Even Match  Crit: 8%';
 check('a /check with both off ends the wait and sends nothing', sent() == 0 and #lines == 2 and lines[1] == crit_only
     and lines[2] == crit_only, table.concat(lines, ' / ') .. ', ' .. sent() .. ' sent');
+
+-- With only off-hand on, the same /checkparam <me> goes while you have a weapon in each hand, and nothing goes with a
+-- shield. test_weapons.lua covers every weapon.
+MOCK.items[16900] = { Name = { 'Wakizashi' }, Skill = 9 };
+MOCK.items[16896] = { Name = { 'Kunai' }, Skill = 9 };
+MOCK.items[12289] = { Name = { 'Lauan Shield' }, Skill = 0 };
+MOCK.player.equipment = { [0] = 16900, [1] = 16896 };
+s.printout.parts.offhand.on = true;
+MOCK.commands = {};
+n = #MOCK.printed;
+MOCK.packet(MOCK.check_packet(1, 39, 4, 174));
+MOCK.wait(1.6);
+check('only off-hand on with a weapon in each hand sends one /checkparam <me>', sent() == 1
+    and MOCK.commands[1].command == '/checkparam <me>', sent());
+check('and hides its six lines', MOCK.reply(300, 250, nil, 150, 0) == 6);
+MOCK.frame();
+lines = MOCK.printed_since(n);
+check('then prints', #lines == 1 and lines[1] == '[checkmate] Fixture Goblin (Lv 39)  Even Match  Off-hand: 78%  Crit: 8%',
+    lines[1]);
+MOCK.player.equipment = { [0] = 16900, [1] = 12289 };
+MOCK.commands = {};
+n = #MOCK.printed;
+MOCK.packet(MOCK.check_packet(1, 39, 4, 174));
+MOCK.wait(5);
+lines = MOCK.printed_since(n);
+check('with a shield nothing is sent and there\'s no off-hand part', sent() == 0 and #lines == 1 and lines[1] == crit_only,
+    table.concat(lines, ' / ') .. ', ' .. sent() .. ' sent');
+s.printout.parts.offhand.on = false;
+MOCK.player.equipment = {};
+
+-- Your off-hand and ranged accuracy, 713 and 714, are kept from your own reply. A pet's reply has them too, but they
+-- go by your gear, so they're never kept for your pet. A new request clears all four.
+local checkparam = require('core.checkparam');
+checkparam.reset();
+local me = MOCK.player.server_id;
+checkparam.ask('me', {}, me);
+local REPLY = { [733] = 7, [731] = 7, [712] = 300, [713] = 280, [714] = 310, [715] = 250 };
+for _, message in ipairs(MOCK.CHECKPARAM_LINES) do checkparam.on_reply(MOCK.now, message, REPLY[message], me); end
+local acc, eva, off, rng = checkparam.values('me');
+check('your reply keeps accuracy, evasion, off-hand and ranged accuracy', acc == 300 and eva == 250 and off == 280
+    and rng == 310, ('%s %s %s %s'):format(tostring(acc), tostring(eva), tostring(off), tostring(rng)));
+checkparam.ask('pet', {}, 555);
+for _, message in ipairs(MOCK.PET_REPLY_LINES) do checkparam.on_reply(MOCK.now, message, REPLY[message], 555); end
+acc, eva, off, rng = checkparam.values('pet');
+check('your pet\'s reply keeps only its accuracy and evasion', acc == 300 and eva == 250 and off == nil and rng == nil,
+    ('%s %s %s %s'):format(tostring(acc), tostring(eva), tostring(off), tostring(rng)));
+check('and leaves yours alone', select(3, checkparam.values('me')) == 280 and select(4, checkparam.values('me')) == 310);
+checkparam.ask('me', {}, me);
+acc, eva, off, rng = checkparam.values('me');
+check('a new request clears all four', acc == nil and eva == nil and off == nil and rng == nil);
+checkparam.reset();
 
 return MOCK.report();

@@ -16,9 +16,15 @@ data leaves them out.
 
 A battlefield sets up new parties when it starts (lua_battlefield.cpp addGroups). An isParty group is one party,
 a superlinked group is another, and the rest of its battlefield-typed monsters share one. Other monsters in it
-go back to their family or sublink party. Each arena is a fight of its own, and a monster that several fights
-use links with the partners from each.
+go back to their family or sublink party, and one its group gives another battle ID, like a Limbus crate, links
+with no one. Each arena is a fight of its own, and a monster that several fights use links with the partners from
+each.
+
+Only a spawn that comes up on Phoenix links (exists.py). A confrontation event's monsters only link inside it, a
+battlefield pool only links inside one room, an add that's only up while its owner fights counts as a pet (ASSIST_ONLY
+holds the ones the reader can't find), and NEVER_TOGETHER holds the pairs that are never up at the same time.
 """
+from pathlib import Path
 import copy
 import os
 import re
@@ -26,7 +32,65 @@ import re
 from . import aggro
 from . import battlefields
 from . import dynamis
+from . import exists
 from . import outside
+
+# Pairs of monster scripts that are never up together, so they never link, by zone script folder. The data can't
+# show it because one only comes up while the other is down.
+NEVER_TOGETHER = {
+    # Cherry Saplings only come from the Cherry's own timers while it's down, and the Cherry only spawns once
+    # every Sapling is dead (Cemetery_Cherry.lua, Cherry_Sapling.lua).
+    ('King_Ranperres_Tomb', 'Cemetery_Cherry', 'Cherry_Sapling'),
+    # Each Yagudo's Avatar is Astral Flow's call from Yagudo Avatar or from Tzee Xicu, which swap NQ and HQ and are
+    # never up together (Yagudo_Avatar.lua, Tzee_Xicu_the_Manifest.lua). Each avatar's only other force-linker is the
+    # other one.
+    ('Castle_Oztroja', 'Yagudos_Avatar', 'Yagudos_Avatar'),
+    # Osschaart copies one two-hour a fight (twoHourUsed in Osschaart.lua), so it only ever calls one of its Bat,
+    # Wyvern, Avatar and Automaton.
+    ('Waughroon_Shrine', 'Osschaarts_Bat', 'Osschaarts_Wyvern'),
+    ('Waughroon_Shrine', 'Osschaarts_Bat', 'Osschaarts_Avatar'),
+    ('Waughroon_Shrine', 'Osschaarts_Bat', 'Osschaarts_Automaton'),
+    ('Waughroon_Shrine', 'Osschaarts_Wyvern', 'Osschaarts_Avatar'),
+    ('Waughroon_Shrine', 'Osschaarts_Wyvern', 'Osschaarts_Automaton'),
+    ('Waughroon_Shrine', 'Osschaarts_Avatar', 'Osschaarts_Automaton'),
+    # Omega only comes up from the airship door once every Mammet is dead, and Ultima only once Omega is
+    # (one_to_be_feared.lua).
+    ('Sealions_Den', 'Mammet-22_Zeta', 'Omega'),
+    ('Sealions_Den', 'Mammet-22_Zeta', 'Ultima'),
+    ('Sealions_Den', 'Omega', 'Ultima'),
+    # Shadow Lord's second form only spawns once the first is dead (shadow_lord_battle.lua).
+    ('Throne_Room', 'Shadow_Lord_Phase_1', 'Shadow_Lord_Phase_2'),
+    # Zeid despawns under 70% before Zeid_2 spawns, and only Zeid_2 calls the Shadows of Rage
+    # (where_two_paths_converge.lua, Zeid_2.lua).
+    ('Throne_Room', 'Zeid', 'Zeid_2'),
+    ('Throne_Room', 'Zeid', 'Shadow_of_Rage'),
+    # Promathia_2 only spawns once Promathia is dead (dawn.lua).
+    ('Empyreal_Paradox', 'Promathia', 'Promathia_2'),
+    # Ealdnarche_2 only spawns once Ealdnarche is dead, and its Orbitals go when it dies. Ealdnarche can't die until
+    # Exoplates despawns (celestial_nexus.lua, Ealdnarche.lua, Exoplates.lua).
+    ('The_Celestial_Nexus', 'Ealdnarche', 'Ealdnarche_2'),
+    ('The_Celestial_Nexus', 'Exoplates', 'Ealdnarche_2'),
+    ('The_Celestial_Nexus', 'Orbital', 'Ealdnarche_2'),
+    # Undying Promise's tick only brings up Ghul-I-Beaban's DRK or BLM form when neither is up (undying_promise.lua).
+    ('QuBia_Arena', 'Ghul-I-Beaban_DRK', 'Ghul-I-Beaban_BLM'),
+    # The Sons only spawn after Anansi dies (Anansi.lua).
+    ('QuBia_Arena', 'Anansi', 'Son_of_Anansi'),
+}
+
+# Adds a script brings into its own fight without callPets, as (zone script folder, owner script, add script). Like
+# the callPets helpers exists.Zone.assist_only finds, each is only up while it fights, so no one finds it idle to call
+# and it counts as a pet.
+ASSIST_ONLY = {
+    # Pkuucha spawns Percipient mid-fight already engaged, despawns it in onMobDisengage and onMobRoam, and stays
+    # unkillable until Percipient dies (Zoraal_Jas_Pkuucha.lua). Percipient makes Pkuucha its pet, so they fight
+    # together anyway.
+    ('Wajaom_Woodlands', 'Zoraal_Jas_Pkuucha', 'Percipient_Zoraal_Ja'),
+}
+
+# Battlefield pool monsters whose spawn points are further apart than this, with no chain of nearer ones between
+# them, stand in different rooms or floors and never link. Limbus floors sit 100 yalms and more apart, and the
+# spawn points on one floor chain within 90, so each floor is one room.
+ROOM_GAP = 90.0
 
 # Hand-read link changes that the static reader can't follow, by (zone script folder, script).
 KNOWN_LINK_SCRIPTS = {
@@ -38,6 +102,9 @@ KNOWN_LINK_SCRIPTS = {
     ('The_Garden_of_RuHmet', 'Qnzdei'): 'none',
     # Sets NO_LINK on spawn after early returns that only skip it outside its battlefield.
     ('Mine_Shaft_2716', 'Hume_Automaton'): 'no_link',
+    # sw_apollyon.lua sets NO_LINK on the seven mimics it keeps and despawns the other three. revealMimic sets the
+    # battle ID back to 0 but never clears NO_LINK.
+    ('Apollyon', 'Armoury_Crate_Mimic'): 'no_link',
 }
 
 # The helper the fomors in Lufaise Meadows, Misareaux Coast, Phomiuna Aqueducts and the Sacrarium call in
@@ -73,6 +140,11 @@ SET_PET_BY_ID = re.compile(r'mob:setPet\(\s*GetMobByID\(\s*mob:getID\(\)\s*\+\s*
 # Any call that makes a monster a pet.
 ANY_PET = re.compile(r'setMobPet\s*\(|:setPet\s*\(')
 
+# The one way a Dynamis type's onMobInitialize helper gives a monster a pet, by its name, like Dagourmarche's avatar
+# in xi.dynamis.onBossInitialize.
+NAMED_PET = re.compile(r"\bif\s+mob\s*:\s*getName\(\)\s*==\s*'(\w+)'\s+then\s+"
+                       r"xi\.pet\.setMobPet\(\s*mob\s*,\s*(\d+)\s*,\s*'([^']+)'\s*\)\s+end\b")
+
 # Scripts that pair each of their spawns with a pet through two ID tables, as (zone script folder, script):
 # (pet script, how many of the pet's spawns come before the first one it pairs with).
 TABLE_PETS = {
@@ -81,6 +153,20 @@ TABLE_PETS = {
     ('AlTaieu', 'Omaern_DRG'): ('Aerns_Wynav', 1),
     ('AlTaieu', 'Omaern_SMN'): ('Aerns_Elemental', 1),
     ('Misareaux_Coast', 'Gigas_Warwolf'): ('Gigass_Sheep', 0),
+}
+
+# Pets a script takes in a way the reader can't follow, by (zone script folder, script): [(offset, pet script)].
+HAND_PETS = {
+    # Takes the pet for the initiator's job from jobTable when it spawns.
+    ('Mine_Shaft_2716', 'Fantoccini'): [('1', 'Fantoccini_Monster'), ('2', 'Fantoccini_Wyvern'),
+                                       ('3', 'Fantoccini_Avatar'), ('4', 'Fantoccini_Automaton')],
+    # Takes the pet for the two-hour it copies from its pets table. Its avatar is Astral Flow's call, not a pet.
+    ('Waughroon_Shrine', 'Osschaart'): [('2', 'Osschaarts_Bat'), ('3', 'Osschaarts_Wyvern'),
+                                        ('5', 'Osschaarts_Automaton')],
+    # Calls the tiger or the mandragora of its arena when it engages and makes it its pet with setPet. They sit 3 and
+    # 6 past it in Ark Angels 3, and 1 and 2 past it in Divine Might (ark_angels_3.lua, divine_might.lua).
+    ('LaLoff_Amphitheater', 'Ark_Angel_MR'): [('3', 'Ark_Angels_Tiger'), ('6', 'Ark_Angels_Mandragora'),
+                                              ('1', 'Ark_Angels_Tiger'), ('2', 'Ark_Angels_Mandragora')],
 }
 
 # Scripts with pet calls the reader can't follow. Their pet depends on the fight, or is one the reader already has.
@@ -159,6 +245,10 @@ class Linker:
         # How it links when the monster calling it doesn't share its superlink.
         self.way = 'neither'
         self.party = None
+        # The confrontation event it fights in, or None. Monsters only link inside one event.
+        self.event = None
+        # The scripts it's never up together with.
+        self.apart = frozenset()
 
 
 def check_scripts(kind, script_dir):
@@ -218,13 +308,13 @@ def fomor_superlinks(tree, ids):
     patrol is its leader and the spawns right after it, and a guard the members it lists. getFomorParty takes the
     first party a spawn is in, patrols before guards, and onPartySpawn gives it that party leader's id.
     """
-    text = open(os.path.join(tree, 'scripts', 'mixins', 'fomor_party.lua'), encoding='utf-8').read()
+    text = Path(os.path.join(tree, 'scripts', 'mixins', 'fomor_party.lua')).read_text(encoding='utf-8')
     aliases = [alias for alias, zone in battlefields.ALIAS.findall(text) if zone == ids.script_dir.upper()]
     if not aliases:
         return {}
     alias = re.escape(aliases[0])
     path = os.path.join(tree, 'scripts', 'zones', ids.script_dir, 'IDs.lua')
-    scripts = dict(TABLE_OF_IDS.findall(open(path, encoding='utf-8').read()))
+    scripts = dict(TABLE_OF_IDS.findall(Path(path).read_text(encoding='utf-8')))
 
     def spawn_id(name, number):
         spawns = ids.tables.get(scripts.get(name), [])
@@ -289,12 +379,17 @@ def calls(caller, helper):
     """Whether caller calls helper into its fight (TryLink with CanLink's NO_LINK and superlink checks)."""
     if caller.one_way or helper.pet:
         return False
+    # A confrontation target check fails across events, which differ in power (mob_controller.cpp TryDeaggro,
+    # ValidTarget).
+    if caller.event != helper.event:
+        return False
+    if helper.kind.script in caller.apart or caller.kind.script in helper.apart:
+        return False
     if helper.family == caller.family and not caller.fight_force and not caller.links:
         return False
     if helper.no_link and not (caller.fight_superlink and caller.fight_superlink == helper.fight_superlink):
         return False
-    # A battlefield monster never reaches an open-world fight. Inside a fight's own party it links like the rest.
-    return not (helper.battlefield and not caller.battlefield and caller.party[0] == 'zone')
+    return True
 
 
 def closure(members):
@@ -302,7 +397,7 @@ def closure(members):
     classes = {}
     for linker in members:
         key = (linker.family, linker.links, linker.fight_force, linker.fight_superlink, linker.no_link,
-               linker.one_way, linker.pet, linker.battlefield)
+               linker.one_way, linker.pet, linker.event, linker.apart, linker.kind.script if linker.apart else None)
         classes.setdefault(key, []).append(linker)
     groups = list(classes.values())
     edges = {index: [other for other, group in enumerate(groups) if calls(groups[index][0], group[0])]
@@ -320,7 +415,8 @@ def closure(members):
             helpers.update(groups[other])
         for linker in group:
             own = {other for other in group if other is not linker} if index in reached else set()
-            out[linker] = helpers | own
+            # One it's never up with can't come in through anyone else either.
+            out[linker] = {other for other in helpers | own if other.kind.script not in linker.apart}
     return out
 
 
@@ -357,22 +453,84 @@ def fight_members(fight, ids, placed, crates):
     return arenas
 
 
-def fight_seats(fights, linkers):
+def rooms(points):
+    """{spawn id: room number} for points {spawn id: (x, y, z)}, chaining points within ROOM_GAP of each other."""
+    room, number = {}, 0
+    for start in sorted(points):
+        if start in room:
+            continue
+        number += 1
+        room[start] = number
+        todo = [start]
+        while todo:
+            here = todo.pop()
+            for other, point in points.items():
+                if other not in room and sum((a - b) ** 2 for a, b in zip(points[here], point)) <= ROOM_GAP ** 2:
+                    room[other] = number
+                    todo.append(other)
+    return room
+
+
+def other_floors(members, pool, linkers, points):
+    """
+    The pool members of a one-arena fight that are another floor's copies. addGroups finds such a fight's monsters by
+    name in the whole zone, so a Limbus floor's pool holds the copies other floors spawn too. A member the fight
+    doesn't spawn at the start is another floor's copy when it stands in a room where none of the starters stand, or
+    when it has no point and the pool has a waiting one of its script that does.
+    """
+    starters = {spawn_id for spawn_id, group in members if group.spawned}
+    waiting = pool - starters
+    room = rooms({spawn_id: points[spawn_id] for spawn_id in pool if spawn_id in points})
+    start_rooms = {room[spawn_id] for spawn_id in starters if spawn_id in room}
+    gone = set()
+    if start_rooms:
+        gone = {spawn_id for spawn_id in waiting if spawn_id in room and room[spawn_id] not in start_rooms}
+    for spawn_id in waiting - set(room):
+        script = linkers[spawn_id].kind.script
+        if any(other in room and other not in gone and linkers[other].kind.script == script for other in waiting):
+            gone.add(spawn_id)
+    return gone
+
+
+def fight_seats(fights, linkers, points=None):
     """
     A copy of a monster's linker for each fight that puts it in a party of the fight's own, holding that party and
     superlink. A monster its fights never put back in its zone party leaves that party. In a zone with
-    battlefields, an arena monster that no fight names never spawns, so it links with no one.
+    battlefields, an arena monster that no fight names never spawns, so it links with no one, and neither does one
+    its group gives another battle ID. A one-arena fight leaves out the other floors' copies (see other_floors). A
+    battlefield pool splits into rooms by points (see rooms and ROOM_GAP), and each room is a party of its own.
+    Without points, the pool stays one room.
     """
-    seats, back = [], set()
+    seats, back, fenced = [], set(), set()
+    points = points or {}
     for fight_number, arenas in enumerate(fights):
         for arena, members in enumerate(arenas):
+            pool = {spawn_id for spawn_id, _ in members if spawn_id in linkers and linkers[spawn_id].battlefield}
+            if len(arenas) == 1:
+                gone = other_floors(members, pool, linkers, points)
+                members = [(spawn_id, group) for spawn_id, group in members if spawn_id not in gone]
+                pool -= gone
+            # One with no point of its own stands where the placed ones of its script in the pool stand. If they
+            # don't share a room, or there are none, the pool stays one room.
+            room = rooms({spawn_id: points[spawn_id] for spawn_id in pool if spawn_id in points})
+            for spawn_id in sorted(pool - set(room)):
+                script = linkers[spawn_id].kind.script
+                shared = {room[other] for other in room if linkers[other].kind.script == script}
+                if len(shared) != 1:
+                    room = {}
+                    break
+                room[spawn_id] = shared.pop()
             party, superlink = {}, {}
             for spawn_id, group in members:
                 if group.party:
                     party[spawn_id] = ('party', fight_number, arena, id(group))
                 if group.superlink:
                     superlink[spawn_id] = (fight_number, arena) + group.superlink
-            for spawn_id in {spawn_id for spawn_id, _ in members}:
+            # A monster its group gives another battle ID never fights, so it gets no seat and links with no one. It
+            # still counts in the rooms above.
+            here = {spawn_id for spawn_id, group in members if group.battle_id}
+            fenced |= here
+            for spawn_id in {spawn_id for spawn_id, _ in members} - here:
                 linker = linkers.get(spawn_id)
                 if linker is None:
                     continue
@@ -387,35 +545,78 @@ def fight_seats(fights, linkers):
                 elif seat.fight_superlink:
                     seat.party = ('superlink', fight_number, arena, seat.fight_superlink)
                 elif seat.battlefield:
-                    seat.party = ('pool', fight_number, arena)
+                    seat.party = ('pool', fight_number, arena, room.get(spawn_id))
                 else:
                     # The party search puts any other monster back in the family or sublink party it had.
                     back.add(spawn_id)
                     continue
                 seats.append(seat)
-    seated = {seat.id for seat in seats} - back
+    seated = ({seat.id for seat in seats} | fenced) - back
     for linker in linkers.values():
         if (fights and linker.battlefield) or linker.id in seated:
             linker.party = None
     return seats
 
 
-def zone_names(ctx, placed, in_dynamis, fights, script_dir, ids, fomors):
+def assist_scripts(placed, script_dir, up):
+    """
+    The add scripts ASSIST_ONLY holds for the zone. Stops when the zone doesn't place the owner and the add, or when
+    something other than the owner brings the add up.
+    """
+    scripts = {kind.script for _, kind in placed}
+    found = set()
+    for zone, owner, add in ASSIST_ONLY:
+        if zone != script_dir:
+            continue
+        if owner not in scripts or add not in scripts:
+            raise RuntimeError('links.ASSIST_ONLY names %s %s and %s, but the zone doesn\'t place both. Check it.'
+                               % (zone, owner, add))
+        for spawn_id, kind in placed:
+            sources = up.sources.get(spawn_id, ()) if up else ()
+            if kind.script == add and any(not (isinstance(source, tuple) and source[:2] == ('mob', owner))
+                                          for source in sources):
+                raise RuntimeError('links.ASSIST_ONLY says only %s brings up %s %s, but something else does. Check it.'
+                                   % (owner, zone, add))
+        found.add(add)
+    return found
+
+
+def zone_names(ctx, placed, in_dynamis, fights, script_dir, ids, fomors, up=None, points=None):
     """
     Sets kind.links, the names each kind links with by how each one links, for every kind in one zone or instance.
-    placed is [(spawn id, kind)] for every placed monster, and fomors what fomor_superlinks gives.
+    placed is [(spawn id, kind)] for every placed monster, and fomors what fomor_superlinks gives. up is the
+    exists.Zone for the zone, or None to count every placed spawn as up. points is what zones.spawn_points gives,
+    {spawn id: (x, y, z)}, for splitting battlefield pools into rooms, or None to keep each pool one room.
     """
     by_id = {}
+    events = up.events() if up else {}
+    assist = up.assist_only() if up else set()
+    assist_adds = assist_scripts(placed, script_dir, up)
+    pets = up.pets if up else pet_masters(ctx, placed, script_dir, ids)
+    apart = {}
+    for zone, first, second in NEVER_TOGETHER:
+        if zone == script_dir:
+            apart.setdefault(first, set()).add(second)
+            apart.setdefault(second, set()).add(first)
     for spawn_id, kind in placed:
         check_scripts(kind, script_dir)
+        # A spawn that never comes up on Phoenix links with no one, and no one lists it.
+        if up is not None and spawn_id not in up.sources:
+            continue
         linker = make_linker(spawn_id, kind, ids, in_dynamis, ctx.tables.detects, script_dir)
+        linker.event = events.get(spawn_id)
+        linker.apart = frozenset(apart.get(kind.script, ()))
+        if spawn_id in assist or kind.script in assist_adds:
+            linker.pet = True
         if spawn_id in fomors and calls_fomor_party(ctx, script_dir, kind.script):
             linker.superlink = linker.fight_superlink = fomors[spawn_id]
             linker.force = linker.fight_force = True
         by_id[spawn_id] = linker
-    mark_pets(ctx, placed, by_id, script_dir, ids)
+    for pet in pets:
+        if pet in by_id:
+            by_id[pet].pet = True
     zone_parties(by_id.values())
-    seats = fight_seats(fights, by_id)
+    seats = fight_seats(fights, by_id, points)
     by_party = {}
     for linker in list(by_id.values()) + seats:
         if linker.party is not None:
@@ -434,12 +635,39 @@ def zone_names(ctx, placed, in_dynamis, fights, script_dir, ids, fomors):
                     caller.kind.links.setdefault('superlink', set()).add(helper.name)
 
 
+def dynamis_pets(ctx, script_dir, script):
+    """
+    (offset, pet script) for each pet the onMobInitialize helpers of a Dynamis monster's type, and its hook, give it.
+    The only form they can take is NAMED_PET. A master's own call on the next monster is dynamis.MASTER_PET.
+    """
+    kind = ctx.dynamis.mob_type(script_dir, script)
+    names = list(ctx.dynamis.handlers[kind].get('onMobInitialize', []))
+    hook = ctx.dynamis.hooks.get((script_dir, script), {}).get('onMobInitialize')
+    if hook:
+        names.append(hook)
+    found = []
+    for name in names:
+        if kind == dynamis.MASTER and name == 'xi.pet.setMobPet':
+            continue
+        path = ctx.scripts.helpers.get(name)
+        source = ctx.scripts.lua(path) if path else None
+        if source is None or name not in exists.handler_bodies(source.text, exists.GLOBAL_FUNCTION):
+            raise RuntimeError('The exporter can\'t find the Dynamis onMobInitialize helper %s' % name)
+        body = exists.handler_text(source.text, name, exists.GLOBAL_FUNCTION)
+        named = NAMED_PET.findall(body)
+        if len(ANY_PET.findall(body)) > len(named):
+            raise RuntimeError('%s sets a pet the exporter can\'t read' % name)
+        found += [(offset, pet) for owner, offset, pet in named if owner == script]
+    return found
+
+
 def pet_calls(ctx, script_dir, script):
     """(offset, pet script or None for any) for each pet a monster takes when the zone loads."""
     found, base = [], True
     if script_dir in ctx.dynamis.zone_dirs:
         if ctx.dynamis.mob_type(script_dir, script) == dynamis.MASTER:
             found.append(('1', None))
+        found += dynamis_pets(ctx, script_dir, script)
         base = ctx.dynamis.keeps(script_dir, script, 'onMobInitialize')
     source = ctx.scripts.lua(ctx.scripts.mob_script_path(script_dir, script)) if base else None
     if source is None:
@@ -449,25 +677,28 @@ def pet_calls(ctx, script_dir, script):
     read = len(calls) + (1 if (script_dir, script) in TABLE_PETS else 0)
     if len(ANY_PET.findall(text)) > read and (script_dir, script) not in KNOWN_PET_SCRIPTS:
         raise RuntimeError('%s %s sets a pet the exporter can\'t read' % (script_dir, script))
-    return found + calls
+    return found + calls + HAND_PETS.get((script_dir, script), [])
 
 
-def mark_pets(ctx, placed, by_id, script_dir, ids):
+def pet_masters(ctx, placed, script_dir, ids):
     """
-    Marks the spawns a monster makes its pet, with a setMobPet or setPet call at a fixed offset, through the
-    TABLE_PETS tables, or as a Dynamis master.
+    {pet spawn id: master spawn id} for the spawns a monster makes its pet, with a setMobPet or setPet call at a
+    fixed offset, through the TABLE_PETS tables, from HAND_PETS, or in Dynamis as a master or through its type's
+    helpers.
     """
-    offsets = {}
+    kinds = dict(placed)
+    offsets, masters = {}, {}
     for spawn_id, kind in placed:
         if kind.script not in offsets:
             offsets[kind.script] = pet_calls(ctx, script_dir, kind.script)
         for offset, name in offsets[kind.script]:
-            pet = by_id.get(spawn_id + int(offset))
-            if pet is not None and name in (None, pet.kind.script):
-                pet.pet = True
+            pet = kinds.get(spawn_id + int(offset))
+            if pet is not None and name in (None, pet.script):
+                masters[spawn_id + int(offset)] = spawn_id
         table = TABLE_PETS.get((script_dir, kind.script))
         if table is not None:
             pets = ids.tables.get(table[0], [])
             index = ids.tables[kind.script].index(spawn_id) + table[1]
-            if index < len(pets) and pets[index] in by_id:
-                by_id[pets[index]].pet = True
+            if index < len(pets) and pets[index] in kinds:
+                masters[pets[index]] = spawn_id
+    return masters

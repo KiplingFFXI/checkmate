@@ -1,0 +1,54 @@
+-- Chat-only source facts do not need the full player combat snapshot.
+dofile(ADDON_DIR .. '/checkmate.lua');
+MOCK.fire('load');
+addon.path = FIXTURES_PATH;
+MOCK.zone_in(900);
+MOCK.entities[1] = { Name = 'Fixture Goblin' };
+local s = MOCK.settings.current;
+local player = require('core.player');
+local modifiers = require('core.modifiers');
+local read, bonuses = player.read, modifiers.read;
+local reads, modifier_reads = 0, 0;
+player.read = function (...)
+    reads = reads + 1;
+    return read(...);
+end;
+modifiers.read = function (...)
+    modifier_reads = modifier_reads + 1;
+    return bonuses(...);
+end;
+local function check_mob()
+    local printed = #MOCK.printed;
+    MOCK.packet(MOCK.check_packet(1, 39, 0, 174));
+    MOCK.frame();
+    return table.concat(MOCK.printed_since(printed), ' ');
+end;
+for _, part in pairs(s.printout.parts) do part.on = false; end;
+s.printout.parts.name.on = true;
+check('name-only check still prints its name', check_mob():find('Fixture Goblin', 1, true));
+expect('name-only check skips player combat reads', reads, 0);
+expect('name-only check skips modifier reads', modifier_reads, 0);
+expect('source-only result does not invent a combat input age', require('core.check_details').current().provenance.inputs_at, nil);
+s.printout.parts.aggro.on = true;
+check('aggro-only check still prints its answer', check_mob():find('Aggro:', 1, true));
+expect('aggro-only reads the level without a full snapshot', reads, 0);
+s.printout.parts.family.on = true;
+check_mob();
+expect('source monster facts skip player combat reads', reads, 0);
+s.printout.parts.blue.on = true;
+s.blue.chat.lessons, s.blue.chat.chance = true, false;
+check_mob();
+expect('Blue lessons alone skip the combat snapshot', reads, 0);
+expect('Blue lessons alone do not load combat modifiers', modifier_reads, 0);
+expect('source-only checks send no game commands', #MOCK.commands, 0);
+s.printout.parts.crit.on = true;
+check('turning on crit still calculates its value', check_mob():find('Crit:', 1, true));
+expect('physical calculations read their player inputs', reads, 1);
+expect('physical calculations retain all modifier inputs', modifier_reads, 1);
+expect('combat result records when it read its inputs', require('core.check_details').current().provenance.inputs_at, MOCK.now);
+s.printout.parts.crit.on = false;
+s.blue.chat.chance = true;
+check_mob();
+expect('Blue spell chance reads combat inputs', reads, 2);
+expect('Blue spell chance retains its modifiers', modifier_reads, 2);
+return MOCK.report();

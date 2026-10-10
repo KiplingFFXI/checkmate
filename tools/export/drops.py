@@ -8,6 +8,10 @@ basis points. Despoil entries sit in the same list with their weight as the rate
 the drop type, so a nonzero despoil weight is one more kill roll. Steal entries have rate 0 and never drop.
 """
 import os
+import hashlib
+from pathlib import Path
+
+from . import aggro, lua_source
 import re
 
 # Item names in YAML resolve to item_basic ids. 'nothing' is id 0, which drops nothing.
@@ -18,12 +22,13 @@ def item_ids(tree):
     """{item_basic name: id}. Two items with one name resolve to the lower id (xi::items::lookupIdByName)."""
     ids = {NOTHING: 0}
     row = re.compile(r"^INSERT INTO `item_basic` VALUES \((\d+),\d+,'((?:[^'\\]|\\.)*)'")
-    for line in open(os.path.join(tree, 'sql', 'item_basic.sql'), encoding='utf-8', errors='replace'):
-        match = row.match(line)
-        if match:
-            number, name = int(match.group(1)), match.group(2).replace("\\'", "'")
-            if name not in ids or number < ids[name]:
-                ids[name] = number
+    with open(os.path.join(tree, 'sql', 'item_basic.sql'), encoding='utf-8', errors='replace') as source_file:
+        for line in source_file:
+            match = row.match(line)
+            if match:
+                number, name = int(match.group(1)), match.group(2).replace("\\'", "'")
+                if name not in ids or number < ids[name]:
+                    ids[name] = number
     return ids
 
 
@@ -70,3 +75,22 @@ def rolls(loot, ids, rates, where):
         if int(weight) > 0:
             out.append({'rate': int(weight), 'item': lookup(ids, name, where), 'name': name, 'despoil': True})
     return out
+
+
+PRUDENCE = 'scripts/zones/AlTaieu/mobs/Jailer_of_Prudence.lua'
+PRUDENCE_HASH = 'e5d7ba0caca35b9d71558611e230f769aed57cdd18e3f66a8a8635bfb0f3c565'
+
+
+def conditions(tree, zone, script):
+    """Known loot restrictions, guarded against changed scripts or a new loaded override."""
+    if (zone, script) != ('AlTaieu', 'Jailer_of_Prudence'):
+        return []
+    text = lua_source.strip_comments((Path(tree) / PRUDENCE).read_text(encoding='utf8'))
+    digest = hashlib.sha256(' '.join(text.split()).encode()).hexdigest()
+    if digest != PRUDENCE_HASH:
+        raise RuntimeError('Prudence loot rules changed. Review NO_DROPS before exporting its condition.')
+    for path in aggro.lua_files_loaded(tree):
+        text = lua_source.strip_comments((Path(tree) / path).read_text(encoding='utf8'))
+        if 'Jailer_of_Prudence' in text:
+            raise RuntimeError('A loaded module touches Prudence. Review its loot conditions: ' + path)
+    return ['Only the surviving Jailer drops these items after the other one is defeated.']

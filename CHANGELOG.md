@@ -1,57 +1,174 @@
 # Changelog
 
+Older entries describe that release. Later entries may change its behavior.
+
+## 1.14.4
+
+Since 1.1.0, checkmate adds a target overlay, more combat and monster details, and more ways to set up your display.
+
+- Added an optional target overlay with separate chat and overlay choices. Set each row's label, order and line breaks. Hover for inputs and conditions, or open Target details for full notes and lists.
+- Added off-hand and ranged hit rates, incoming crits, pDIF, Shield block and Parry. pDIF can show the normal attack multiplier range, Attack/Defense ratio or both. Block and Parry show chances for eligible normal attacks. Combat estimates include supported gear, merits and buffs, with missing inputs kept unknown.
+- Hit, evade and pDIF rows can use the stat reply from your manual `/check` in either display. After your inputs change, the overlay keeps the previous estimate and its original inputs with a Check again note. Passive updates never request stats.
+- Weaknesses combines elements, weapon damage types, immunities and Charm. Effects shows buffs and debuffs your client observed, with estimated timers where supported. Source changes and uncertain values keep their explanations.
+- Added separate monster rows for family, HP/MP estimates, movement, pursuit, spawn, claim rules, traits, crystals, rewards and fight rules. PH, drop and Steal details explain supported chances and conditions. Rewards includes gil and Mug where supported.
+- Dangers lists supported debuffs, moves that can crit and harmful effects from normal attacks, with their conditions. Filters and display limits keep it short; Target details keeps the full list with known targeting, shadow and removal notes. Incomplete move lists say so.
+- Blue Magic shows possible lessons and your client's learned state. Optional learning requirements and observed move use add context. The spell finder lists possible monsters, zones, levels and source conditions; it does not track live spawns or guarantee learning.
+- Links can group names by family when their linking conditions match, with exact names kept in hover help and Target details. Pet estimates can appear in chat and the overlay, using valid readings for the same pet and target.
+- Reworked settings with a combined Display table, search, wrapping tabs, tab visibility and separate Appearance and Abbreviations controls. Added eight starter presets, Chat and Overlay previews, Undo, section resets and safer profile changes. Mint and Lavender join the available skins.
+- Reduced repeated work in combat refreshes and settings previews. Updated the guide, help text and source notes while keeping existing settings and command aliases.
+
+## 1.14.3
+
+- Links groups matching names by family when they have the same linking conditions. Names without a matching family and link conditions stay separate. Exact names remain in hover help and Target details.
+- Added Group names by family under Aggro and `/checkmate linkfamilies on|off`. Most entries shown now applies after grouping.
+
+## 1.14.2
+
+- The overlay keeps the last calculated hit, evade and pDIF estimates after your inputs change. Older readings keep their original inputs and reply time, with a Check again note until you refresh them.
+- Reordering the same buffs no longer clears a stat reading. Actual buff changes still mark the older estimate.
+
+## 1.14.1
+
+- Delayed chat readings now discard stale accuracy and evasion, just like the overlay. Changes to HP or TP keep the estimate with a note about conditional bonuses.
+- Changing characters or resetting settings clears pending stat requests and old readings. Partial chat replies keep their actual receipt time.
+- Missing gear or buff information leaves pDIF and stat-reply estimates unknown until those inputs can be read again.
+- Reduced repeated overlay calculations after HP or TP has already marked a stat reading as an estimate.
+- Fixed saved profile names containing `##` and corrected help text and guide details.
+- `/checkmate info` now checks for missing or mixed source revisions and content settings in the shared data files and current zone.
+
+## 1.14.0
+
+- Added Hit rate, Off-hand hit rate, Ranged hit rate and Evade to the overlay. Enable them under Display; they fill in after your manual `/check` receives its stat reply.
+- Changed gear, buffs, attributes or skills clear those readings. HP and TP changes mark them as estimates because conditional bonuses may have changed. Hover help shows the reply's age and when you need to check again.
+- Overlay-only Pet rows can now use the stat request after a manual check. Chat and overlay switches still work separately.
+- Melee, Ranged and Tank presets include their matching overlay rates when applied.
+
+## 1.13.1
+
+- Added Mint and Lavender skins, with mint green and soft purple highlights. Choose them in Appearance or use `/checkmate skin mint` or `/checkmate skin lavender`.
+
+## 1.13.0
+
+- Added Minimal, Melee, Mage, Ranged, Tank, Blue Mage, Pet Job and Thief starter presets. Each has a preview and explains its changes before you apply it.
+- Combined Printout and Overlay into Display, with chat and overlay switches beside each row. Layout controls expand under the row in narrow windows. Existing commands and saved choices still work.
+- Grouped Numbers into Offense, Defense and Advanced. Overlay styling now sits in Appearance.
+- Added embedded Chat and Overlay previews, a Target details button on every tab, and Previous/Next search matches.
+- Added Undo last change, Reset this section, a modified-profile indicator and guarded Undo overwrite for saved profiles.
+- Shortened hover help while keeping full notes in Target details. Known unavailable reasons appear on the row; missing information stays unknown.
+
+## 1.12.0
+
+- Added optional Shield block and Parry rows for chat and the overlay, with their own labels, colors and layout controls.
+- The chances use current skills, jobs and equipped gear with Phoenix's source rules. Hover help explains the inputs, eligibility and unresolved bonuses.
+- Both rows update from local inputs without requesting parameters. Their percentages describe eligible normal attacks, with unavailable and unknown states kept separate.
+
+## 1.11.0
+
+- Added optional main-hand, off-hand and ranged pDIF rows for chat and the overlay. Choose the normal attack multiplier range, Attack/Defense ratio, or both under Numbers.
+- Ratio includes the Attack and Defense inputs. Hover help keeps both views, the curve cap, snapshot age and any source limits.
+- pDIF shares the existing stat request after a manual check. Changed player inputs discard the old Attack reading, and missing values stay unknown.
+
+## 1.10.1
+
+- Reduced repeated work in the overlay, Blue Magic finder and Target details.
+- Labels, help and comments use the current tab names. The player guide and release notes are shorter and easier to follow.
+- Release packages include only the addon, its assets and its license.
+
+## 1.10.0
+
+- Monster has a compact Category, Chat and Overlay table. Its target header shows the monster, reading type and input age, with a shortcut to Target details.
+- Move and Blue Magic details use separate lines. Search has Clear and a match count. Copy shown follows your filters; Copy details keeps the full list.
+- Dangers includes supported additional effects from normal attacks and more scripted spell lists, with their conditions.
+- Blue Magic has a spell finder with monsters, zones, level ranges and source conditions. It can hide learned spells. It does not check live spawns or promise a learning roll.
+- Shared danger records reduce the size and memory use of zone data.
+
+## 1.9.0
+
+- Dangers shows when a list is incomplete or unresolved. Spells follow known level restrictions, and forced casts keep their script conditions.
+- Danger filters cover debuffs, critical hits, buff removal, drains and other threats. Chat and the overlay can limit the number shown; Target details keeps every move.
+- Move details include known ranges, target shapes, shadow behavior and removal options. These can have conditions and are not safe-distance advice.
+- Blue Magic can mark moves you saw the monster finish using. The marker does not establish learning eligibility.
+- Target details keeps your latest manual /check when the overlay is off. Old replies cannot replace a newer check or restore a monster that disappeared.
+
+## 1.8.0
+
+- Dangers reads harmful effects and critical-hit behavior from move and spell scripts, shared helpers and loaded Phoenix overrides.
+- Moves that need Mighty Strikes or another buff to crit keep that condition and only appear when the monster has a known way to gain it.
+- Long danger tooltips point to Target details for the full notes.
+
+## 1.7.0
+
+- Weaknesses includes general melee and ranged damage changes, absorption and nullification.
+- Monsters that disappear lose their old observed levels and pet stat replies.
+- Search and tabs stay visible while settings scroll. Appearance and Abbreviations have collapsible sections.
+- Blue Magic can hide learned spells and show required skill, along with the job, skill, HP and distance read with the result.
+
+## 1.6.1
+
+- Settings can be made narrower or wider. Tabs wrap and controls use the available space.
+- Appearance can hide settings tabs or restore them all. Hiding a tab keeps its settings, and loading a profile keeps your character's tab choices.
+- Added `/checkmate tab <name> on|off` and `/checkmate tabs all`.
+
+## 1.6.0
+
+- Monster facts have their own rows, labels and order in Printout and Overlay, with New line on by default.
+- Weaknesses combines elements, weapon damage types, immunities and Charm. Blue Magic keeps possible lessons and spell chance together. Both have separate choices for chat and the overlay.
+- Pets can appear in the overlay using available source estimates or a retained stat reply for the same target.
+- Appearance combines Colors and Look. Abbreviations replaces Short. Existing commands and saved settings still work.
+
+## 1.5.2
+
+- Blue Magic and Pets have their own tabs. Pursuit moves to Aggro, and observed buffs and debuffs move to Effects.
+- Weaknesses collects elements, weapon damage types, immunities and Charm.
+- Monster holds the full target notes, search and Copy details.
+
+## 1.5.1
+
+- Gil and Mug details appear only when the source confirms that the monster can drop ordinary gil.
+- Blue Magic distinguishes named lessons, a confirmed empty list and an unresolved list, with the reason in the details.
+- Dangers lists supported threats with their conditions.
+
+## 1.5.0
+
+- Added optional monster facts: family, Charm, HP/MP estimates, movement, pursuit, spawn and claim rules, dangers, Blue Magic, fight rules, traits, crystals and rewards.
+- The elemental script warning can be hidden. Its source note stays in the details.
+- Settings search highlights matching controls. Target details can be searched and folded closed.
+- Profile deletion can be undone until Checkmate unloads.
+
+## 1.4.0
+
+- Added weapon damage weaknesses and resistances with signed percentages and BG Wiki icons.
+- Rogue's Ring shows a Steal chance range when its base HP requirement cannot be resolved.
+- Effects keeps the gear, buffs and merits read when the action message arrives.
+- Incomplete packets are ignored, and profile saves preserve the old file until the replacement is ready.
+
+## 1.3.0
+
+- Overlay calculations refresh after relevant gear, buff, stat, HP and TP changes.
+- Crit and magic count supported gear, buffs and era merits. A `~` marks estimates affected by uncertain monster effects.
+- Jug pets keep the Beast Affinity rank from their summon. Unknown summon inputs stay uncertain.
+- Drop, Steal and placeholder details explain known conditions. Hover help works with icons off.
+
+## 1.2.0
+
+- Added observed buffs and debuffs with estimated time left. Effects clears old observations and keeps unknown durations uncertain.
+- Added a target overlay with its own layout, icons, colors and display choices.
+- Added offhand and ranged hit rates, critical hits taken and Steal details.
+- Expanded profiles, job links and display customization.
+
 ## 1.1.0
 
-Your pet on the same /check, how each monster that links joins the fight, and a monster's ID and whether it's a PH.
-
-- A new Pet part, off by default, shows your pet on the same /check, like `Pet: Wyvern (Lv 75) * Hit: 88% * Evade: 31%`. Hit is how often your pet hits the monster, and Evade is how often the monster misses your pet. It works for a jug pet, a charmed monster, a wyvern and an automaton, as long as it's out when your /check comes back. It comes last and starts its own line by default.
-- With the Pet part on, checkmate sends `/checkparam <pet>` for your jug pet, wyvern or automaton and hides the five reply lines to that one request. It goes a second and a half after your /check, or a second and a half after checkmate's own `/checkparam <me>` when hit rate or evade is on, since the game ignores one sent right after another. Only the Pet line waits for it. A charmed monster's numbers come from checkmate's data, so its line prints right away.
-- The game picks a jug pet's level at random when you call it, and a wyvern or jug pet keeps its level when you level up, so its level can show as a range, like `Lv 73-75`. Monster Gloves count when you're 75 and have them on as your jug pet comes out, until a level sync or level cap picks its level again. Beast Affinity counts too, from the merit list the server sends when you zone. When the sync target levels up or down, a level sync moves your level but not your pet's, so checkmate doesn't move it either.
-- The Pet part's options are in a new PET section on the Numbers tab: Show its name, Show its level, and the words before its two numbers. Each one has a command, listed by `/checkmate help numbers`. Its five chat colors are on the Colors tab, and every skin sets them. Its numbers use the Hit rate and Evade cutoffs and the grade colors, so "Color the hit rate, evade and crit numbers" on the Colors tab is now "Color the hit, evade, crit and pet numbers".
-- checkmate now waits a second and a half after any /check or /checkparam that goes out, yours or another addon's, or after the reply to one it didn't send, before sending one, so the game doesn't ignore it.
-- The data now has `data\pets.lua`, with each jug pet's highest level, the avatars' names, the gear that narrows a jug pet's level and the Beast Affinity merit, built from Phoenix's source with the rest.
-- A chat color your settings file or a profile doesn't have yet, like the new Pet colors, now comes from your own skin, so a skin you picked stays picked after an update.
-- The aggro part now says how each monster it links with joins the fight, after its name, like `Links with Abyssdiver (Sight), Helldiver (Sight), Zu (Sound)`. Sight means it has to be facing the fight, Sound means it joins from any side, and Superlink means it joins from anywhere in the zone. A monster that sees through Invisible or hears through Sneak says True Sight or True Sound, like after Aggressive. One that neither sees nor hears says what it notices instead, like `(Magic)`, and one that only notices scent gets nothing after its name. With the names off it says them all together, like `Links (Sight, Sound)`. Untick Show how each one links on the Aggro tab, or type `/checkmate linkhow off`, to leave them out.
-- The monster data now keeps how each monster links, and it reads the fomor patrols and guards in Lufaise Meadows, Misareaux Coast, Phomiuna Aqueducts and the Sacrarium, which superlink. So the fomors there now link with the monsters the server gives them, like a Fomor Paladin at Bluefell Falls linking only with its guard. An antlion waiting underground, like the Pit Antlions in Attohwa Chasm and Tuchulcha's hunters, no longer shows as a link, since the server never lets one link while it's hidden. It's built from the same Phoenix commit as 1.0.1, so nothing else in it changed, apart from the placeholders below.
-- Show its ID, off by default, adds the monster's ID after its level, like `Goblin Tinkerer (Lv 19) (ID 17199202)`. Tick it on the Printout tab or type `/checkmate id on`. You can change the word `ID` or leave it out, and the ID has its own color.
-- Show if it's a PH, off by default, adds the NM a placeholder can pop, after its level and ID, like `Damselfly (Lv 21) (ID 17199434) (PH for Valkurm Emperor)`. Tick it on the Printout tab or type `/checkmate ph on`. You can change `PH for` or leave it out, and the note has its own color. It only says the monster is a PH, not when the NM can pop again, the chance it pops or whether it's up.
-- The monster data now keeps which spawns are placeholders and the NMs each one can pop, from Phoenix's own scripts. A spawn only counts when its own despawn rolls for the NM and the NM's list holds that spawn, so list entries Phoenix never rolls, like the Dynamis ones, are left out.
+- Added pet hit and evade rates, including level ranges when the pet's exact level is unknown.
+- Added link senses, monster IDs and placeholder names.
+- Spaced stat requests to avoid sending them too close together. New colors follow your chosen skin.
 
 ## 1.0.1
 
-Monster data rebuilt from phoenix/live 465ac4c076 (2026-10-05).
-
-- Mimas in Upper Delkfutts Tower changed its levels.
-- Porphyrion in Upper Delkfutts Tower changed its levels and resist traits.
-- Goblin Leecher in Dangruf Wadi changed its drops.
-- Witchetty Grub in Dangruf Wadi changed its drops.
-- 9 more monsters changed too.
+- Updated monster data from `phoenix/live` at `465ac4c076`.
+- Updated levels for Mimas and Porphyrion, Porphyrion's resist traits, and drops for Goblin Leecher and Witchetty Grub, along with nine other monsters.
 
 ## 1.0.0
 
-First release.
-
-- Prints what you'd want to know about a monster after your own /check.
-- The name and level always print first. When /check can't gauge a monster, the level comes from your widescan, or else from the levels that monster spawns at in the data. Turn off Show level to leave the level out.
-- Show its level range too, off by default, adds the levels a monster spawns at after its known level, like `Goblin Tinkerer (Lv 19, range 18-19)`. Each spawn has its own range, and an Assault monster only shows the levels under your level cap. You can change the word `range` or leave it out, and the range has its own color.
-- Difficulty and Evasion and defense are on by default, right after the name, like `Very Tough (High Evasion, Low Defense)`. Defense first puts defense before evasion, and Color by difficulty paints each con in its own color.
-- checkmate replaces the game's own /check line by default, the way checker does. If your parts would print nothing, the name, level, difficulty and evasion and defense still print. `/checkmate replace off` gives the game's line back.
-- Hit rate, evade and crit show an exact number when checkmate knows the monster and its level, and a range when it doesn't.
-- Hit rate and evade come with an automatic `/checkparam <me>` a second and a half after your /check, and only its own six reply lines are hidden. Only the lines from the first one holding hit or evade wait for the reply, so with the default layout the /check line prints at once and hit and evade follow about two seconds later. A second /check or zoning during the wait still prints the older /check's other lines.
-- Aggro is on by default. It says whether the monster will aggro you at your level, from your /check the way the server works it out, or from its level and the server's Too Weak table when it can't be gauged. It adds how the monster notices you, like `(Sight, Sound)`, a note when its aggro changes, like `(awake 6:00-20:59)`, and what it links with, like `Links with Goblin Thug, Goblin Weaver`. Color by threat paints the answer in a threat color or a safe color, red or green in the Phoenix skin.
-- Magic chances for eight schools, each with a stand-in spell you can change.
-- Immunities, each one on or off with your own label.
-- Elements, off by default, lists the elements a monster is weak to and the ones it resists, like `Elements: Weak: Ice, Thunder * Resists: Water (half)`. It goes in the order the server checks a damage spell. Show how strong each one is adds `(half)`, `(never lands)`, `(rarely lands)`, `(absorbs)` and the like, and a `Magic damage -25%` note when every element does more or less damage. You can change the words `Weak` and `Resists`.
-- Drop chances at Treasure Hunter 0 to 4.
-- Your own label, line breaks and order for every part, and grade colors with your own cutoffs.
-- A chat color for every piece of the printout on the Colors tab.
-- A divider between parts, a black star by default, and a label divider after each label, a colon by default. You can pick other symbols or type your own text for either one.
-- Six skins that set the settings window's look and every chat color, Colorblind safe among them. Undo takes back your last skin pick.
-- A picker on the Look tab for each of the 41 colors the settings window draws with.
-- A font for the settings window, Ashita's own or one of six Windows fonts, at 12 to 24 pixels. The Windows fonts load once, when checkmate loads. One that's missing or won't load leaves the window in Ashita's font.
-- Profiles shared by all your characters, with job links.
-- A settings window you can move and resize. It opens where you left it at the size you left it, and its sections sit in two columns once it's wide enough. Every setting has a (?) that explains it.
-- Every setting in the settings window has a command too, with the same limits as the window. That takes in each part's label, New line and place in the order, the cutoffs, the stand-in spells, extra magic accuracy, the drop list settings, each immunity and its label, the window's corners and spacing, renaming a profile and the job links.
-- `/checkmate help` lists the topics and the commands you'll use most, and `/checkmate help <topic>` lists the commands for one tab of the settings window. `/cmate` is short for `/checkmate`. A word checkmate doesn't recognize gets one line pointing to `/checkmate help`.
-- `/checkmate sample` prints a made-up /check with your settings, and `/checkmate info` says what the monster data was built from.
-- Monster data built from Phoenix's source on `phoenix/live`, the branch the server runs, for the open world, battlefields, Limbus, Phoenix's own Dynamis, all five Assault areas, The Ashu Talif fights and the Nyzul Isle mission fights, with each monster's aggro and links.
+- First release: monster checks, combat estimates, aggro and links, magic chances, immunities, elements and drop chances.
+- Added configurable printout rows, colors, skins, abbreviations, profiles and job links.
+- Included Phoenix monster data for supported open-world and instanced areas.

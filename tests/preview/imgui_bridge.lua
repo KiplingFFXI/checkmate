@@ -39,7 +39,15 @@ draw_list_mt.__index = function (self, name)
         return f(rawget(this, '__dl'), ...);
     end;
 end;
+--[[
+    Every draw list, and every IO, style and viewport object, handed to Lua stays referenced for the whole
+    run. Without that, about one overlay render with icons in six read ImGui's IO as a draw list, which looks
+    like lupa handing back a wrapper for a Python object that was already let go. A run is only a few frames,
+    so it's a handful of objects.
+]]
+local kept_objects = {};
 local function wrap_draw_list(dl)
+    kept_objects[#kept_objects + 1] = dl;
     return setmetatable({ __dl = dl }, draw_list_mt);
 end
 local get_window_draw_list = gui.GetWindowDrawList;
@@ -74,6 +82,7 @@ proxy_mt.__newindex = function (self, key, value)
     PY.set_attr(rawget(self, '__obj'), key, value);
 end;
 local function proxy(obj)
+    kept_objects[#kept_objects + 1] = obj;
     return setmetatable({ __obj = obj }, proxy_mt);
 end
 for _, name in ipairs({ 'GetIO', 'GetStyle', 'GetMainViewport' }) do

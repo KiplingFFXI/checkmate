@@ -6,6 +6,7 @@ base script's handlers for the type's handlers. It runs the base handler first (
 baseScriptMobs marks 'original'. specialMobHooks add xi.dynamis functions after the type's handler. So the base
 script counts only for its kept events, and the type's xi.dynamis helpers count for the rest.
 """
+from pathlib import Path
 import os
 import re
 
@@ -31,7 +32,7 @@ def table_after(text, marker, where):
 
 class Dynamis:
     def __init__(self, tree):
-        text = lua_source.strip_comments(open(os.path.join(tree, OVERRIDES), encoding='utf-8').read())
+        text = lua_source.strip_comments(Path(os.path.join(tree, OVERRIDES)).read_text(encoding='utf-8'))
         self.events = re.findall(r"'(\w+)'", table_after(text, 'local mobOverrideOrder =', 'mobOverrideOrder'))
         self.zone_dirs = re.findall(r"\{\s*xi\.zone\.DYNAMIS_\w+,\s*'([\w-]+)',\s*\d+\s*\}",
                                     table_after(text, 'local dynamisZones =', 'dynamisZones'))
@@ -145,21 +146,33 @@ class Dynamis:
                     effects.init_aggro += helper.aggro_ops
                     effects.unreadable += helper.unreadable
                     effects.link_runtime += helper.link_runtime
+                    effects.tp_moves += helper.tp_moves
+                    effects.no_swings += helper.no_swings
                 elif event == mobscripts.SPAWN:
                     effects.spawn_ops += helper.ops
                     effects.spawn_aggro += helper.aggro_ops
                     effects.unreadable += helper.unreadable
                     effects.link_runtime += helper.link_runtime
+                    effects.tp_moves += helper.tp_moves
+                    effects.no_swings += helper.no_swings
                 else:
                     numbers, damage = mobscripts.split_ops(helper.ops)
-                    if numbers:
+                    if numbers or helper.unreadable:
                         effects.runtime.append('%s %s runs %s' % (script, event, name))
-                    if damage:
+                    if damage or helper.unreadable:
                         effects.element_runtime.append('%s %s runs %s' % (script, event, name))
+                    if mobscripts.defense_ops(helper.ops) or helper.unreadable:
+                        effects.defense_runtime.append('%s %s runs %s' % (script, event, name))
+                    if mobscripts.weapon_ops(helper.ops) or helper.unreadable:
+                        effects.weapon_runtime.append('%s %s runs %s' % (script, event, name))
                     if any(changed in lua_source.AGGRO_NAMES for changed, _ in helper.aggro_ops):
                         effects.aggro_runtime.append('%s %s runs %s' % (script, event, name))
                 effects.runtime += helper.runtime
+                effects.job_changes += helper.job_changes
+                effects.normal_swings += helper.normal_swings
                 effects.element_runtime += helper.element_runtime
+                effects.weapon_runtime += helper.weapon_runtime
+                effects.defense_runtime += helper.defense_runtime
                 effects.aggro_runtime += helper.aggro_runtime
                 if name not in DESPAWN_HOOKS:
                     effects.scripted_drops += helper.scripted_drops

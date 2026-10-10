@@ -17,12 +17,6 @@
 
 local spells = {};
 
--- How each element prints after a school's chance, like "Elemental 88% (Ice)".
-spells.ELEMENT_NAMES = {
-    fire = 'Fire', ice = 'Ice', wind = 'Wind', earth = 'Earth',
-    thunder = 'Thunder', water = 'Water', light = 'Light', dark = 'Dark',
-};
-
 -- Tier I to IV nukes and elemental ninjutsu exist for these six elements.
 local NUKE_ELEMENTS = { 'fire', 'ice', 'wind', 'earth', 'thunder', 'water' };
 

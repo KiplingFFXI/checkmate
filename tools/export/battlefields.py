@@ -3,13 +3,19 @@ The fights in scripts/battlefields. Each file sets up one battlefield and puts i
 (lua_battlefield.cpp addGroups).
 
 A group names its monsters by script (mobs) or by id (mobIds, through the zone's IDs.lua). It can be a link party
-of its own (isParty), share a superlink (superlink or superlinkGroup), and set mods, mob mods and mixins. A
+of its own (isParty), share a superlink (superlink or superlinkGroup), and set mods, mob mods and mixins. Its setup
+can give its monsters a battle ID that keeps them out of every fight, like the Limbus crates. A
 battlefield with no fixed area runs in any of three arenas, and each arena has its own copy of the monsters.
+
+A fight for a mission or quest only lets in players with that mission or quest (battlefield.lua checkRequirements), so
+one whose expansion's content is off is left out, like the ACP and AMK fights.
 """
+from pathlib import Path
 import glob
 import os
 import re
 
+from . import exists
 from . import lua_source
 from .lua_source import block
 
@@ -24,6 +30,44 @@ HAND = {
         [[('HUME_AUTOMATON', arena * 6 + offset) for offset in range(5)] for arena in range(ARENAS)],
     ],
 }
+
+# Groups a battlefield adds in code once it's running (battlefield:addGroups), on top of the ones content.groups
+# gives, written out the same way as HAND.
+ADDED = {
+    # NE Apollyon floor 3. Floor 2's randomDeath adds sweepers and cleaners from NE_APOLLYON_SWEEPER_OFFSET, 5 to 15
+    # of them by alliance size.
+    'Apollyon/ne_apollyon.lua': [[[('NE_APOLLYON_SWEEPER_OFFSET', offset) for offset in range(15)]]],
+}
+
+# Battlefield files that turn links off in code the group reader doesn't follow, once each one is checked.
+CODE_LINKS = {
+    # The disguised mimics' NO_LINK, which links.KNOWN_LINK_SCRIPTS holds, and their battle ID 1, which revealMimic
+    # sets back to 0.
+    'Apollyon/sw_apollyon.lua',
+    # Carbuncle only has NO_LINK while it plays dead between phases. It's cleared when Carbuncle comes back.
+    'Full_Moon_Fountain/waking_the_beast.lua',
+}
+
+# The mission and quest folder of each log a fight's missionArea or questArea can name. exists.FOLDER_CONTENT gives
+# each folder's content tag. The ZILART log's missions are in the rotz folder.
+MISSION_LOGS = {'SANDORIA': 'missions/sandoria', 'BASTOK': 'missions/bastok', 'WINDURST': 'missions/windurst',
+                'ZILART': 'missions/rotz', 'COP': 'missions/cop', 'TOAU': 'missions/toau', 'WOTG': 'missions/wotg',
+                'ACP': 'missions/acp', 'AMK': 'missions/amk', 'ASA': 'missions/asa', 'SOA': 'missions/soa',
+                'ROV': 'missions/rov', 'TVR': 'missions/tvr'}
+QUEST_LOGS = {'SANDORIA': 'quests/sandoria', 'BASTOK': 'quests/bastok', 'WINDURST': 'quests/windurst',
+              'JEUNO': 'quests/jeuno', 'OTHER_AREAS': 'quests/otherAreas', 'OUTLANDS': 'quests/outlands',
+              'AHT_URHGAN': 'quests/ahtUrhgan', 'CRYSTAL_WAR': 'quests/crystalWar', 'ABYSSEA': 'quests/abyssea',
+              'ADOULIN': 'quests/adoulin'}
+AREAS = [('missionArea', re.compile(r'xi\.mission\.log_id\.(\w+)'), MISSION_LOGS),
+         ('questArea', re.compile(r'xi\.questLog\.(\w+)'), QUEST_LOGS)]
+
+# A group setup that gives each of its monsters a battle ID, like the Limbus crates':
+# for _, crate in ipairs(crates) do crate:setBattleID(1) end
+BATTLE_ID_SETUP = re.compile(r'function\s*\(\s*\w+\s*,\s*(\w+)\s*\)\s*for\s+_\s*,\s*(\w+)\s+in\s+ipairs\(\s*\1\s*\)\s*do\s+'
+                             r'\2\s*:\s*setBattleID\(\s*(\d+)\s*\)\s+end\s+end')
+
+# Calls that keep a monster out of links, a battle ID other than 0 or NO_LINK on.
+LINK_OFF = re.compile(r':\s*setBattleID\((?!\s*0\s*\))|setMobMod\(\s*xi\.mobMod\.NO_LINK\s*,(?!\s*0\s*\))')
 
 GROUPS_START = re.compile(r'content\.groups\s*=\s*(?=\{)')
 ESSENTIAL_START = re.compile(r'content:addEssentialMobs\(\s*(?=\{)')
@@ -85,6 +129,11 @@ class Group:
         # Per arena, (IDs.lua mob name, offset) pairs from mobIds.
         self.ids = []
         self.party = False
+        # False for a group the battlefield doesn't spawn when it starts (spawned = false).
+        self.spawned = True
+        # The battle ID its setup gives its monsters. Players and their pets fight at 0, so a monster with any other
+        # one never fights in the battlefield (mob_controller.cpp TryDeaggro drops a target with another battle ID).
+        self.battle_id = 0
         # A key shared by every group that superlinks together, or None.
         self.superlink = None
         # (mob mod name, value text) pairs from mobMods.
@@ -101,6 +150,8 @@ class Fight:
         self.zone = zone
         self.arenas = arenas
         self.groups = []
+        # The content tags of the mission or quest log it's for. Every one has to be on for anyone to get in.
+        self.content = []
 
 
 def read_ids(value, fight, aliases, where):
@@ -131,6 +182,14 @@ def read_group(body, number, fight, aliases, where):
     if 'mobIds' in values:
         group.ids = read_ids(values['mobIds'], fight, aliases, '%s group %d' % (where, number))
     group.party = values.get('isParty') == 'true'
+    group.spawned = values.get('spawned') != 'false'
+    setup = BATTLE_ID_SETUP.fullmatch(values.get('setup', ''))
+    if setup:
+        group.battle_id = int(setup.group(3))
+        # setup runs once when the fight starts, and a later spawn sets the battle ID back to 0.
+        if group.battle_id and not group.spawned:
+            raise RuntimeError('%s group %d sets a battle ID on monsters it spawns later, which the exporter can\'t '
+                               'read' % (where, number))
     if values.get('superlink') == 'true':
         group.superlink = ('superlink', number)
     elif 'superlinkGroup' in values:
@@ -150,18 +209,26 @@ def read_group(body, number, fight, aliases, where):
 
 
 def read_fight(path, rel):
-    text = lua_source.strip_comments(open(path, encoding='utf-8').read())
+    text = lua_source.strip_comments(Path(path).read_text(encoding='utf-8'))
     new = re.search(r':new\(\s*(?=\{)', text)
     header = fields(block(text, new.end(), rel)) if new else {}
     zone = re.fullmatch(r'xi\.zone\.(\w+)', header.get('zoneId', ''))
     if zone is None:
         raise RuntimeError('%s has no zoneId the exporter can read' % rel)
     fight = Fight(zone.group(1).lower(), 1 if 'area' in header else ARENAS)
+    for key, form, logs in AREAS:
+        if key not in header:
+            continue
+        log = form.fullmatch(header[key])
+        if log is None or log.group(1) not in logs:
+            raise RuntimeError('%s has a %s the exporter can\'t read: %s' % (rel, key, header[key]))
+        fight.content.append(exists.FOLDER_CONTENT.get(logs[log.group(1)]))
     if rel in HAND:
         for areas in HAND[rel]:
             group = Group()
             group.ids = areas
             fight.groups.append(group)
+        check_code(text, fight, rel)
         return fight
     aliases = {alias for alias, name in ALIAS.findall(text) if name.lower() == fight.zone}
     starts = [(match.end(), 'groups') for match in GROUPS_START.finditer(text)]
@@ -180,16 +247,35 @@ def read_fight(path, rel):
             group.party = True
             group.superlink = ('superlink', len(fight.groups))
             fight.groups.append(group)
+    for areas in ADDED.get(rel, []):
+        group = Group()
+        group.ids = areas
+        fight.groups.append(group)
+    check_code(text, fight, rel)
     return fight
 
 
-def load(tree, zone_names):
-    """{zone enum name: [Fight]} for the battlefields in the zones named."""
+def check_code(text, fight, rel):
+    """
+    Stops on what a battlefield file does in code that the group reader doesn't follow: groups it adds once it's
+    running that ADDED doesn't hold, or a call that turns links off, unless a group setup it read holds it
+    (BATTLE_ID_SETUP) or CODE_LINKS covers the file.
+    """
+    if re.search(r':\s*addGroups\s*\(', text) and rel not in ADDED:
+        raise RuntimeError('%s adds groups in code. Add them to battlefields.ADDED.' % rel)
+    read = sum(1 for group in fight.groups if group.battle_id)
+    if len(LINK_OFF.findall(text)) > read and rel not in CODE_LINKS:
+        raise RuntimeError('%s turns links off in code the exporter can\'t read. Check it and add it to '
+                           'battlefields.CODE_LINKS.' % rel)
+
+
+def load(tree, zone_names, allowed):
+    """{zone enum name: [Fight]} for the battlefields in the zones named whose content is on."""
     root = os.path.join(tree, 'scripts', 'battlefields')
     fights = {}
     for path in sorted(glob.glob(os.path.join(root, '**', '*.lua'), recursive=True)):
         rel = os.path.relpath(path, root).replace(os.sep, '/')
         fight = read_fight(path, rel)
-        if fight.zone in zone_names:
+        if fight.zone in zone_names and all(allowed.allows(tag) for tag in fight.content):
             fights.setdefault(fight.zone, []).append(fight)
     return fights

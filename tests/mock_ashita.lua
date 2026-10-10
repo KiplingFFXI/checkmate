@@ -125,6 +125,29 @@ local textures = 0;
     MOCK.picture gives each fake texture a number; invalid image data fails to load.
 ]]
 local file_ffi = require('ffi');
+-- Keep Windows paths inside the same test folders on other hosts.
+if (file_ffi.os ~= 'Windows') then
+    local function host_path(path)
+        return type(path) == 'string' and (path:gsub('\\', '/')) or path;
+    end
+    local open, remove, rename = io.open, os.remove, os.rename;
+    local load, run = loadfile, dofile;
+    io.open = function (path, ...)
+        return open(host_path(path), ...);
+    end;
+    os.remove = function (path)
+        return remove(host_path(path));
+    end;
+    os.rename = function (from, to)
+        return rename(host_path(from), host_path(to));
+    end;
+    loadfile = function (path, ...)
+        return load(host_path(path), ...);
+    end;
+    dofile = function (path)
+        return run(host_path(path));
+    end;
+end
 file_ffi.cdef[[
     unsigned long __stdcall GetCurrentProcessId(void);
     int __stdcall MoveFileExA(const char* existing, const char* replacement, unsigned long flags);

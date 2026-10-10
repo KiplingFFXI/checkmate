@@ -108,6 +108,7 @@ def checked_bytes(source, name):
         text = data.decode('utf-8')
         if PRIVATE_PATH.search(text) or PRIVATE_MARKERS.search(text):
             raise RuntimeError('Private path or credential marker in release file: %s' % name)
+        data = data.replace(b'\r\n', b'\n')
     return data
 
 

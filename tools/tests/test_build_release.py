@@ -40,7 +40,7 @@ class ReleaseTests(unittest.TestCase):
         with zipfile.ZipFile(path) as archive:
             self.assertEqual(archive.namelist(), ['checkmate/LICENSE', 'checkmate/checkmate.lua', 'checkmate/core/main.lua'])
             self.assertTrue(all(info.date_time == (1980, 1, 1, 0, 0, 0) for info in archive.infolist()))
-            self.assertEqual(archive.read('checkmate/LICENSE'), self.license.read_bytes())
+            self.assertEqual(archive.read('checkmate/LICENSE'), self.license.read_bytes().replace(b'\r\n', b'\n'))
         self.assertEqual(count, 3)
         self.assertEqual(digest, hashlib.sha256(path.read_bytes()).hexdigest())
 
@@ -50,6 +50,27 @@ class ReleaseTests(unittest.TestCase):
         _, _, second = self.build()
         self.assertEqual(first, second)
         self.assertTrue(path.is_file())
+
+    def test_text_newlines_produce_identical_archives(self):
+        sources = {
+            self.addon / 'checkmate.lua': b"addon.version = '1.10.0';\n-- Public addon.\n",
+            self.addon / 'core/main.lua': b'-- Runtime.\nreturn {};\n',
+            self.license: b'Public license notice.\nLicense terms.\n',
+        }
+        for source, data in sources.items():
+            source.write_bytes(data)
+        path, count, digest = self.build()
+        original = path.read_bytes()
+        for mixed in (False, True):
+            with self.subTest(mixed=mixed):
+                for source, data in sources.items():
+                    source.write_bytes(data.replace(b'\n', b'\r\n', 1 if mixed else -1))
+                _, new_count, new_digest = self.build()
+                self.assertEqual(new_count, count)
+                self.assertEqual(new_digest, digest)
+                self.assertEqual(path.read_bytes(), original)
+                for source, data in sources.items():
+                    self.assertEqual(source.read_bytes(), data.replace(b'\n', b'\r\n', 1 if mixed else -1))
 
     def test_private_note_and_extra_lua_are_rejected(self):
         for name in ('notes.txt', 'test_probe.lua', '.env', 'checkmate.lua.bak'):

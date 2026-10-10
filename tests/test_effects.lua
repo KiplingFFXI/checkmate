@@ -1,12 +1,17 @@
 -- The tracker uses Phoenix's exported durations and only the results the client receives.
 local effects = require('core.effects');
 local packets = require('core.packets');
+local merits = require('core.merits');
+local merit_settings;
 expect('requiring the tracker does not load duration data', package.loaded['data.effects'], nil);
 local me, other = MOCK.player.server_id, 2001;
 local mob, second = MOCK.mob_id(103, 17), MOCK.mob_id(103, 18);
 
 local function reset()
-    effects.forget(true);
+    effects.forget();
+    merits.forget();
+    merit_settings = { merits = { fill_in = true } };
+    merits.configure(merit_settings, 'effects tests');
     MOCK.now = 100;
     MOCK.player.equipment, MOCK.player.buffs = {}, {};
 end
@@ -31,6 +36,10 @@ local function left(effect, target)
     return each and each.ends and each.ends - MOCK.now;
 end
 
+reset();
+effects.on_merits(MOCK.merit_packet({ { 2304, 2 } }));
+expect('merit capture loads no duration data while effects are off', package.loaded['data.effects'], nil);
+expect('the shared cache captured the duration merit', merits.selected('dia_iii'), 2);
 reset();
 local before = MOCK.bit_reads;
 send(8, 58, 4);
@@ -109,7 +118,7 @@ take();
 expect('foreign Sleep Bolt uses typical item duration', left(2), 25);
 expect('foreign Spartan Bullet uses typical item duration', left(10, second), 5);
 
--- A successful land authorizes replacements; a miss never does.
+-- A landed effect can replace another effect. A miss cannot.
 reset();
 send(4, 56, 13); take();
 send(4, 57, 33, 230, mob); take();
@@ -198,7 +207,7 @@ expect('expired Stoneskin leaves sleep exposed to the next tick', left(2), 3);
 MOCK.now = MOCK.now + 3; take();
 expect('sleep ends after the exposed tick', entry(2), nil);
 
--- Your estimates use the visible gear and effective Phoenix merit cap, never a foreign player's gear.
+-- Your estimates use your visible gear and effective Phoenix merit cap, never another player's gear.
 local data = require('data.effects');
 -- A proc from the off-hand must not borrow an unrelated main-hand proc's duration.
 do
@@ -259,6 +268,21 @@ expect('your Angon merits', left(149), 45);
 reset();
 send(4, 25, 0, 2); take();
 expect('unknown Dia III ranks use the exported cap', left(134), data.merits.dia_iii.per_rank * data.merits.dia_iii.most);
+reset();
+merits.on_packet(MOCK.merit_packet({ { data.merits.dia_iii.id, 2 } }));
+effects.forget();
+send(4, 25, 0, 2); take();
+expect('enabling effects later uses the shared merit observation', left(134), 60);
+effects.forget();
+merit_settings.merits.fill_in, merit_settings.merits.dia_iii = false, 1;
+send(4, 25, 0, 2);
+merit_settings.merits.dia_iii = 3;
+take();
+expect('queued effects keep the selected merit rank at receipt', left(134), 30);
+effects.forget();
+send(4, 25, 0, 2); take();
+expect('the next effect uses the new manual merit choice', left(134), 90);
+expect('manual duration choices preserve the actual observed rank', merits.observed('dia_iii'), 2);
 
 -- Duration inputs belong to the received action, even when gear or buffs change before the frame.
 reset();

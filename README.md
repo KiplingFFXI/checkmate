@@ -31,7 +31,7 @@ Type `/checkmate` to open settings. Choose a starter preset under **Profiles**, 
 - Hit, evade and critical chances; normal-attack pDIF; shield block and parry estimates.
 - Magic chances, elemental and weapon weaknesses, immunities and Charm eligibility.
 - Dangers with supported move details, and observed buffs and debuffs.
-- Possible Blue Magic lessons, spellbook status, optional observed move use and a spell finder.
+- Possible learnable BLU spells, learning chance, spellbook status, optional observed move use and a spell finder.
 - Conditional drops, Steal, rewards and supported pet estimates.
 
 These are source-based estimates, not a live server lookup. Ranges, `~`, `?` and unknown values keep missing or changing information visible. Hover a result for its inputs and conditions. If checked inputs change, retained estimates say **Check again**; another manual `/check` refreshes them. [Read the conditions and limits](docs/GUIDE.md#understand-estimates-and-refresh-readings).

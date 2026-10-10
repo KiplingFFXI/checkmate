@@ -28,7 +28,7 @@ expect('a level range stays a source HP range', section(out, 'vitals').value, 'H
 expect('known and missing lessons stay separate', section(out, 'blue').value, 'Foot Kick (known), Dust Cloud (not learned)');
 expect('spellbook reads happen only for possible lessons', reads, 2);
 expect('source notes were not modified', #row.info.blue.notes, 1);
-check('HP and MP are not presented as current values', table.concat(section(out, 'vitals').notes, ' '):find('not current HP or MP', 1, true));
+check('HP and MP are not presented as current values', table.concat(section(out, 'vitals').notes, ' '):find('They do not show what the monster has left', 1, true));
 out = info.readout(row, 31, 31, { blue = false });
 expect('an exact observed level narrows the HP estimate', section(out, 'vitals').value, 'HP ~1,400, No MP in source');
 expect('disabling lessons avoids all spellbook reads', reads, 2);

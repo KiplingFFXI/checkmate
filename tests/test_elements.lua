@@ -10,7 +10,7 @@ local skins    = require('ui.skins');
 
 local function color(code) return '\30' .. string.char(code); end
 
--- An entry's strength the way the printout words it with short words off, like "absorbs 50%" or "+100%", or nil.
+-- An entry's strength the way the printout words it with abbreviations off, like "absorbs 50%" or "+100%", or nil.
 -- The readout hands over a key in core\wording.lua and the amount that prints with it.
 local function strength_of(entry)
     if (entry.strength == nil) then

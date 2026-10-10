@@ -1,6 +1,6 @@
 -- The overlay. Off by default it reads nothing and draws nothing, and the chat printout is the same byte for byte
 -- with it on or off. With it on it shows what checkmate knows about your target, your /check fills in the rest,
--- and it keeps that /check until the monster dies near you, you zone, a widescan says it's another monster or
+-- and keeps that /check until the monster dies or leaves sight, you zone, widescan finds another monster or
 -- your level changes. It also covers what a frame costs, hiding, the sample, moving it and dragging its corner with
 -- Shift, the look, wrapping, crit and magic, its icons and their tips, errors in it never stopping the chat
 -- printout, and that it never sends anything. The fixture zone 900 gives the exact checks, and the real Valkurm
@@ -31,7 +31,7 @@ cur().weaknesses.overlay = { elements = false, weapons = false, immunities = fal
 local function frame()
     local panel = require('ui.settings_window');
     panel.folded = panel.folded or {};
-    panel.folded['Display/OVERLAY OPTIONS'] = true;
+    panel.select_display('Overlay options');
     panel.folded['Appearance/OVERLAY APPEARANCE'] = true;
     MOCK.frame();
     return table.concat(MOCK.overlay_lines(), ' // ');
@@ -1179,8 +1179,8 @@ frame();
 fit();
 frame();
 local right, count = 20 + MOCK.overlay_size[1], #MOCK.overlay_lines();
-check('the name with its level and ID is one piece wider than 100 px', MOCK.overlay_size[1] - 16 > 100,
-    MOCK.overlay_size[1]);
+check('a narrow header wraps before its ID', not MOCK.overlay_lines()[1]:find('(ID ', 1, true),
+    table.concat(MOCK.overlay_lines(), ' // '));
 saves = MOCK.saved;
 press(right - 5, 255);
 MOCK.mouse = { right - 10, 255 };
@@ -1373,8 +1373,7 @@ run('/checkmate overlayfontsize 16');
 
 -- Wrapping ---------------------------------------------------------------------------------------
 
--- The tests' text is 7 px a character. Lines only break after a comma or a divider with no bracket open, and
--- carry on two spaces in.
+-- The tests' text is 7 px a character. Outside the header, brackets stay together.
 run('/checkmate maxlinks 0');
 frame();
 local function lines_at(wrap)
@@ -1396,25 +1395,25 @@ local function fits(line, wrap)
 end
 local every = true;
 for wrap = 7, 700, 7 do
+    local header = true;
     for _, line in ipairs(lines_at(wrap)) do
-        every = every and balanced(line) and fits(line, wrap) and not line:find('|%s*$') and not line:find('%s$')
-            and (line:sub(1, 2) == '  ' or line:find('^Goblin Tinkerer') ~= nil or line:find('^Aggro:') ~= nil);
+        if (line:find('^Aggro:')) then header = false; end
+        every = every and (header or balanced(line)) and fits(line, wrap) and not line:find('|%s*$') and not line:find('%s$')
+            and (line:sub(1, 2) == '  ' or line:find('^Goblin') ~= nil or line:find('^Aggro:') ~= nil);
     end
 end
-check('at every width from 7 to 700 px, lines fit, start two spaces in when they carry on, and never split a bracket or '
+check('at every width from 7 to 700 px, lines fit, indent continuations, keep nonheader brackets together and never '
     .. 'end with the pipe or a space', every);
 local narrow = lines_at(7);
-check('a piece wider than the wrap stays whole', narrow[3] == 'Aggro: Aggressive (Sight)'
-    and narrow[4] == '  Links with Goblin Ambusher (Sight),' and narrow[5] == '  Goblin Bounty Hunter (Sight),',
-    table.concat(narrow, ' // '));
+check('a nonheader piece wider than the wrap stays whole', table.concat(narrow, '\n'):find('Aggro: Aggressive (Sight)\n'
+    .. '  Links with Goblin Ambusher (Sight),\n  Goblin Bounty Hunter (Sight),', 1, true) ~= nil, table.concat(narrow, ' // '));
 check('the long link list at 520 px', table.concat(lines_at(520), ' // ') == 'Goblin Tinkerer (Lv 19) | Decent Challenge '
     .. '(Low Evasion) // Aggro: Aggressive (Sight) | Links with Goblin Ambusher (Sight), //   Goblin Bounty Hunter (Sight), '
     .. 'Goblin Butcher (Sight), //   Goblin Digger (Sight), Goblin Gambler (Sight), Goblin Leecher (Sight), //   Goblin '
     .. 'Mugger (Sight), Goblin Tinkerer (Sight)', table.concat(lines_at(520), ' // '));
 run('/checkmate maxlinks 5');
 
--- Details in brackets never split at any width, the level range, the reading and a link that comes by sight and
--- sound included.
+-- Readings and senses stay together at every width. Only oversized header fields gain word breaks.
 zone_to(900, 40);
 frame();
 local tinkerer = monsters.find(900, MOCK.mob_id(900, 40));
@@ -1426,7 +1425,7 @@ run('/checkmate overlayrange on');
 local whole = table.concat(lines_at(0), ' // ');
 check('the line has every detail', whole == 'Fixture Tinkerer (Lv 55, range 54-55) | Even Match (High Evasion, Low Defense) '
     .. '// Aggro: Aggressive (Sight, Sound) | Links with Fixture Goblin (Sight, Sound)', whole);
-local DETAILS = { '(Lv 55, range 54-55)', '(High Evasion, Low Defense)', '(Sight, Sound)' };
+local DETAILS = { '(High Evasion, Low Defense)', '(Sight, Sound)' };
 local kept_whole = true;
 for wrap = 7, 600, 7 do
     local text = table.concat(lines_at(wrap), '\n');
@@ -1434,7 +1433,7 @@ for wrap = 7, 600, 7 do
         kept_whole = kept_whole and has(text, detail);
     end
 end
-check('and none of them split at any width', kept_whole);
+check('readings and senses never split at any width', kept_whole);
 run('/checkmate overlayrange off');
 
 -- Odd custom dividers lay out and draw every character, in order. Only a divider at the end of a wrapped line is
@@ -1470,7 +1469,7 @@ for _, each in ipairs({ { '""', '', false }, { '-', '-', true }, { ',', ',', tru
 end
 -- A part's brackets never run past a divider, so the bracket count starts again after each one. A custom divider
 -- that's exactly a comma and a space still never breaks inside the reading, which has one of its own, and keeps it,
--- with short words off or on. With one that's only a closing bracket the line can still wrap after the reading.
+-- with abbreviations off or on. With one that's only a closing bracket the line can still wrap after the reading.
 check_reply(98, 19, 3, 2, 0);
 run('/checkmate overlaydivider custom ", "');
 for _, short in ipairs({ 'off', 'on' }) do
@@ -2092,7 +2091,7 @@ aim(1);
 check('a tip\'s words are worked out once, however long it shows and when the mouse comes back', rest(0.5) == ICE
     and asked == 1, asked);
 -- A second line under the tip is asked every frame the tip shows, since it can change, like an effect's time left.
--- No kind has one yet, so this one is made up.
+-- This test uses a made-up kind to check that changing line.
 local real_more, more_asked = tips.more, 0;
 tips.more = function ()
     more_asked = more_asked + 1;

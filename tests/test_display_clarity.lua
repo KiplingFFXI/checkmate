@@ -21,14 +21,14 @@ check('unreadable inputs do not promise a refresh fix', text():find('Refresh', 1
 s.printout.short_words = false;
 result.block = { low = 30, high = 32, uncertain = true, skill = 250, shield_name = 'Example Shield', shield_size = 3,
     attacker_skill_low = 245, attacker_skill_high = 250,
-    notes = { 'Chance for an eligible ordinary melee shield roll, not total damage avoidance. Face the attacker and be able to act.',
-        'Example Shield (size 3).', 'Monster weapon skill: 245-250.', 'Palisade is active. Its hidden block-rate power is not included.',
-        'Earlier avoidance and special attacks have separate rules.' } };
+    notes = { 'Your chance when the game allows a block roll against a normal melee attack. Face the attacker and be able to act. This is not your chance to avoid all damage.',
+        'Example Shield (size 3).', 'Monster weapon skill: 245-250.', 'Palisade is active. The strength of its block bonus is unknown, so it is left out.',
+        'An attack may be avoided before this roll. Special attacks can use different rules.' } };
 local hover = tips.text(s, result, 'number', 'block');
 check('hover separates result, inputs, requirements and uncertainty', hover:find('\nResult:', 1, true)
     and hover:find('\nInputs:', 1, true) and hover:find('\nRequirements:', 1, true) and hover:find('\nUncertainty:', 1, true));
 expect('facing condition appears once', select(2, hover:gsub('face the attacker', '')), 1);
-check('specific hidden power remains in hover', hover:find('hidden block-rate power', 1, true));
+check('specific hidden power remains in hover', hover:find('The strength of its block bonus is unknown', 1, true));
 local full = tips.details(s, result);
 for _, note in ipairs(result.block.notes) do check('full details retains ' .. note, full:find(note, 1, true)); end
 local native = defenses.readout({ level = 75, main_job = 1, sub_job = 0, sub_id = 0 }, { low = 75, high = 75 }, 'block');

@@ -44,10 +44,21 @@ the weekly data refresh; ordinary code checks do not regenerate the bundled data
 What's here
 -----------
 
-  test_info.lua            source sections, level ranges, per-spawn overrides and learned Blue spells
+These are the main suite groups. run.py discovers every test_*.lua file, including newer focused regressions.
+
+  test_info.lua            source sections, level ranges, per-spawn overrides and learned BLU spells
   test_blue_learning.lua   unlearned filtering, minimum skill and readable learning inputs
   test_blue_controls.lua   Blue commands, saved profiles, display filtering and spellbook updates
-  test_blue_finder.lua     source lesson lookup, spellbook caching, level gaps, filters and copied places
+  test_blue_finder.lua     learnable spell lookup, spellbook caching, level gaps, filters and copied places
+  test_blue_learning_rate.lua actual learning gear, level gates, unknown inputs and no requests
+  test_blue_learning_ui.lua visible learning summary, folded requirements and separate row controls
+  test_merits.lua          observed and selected ranks, partial packets, level caps and input adjustments
+  test_merits_ui.lua       shared autofill, manual choices, read ranks and character-owned settings
+  test_section_preferences.lua saved folds, temporary search expansion and reset boundaries
+  test_ui_consolidation.lua Display views, direct Options focus and return navigation
+  test_reset_all.lua       confirmed current-character resets, ownership and preserved shared profiles
+  test_clear_all.lua       all rows off, Undo, preserved settings and queued request cancellation
+  test_header_wrap.lua     header field wrapping, hover identity, preview parity and quiet cached frames
   test_detail_usability.lua compact controls, target header, readable details, search and copy choices
   test_observation_expiry.lua disappearing targets and pets lose old observed inputs
   test_settings_layout.lua fixed navigation, scrolling pages, collapsible groups and hidden matches
@@ -184,9 +195,9 @@ What's here
                           and in Aggro's place with Aggro off, their place in the printout, and real
                           monsters from the generated data through a real /check, with the show,
                           hide and link commands and the sample. Those real monsters list only
-                          monsters that come up on Phoenix: Expeditionary Force and Garrison
-                          monsters link only inside their own event and the monsters around them
-                          don't list them, a Limbus floor links only with itself, an add that's only
+                          monsters reachable in the source: Expeditionary Force and Garrison follow
+                          their confrontation level caps, and ordinary monsters don't list them.
+                          A Limbus floor links only with itself, an add that's only
                           up while its owner fights doesn't link, Cherry Saplings link with each
                           other but not the Cherry, and Omaern and Pandemonium Lamp show as the game
                           names them. It also covers settings files from before Links was a part of
@@ -210,14 +221,6 @@ What's here
                           dismissed pet alone on its line or sharing one, the pet line never
                           holding up the lines under it and still printing after a layout change,
                           and the printout down to the bytes
-  test_weapons.lua        the off-hand and ranged parts through a real /check: which gear gives each
-                          one (a weapon in each hand, but not a shield, a grip or hand-to-hand, and a
-                          bow, crossbow or gun with its ammo or something to throw, but not a bow or
-                          ammo alone or an instrument), the Lv30 NIN and Lv75 RNG examples against
-                          real monsters, a monster with no row, the middle of a range, Show it outside
-                          the sweet spot too, a reply of 0, when the /checkparam goes with only one of
-                          them on, can't be gauged, the timeout, a newer /check and a reply that
-                          comes first
   test_steal.lua          the Steal part: the roll against worked examples from the real data, THF
                           as your main or support job, gear under its own level and under a level
                           sync, Btm. Knife on a support THF, Rogue's Ring's HP and TP line with
@@ -227,8 +230,7 @@ What's here
                           monsters through a /check, its line before and after the /checkparam
                           reply, its label, New line and the Classic skin to the bytes, what it
                           reads, every other line staying the same with it off, the sample, and
-                          the overlay going stale like crit and magic until a /check, a new
-                          target, a level change or a support job change works it out again
+                          overlay refreshes when its local inputs change
   test_crit_taken.lua     the Crit taken part and the two crit merits: the math on its own, the worked
                           examples through the readout with real monsters, with and without merits, at
                           and under the level caps, each piece of gear at and under its level, a
@@ -242,7 +244,7 @@ What's here
                           commands, a level sync and a hand-edited file. It also covers the merit list
                           filling both in, a hand change holding until you zone or change that merit,
                           the switch, profiles and job links leaving your merits out, reset, help, the
-                          Numbers tab's sliders, the overlay going stale like crit and magic, and the
+                          Merits tab's sliders, the overlay's input refreshes, and the
                           sample
   test_job.lua            the Job part: the letters and the support job rule, the 22 jobs and
                           their artifact heads, real monsters through a /check, the rows whose data
@@ -253,11 +255,11 @@ What's here
                           and TH, the element letters the same as the badges' and the 22 jobs, every
                           key a readout hands over being in it, every word swapped where it prints,
                           empty boxes, the count, typed text that looks like a format, both switches
-                          off leaving every line alone to the byte, the sample and the README's
-                          examples, the Links, Steal and Job parts, the chat's element icons and the
+                          off leaving every line alone to the byte, the sample,
+                          the Links, Steal and Job parts, the chat's element icons and the
                           overlay's pictures before a short word, the tips staying in full words, the
                           chat and overlay switches on their own, wrapping with a short count and a
-                          lone bracket, clashes and their notes on the Short tab, each row's tip, the
+                          lone bracket, clashes and their notes on Abbreviations, each row's tip, the
                           commands and help short, and an older settings file
   test_printout.lua       the chat lines: name and level first, the level range, the monster's ID,
                           the PH note, part order, new lines, the extras on their own line or the same
@@ -272,7 +274,7 @@ What's here
   test_overlay.lua        the overlay. Off by default it reads and draws nothing, and the chat
                           printout is byte for byte the same with it on. With it on: the data's
                           level before a /check and the /check after it, widescans, deaths, zoning
-                          and level changes, Remember, which entities show, picking a target with
+                          and level changes, remembered readings, which entities show, picking a target with
                           and without Follow the cursor, each part, Aggro and Links each on and off
                           with Links on Aggro's line or its own, the name switches with the
                           chat's words, every divider and label divider, Put each part on its own
@@ -307,8 +309,9 @@ What's here
                           and never on a steady frame, and the chat's icon settings staying out of it.
                           Then its tips: the mouse test, the wait, none while a button is down or
                           another window is under the mouse, the panel staying click-through, every
-                          icon on the sample goblin having one, and nothing read with tips off or no
-                          icon on show
+                          icon on the sample goblin having one, and text tips with icons off. On a
+                          quiet frame, hover checks read the mouse position once when any text or
+                          icon has a tip, and not at all when tips are off or nothing has a tip.
   test_tips.lua           the words of each overlay icon's tip: every reason an element is weak or
                           resisted, a Magic school's element, drops, Steal, every immunity and every
                           job
@@ -370,22 +373,17 @@ What's here
                           and Links colors, where the window opens and saves (pulled back onto the
                           screen, cut down to a smaller screen, left out of profiles, put back by
                           reset), and two columns going by the window's width, with colors two to a
-                          row only where they fit. The Overlay tab comes second of eleven, with its
-                          parts table in the chat's order, its boxes, the Divider list with only the
-                          plain dividers, its own font, and sliders and text boxes telling the overlay
-                          they changed something before it saves. The Short tab comes after
-                          Immunities, with a box for every word, both switches, the boxes greyed while
-                          neither display uses them, two words to a row with a gap between them, even
-                          at 12 px in the smallest window, or one to a row when the sections sit side
-                          by side or a short form needs a wider box, every box wide enough for the
-                          short form it comes with, Reset every short word and a clash note. The
-                          window first opens 840 wide and never gets narrower than its eleven tabs
-                          need
+                          row only where they fit. Display has separate Rows, Chat format and Overlay
+                          options views. Broad control checks use the developer harness to draw every
+                          view; focused navigation tests exercise one selected view. Appearance holds
+                          overlay styling and folded color groups. Abbreviations checks each word,
+                          both display switches, disabled controls, responsive columns and clash notes.
+                          The window defaults to 840 pixels wide; navigation wraps independently.
   test_window_commands.lua
                           each settings window control and its /checkmate command, the pet, off-hand,
                           ranged, steal, job, links, icon and short words ones, linkhow and every
-                          Overlay tab control included, from the defaults, setting the same value and
-                          saving the same copy. Print a sample on the Printout, Colors and Short tabs
+                          Display view control included, from the defaults, setting the same value and
+                          saving the same copy. Print a sample from the shared toolbar
                           matching /checkmate sample, the window showing what a command set, and a
                           profile keeping every value those commands set but your merits, in
                           profiles.json and after a reset and a load

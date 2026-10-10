@@ -1,4 +1,4 @@
--- Evidence and conditions stay visible without pictures, and optional details leave the defaults compact.
+-- Hover help keeps conditions visible without pictures. Optional details leave the defaults compact.
 local defaults = require('ui.defaults');
 local printout = require('core.printout');
 local tips = require('ui.tips');
@@ -62,10 +62,10 @@ check('flat gear accuracy is not labeled as all direct bonuses', has(tips.text(s
 result.links = { links = true, names = { 'First' }, more = 1, all_names = { 'First', 'Hidden' },
     all_tags = { Hidden = { { 'sense_superlink' } } } };
 check('link tip includes names hidden by the display limit', has(tips.text(s, result, 'links', 'links'), 'Hidden (Superlink)'));
-check('link tip does not claim current nearby enemies', has(tips.text(s, result, 'links', 'links'), 'not a list of nearby'));
+check('link tip does not claim current nearby enemies', has(tips.text(s, result, 'links', 'links'), 'does not show which are nearby or alive'));
 for i = 1, 25 do result.links.all_names[i] = 'Helper ' .. i; end
 check('large link tooltip points to the full scrollable details', has(tips.text(s, result, 'links', 'links'),
-    '5 more. Full list: Monster > Target details.') and not has(tips.text(s, result, 'links', 'links'), 'Helper 25'));
+    '5 more. Full list: Target details.') and not has(tips.text(s, result, 'links', 'links'), 'Helper 25'));
 check('target details retains all link names', has(tips.details(s, result), 'Helper 25'));
 result.ph_for = { 'Example NM' };
 result.ph_details = { { name = 'Example NM', chance = 5, cooldown_min = 3600, cooldown_max = 5400,
@@ -97,33 +97,41 @@ check('text-only effects and item names have tips', has(raw, '\29effect:4\29') a
 s.printout.text_tips = false;
 check('chat never receives hover markers', not has(table.concat(printout.lines(s, result), '\n'), '\29'));
 check('search finds Effects under its current tab', window.search_tabs('estimated timers').Effects == true);
-check('search finds distance controls', window.search_tabs('current distance').Numbers == true);
+check('search finds distance controls', window.search_tabs('current distance').Combat == true);
 check('search finds a stand-in spell', window.search_tabs('Paralyze').Magic == true);
 check('search uses plain text, not patterns', next(window.search_tabs('.*')) == nil);
 check('search does not alter any setting', s.effects.estimate_mark == true and s.ranged.show_distance == true);
 window.set_open(true);
+local function draw()
+    MOCK.frame(0);
+    return window.draw(s, 'test');
+end
 check('diagnostic summary UI has no setter', window.set_diagnostics == nil);
 window.set_target_details(result);
 MOCK.typing['Find settings'] = 'target details';
-window.draw(s, 'test');
-check('search renders target details under Monster', MOCK.gui.tabs.Monster == true and MOCK.gui.tabs.Magic ~= true
-    and MOCK.gui.tabs.Diagnostics ~= true);
+draw();
+check('search finds the details entry point under Monster', MOCK.gui.tabs.Monster == true and MOCK.gui.tabs.Magic ~= true
+    and MOCK.gui.tabs.Diagnostics ~= true and MOCK.gui.paths['Monster/Open target details'] == 'Button');
+check('Monster does not repeat the full details view', MOCK.gui.paths['Monster/Copy details'] == nil
+    and not MOCK.drew('Helper 25'));
+MOCK.clicks['Monster/Open target details'] = true;
+draw();
+draw();
 check('target details renders the final name in a large list', MOCK.drew('Helper 25'));
-MOCK.clicks['Monster/Copy details'] = true;
-window.draw(s, 'test');
+MOCK.clicks['Copy details'] = true;
+draw();
 check('copy contains full target details without a diagnostic summary', has(MOCK.clipboard, 'Helper 25')
     and not has(MOCK.clipboard, 'Source test-build') and not has(MOCK.clipboard, 'Version test'));
 window.set_target_details(nil);
-MOCK.gui.texts = {};
-window.draw(s, 'test');
+draw();
 check('an absent target keeps a usable Copy details button and no old facts',
-    MOCK.gui.paths['Monster/Copy details'] == 'Button' and not MOCK.drew('Helper 25'));
-MOCK.clicks['Monster/Copy details'] = true;
-window.draw(s, 'test');
+    MOCK.gui.paths['Copy details'] == 'Button' and not MOCK.drew('Helper 25'));
+MOCK.clicks['Copy details'] = true;
+draw();
 expect('copy drops the previous target when none is supplied', MOCK.clipboard, 'No monster selected.');
 window.set_target_details(result);
-MOCK.clicks['Monster/Copy details'] = true;
-window.draw(s, 'test');
+MOCK.clicks['Copy details'] = true;
+draw();
 check('a later target rebuilds copied details after the empty state', has(MOCK.clipboard, 'Helper 25')
     and not has(MOCK.clipboard, 'No monster selected.'));
 check('diagnostics is no longer a search topic', next(window.search_tabs('diagnostics')) == nil);
@@ -133,7 +141,7 @@ do
         provenance = { observed_at = 20, inputs_at = 30 } };
     MOCK.now = 100;
     check('pet hover identifies a retained reply without promising a refresh',
-        has(tips.text(s, pet_result, 'number', 'pet'), 'retained stats belong to this pet and target')
+        has(tips.text(s, pet_result, 'number', 'pet'), 'saved stats are for this pet against this monster')
         and has(tips.text(s, pet_result, 'number', 'pet'), 'overlay never requests pet stats'));
     expect('pet hover uses the pet reply age', tips.more(s, pet_result, 'number', 'pet'), 'Pet stat reply: 1:00 ago.');
     check('switching hover in the same second uses the target age again',

@@ -36,19 +36,24 @@ search.matches = function (text, query)
     searches = searches + 1;
     return match(text, query);
 end;
+window.details_open = true;
 draw();
 local searched = searches;
+check('the open details view builds its matching groups', searched > 0);
 draw();
 expect('unchanged details reuse their current matching groups', searches, searched);
+MOCK.clicks['Back to settings'] = true;
+draw();
 expect('category matrix has category and two display columns', MOCK.gui.tables['##monster_sections'], 3);
 check('compact category controls remain individually addressable', MOCK.gui.paths['Monster/family/##chat'] == 'Checkbox'
     and MOCK.gui.paths['Monster/family/##overlay'] == 'Checkbox');
 MOCK.clicks['Monster/family/##chat'] = true;
 local changed = draw();
 check('matrix chat control only changes chat and requests save', s.printout.parts.family.on and not s.overlay.parts.family and changed.save);
-check('changing displayed parts rebuilds detail matches', searches > searched);
+expect('closed details do not rebuild their matching groups', searches, searched);
 MOCK.clicks['Target details##toolbar'] = true;
 draw();
+check('reopening after a display change rebuilds detail matches', searches > searched);
 check('toolbar opens details independently of the current tab', window.details_open and MOCK.gui.children[#MOCK.gui.children].name == 'checkmate##settings/##details_page');
 check('fixed header names the selected monster and level range', MOCK.drew('Example Monster (Lv 40-42)'));
 check('fixed header distinguishes selection and captured input age', MOCK.drew('Selected target | Inputs 0:20 ago'));
@@ -143,5 +148,20 @@ draw();
 check('returning after a cleared target rebuilds detail matches', searches > searched);
 check('finder controls are discoverable by their full names', window.search_tabs('copy places')['Blue Magic']
     and window.search_tabs('find a monster or zone')['Blue Magic']);
+MOCK.clicks['Clear##details'] = true;
+local saved_check = { name = 'Saved Monster', low = 40, high = 40, hit = { low = 65, high = 65 },
+    provenance = { chat_snapshot = true } };
+s.printout.parts.hit.on = true;
+window.set_target_details(saved_check);
+draw();
+check('saved check details start with the current row label', MOCK.gui.paths['Hit##detail_hit'] == 'CollapsingHeader');
+s.printout.parts.hit.label = 'Melee accuracy';
+window.changed();
+draw();
+check('a settings change updates headings for the same saved check',
+    MOCK.gui.paths['Melee accuracy##detail_hit'] == 'CollapsingHeader' and MOCK.gui.paths['Hit##detail_hit'] == nil);
+searched = searches;
+draw();
+expect('updated saved-check details remain cached on quiet frames', searches, searched);
 expect('detail controls issue no game commands', #MOCK.commands, 0);
 return MOCK.report();

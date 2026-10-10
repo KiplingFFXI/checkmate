@@ -9,6 +9,7 @@ local s = defaults.make();
 s.look.font, s.look.font_size = 'tahoma', 22;
 s.overlay.font, s.overlay.font_size, s.overlay.wrap = 'tahoma', 21, 431;
 s.overlay.opacity, s.overlay.icons, s.overlay.tips = 37, false, false;
+s.overlay.only_checked = true;
 s.window.x, s.window.overlay_x, s.window.tabs.Magic = 701, 812, false;
 s.colors.hit_good, s.short.hit, s.printout.parts.hit.label = 73, 'Land', 'My hit';
 s.printout.short_words, s.overlay.short_words = true, true;
@@ -26,6 +27,7 @@ for _, item in ipairs(presets.list()) do
         and history.equal(s, original));
     check(item.name .. ' explicitly enables a line-based overlay', preview.overlay.on and preview.overlay.own_lines
         and meta.changes[1]:find('Enables the overlay', 1, true));
+    check(item.name .. ' keeps the choice to wait for /check', preview.overlay.only_checked);
     check(item.name .. ' preserves appearance and positions', history.equal(preview.look, original.look)
         and history.equal(preview.colors, original.colors) and history.equal(preview.window, original.window)
         and preview.overlay.font_size == 21 and preview.overlay.wrap == 431

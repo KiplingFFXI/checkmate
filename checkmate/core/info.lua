@@ -10,7 +10,7 @@ info.LABELS = { family = 'Family', charm = 'Charm', vitals = 'HP and MP', moveme
     traits = 'Traits', crystal = 'Crystal', rewards = 'Rewards' };
 local NONE = {};
 local OBSERVATION_NOTE = 'Move seen means checkmate observed this monster finish using it. Not observed can include moves used out of view. '
-    .. 'Move use unknown means the monster or move mapping could not be read. None of these establishes learning eligibility.';
+    .. 'Move use unknown means checkmate could not match the monster to the move. You still need to meet the learning conditions.';
 
 local function lesson_value(spells, index, seen, fallback)
     local values, moves = {}, {};
@@ -80,9 +80,9 @@ local function vitals(entry, low, high, notes)
         values[#values + 1] = 'MP unknown';
     end
     if (#values == 0) then return entry.value; end
-    notes[#notes + 1] = 'These are source maximums, not current HP or MP. Fight scaling and scripts can change them.';
+    notes[#notes + 1] = 'These are the maximum HP and MP listed in the source. They do not show what the monster has left. Fight scaling and scripts can change them.';
     if (mp_high ~= nil and mp_high > 0) then
-        notes[#notes + 1] = 'Having MP in the source does not mean any remains or that Aspir will land.';
+        notes[#notes + 1] = 'The monster may have spent its MP, and Aspir can still fail.';
     end
     return table.concat(values, ', ');
 end
@@ -120,7 +120,7 @@ local function blue(entry, notes, options, index)
             unknown = unknown or known == nil;
         end
     end
-    if (unknown) then notes[#notes + 1] = 'The client has not supplied a readable spellbook yet.'; end
+    if (unknown) then notes[#notes + 1] = 'Your learned spell list could not be read yet.'; end
     if (options.seen == true) then
         notes[#notes + 1] = OBSERVATION_NOTE;
     end
@@ -132,14 +132,14 @@ local function blue(entry, notes, options, index)
         notes[#notes + 1] = 'At this reading: ' .. job .. ', ' .. alive .. ', ' .. distance .. '.';
         if (#(entry.requirements or NONE) == 0) then
             notes[#notes + 1] = 'On defeat, you need main-job BLU, enough current skill, and to be alive within 100 yalms in the same zone.';
-            notes[#notes + 1] = 'Your party or alliance must get the eligible kill. Call for Help prevents learning.';
+            notes[#notes + 1] = 'Your party or alliance must get credit for the kill. Call for Help prevents learning.';
         end
-        notes[#notes + 1] = 'These inputs can change before defeat. They do not establish every learning condition.';
+        notes[#notes + 1] = 'These details can change before the monster dies. Other learning conditions still apply.';
     end
-    notes[#notes + 1] = 'These are possible lessons. The monster must use the move, and the learning conditions still apply.';
+    notes[#notes + 1] = 'These are possible BLU spells to learn. The monster must use the move, and the learning conditions still apply.';
     local fallback = entry.value;
     if (#values == 0 and options.only_unlearned == true) then
-        fallback = entry.incomplete and 'All listed spells learned; other lessons unknown' or 'All listed spells learned';
+        fallback = entry.incomplete and 'All listed spells learned; other spells unknown' or 'All listed spells learned';
     end
     local seen = options.seen == true;
     local value, moves = lesson_value(values, index, seen, fallback);

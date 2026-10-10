@@ -4,6 +4,7 @@
 ]]
 
 local player = {};
+local merits = require('core.merits');
 
 -- Equipment slots checkmate reads, and the item ids an empty slot can hold.
 local SLOT_MAIN   = 0;
@@ -28,6 +29,17 @@ local STAT_INDEX = { dex = 1, agi = 3, int = 4, mnd = 5, chr = 6 };
 -- Magic skills by skill id. Divine, healing, enfeebling, elemental, dark, ninjutsu, singing, wind
 -- instrument and blue magic.
 local MAGIC_SKILLS = { 32, 33, 35, 36, 37, 39, 40, 42, 43 };
+
+local function merit_input(out, kind, key, value, note, unavailable)
+    if (note ~= nil) then
+        out.merit_notes = out.merit_notes or {};
+        out.merit_notes[#out.merit_notes + 1] = note;
+        out.merit_inputs = out.merit_inputs or { stats = {}, skills = {} };
+        out.merit_inputs[kind][key] = { note = note, unavailable = unavailable };
+    end
+    if (unavailable) then out.merit_unavailable = true; end
+    return value;
+end
 
 -- The Level Sync and Level Restriction buff ids.
 local LEVEL_SYNC, LEVEL_CAP = 269, 143;
@@ -190,17 +202,20 @@ function player.read()
     local stats = memory:GetPlayer();
     local me = {
         level  = stats:GetMainJobLevel(),
+        main_job = stats:GetMainJob(),
         skills = {},
         buffs  = read_buffs(stats),
         zone   = player.zone(),
         main_id = equipped_id(SLOT_MAIN),
     };
     for name, index in pairs(STAT_INDEX) do
-        me[name] = stats:GetStat(index) + stats:GetStatModifier(index);
+        me[name] = merit_input(me, 'stats', name, merits.adjust_stat(name,
+            stats:GetStat(index) + stats:GetStatModifier(index), me.level, me.main_job));
     end
     for _, id in ipairs(MAGIC_SKILLS) do
         local skill = stats:GetCombatSkill(id);
-        me.skills[id] = skill and skill:GetSkill() or 0;
+        me.skills[id] = merit_input(me, 'skills', id, merits.adjust_skill(id,
+            skill and skill:GetSkill() or 0, me.level, me.main_job));
     end
 
     local _, ranged_skill = equipped_skill(SLOT_RANGED);
@@ -218,7 +233,7 @@ function player.distance(index)
     return math.sqrt(squared);
 end
 
--- Reuses one snapshot so a quiet overlay does not make new tables while checking for changed inputs.
+-- Reuse this table when checking for changes so quiet overlay frames do not allocate a new one.
 local input_values = {};
 local input_slot, input_changed = 0, false;
 local function input(value)
@@ -231,6 +246,7 @@ end
 
 function player.inputs_changed()
     input_slot, input_changed = 0, false;
+    input(merits.version());
     local stats = memory:GetPlayer();
     input(stats:GetMainJob());
     input(stats:GetMainJobLevel());
@@ -396,7 +412,7 @@ function player.name_of(id)
     return nil;
 end
 
--- Learned spells are separate from the Blue Magic spells you currently have set.
+-- Learned spells are separate from the BLU spells you currently have set.
 function player.knows_spell(id)
     local ok, known = pcall(function ()
         local you = memory:GetPlayer();
@@ -407,7 +423,7 @@ function player.knows_spell(id)
     return known;
 end
 
--- Inputs visible to the client when the lesson details are built. Eligibility is checked on defeat.
+-- Reads what the client knows now. The server checks learning conditions when the monster dies.
 function player.blue_learning(index)
     local out = {};
     if (not player.in_world()) then return out; end
@@ -437,13 +453,15 @@ local function defense_inputs()
     for _, name in ipairs({ 'level', 'main_job', 'sub_job', 'sub_level' }) do
         if (type(out[name]) ~= 'number') then error('Defensive job inputs are not readable.'); end
     end
-    local keys = { player.server_id() or 0, out.zone or 0, out.level, out.main_job, out.sub_job, out.sub_level };
+    local keys = { player.server_id() or 0, out.zone or 0, out.level, out.main_job,
+        out.sub_job, out.sub_level, merits.version() };
     for _, id in ipairs({ 30, 31 }) do
         local skill = stats:GetCombatSkill(id);
         local value = skill and skill:GetSkill();
         if (type(value) ~= 'number' or value < 0 or value ~= value or value == math.huge) then
             error('Defensive skill inputs are not readable.');
         end
+        value = merit_input(out, 'skills', id, merits.adjust_skill(id, value, out.level, out.main_job));
         out.skills[id], keys[#keys + 1] = value, value;
     end
     local buffs = stats:GetBuffs();
@@ -589,7 +607,7 @@ function player.pdif_inputs()
     return out;
 end
 
--- Called at reply completion, before later frames can associate the reply with different equipment.
+-- Keep the reply with the gear worn when it arrived, before another frame can see different gear.
 function player.accept_attacks(expected, main, offhand, ranged, at)
     local current = current_pdif_inputs();
     if (expected == nil or expected.signature == nil or current.signature ~= expected.signature) then
@@ -632,7 +650,7 @@ local function parameter_inputs()
     out.evasion_skill = number(evasion and evasion:GetSkill());
     out.hp, out.hp_max, out.tp = number(party:GetMemberHP(0)), number(stats:GetHPMax()), number(party:GetMemberTP(0));
     out.signature = table.concat({ out.signature, out.dex, out.agi, out.evasion_skill }, ':');
-    -- HP and TP can change latents. Keep the reading, but qualify it when these change.
+    -- HP and TP can change latents. Keep the reading and add a note when either changes.
     out.condition_signature = table.concat({ out.hp, out.hp_max, out.tp }, ':');
     return out;
 end

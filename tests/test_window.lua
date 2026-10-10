@@ -1,5 +1,5 @@
 -- Draws the settings window through the recorded imgui. Every tab draws with real functions and balanced
--- calls, and every control edits its setting, the Overlay tab's included. It also covers what saves when, what
+-- calls, and every control edits its setting, including the overlay options. It also covers what saves when, what
 -- tells the overlay a setting changed before it saves, every window color, the font and its size, a missing
 -- font, fonts that failed to load, fonts only loading on the load event, the window size, and a frame error.
 -- The fonts folder is a test folder holding a made-up Segoe UI, Tahoma, Calibri and Consolas, and no Verdana.
@@ -25,10 +25,13 @@ local function cur() return MOCK.settings.current; end
 local wide_matrix = true;
 local function frame()
     if wide_matrix then MOCK.avail = 1100; end
+    MOCK.settings_all_sections = true;
     local panel = require('ui.settings_window');
     panel.folded = panel.folded or {};
     panel.folded['Display/CHAT FORMAT'], panel.folded['Display/OVERLAY OPTIONS'] = true, true;
-    panel.folded['Numbers/ADVANCED'], panel.folded['Appearance/OVERLAY APPEARANCE'] = true, true;
+    panel.folded['Combat/ADVANCED'], panel.folded['Appearance/OVERLAY APPEARANCE'] = true, true;
+    panel.folded['Appearance/CUSTOM WINDOW COLORS'], panel.folded['Appearance/TABS'] = true, true;
+    panel.folded['Appearance/CHAT COLORS'] = true;
     local n = #MOCK.printed;
     MOCK.frame();
     for _, line in ipairs(MOCK.printed_since(n)) do
@@ -66,12 +69,12 @@ check('the window is checkmate##settings', MOCK.gui.window == 'checkmate##settin
 check('and it first opens at the saved 840 width without forcing one tab row', MOCK.gui.next_size[1] == 840 and MOCK.gui.next_size[2] == 560,
     MOCK.gui.next_size[1]);
 local all = true;
-for _, tab in ipairs({ 'Display', 'Numbers', 'Aggro', 'Magic', 'Blue Magic', 'Weaknesses', 'Pets',
+for _, tab in ipairs({ 'Display', 'Combat', 'Merits', 'Aggro', 'Magic', 'Blue Magic', 'Weaknesses', 'Pets',
     'Monster', 'Drops', 'Effects', 'Abbreviations', 'Appearance', 'Profiles' }) do
     all = all and MOCK.gui.tabs[tab] == true;
     check(tab .. ' tab has controls', widgets(tab .. '/') > 0, widgets(tab .. '/'));
 end
-check('all thirteen tabs draw', all);
+check('all fourteen tabs draw', all);
 check('old tabs are gone', not MOCK.gui.tabs.Diagnostics and not MOCK.gui.tabs.Immunities);
 check('the version is in the subtitle', MOCK.drew('v' .. addon.version));
 
@@ -88,15 +91,18 @@ local OVERLAY_ROWS = { name = 'Name and level', difficulty = 'Difficulty', readi
 for _, section in ipairs(require('core.parts').INFO) do
     if (section.id ~= 'charm') then OVERLAY_ROWS[section.id] = section.label; end
 end
+local COMBAT_ROWS = { hit = 'Hit rate', offhand = 'Off-hand', ranged = 'Ranged', evade = 'Evade' };
 
 local SHARED_TIPS = {
+    { '^Display/display_pages/(.+)$', 'Display/display_pages/%1' },
     { '^Display/([%w_]+)/[^/]+$', function(id) return 'Display/' .. id .. '/##row_tip'; end },
     { '^Overlay/([%w_]+)/##on$',    function (id) return 'Display/overlay_options/' .. id .. '/' .. (OVERLAY_ROWS[id] or '?'); end },
     { '^Printout/reading/.*$',      'Display/chat_format/Defense first' },
     { '^Printout/([%w_]+)/.*$',     'Display/chat_format/%1/##down' },
     { '^Magic/([%w_]+)/.*$',        'Magic/%1/##spell' },
     { '^Weaknesses/([%w_]+)/##on$',   'Weaknesses/%1/##label' },
-    { '^Numbers/##(%a+)_good$',     'Numbers/##%1_ok' },
+    { '^Combat/##(%a+)_good$',     'Combat/##%1_ok' },
+    { '^Combat/([%w_]+)/##%a+$', function (id) return 'Combat/' .. id .. '/' .. (COMBAT_ROWS[id] or OVERLAY_ROWS[id]); end },
     { '^Profiles/##profiles$',      'Profiles/PROFILES' },
     { '^Profiles/##%u%u%u$',        'Profiles/JOB LINKS' },
 };
@@ -111,15 +117,15 @@ end
 local CONTROLS = { Checkbox = true, Slider = true, InputText = true, BeginCombo = true, ColorEdit4 = true, Button = true,
     ArrowButton = true, BeginListBox = true };
 local all_tips = tips();
-check('Blue Magic help separates possible lessons, learned spells and unresolved lists',
-    has(all_tips['Blue Magic/components/lessons/##chat'], 'Possible learnable moves')
-    and has(all_tips['Blue Magic/components/lessons/##chat'], 'known or not learned')
-    and has(all_tips['Blue Magic/components/lessons/##chat'], 'resolved move list has none')
+check('Blue Magic help separates learnable spells, learned spells and unresolved lists',
+    has(all_tips['Blue Magic/components/lessons/##chat'], 'possible learnable BLU spells')
+    and has(all_tips['Blue Magic/components/lessons/##chat'], 'whether your client says you know each one')
+    and has(all_tips['Blue Magic/components/lessons/##chat'], 'complete move list has none')
     and has(all_tips['Blue Magic/components/lessons/##chat'], 'Hover for the reason'));
 check('Dangers help describes a source overview without promising safety',
     has(all_tips['Monster/dangers/Dangers'], 'Moves that can inflict debuffs or crit')
     and has(all_tips['Monster/dangers/Dangers'], 'does not predict the next move')
-    and has(all_tips['Monster/dangers/Dangers'], 'Missing or unresolved moves can leave gaps')
+    and has(all_tips['Monster/dangers/Dangers'], 'Some moves may be missing or unknown')
     and has(all_tips['Monster/dangers/Dangers'], 'does not mean the monster is safe'));
 local untipped, controls = {}, 0;
 for path, widget in pairs(MOCK.gui.paths) do
@@ -139,8 +145,8 @@ end
 check('and every (?) shows a tip in plain text that ends a sentence', #bad_tips == 0, table.concat(bad_tips, ', '));
 
 -- How many (?) marks each tab has with the default settings.
-local TIP_COUNTS = { Display = 41, Appearance = 184, Numbers = 43, Aggro = 8, Magic = 10,
-    ['Blue Magic'] = 12, Weaknesses = 36, Pets = 7, Monster = 37, Drops = 6, Effects = 5, Abbreviations = 162, Profiles = 14 };
+local TIP_COUNTS = { Display = 42, Appearance = 186, Combat = 19, Merits = 2, Aggro = 8, Magic = 11,
+    ['Blue Magic'] = 12, Weaknesses = 36, Pets = 7, Monster = 40, Drops = 6, Effects = 5, Abbreviations = 162, Profiles = 14 };
 
 for tab, want in pairs(TIP_COUNTS) do
     local count = 0;
@@ -149,6 +155,17 @@ for tab, want in pairs(TIP_COUNTS) do
     end
     check(('the %s tab has %d tips'):format(tab, want), count == want, count);
 end
+check('Merits has one autofill switch while its rank groups start folded',
+    MOCK.gui.paths['Merits/Use my merits when I zone'] == 'Checkbox'
+    and MOCK.gui.paths['Merits/crit_hit_rate/##rank'] == nil
+    and MOCK.gui.paths['Combat/##crit_merits'] == nil);
+check('restoring game ranks stays visible with help before any ranks have arrived',
+    MOCK.gui.paths['Merits/Restore game ranks'] == 'Button'
+    and MOCK.gui.disabled['Merits/Restore game ranks'] == true
+    and has(all_tips['Merits/Restore game ranks'], 'read'));
+check('Appearance explains its optional compact navigation without hiding pages',
+    MOCK.gui.paths['Appearance/Compact tab navigation'] == 'Checkbox'
+    and all_tips['Appearance/Compact tab navigation'] ~= nil);
 check('a chat color\'s tip says what it paints', has(all_tips['Appearance/##aggro_safe'], 'Too weak, Not aggressive and Never '
     .. 'aggressive') and has(all_tips['Appearance/##too_weak'], 'Too Weak while Color by difficulty is on.'));
 check('a window color\'s tip says what it paints', has(all_tips['Appearance/Open dropdowns##dropdowns'], 'these tips'));
@@ -201,12 +218,12 @@ cur().overlay.on, cur().overlay.parts.drops = false, false;
 cur().grades.on = false;
 frame();
 check('the Numbers tab says when grade colors are off', MOCK.drew('Grade colors are off, so turn them on in the Appearance '
-    .. 'tab to use these.') and MOCK.gui.disabled['Numbers/##hit_ok'] == true);
+    .. 'tab to use these.') and MOCK.gui.disabled['Combat/##hit_ok'] == true);
 cur().grades.on = true;
 frame();
-check('and stops once they\'re on', not MOCK.drew('Grade colors are off') and not MOCK.gui.disabled['Numbers/##hit_ok']);
+check('and stops once they\'re on', not MOCK.drew('Grade colors are off') and not MOCK.gui.disabled['Combat/##hit_ok']);
 
--- Printout tab ----------------------------------------------------------------------------------
+-- Display: Rows and Chat format -----------------------------------------------------------------
 
 local s = cur();
 check('the name part has Show level and no arrows', MOCK.gui.paths['Display/chat_format/Show level'] == 'Checkbox'
@@ -587,7 +604,7 @@ MOCK.clicks['Display/chat_format/Replace the game\'s /check line'] = true;
 frame();
 check('and back on', s.printout.replace_game_line == true);
 
--- Overlay tab -----------------------------------------------------------------------------------
+-- Display: Overlay options ----------------------------------------------------------------------
 
 local o = s.overlay;
 local function overlay_path(label)
@@ -612,7 +629,7 @@ end
 frame();
 window.draw_page, imgui.PushID = draw_page, nil;
 check('settings tabs draw in their requested order', table.concat(tab_order, ',')
-    == 'Display,Numbers,Aggro,Magic,Blue Magic,Weaknesses,Pets,Monster,Drops,Effects,Abbreviations,Appearance,Profiles',
+    == 'Display,Combat,Merits,Aggro,Magic,Blue Magic,Weaknesses,Pets,Monster,Drops,Effects,Abbreviations,Appearance,Profiles',
     table.concat(tab_order, ','));
 local rows_want = { 'name', 'difficulty', 'reading' };
 for id in s.printout.order:gmatch('%S+') do
@@ -621,7 +638,7 @@ end
 check('its parts table has Name, Difficulty and the reading first, then the rest in the chat\'s order',
     table.concat(part_rows, ',') == table.concat(rows_want, ',') and #part_rows == #require('core.parts').ORDER + 2, table.concat(part_rows, ','));
 check('the overlay is off, with its controls there to set up first', o.on == false
-    and MOCK.gui.paths[overlay_path('Show the overlay')] == 'Checkbox' and not MOCK.gui.disabled[overlay_path('Lock it in place')]
+    and MOCK.gui.paths[overlay_path('Show overlay')] == 'BeginCombo' and MOCK.gui.previews[overlay_path('Show overlay')] == 'Off' and not MOCK.gui.disabled[overlay_path('Lock it in place')]
     and MOCK.gui.paths[overlay_path('Move it back')] == 'Button' and MOCK.gui.paths[overlay_path('Divider')] == 'BeginCombo'
     and MOCK.gui.paths[overlay_path('Font')] == 'BeginCombo' and MOCK.gui.paths[overlay_path('Font size')] == 'Slider'
     and MOCK.gui.paths[overlay_path('Background')] == 'Slider' and MOCK.gui.paths[overlay_path('Wrap lines wider than')] == 'Slider');
@@ -633,8 +650,8 @@ check('and it says what else hides it, the sample and how Shift moves it', MOCK.
     .. 'it, or drag its corner to change its width.'));
 tip = tips();
 check('its tips say what it reads and never sends', has(tip[overlay_path('OVERLAY')], 'It never sends anything on its own. You /check '
-    .. 'yourself, and it reads the reply.') and has(tip[overlay_path('Show the overlay')], 'while it\'s off checkmate doesn\'t read '
-    .. 'your target at all.') and has(tip[overlay_path('Lock it in place')], 'This stops both, so neither happens by accident. '
+    .. 'yourself, and it reads the reply.') and has(tip[overlay_path('Show overlay')], 'Off hides the overlay.')
+    and has(tip[overlay_path('Show overlay')], 'Only after checking waits for your /check reply.') and has(tip[overlay_path('Lock it in place')], 'This stops both, so neither happens by accident. '
     .. 'Without Shift, or with this on, clicks go through the overlay to the game.'));
 check('checked-stat rows explain their manual refresh', has(tip['Display/hit/##overlay_tip'], 'manual /check') and has(tip['Display/aggro/##overlay_tip'], 'Before you /check it, it goes by the monster\'s level '
     .. 'against yours') and has(tip['Display/links/##overlay_tip'], 'like the chat\'s Links part. It comes from the data, so it shows '
@@ -658,13 +675,27 @@ check('Move it back\'s tip says the lock stops the drag', has(tip[overlay_path('
 check('and the wrap\'s tip says the corner sets it', has(tip[overlay_path('Wrap lines wider than')], 'You can also hold Shift and '
     .. 'drag the overlay\'s bottom right corner to set this, down to 100 px.'));
 check('and the map\'s tip says the widescan list isn\'t the map', has(tip[overlay_path('While the map is open')], 'The widescan list '
-    .. 'doesn\'t count as the map.') and has(tip[overlay_path('Remember each monster\'s /check')], 'A widescan level clears when '
+    .. 'doesn\'t count as the map.') and has(tip[overlay_path('Keep readings when switching targets')], 'A widescan level clears when '
     .. 'the monster dies near you, leaves sight or you zone.'));
+
+-- One choice owns both existing overlay mode settings.
+for _, mode in ipairs({ { 'Any targeted monster', true, false }, { 'Only after checking', true, true },
+    { 'Off', false, true } }) do
+    local mode_path = overlay_path('Show overlay');
+    saves = MOCK.saved;
+    MOCK.open[mode_path] = true;
+    MOCK.clicks[mode_path .. '/' .. mode[1]] = true;
+    frame();
+    MOCK.open[mode_path] = nil;
+    check('Show overlay ' .. mode[1] .. ' saves both existing keys', o.on == mode[2] and o.only_checked == mode[3]
+        and MOCK.saved == saves + 1 and MOCK.last_save.overlay.on == mode[2]
+        and MOCK.last_save.overlay.only_checked == mode[3]);
+end
 
 -- Every box edits its setting and saves at once.
 local OVERLAY_BOXES = {
-    { 'Show the overlay', 'on', false }, { 'Lock it in place', 'locked', false },
-    { 'Remember each monster\'s /check', 'remember', true }, { 'Follow the cursor while you pick a target', 'follow_cursor', false },
+    { 'Lock it in place', 'locked', false },
+    { 'Keep readings when switching targets', 'remember', true }, { 'Follow the cursor while you pick a target', 'follow_cursor', false },
     { 'Show level', 'show_level', true }, { 'Show its level range too', 'show_range', false },
     { 'Show its ID', 'show_id', false }, { 'Show if it\'s a PH', 'show_ph', false },
     { 'Put each part on its own line', 'own_lines', true }, { 'Abbreviations', 'short_words', false },
@@ -883,7 +914,7 @@ MOCK.clicks['Appearance/Color by grade'] = true;
 frame();
 check('grade colors off', s.grades.on == false);
 frame();
-check('the cutoffs grey out', MOCK.gui.disabled['Numbers/##hit_good'] == true);
+check('the cutoffs grey out', MOCK.gui.disabled['Combat/##hit_good'] == true);
 MOCK.clicks['Appearance/Color by grade'] = true;
 MOCK.open['Appearance/##good'] = true;
 MOCK.clicks['Appearance/##good/Lime'] = true;
@@ -899,7 +930,7 @@ check('the Appearance tab prints a sample too', #MOCK.printed > n
 
 -- Icons ------------------------------------------------------------------------------------------
 
--- The chat's Element icons and Icons only on the Printout tab. Icons only is greyed until Element icons is on.
+-- Element icons and Icons only are in Display > Chat format. Icons only is greyed until Element icons is on.
 tip = tips();
 check('Element icons and Icons only are boxes on the Printout tab, with tips', MOCK.gui.paths['Display/chat_format/Element icons']
     == 'Checkbox' and MOCK.gui.paths['Display/chat_format/Icons only'] == 'Checkbox'
@@ -948,7 +979,7 @@ frame();
 check('and the Elements part and Element icons go back off', s.printout.parts.weaknesses.on == false
     and s.printout.icons == false);
 
--- The overlay's Show icons, Icons only and Element look, in an ICONS section between LOOK and HIDE IT.
+-- The overlay's Show icons, Icons only and Element look controls.
 local function text_at(text)
     for index, each in ipairs(MOCK.gui.texts) do
         if (each == text) then return index; end
@@ -991,7 +1022,7 @@ check('Tips on hover is a box with its tip, right after Element look and before 
 check('hover help explains names, text without icons, full links and passing clicks to the game',
     has(tip[overlay_path('Tips on hover')], 'its full name and details')
     and has(tip[overlay_path('Tips on hover')], 'Text tips work with Show icons off.')
-    and has(tip[overlay_path('Tips on hover')], 'Monster > Target details has the full list.')
+    and has(tip[overlay_path('Tips on hover')], 'Target details has the full list.')
     and has(tip[overlay_path('Tips on hover')], 'let clicks through to the game.'), tip[overlay_path('Tips on hover')]);
 check('Element look shows Game pictures', MOCK.gui.previews[overlay_path('Element look')] == 'Game pictures');
 MOCK.open[overlay_path('Element look')] = true;
@@ -1043,14 +1074,14 @@ check('and the ice badge starts cyan', MOCK.gui.previews['Appearance/##badge_ice
 check('the skin\'s tip says it sets the colors on the Appearance tab, the badges included', has(tip['Appearance/##skin'],
     'the colors on the Appearance tab and Color by difficulty.'), tip['Appearance/##skin']);
 
--- Numbers tab -----------------------------------------------------------------------------------
+-- Combat tab ------------------------------------------------------------------------------------
 
-MOCK.slide['Numbers/##hit_good'] = 90;
-MOCK.slide['Numbers/##crit_ok'] = 6;
+MOCK.slide['Combat/##hit_good'] = 90;
+MOCK.slide['Combat/##crit_ok'] = 6;
 frame();
 check('the cutoff sliders', s.grades.hit_good == 90 and s.grades.crit_ok == 6);
-check('and no grade colors there', MOCK.gui.paths['Numbers/Good'] == nil
-    and MOCK.gui.paths['Numbers/Color by grade'] == nil);
+check('and no grade colors there', MOCK.gui.paths['Combat/Good'] == nil
+    and MOCK.gui.paths['Combat/Color by grade'] == nil);
 
 -- The Pets tab edits the pet part's settings.
 local PET_NAME, PET_LEVEL = 'Pets/Show its name', 'Pets/Show its level';
@@ -1102,8 +1133,8 @@ MOCK.clicks['Display/pet/##chat'] = true;
 frame();
 check('and back', s.pet.hit_word == 'Hit' and s.pet.evade_word == 'Evade' and s.printout.parts.pet.on == false);
 
--- The RANGED section under PET adds the ranged hit rate outside the sweet spot.
-local FAR = 'Numbers/Show it outside the sweet spot too';
+-- The RANGED section in Combat adds the hit rate outside the sweet spot.
+local FAR = 'Combat/Show it outside the sweet spot too';
 check('the Numbers tab has a RANGED section with Show it outside the sweet spot too, off', MOCK.drew('RANGED')
     and MOCK.gui.paths[FAR] == 'Checkbox' and s.ranged.show_far == false and not MOCK.gui.disabled[FAR]);
 check('and a note while the Ranged part is off', MOCK.drew('Enable Ranged in Display to show it.'));
@@ -1113,7 +1144,7 @@ check('its tip says the number is the sweet spot one and what the sweet spot is'
     .. 'edge of the sweet spot. Past that edge you hit less the farther you stand, and past 25 yalms you\'re too far away '
     .. 'to shoot.')
     and has(tip[FAR], 'like "Ranged: 63% (55% at 25 yalms)".'), tip[FAR]);
-check('the other tips name off-hand and ranged', has(tip['Numbers/##hit_ok'], 'Off-hand and Ranged go by the Hit rate row')
+check('the other tips name off-hand and ranged', has(tip['Combat/##hit_ok'], 'Off-hand and Ranged go by the Hit rate row')
     and has(tip['Appearance/Color by grade'], 'the hit rate, off-hand, ranged, evade, crit, crit taken and pet '
     .. 'numbers') and has(tip['Display/chat_format/Number ranges'], 'hit rate, off-hand, ranged, evade, shield block, parry, crit, crit taken, '
     .. 'magic, steal and pet numbers')

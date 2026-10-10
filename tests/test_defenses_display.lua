@@ -84,15 +84,15 @@ check('profile restores each display choice and label', profiles.load(loaded, 'D
     and loaded.overlay.parts.block and not loaded.printout.parts.block.on);
 check('old saved order gains defensive rows after Evade', has(printout.clean_order('difficulty hit evade crit'), 'evade block parry crit'));
 MOCK.navigation_real = true;
-require('ui.navigation').select('Numbers');
+require('ui.navigation').select('Combat');
 window.set_open(true);
 MOCK.frame(0);
 window.draw(s, 'test');
 for _, id in ipairs({ 'block', 'parry' }) do
-    check(id .. ' has both Numbers controls', MOCK.gui.paths['Numbers/' .. id .. '/In chat'] == 'Checkbox'
-        and MOCK.gui.paths['Numbers/' .. id .. '/In overlay'] == 'Checkbox');
+    check(id .. ' has both Combat controls', MOCK.gui.paths['Combat/' .. id .. '/##chat'] == 'Checkbox'
+        and MOCK.gui.paths['Combat/' .. id .. '/##overlay'] == 'Checkbox');
 end
-check('settings search finds Shield block and Parry', window.search_tabs('Shield block').Numbers
-    and window.search_tabs('Parry').Numbers and window.search_tabs('Shield block').Appearance);
+check('settings search finds Shield block and Parry', window.search_tabs('Shield block').Combat
+    and window.search_tabs('Parry').Combat and window.search_tabs('Shield block').Appearance);
 expect('the display sends no game commands', #MOCK.commands, 0);
 return MOCK.report();

@@ -58,7 +58,7 @@ used(1, 258, 188);
 check('completed miss on alternate mapped ID updates live overlay', has(live().value, 'Foot Kick (not learned, move seen)'));
 used(1, 259, 75);
 check('completed resisted move updates live overlay', has(live().value, 'Dust Cloud (not learned, move seen)'));
-check('observer notes preserve learning uncertainty', has(table.concat(live().notes, ' '), 'None of these establishes learning eligibility.'));
+check('observer notes preserve learning uncertainty', has(table.concat(live().notes, ' '), 'You still need to meet the learning conditions.'));
 
 local first = #MOCK.printed;
 check_monster(1);
@@ -111,8 +111,7 @@ end;
 check_monster(1);
 expect('chat-only result is retained', details.current().id, MOCK.mob_id(900, 1));
 check('chat-only result starts not observed', has(blue(details.current()).value, 'Foot Kick (not learned, not observed)'));
-command('');
-MOCK.typing['Find settings'] = 'target details';
+command('details');
 MOCK.frame();
 check('target details cache first shows the unobserved snapshot', MOCK.drew('Spell: Foot Kick')
     and MOCK.drew('Spellbook: not learned') and MOCK.drew('Move use: not observed'));
@@ -124,7 +123,7 @@ used(1, 257);
 check('chat-only saved marker updates after a completed move', has(blue(details.current()).value, 'Foot Kick (not learned, move seen)'));
 check('visible target details invalidates its cached marker', MOCK.drew('Spell: Foot Kick')
     and MOCK.drew('Spellbook: not learned') and MOCK.drew('Move use: move seen'));
-MOCK.clicks['Monster/Copy details'] = true;
+MOCK.clicks['Copy details'] = true;
 MOCK.frame();
 check('Copy details includes the refreshed observed marker', has(MOCK.clipboard, 'Spell: Foot Kick\nSpellbook: not learned\nMove use: move seen'));
 expect('marker refresh does not reread learning inputs', input_reads, read_count);

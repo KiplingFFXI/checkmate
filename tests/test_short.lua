@@ -1,4 +1,4 @@
--- Tests short words. That covers the words table and its defaults, every key a readout hands over being in it, the
+-- Tests abbreviations. That covers the words table and its defaults, every key a readout hands over being in it, the
 -- sample and the README's examples, every word swapped where it prints, empty boxes and the count, typed text that
 -- looks like a format, both switches off leaving every line alone, the Links, Steal and Job parts and the element
 -- icons with abbreviations on, the tips staying in full words, clashes and their notes on the Abbreviations tab, the commands
@@ -115,7 +115,7 @@ check('no two words in one spot come with the same short form or have the same f
 
 local schools_ok = true;
 for _, id in ipairs(spells.SCHOOL_ORDER) do
-    schools_ok = schools_ok and wording.BY_KEY['school_' .. id].full == (id == 'blue' and 'Spell chance' or spells.schools[id].label);
+    schools_ok = schools_ok and wording.BY_KEY['school_' .. id].full == (id == 'blue' and 'Unresisted spell chance' or spells.schools[id].label);
 end
 check('the school words are the Magic tab\'s', schools_ok and #spells.SCHOOL_ORDER == 8);
 local letters_ok, element_count = true, 0;
@@ -382,7 +382,7 @@ MOCK.items[508], MOCK.items[507], MOCK.items[656] = nil, nil, nil;
 -- Every word is wired -----------------------------------------------------------------------------------
 
 -- For each word, a made-up /check that prints it with only the parts it needs, and the piece of text it's in, with
--- short words off and with `marker` typed in its box.
+-- abbreviations off and with `marker` typed in its box.
 local CON_OF = {};
 for index, entry in ipairs(wording.GROUPS[1].words) do
     CON_OF[entry.key] = (entry.key ~= 'con_impossible') and index - 1 or nil;
@@ -681,7 +681,7 @@ check('and Icons only leaves the word out, short or full', has(only, 'Weak: \239
     and has(only, 'Ele 88% (\239\32)'), bytes(only));
 s.printout.icons, s.printout.icons_only = false, false;
 
--- A tip names things in full, whatever the short words. It's what explains a short one.
+-- A tip names things in full, whatever the abbreviations. It's what explains a short one.
 local tip_result = { elements = GOBLIN, job = 'drk/war', magic = { { school = 'school_elemental', low = 88, high = 88,
     element = 'ice' } } };
 local tips_off = {};
@@ -843,7 +843,7 @@ check('help colors and help windowcolors still list theirs', has(answer('/checkm
     .. 'too_weak') and not has(answer('/checkmate help colors'), 'con_too_weak') and has(answer('/checkmate help '
     .. 'windowcolors'), '<what> is one of these, grouped under the headings on the Appearance tab.'));
 
--- The Short tab ------------------------------------------------------------------------------------
+-- The Abbreviations tab ---------------------------------------------------------------------------
 
 fresh();
 local function frame()
@@ -869,7 +869,7 @@ frame();
 local text, found = notes();
 check('and the note shows on the next frame, once, since both are under one heading', found == 1
     and has(text, '"Sight" and "Sound" both print as "S".'), text);
--- The note is in the Problem messages color, which that color's (?) on the Look tab says further down.
+-- The note uses the Problem messages color, as its tip on Appearance explains.
 local imgui = require('imgui');
 local push, draw_text, text_color, note_color = imgui.PushStyleColor, imgui.TextUnformatted, nil, nil;
 imgui.PushStyleColor = function (id, color)
@@ -935,6 +935,9 @@ printout.clashes = real_clashes;
 MOCK.command('/checkmate shortreset all');
 
 -- Each row's (?) says what the word stands for, what it comes as and its name in commands.
+local panel = require('ui.settings_window');
+panel.folded = panel.folded or {};
+panel.folded['Appearance/CUSTOM WINDOW COLORS'] = true;
 MOCK.hover = true;
 frame();
 MOCK.hover = false;
@@ -1016,7 +1019,7 @@ check('the same with a word after it', has(overlay_at(203), '//   Goblin Gambler
     and has(overlay_at(210), 'Goblin Gambler (S) | +3 more'), overlay_at(203));
 MOCK.command('/checkmate shortreset list_more');
 
--- A lone bracket typed into a short form only holds up its own part and the divider after it.
+-- A lone bracket typed into an abbreviation only holds up its own part and the divider after it.
 MOCK.command('/checkmate overlaylines off');
 local plain_wrap = overlay_at(140);
 MOCK.command('/checkmate shortword aggro_aggressive "A ("');
@@ -1030,7 +1033,7 @@ MOCK.command('/checkmate shortreset aggro_aggressive');
 MOCK.command('/checkmate overlaylines on');
 overlay_at(520);
 
--- Valkurm Emperor fits on one line with short words.
+-- Valkurm Emperor fits on one line with abbreviations.
 MOCK.target_monster(334, 'Valkurm Emperor');
 MOCK.level_up(43);
 MOCK.packet(MOCK.message_packet(MOCK.player.server_id, MOCK.mob_id(103, 334), 0, 0, 249, 334));
@@ -1093,7 +1096,7 @@ MOCK.command('/checkmate overlay off');
 addon.path = ADDON_PATH;
 MOCK.zone_in(103);
 
--- A settings file from before short words gets both switches off and every short form checkmate comes with, so its
+-- A settings file from before abbreviations gets both switches off and every abbreviation checkmate comes with, so its
 -- lines print as they did.
 fresh();
 local default_sample = answer('/checkmate sample');

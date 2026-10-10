@@ -124,6 +124,21 @@ function packets.merit_count(e, id)
     return nil;
 end
 
+-- Read a complete merit packet once. A short list cannot partly update the saved ranks.
+function packets.merit_counts(e)
+    if (type(e) ~= 'table') then return nil; end
+    local size = byte_count(e);
+    if (size < 8) then return nil; end
+    local count = struct.unpack('H', e.data, 5);
+    if (8 + 4 * count > size) then return nil; end
+    local out = {};
+    for at = 0x08, 0x08 + (count - 1) * 4, 4 do
+        local id = struct.unpack('H', e.data, at + 1);
+        if (out[id] == nil) then out[id] = struct.unpack('B', e.data, at + 4); end
+    end
+    return out;
+end
+
 -- 0x00E's despawn mask. The id is only read when the entity left your sight.
 function packets.despawned(e)
     if (byte_count(e) < 0x0B or bit.band(e.data:byte(0x0B), 0x20) == 0) then return nil; end

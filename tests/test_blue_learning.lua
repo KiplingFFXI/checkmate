@@ -1,4 +1,4 @@
--- Learned filtering must keep unreadable spellbook entries and incomplete move lists honest.
+-- Unreadable spellbook entries and incomplete move lists stay marked as unknown.
 local info = require('core.info');
 local player = require('core.player');
 MOCK.player.main_job, MOCK.player.skills[43], MOCK.player.hp = 16, 25, 100;
@@ -44,11 +44,11 @@ entry.requirements = { 'Detailed source learning conditions.' };
 out = read();
 expect('turning requirements off avoids extra client reads', reads, 1);
 check('requirements off also hides source learning conditions', not table.concat(out.notes, ' '):find('Detailed source learning conditions.', 1, true));
-check('requirements off keeps the basic possible lesson warning', table.concat(out.notes, ' '):find('The monster must use the move', 1, true));
+check('requirements off keeps the basic learnable spell warning', table.concat(out.notes, ' '):find('The monster must use the move', 1, true));
 learned[578], learned[579] = true, true;
 expect('a completed list says why there are no names left', read().value, 'All listed spells learned');
 entry.incomplete = true;
-expect('a completed partial list does not claim there are no other lessons', read().value, 'All listed spells learned; other lessons unknown');
+expect('a completed partial list does not claim there are no other spells', read().value, 'All listed spells learned; other spells unknown');
 settings.blue_options.only_unlearned = false;
 check('turning the filter off brings learned spells back', read().value:find('Foot Kick (known)', 1, true));
 settings.blue_options.requirements = true;

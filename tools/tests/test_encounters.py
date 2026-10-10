@@ -70,7 +70,7 @@ class EncounterTests(unittest.TestCase):
 
     def test_unreadable_blue_job_bytes_fail_instead_of_inventing_requirements(self):
         for jobs in (None, 'unknown', -1, 1 << 176):
-            with self.subTest(jobs=jobs), self.assertRaisesRegex(RuntimeError, 'Unreadable Blue'):
+            with self.subTest(jobs=jobs), self.assertRaisesRegex(RuntimeError, 'Unreadable BLU'):
                 encounters.blue_entry(dict(spellid=1, name='fixture', jobs=jobs), None, 43)
 
     def test_loaded_spell_levels_apply_in_order_and_unsupported_changes_fail(self):
@@ -214,7 +214,7 @@ class EncounterTests(unittest.TestCase):
         self.move(123)
         skills, _, reasons = self.reader.kit(kind(), {'skill_list_id': 1}, 'mob:useMobAbility(selectedMove)')
         self.assertEqual(skills, {123})
-        self.assertIn('scripted move argument', ' '.join(reasons))
+        self.assertIn('A move choice in the script could not be read.', ' '.join(reasons))
 
     def test_positive_chooser_replaces_pool_but_zero_keeps_it(self):
         self.reader.skill_lists[1] = {123}
@@ -226,7 +226,7 @@ class EncounterTests(unittest.TestCase):
         self.assertEqual(self.reader.kit(kind(), {'skill_list_id': 1}, body % 'skillId')[0], {123})
         skills, _, reasons = self.reader.kit(kind(), {'skill_list_id': 1}, body % 'pickUnknownMove()')
         self.assertEqual(skills, set())
-        self.assertIn('chooser return', ' '.join(reasons))
+        self.assertIn('The move returned by the script could not be read.', ' '.join(reasons))
 
     def test_chooser_requires_a_defined_nonempty_normal_list(self):
         self.move(456)
@@ -316,14 +316,14 @@ end'''
 
     def test_unknown_is_not_a_fake_danger_and_resolved_empty_is_explicit(self):
         info, _ = self.reader.read(kind())
-        self.assertEqual(info['blue']['value'], 'No learnable Blue spells')
+        self.assertEqual(info['blue']['value'], 'No learnable BLU spells')
         self.assertEqual(info['dangers']['value'], 'No listed threats')
         self.assertEqual(info['dangers']['coverage'], 'resolved')
         self.write('scripts/zones/Test/mobs/Unknown.lua',
                    'entity.onMobFight = function(mob)\n    mob:useMobAbility(unknownMove)\nend')
         info, _ = self.reader.read(kind(mob='Unknown'))
         self.assertEqual(info['blue']['value'], 'Unknown')
-        self.assertIn('scripted move argument', ' '.join(info['blue']['notes']))
+        self.assertIn('A move choice in the script could not be read.', ' '.join(info['blue']['notes']))
         self.assertEqual(info['dangers']['value'], 'Move list unresolved')
         self.assertEqual(info['dangers']['coverage'], 'unresolved')
 
@@ -331,7 +331,7 @@ end'''
         self.move(123)
         skills, _, reasons = self.reader.kit(kind(zone='Dynamis-Test'), {}, 'mob:useMobAbility(123)')
         self.assertEqual(skills, set())
-        self.assertIn('Encounter setup', ' '.join(reasons))
+        self.assertIn('That replacement list is unknown.', ' '.join(reasons))
 
     def test_rejected_skill_does_not_offer_a_lesson(self):
         self.reader.skill_lists[1] = {123}
@@ -464,7 +464,7 @@ class EncounterSourceTests(unittest.TestCase):
 
     def test_forger_replaces_bomb_pool_and_cannot_offer_self_destruct(self):
         info, _ = self.reader.read(kind('Konschtat_Highlands', 'Forger', data_zone='Konschtat_Highlands'))
-        self.assertEqual(info['blue']['value'], 'No learnable Blue spells')
+        self.assertEqual(info['blue']['value'], 'No learnable BLU spells')
         self.assertNotIn('spells', info['blue'])
         self.assertEqual(info['dangers']['value'], 'No listed threats')
         self.assertEqual(info['dangers']['coverage'], 'resolved')
@@ -473,7 +473,7 @@ class EncounterSourceTests(unittest.TestCase):
         info, _ = self.reader.read(kind('Dynamis-Valkurm', 'Nightmare_Bunny'))
         self.assertEqual(info['blue']['value'], 'Unknown')
         self.assertTrue(info['blue']['incomplete'])
-        self.assertIn('Encounter setup', ' '.join(info['blue']['notes']))
+        self.assertIn('That replacement list is unknown.', ' '.join(info['blue']['notes']))
         self.assertEqual(info['dangers']['value'], 'Move list unresolved')
         self.assertEqual(info['dangers']['coverage'], 'unresolved')
 

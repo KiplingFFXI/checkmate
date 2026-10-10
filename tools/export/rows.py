@@ -262,7 +262,7 @@ def finish(kind, tables):
     if kind.effects.no_swings and not kind.effects.normal_swings:
         row['no_swings'] = True
     # A monster with either flag still counters if it can, and a counter crits like a normal swing. Its job traits
-    # and the mods in its data count. A Counterstance it uses is a buff, and checkmate can't see a monster's buffs.
+    # and the mods in its data count. These source values do not include Counterstance used during the fight.
     if counters and (row.get('tp_moves') or row.get('no_swings')):
         row['counters'] = True
     for index, field in enumerate(LEVEL_EXTRAS):

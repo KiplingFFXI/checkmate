@@ -22,7 +22,7 @@ for i, value in ipairs(values) do
 end
 local hover = tips.text(s, result, 'info', 'dangers');
 check('long hover stays bounded', #hover < 600, #hover);
-check('shortened hover says where the full list lives', hover:find('Monster > Target details', 1, true) ~= nil);
+check('shortened hover says where the full list lives', hover:find('Target details', 1, true) ~= nil);
 check('shortened hover marks omitted entries', hover:find('; ...', 1, true) ~= nil);
 check('full details do not carry the hover cutoff', details:find('; ...', 1, true) == nil);
 check('full details separate move conditions', details:find(notes[1] .. '\n\n' .. notes[2], 1, true) ~= nil);

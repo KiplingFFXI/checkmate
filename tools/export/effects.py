@@ -19,6 +19,7 @@ SONGS = {'REQUIEM_EFFECT': 'requiem', 'ELEGY_EFFECT': 'elegy', 'THRENODY_EFFECT'
          'LULLABY_EFFECT': 'lullaby'}
 MERITS = {'dia_iii': ('rdm_group_2', 0), 'bio_iii': ('rdm_group_2', 0), 'angon': ('drg_group_2', 15)}
 MODULE_TARGET = re.compile(r"['\"]xi\.(?:effects\.|actions\.(?:spells|mobskills|abilities\.pets)\."
+                           r'|items\.nadrs\.'
                            r'|spells\.(?:enfeebling|enhancing)\.|job_utils\.(?:ranger\.useShadowbind'
                            r'|dragoon\.useAngon|corsair\.useElementalShot)|mobskills\.(?:mobBuffMove'
                            r'|mobStatusEffectMove|calculateDuration)|combat\.action\.executeMobskillStatusEffect)')
@@ -38,9 +39,11 @@ CORE_GUARDS = {
     'scripts/globals/job_utils/dragoon.lua':
         '005bb3cee7a8c410f88616e5b2325db67f003746f23529d94931f36bae09e991',
     'scripts/globals/job_utils/corsair.lua':
-        'f1fd83ad41606f0a6ea3b53d3eb6033a44ef9a8741279731b1e69abd70522d31',
+        '3d5bbba88b1157f03f7636d3db06f5b09a9553ca2768f0f3e21085b510144c1c',
     'scripts/actions/abilities/pets/nightmare.lua':
         '6c3b35149bcdf2a1a36b56ef053c04487ff1eb9a2d4fbbd0ca636b41c98d50ef',
+    'scripts/items/nadrs.lua':
+        '11b4b9c68bef2a2e0b24e5acbb7283a0bd3ad6fa340d6e4706c1f3c6a0c8cfdd',
 }
 
 # Pet/mob handlers are read below. Spell overrides have explicit cases below.
@@ -102,7 +105,7 @@ KNOWN_MODULES = {
     'modules/phoenix/lua/actions/mobskills/plague_breath_pre_wotg.lua':
         'fe69cc3bbd1bd25e6145a20a647c4052e4436a340029c2ad01b1243fb9b5f8ab',
     'modules/phoenix/lua/actions/mobskills/poison_breath_crawler_pre_wotg.lua':
-        '0baa460e2b3f3179465322600258644bd2df9134fe9bd7594e9d3b3887da0554',
+        '2609b740b607d06980530d20b7e3fa6d868f8c0be5cfe09dc0abdb16e25caa26',
     'modules/phoenix/lua/actions/mobskills/queasyshroom_pre_wotg.lua':
         'b7adee6863f2cf0da1b9a50c9ea8c52d1a3f6357b86f06609afafe41f0d4e930',
     'modules/phoenix/lua/custom/level_sync_penalty.lua':
@@ -114,7 +117,7 @@ KNOWN_MODULES = {
     'modules/phoenix/lua/effects/dia.lua':
         '8d858935936abc40338ab02dae7facb1a2d09c837e40f6a4dd4d9441918fda26',
     'modules/phoenix/lua/globals/spells/enfeebling_spell.lua':
-        '83dd8b4ea5270b7b8be9604abe1794746c9a0ff48b34ef51aa590eb892f33c02',
+        '1389cfaec3cf462da2bc39ba5d2379ba4317f0f74371d65d51ace62ef6dee3f1',
     'modules/phoenix/lua/globals/spells/enhancing_spell.lua':
         '3e00373c93633f57c9bcb2feb484ef09933dd2939b450ec8ebee4ef4f791ed7b',
 }
@@ -245,7 +248,7 @@ def spell_rows(tree, ids, allowed):
             found[number] = row
     # These are the checked Phoenix/core duration branches, before resists and player-only bonuses.
     ranges = {'BIND': (13, 60), 'STUN': (2, 7), 'BLIND': (80, 300), 'BLIND_II': (80, 300),
-              'PARALYZE': (30, 120), 'PARALYZE_II': (30, 120), 'SILENCE': (2, 120),
+              'PARALYZE': (30, 120), 'PARALYZE_II': (30, 120), 'SILENCE': (30, 120),
               'DEODORIZE': (30, 300), 'INVISIBLE': (30, 300), 'SNEAK': (30, 300)}
     for name, (low, high) in ranges.items():
         if spells[name] in found:
@@ -419,7 +422,8 @@ def merit_rows(tree, roots):
 def equipment(tree):
     mods = tables.read_enum(tree, 'mod')
     rows = sql_rows(tree, 'item_mods')
-    wanted = {mods[name] for name in GEAR_MODS.values()} | {951, 953}
+    scripted = mods['item_addeffect_scripted']
+    wanted = {mods[name] for name in GEAR_MODS.values()} | {951, 953, scripted}
     by_mod = defaultdict(dict)
     for row in rows:
         if row['modId'] in wanted:
@@ -430,6 +434,10 @@ def equipment(tree):
     gear = {name: by_mod[mods[mod]] for name, mod in GEAR_MODS.items()}
     proc_effects = by_mod[951]
     procs = {item: duration for item, duration in by_mod[953].items() if item in proc_effects and duration > 0}
+    if by_mod[scripted].get(17650, 0) > 0:
+        # Nadrs rolls 30-60 seconds. Keep the same upper estimate as other random durations.
+        proc_effects[17650] = 3
+        procs[17650] = 60
     lengths = defaultdict(list)
     for item, duration in procs.items():
         lengths[proc_effects[item]].append(duration)

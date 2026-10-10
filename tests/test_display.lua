@@ -4,9 +4,10 @@ local printout = require('core.printout');
 local display = require('ui.display');
 local settings = defaults.make();
 local saved, destination = 0, nil;
+local notes = {};
 local ui = { names = { hit = 'Hit rate', block = 'Shield block' }, tips = {}, overlay_tips = {}, label_max = 24 };
 function ui.help() end
-function ui.note(text) imgui.TextUnformatted(text); end
+function ui.note(text) notes[#notes + 1] = text; imgui.TextUnformatted(text); end
 function ui.checkbox(label, owner, key, tip, disabled)
     imgui.BeginDisabled(disabled == true);
     local value = { owner[key] == true };
@@ -32,6 +33,7 @@ end
 function ui.options(id) destination = id; end
 local function draw(width, size)
     MOCK.frame();
+    notes = {};
     MOCK.avail = width;
     imgui.Begin('Display test', { true }, 0);
     imgui.PushFont(MOCK.ashita_font, size or 18);
@@ -66,6 +68,29 @@ MOCK.clicks['block/+##layout'] = true;
 draw(532);
 check('expanded narrow row exposes its label and line controls', MOCK.gui.paths['block/Label'] == 'InputText'
     and MOCK.gui.paths['block/New line'] == 'Checkbox' and MOCK.gui.paths['block/##up'] == 'ArrowButton');
+local layout_saves, layout_order = saved, settings.printout.order;
+draw(532);
+check('expanded row offers a collapse button', MOCK.gui.paths['block/-##layout'] == 'Button');
+MOCK.clicks['block/-##layout'] = true;
+draw(532);
+check('collapse removes the row editor immediately', MOCK.gui.paths['block/Label'] == nil
+    and MOCK.gui.paths['block/New line'] == nil and MOCK.gui.paths['block/##up'] == nil);
+draw(532);
+check('collapsed row offers expansion again', MOCK.gui.paths['block/+##layout'] == 'Button');
+MOCK.clicks['block/+##layout'] = true;
+draw(532);
+check('a collapsed row can reopen', MOCK.gui.paths['block/Label'] == 'InputText');
+MOCK.clicks['parry/+##layout'] = true;
+draw(532);
+draw(532);
+check('opening another row closes the previous editor', MOCK.gui.paths['parry/Label'] == 'InputText'
+    and MOCK.gui.paths['block/Label'] == nil);
+MOCK.clicks['block/+##layout'] = true;
+draw(532);
+check('switching back preserves the edited label', MOCK.gui.paths['block/Label'] == 'InputText'
+    and MOCK.gui.paths['parry/Label'] == nil and settings.printout.parts.block.label == 'Guard');
+expect('opening and closing rows does not save settings', saved, layout_saves);
+expect('opening and closing rows leaves the row order alone', settings.printout.order, layout_order);
 draw(532, 24);
 expect('larger fonts retain the narrow layout', MOCK.gui.tables['##display_parts'], 4);
 for id, part in pairs(settings.printout.parts) do part.on = false; settings.overlay.parts[id] = false; end
@@ -87,9 +112,31 @@ require('ui.search').query('Label');
 draw(532);
 check('search exposes filtered rows and their narrow layout controls', MOCK.gui.paths['hit/##chat'] == 'Checkbox'
     and MOCK.gui.paths['hit/Label'] == 'InputText');
+check('search shows disabled collapse buttons for its open rows', MOCK.gui.disabled['block/-##layout']
+    and MOCK.gui.disabled['parry/-##layout'] and MOCK.gui.disabled['hit/-##layout']);
+check('search explains why its rows stay open', table.concat(notes):find('stay open while you search', 1, true)
+    and table.concat(notes):find('Clear Find settings', 1, true));
+layout_saves = saved;
+MOCK.clicks['block/-##layout'], MOCK.clicks['parry/-##layout'] = true, true;
+draw(532);
+check('disabled search buttons leave editors visible', MOCK.gui.paths['block/Label'] == 'InputText'
+    and MOCK.gui.paths['parry/Label'] == 'InputText');
+MOCK.clicks['block/-##layout'], MOCK.clicks['parry/-##layout'] = nil, nil;
 require('ui.search').query('');
 draw(532);
 check('clearing search restores Enabled only', MOCK.gui.paths['hit/##chat'] == nil);
+check('clearing search restores the selected editor', MOCK.gui.paths['block/Label'] == 'InputText'
+    and MOCK.gui.paths['parry/Label'] == nil and not MOCK.gui.disabled['block/-##layout']);
+MOCK.clicks['block/-##layout'] = true;
+draw(532);
+check('the selected row can collapse after searching', MOCK.gui.paths['block/Label'] == nil);
+require('ui.search').query('Label');
+draw(532);
+require('ui.search').query('');
+draw(532);
+check('clearing another search preserves the collapsed state', MOCK.gui.paths['block/Label'] == nil
+    and MOCK.gui.paths['parry/Label'] == nil);
+expect('search and collapse controls do not save feature settings', saved, layout_saves);
 expect('display editing sends no game commands', #MOCK.commands, 0);
 MOCK.frame();
 return MOCK.report();

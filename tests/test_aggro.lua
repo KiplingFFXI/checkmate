@@ -11,7 +11,7 @@ local bands    = require('data.bands');
 
 local function color(code) return '\30' .. string.char(code); end
 
--- The readouts hand over keys in core\wording.lua. These word them the way the printout does with short words
+-- The readouts hand over keys in core\wording.lua. These word them the way the printout does with abbreviations
 -- off, so the checks read in words: keys joined like "Sight, Sound", the answer with its level in, and each name's
 -- ways joined like "Sight or Sound", with the names' tags joined by |.
 local function said(keys)
@@ -334,7 +334,7 @@ expect('and Doesn\'t link alone', plain(s, {}), 'Doesn\'t link');
 s.printout.parts.links.on = false;
 check('neither prints nothing', #printout.lines(s, result(s, THUG)) == 0);
 s.printout.replace_game_line = true;
-expect('and with the game\'s line hidden the name stands in for it', plain_lines(s, result(s, THUG)), 'x (Lv ?)');
+expect('an empty selection stays empty with replacement enabled', plain_lines(s, result(s, THUG)), '');
 s.printout.parts.links.on = true;
 expect('while Links alone is enough to print', plain_lines(s, result(s, THUG)), THUG_LINKS);
 -- Where Links goes.

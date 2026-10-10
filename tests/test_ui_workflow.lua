@@ -1,4 +1,4 @@
--- Exercise the real save boundary and toolbar instead of calling only the backend helpers.
+-- Run the real save path and toolbar as well as the backend helpers.
 local defaults = require('ui.defaults');
 local history = require('ui.history');
 local start = defaults.make();

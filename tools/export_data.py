@@ -5,7 +5,7 @@ Builds checkmate's monster data from the Phoenix server source.
 
 It copies the ref into a new temp folder with git archive and works out every monster row. It writes
 data\\zones\\<zone id>.lua, data\\bands.lua, data\\too_weak.lua, data\\pets.lua, data\\steal.lua,
-data\\crit.lua, data\\effects.lua, data\\modifiers.lua, data\\pdif.lua, data\\defenses.lua and data\\blue_finder.lua,
+data\\crit.lua, data\\effects.lua, data\\modifiers.lua, data\\pdif.lua, data\\defenses.lua, data\\merits.lua and data\\blue_finder.lua,
 then prints a short summary.
 See tools\\README.txt.
 """
@@ -32,6 +32,7 @@ from export import info
 from export import launch
 from export import lua_writer
 from export import mobscripts
+from export import merits
 from export import modifiers
 from export import outside
 from export import overlays
@@ -182,6 +183,7 @@ def build_files(folder, allowed, stamp, out):
     parity_note = source_parity.check(folder)
     ctx = Context(folder, allowed)
     modifier_data = modifiers.build(folder, ctx.roots, allowed)
+    merit_data = merits.build(folder, ctx.roots)
     source_parity.check_modifiers(folder, modifier_data)
     # The Steal and crit checks and tables come first, since they're quick and the zones take most of the run.
     steal.check_roll(folder)
@@ -239,7 +241,8 @@ def build_files(folder, allowed, stamp, out):
             continue
         finished.sort(key=lambda row: row['ids'][0])
         display = script_dir.replace('_', ' ')
-        finder.add_zone(number, display, finished)
+        available = set().union(*(kind.available_ids for kind in kinds))
+        finder.add_zone(number, display, finished, available)
         path = os.path.join(out_zones, '%d.lua' % number)
         text = lua_writer.write_zone(path, number, display, finished, stamp)
         constants = count_constants(text)
@@ -278,14 +281,18 @@ def build_files(folder, allowed, stamp, out):
     defenses_text = defenses.write(defenses_path, defense_data, stamp)
     if count_constants(defenses_text) > CONSTANT_LIMIT:
         raise RuntimeError('Shield and Parry metadata exceeds the LuaJIT constant limit.')
+    merits_path = os.path.join(out, 'merits.lua')
+    merits_text = merits.write(merits_path, merit_data, stamp)
+    if count_constants(merits_text) > CONSTANT_LIMIT:
+        raise RuntimeError('Merit metadata exceeds the LuaJIT constant limit.')
     finder_data = finder.finish()
     finder_path = os.path.join(out, 'blue_finder.lua')
     finder_text = blue_finder.write(finder_path, finder_data, stamp)
     if count_constants(finder_text) > CONSTANT_LIMIT:
         raise RuntimeError('Blue finder exceeds the LuaJIT constant limit; review its layout before exporting')
-    note = load_check(written + [bands_path, too_weak_path, pets_path, steal_path, crit_path, effects_path, modifiers_path, finder_path, pdif_path, defenses_path])
+    note = load_check(written + [bands_path, too_weak_path, pets_path, steal_path, crit_path, effects_path, modifiers_path, finder_path, pdif_path, defenses_path, merits_path])
     total_size = (sum(entry[0] for entry in zone_sizes) + bands_size + too_weak_size + pets_size + steal_size
-                  + crit_size + effects_size + modifiers_size + len(finder_text) + pdif_size + len(defenses_text))
+                  + crit_size + effects_size + modifiers_size + len(finder_text) + pdif_size + len(defenses_text) + len(merits_text))
     return {'files': len(written), 'rows': total_rows, 'zone_sizes': zone_sizes, 'total_size': total_size,
             'bands': band_rows, 'note': note, 'skipped': len(ctx.skipped), 'too_weak': too_weak,
             'too_weak_sources': sources, 'jugs': len(jugs), 'avatars': len(avatars), 'affinity': affinity,
@@ -307,7 +314,7 @@ def export(args):
     biggest = max(result['zone_sizes'])
     level_75 = [band for band in result['bands'] if band[0] == 75]
     print('Built from %s (%s).' % (stamp.built, stamp.content))
-    print('%d zone files, %d rows, %.2f MB with bands.lua, too_weak.lua, pets.lua, steal.lua, crit.lua, effects.lua, modifiers.lua, pdif.lua, defenses.lua and blue_finder.lua. Biggest '
+    print('%d zone files, %d rows, %.2f MB with bands.lua, too_weak.lua, pets.lua, steal.lua, crit.lua, effects.lua, modifiers.lua, pdif.lua, defenses.lua, merits.lua and blue_finder.lua. Biggest '
           'is %s (zone %d) at %.1f KB.' % (result['files'], result['rows'], result['total_size'] / 1048576.0,
                                          biggest[2], biggest[1], biggest[0] / 1024.0))
     print('bands.lua has %d levels. Level 75 is %s.' % (len(result['bands']), level_75[0] if level_75 else 'missing'))

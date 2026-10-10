@@ -209,10 +209,10 @@ class OrdinaryAttackSourceTests(unittest.TestCase):
 
     def test_native_callback_is_mob_gated_and_pc_item_procs_are_separate(self):
         native=(self.tree/'src/map/utils/battleutils.cpp').read_text(encoding='utf8')
-        self.assertIn('PAttacker->objtype == TYPE_PC',native)
+        self.assertIn('dynamic_cast<const CCharEntity*>(PAttacker) != nullptr',native)
         self.assertIn('getMobMod(xi::MobMod::AddEffect) > 0',native)
         self.assertIn('enspell == ENSPELL_BLOOD_WEAPON',native)
-        self.assertEqual(danger_attacks.check_source(self.tree),606)
+        self.assertEqual(danger_attacks.check_source(self.tree),607)
 
 
 if __name__=='__main__':

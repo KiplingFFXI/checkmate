@@ -133,7 +133,7 @@ class DangerEntryTests(unittest.TestCase):
     def test_spell_gaps_do_not_falsely_change_blue_kit_resolution(self):
         _, spells, reasons = self.reader.kit(kind(), {}, 'mob:castSpell(selectedSpell)')
         self.assertEqual(reasons, [])
-        self.assertIn('scripted spell argument', ' '.join(spells.reasons))
+        self.assertIn('A spell choice in the script could not be read.', ' '.join(spells.reasons))
         out = self.reader.dangers(kind(), {}, '', set(), spells, reasons)
         self.assertEqual(out['coverage'], 'unresolved')
 
@@ -169,7 +169,7 @@ class DangerEntryTests(unittest.TestCase):
         text = 'entity.onMobFight = function(mob)\n    mob:setSpellList(1)\n    mob:castSpell(copied)\nend'
         _, spells, _ = self.reader.kit(kind(), {}, text)
         self.assertEqual([row['spellid'] for row in spells], [100])
-        self.assertTrue(any('scripted spell argument' in note for note in spells.reasons))
+        self.assertTrue(any('A spell choice in the script could not be read.' in note for note in spells.reasons))
 
     def test_fixed_list_keeps_level_and_chooser_gates(self):
         self.spell(100, [(30, 40)])

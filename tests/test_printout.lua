@@ -417,14 +417,17 @@ s.printout.replace_game_line = false;
 lines = plain_lines(s, { name = 'Mystery Mob', cant_gauge = true, impossible = true });
 check('with the game\'s line shown, can\'t be gauged is one line', #lines == 1 and lines[1] == CANT_GAUGE, lines[1]);
 
--- The plain /check line. With the game's line hidden, a printout with nothing to say still prints
--- the name with its level, the difficulty and the reading, in their colors and labels.
+-- With an enabled row that has nothing to show and the game's line hidden, the fallback still prints
+-- the name, level, difficulty and reading. Turning every row off prints nothing.
 s = defaults.make();
 s.printout.divider = 'spaces';
 for _, part in pairs(s.printout.parts) do part.on = false; end
 r = { name = 'Goblin Tinkerer', low = 42, high = 42, con = 3, reading = 0, defense = 1 };
 lines = plain_lines(s, r);
-check('every part off prints the plain /check line', #lines == 1
+check('every part off prints nothing', #lines == 0);
+s.printout.parts.effects.on = true;
+lines = plain_lines(s, r);
+check('an enabled part with nothing to show prints the plain /check line', #lines == 1
     and lines[1] == 'Goblin Tinkerer (Lv 42)  Decent Challenge (High Evasion)', lines[1]);
 s.printout.show_level = false;
 expect('with its level even when Show level is off', plain_lines(s, r)[1], lines[1]);
@@ -449,6 +452,7 @@ check('with the game\'s line shown, nothing prints', #plain_lines(s, r) == 0);
 s = defaults.make();
 s.printout.divider = 'spaces';
 for _, part in pairs(s.printout.parts) do part.on = false; end
+s.printout.parts.effects.on = true;
 s.printout.show_range = true;
 r = { name = 'Goblin Tinkerer', low = 42, high = 42, range_low = 40, range_high = 44, con = 3, reading = 0, defense = 1 };
 expect('the plain /check line shows the range', plain_lines(s, r)[1],
@@ -467,6 +471,7 @@ s = defaults.make();
 s.printout.divider = 'spaces';
 for _, part in pairs(s.printout.parts) do part.on = false; end
 s.printout.show_id = true;
+s.printout.parts.effects.on = true;
 r = { name = 'Goblin Tinkerer', id = 17199202, low = 42, high = 42, con = 3, reading = 0, defense = 1 };
 expect('the plain /check line shows the ID', plain_lines(s, r)[1],
     'Goblin Tinkerer (Lv 42) (ID 17199202)  Decent Challenge (High Evasion)');
@@ -485,6 +490,7 @@ s = defaults.make();
 s.printout.divider = 'spaces';
 for _, part in pairs(s.printout.parts) do part.on = false; end
 s.printout.show_ph = true;
+s.printout.parts.effects.on = true;
 r = { name = 'Damselfly', ph_for = { 'Valkurm Emperor' }, low = 21, high = 21, con = 0, reading = 1, defense = 1 };
 expect('the plain /check line shows the PH note', plain_lines(s, r)[1], 'Damselfly (Lv 21) (PH for Valkurm Emperor)  Too Weak');
 
@@ -561,7 +567,7 @@ check('none with no pet', pet_at(result()) == nil);
 
 -- Difficulty and the evasion and defense reading ---------------------------------------------------
 
--- Every con with its word and default color. They're checker's colors, with cream for Incredibly Easy Prey.
+-- Every difficulty with its word and default color, including cream for Incredibly Easy Prey.
 local CONS = {
     [0] = { 'Too Weak', 67 }, { 'Incredibly Easy Prey', 106 }, { 'Easy Prey', 2 }, { 'Decent Challenge', 102 },
     { 'Even Match', 8 }, { 'Tough', 68 }, { 'Very Tough', 76 }, { 'Incredibly Tough', 76 },
@@ -810,7 +816,7 @@ check('links moves up past aggro, and aggro moves on its own', printout.move(pri
 -- Dividers ----------------------------------------------------------------------------------------
 
 -- Every divider but Custom has a space on both sides. The symbols are the Shift-JIS pairs in Ashita's
--- chat.lua, and the arrow is the one checker prints. No divider holds 0, which ends the text, or 10
+-- chat.lua. No divider holds 0, which ends the text, or 10
 -- and 13, which break lines.
 local STAR = ' \129\154 ';
 local u = require('chat').symbols.unicode;
@@ -872,6 +878,7 @@ check('Star and Colon are the defaults on every line', #lines == 5
 
 -- The plain /check line uses the divider too.
 for _, part in pairs(s.printout.parts) do part.on = false; end
+s.printout.parts.effects.on = true;
 s.printout.divider = 'arrow';
 lines = plain_lines(s, { name = 'Goblin Tinkerer', low = 42, high = 42, con = 3, reading = 0, defense = 1 });
 check('the plain /check line uses the divider, and parentheses for the reading', lines[1]

@@ -50,8 +50,8 @@ check('Copy details keeps practical source notes', all:find('Poisona or Antidote
 check('Copy details omits spells excluded by observed level', all:find('Sleep:', 1, true) == nil);
 window.set_open(true);
 window.set_target_details(result);
-MOCK.typing['Find settings'] = 'target details';
-MOCK.typing['Monster/Find target details'] = 'Poison Bite';
+window.details_open = true;
+MOCK.typing['Find target details'] = 'Poison Bite';
 window.draw(s, 'test');
 check('search shows a matching move', MOCK.drew('Requires a successful hit.'));
 check('search does not show a different poison move', not MOCK.drew('Forced Spell: Poison'));

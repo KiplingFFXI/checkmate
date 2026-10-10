@@ -2,13 +2,14 @@
     Keeps the pet seen when your /check comes back. Avatars and spirits have no Pet readout.
     Jugs, wyverns and automatons use /checkparam <pet>. Charmed monsters use their own monster data.
 
-    Pet levels are inferred from jobs, summon inputs and observed level changes. A jug's later rolls
+    Pet levels are worked out from jobs, what was worn at summon, merits and level changes. A jug's later rolls
     cannot exceed its original rolled level. A pet already out when the addon loads has unknown
-    summon inputs, so its level range stays wide. README explains the sync and level-cap cases.
+    summon gear and merits, so its level range stays wide. The guide explains sync and level caps.
 ]]
 
 local monsters = require('core.monsters');
 local player   = require('core.player');
+local merits   = require('core.merits');
 local pets     = require('data.pets');
 
 local pet = {};
@@ -30,9 +31,6 @@ local SYNC_END = 5;
 -- The merit id of Beast Affinity in the merit list the server sends.
 pet.AFFINITY_ID = pets.beast_affinity.id;
 
--- Your Beast Affinity merits from the last merit list, or nil before one came in.
-local affinity = nil;
-
 -- Your pet's entity index, with your main level and what your gear took off a jug pet's range when it
 -- came out. `wyvern` starts at that level too and moves to your main level when a sync or level cap ending
 -- sets a wyvern again. `sync` is your main and support level when checkmate first saw a level sync holding
@@ -46,13 +44,12 @@ local lost_index = nil;
 
 -- The merit list counted your Beast Affinity merits.
 function pet.on_affinity(count)
-    affinity = count;
+    return merits.observe('beast_affinity', count);
 end
 
--- Zoning. The next zone's merit list says Beast Affinity again, and its pet update says when your pet
--- comes back.
+-- Zoning clears the pet's original summon inputs.
 function pet.forget()
-    affinity, came_out, lost_index = nil, nil, nil;
+    came_out, lost_index = nil, nil;
     generation = generation + 1;
 end
 
@@ -84,6 +81,7 @@ end
 -- stand in for your levels now, and they still count after a sync that ends without moving you.
 local function watch(index, main_level, sub_level, observed, main)
     local synced, capped = player.synced();
+    local affinity = merits.selected('beast_affinity');
     -- Your pet at entity index `index` just came out, or checkmate is seeing it for the first time.
     if (came_out == nil or came_out.index ~= index) then
         generation = generation + 1;

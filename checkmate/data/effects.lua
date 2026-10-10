@@ -1,10 +1,10 @@
 -- Effects seen in action messages, with Phoenix durations before resists.
 -- An absent duration stays untimed. by_effect names each status of a move with several.
--- Built by tools\export_data.py from phoenix/live 465ac4c076.
+-- Built by tools\export_data.py from phoenix/live 071c401048.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live 465ac4c076',
+    built   = 'phoenix/live 071c401048',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- What an effect removes, and its usual duration.
     effects = {
@@ -752,7 +752,7 @@ return {
         [56] = { effect = 13, seconds = 180, tier = 3 },  -- slow
         [57] = { effect = 33, seconds = 180, tier = 5 },  -- haste
         [58] = { effect = 4, seconds = 30, tier = 1, top = 120 },  -- paralyze
-        [59] = { effect = 6, seconds = 2, tier = 1, top = 120 },  -- silence
+        [59] = { effect = 6, seconds = 30, tier = 1, top = 120 },  -- silence
         [60] = { effect = 100, seconds = 150, tier = 1 },  -- barfire
         [61] = { effect = 101, seconds = 150, tier = 1 },  -- barblizzard
         [62] = { effect = 102, seconds = 150, tier = 1 },  -- baraero
@@ -2571,6 +2571,7 @@ return {
             },
         },
         [2953] = { effect = 128, seconds = 90 },  -- smouldering_swarm
+        [3144] = { effect = 91, seconds = 60 },  -- jittering_jig
         [3189] = { effect = 10, seconds = 4 },  -- king_cobra_clamp
         [3193] = { effect = 10, seconds = 4 },  -- royal_bash
         [3194] = { -- royal_savior
@@ -3064,7 +3065,7 @@ return {
         [17608] = 60,
         [17614] = 5,
         [17627] = 30,
-        [17650] = 30,
+        [17650] = 60,
         [17695] = 60,
         [17768] = 60,
         [17770] = 3,

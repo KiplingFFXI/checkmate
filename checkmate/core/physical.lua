@@ -11,6 +11,7 @@
 local bands     = require('data.bands');
 local crit_data = require('data.crit');
 local modifiers = require('core.modifiers');
+local merits = require('core.merits');
 
 local physical = {};
 
@@ -338,8 +339,12 @@ local function confidence(out, me, mob, enemy)
     if (not own_mighty) then
         uncertain(out.crit, enemy.crit);
         uncertain(out.crit, me.modifiers and me.modifiers.crit_notes);
+        merits.qualify(out.crit, me, 'dex');
     end
-    if (not enemy.mighty_strikes) then uncertain(out.crittaken, enemy.crittaken); end
+    if (not enemy.mighty_strikes) then
+        uncertain(out.crittaken, enemy.crittaken);
+        merits.qualify(out.crittaken, me, 'agi');
+    end
     if (me.buffs[modifiers.buffs.flash]) then
         local notes = { 'Flash lowers accuracy outside /checkparam. Its remaining power is unknown, so this is a range.' };
         for _, key in ipairs({ 'hit', 'offhand', 'ranged', 'ranged_far' }) do

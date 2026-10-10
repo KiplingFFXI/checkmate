@@ -161,6 +161,16 @@ class CriticalFactsTests(unittest.TestCase):
         self.assertFalse(fact['required_statuses'])
         self.assertFalse(fact['can_crit'])
 
+    def test_physical_blue_action_argument_preserves_parameter_position(self):
+        prefix = 'local params = xi.spells.blue.getDefaultParams(caster)\nparams.attackType = xi.attackType.RANGED\n'
+        before = danger_crit.spell_facts(prefix + 'return xi.spells.blue.usePhysicalSpell(caster,target,spell,params)')
+        after = danger_crit.spell_facts(prefix + 'return xi.spells.blue.usePhysicalSpell(caster,target,spell,params,action)')
+        self.assertEqual(after, before)
+        self.assertEqual(after['unknown'], [])
+        self.assertFalse(after['sneak_attack'])
+        invalid = danger_crit.spell_facts(prefix + 'xi.spells.blue.usePhysicalSpell(caster,target,spell,makeParams(),action)')
+        self.assertTrue(invalid['unknown'])
+
     def test_unknown_physical_blue_params_are_reported(self):
         fact = danger_crit.spell_facts('xi.spells.blue.usePhysicalSpell(caster,target,spell,makeParams())')
         self.assertTrue(fact['unknown'])
@@ -278,8 +288,17 @@ class PinnedCriticalTests(unittest.TestCase):
 
     def test_complete_effective_callback_census(self):
         counts, rows = self.reader.census()
-        self.assertEqual(counts, dict(files=1687, can_crit=96, mighty_strikes=603, grants_mighty_strikes=1, unresolved=0))
-        self.assertEqual(len(rows), 1687)
+        self.assertEqual(counts, dict(files=1690, can_crit=96, mighty_strikes=605, grants_mighty_strikes=1, unresolved=0))
+        self.assertEqual(len(rows), 1690)
+
+    def test_new_spriggan_moves_do_not_gain_intrinsic_critical_hits(self):
+        for name in ('frenetic_flurry', 'romp'):
+            with self.subTest(name=name):
+                value = self.reader.read(name)
+                self.assertFalse(value['can_crit'])
+                self.assertTrue(value['mighty_strikes'])
+                self.assertEqual(value['unknown'], [])
+        self.assertFalse(self.reader.read('jittering_jig')['mighty_strikes'])
 
     def test_changed_shared_gate_stops_export(self):
         original = Path.read_text

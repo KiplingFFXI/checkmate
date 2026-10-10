@@ -8,7 +8,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import benchmark_danger_sharing as benchmark
-from export import lua_writer
+from export import blue_finder, lua_writer
 from lupa import luajit21
 
 
@@ -57,10 +57,20 @@ class BenchmarkFamilyTests(unittest.TestCase):
             root = Path(temporary)
             (root / 'zones').mkdir()
             (root / 'zones/100.lua').write_text(zone_source(), encoding='ascii')
+            blue_finder.write(root / 'blue_finder.lua', blue_finder.Builder().finish(),
+                              SimpleNamespace(built='same', content='era'))
             result = benchmark.run(root, 3)
             self.assertEqual(result['zones'], 1)
             self.assertTrue(result['semantic_match'])
             self.assertTrue(result['finder']['all_source_contexts_match'])
+
+    def test_benchmark_cannot_invent_availability_from_zone_rows(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / 'zones').mkdir()
+            (root / 'zones/100.lua').write_text(zone_source(), encoding='ascii')
+            with self.assertRaisesRegex(RuntimeError, 'matching blue_finder'):
+                benchmark.run(root, 3)
 
     def test_older_zone_without_family_metadata_is_unchanged(self):
         text = 'return {\n    monsters = {}\n}\n'

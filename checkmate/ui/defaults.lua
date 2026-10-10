@@ -228,9 +228,7 @@ function defaults.make()
         pdif = T{
             mode = 'both',                   -- Multiplier range, Attack/Defense ratio, or both.
         },
-        -- Your merits. Each character has its own, so profiles leave them out. With fill_in on, the merit list the
-        -- server sends fills both in when you zone and one of them when you change that merit, and one you set by
-        -- hand holds until you zone or change that merit.
+        -- Merits stay with this character. New ranks stay unset until read or chosen by hand.
         merits = T{
             fill_in         = true,
             crit_hit_rate   = 0,             -- Critical Hit Rate, 0 to 4. Each one adds 1% to Crit.
@@ -239,6 +237,7 @@ function defaults.make()
         short = wording.reset(T{}),          -- Each word's short form, by its key in core\wording.lua.
         overlay = T{
             on             = false,              -- While it's off, checkmate never reads your target.
+            only_checked   = false,              -- Hides a monster until your /check reply arrives.
             locked         = false,              -- Stops you moving it or changing its width with Shift and drag.
             remember       = true,               -- Keeps each monster's last /check until it dies, leaves sight or you zone.
             follow_cursor  = false,              -- Shows the monster under the cursor while you pick a target.
@@ -279,6 +278,8 @@ function defaults.make()
         profile_source = T{ kind = '', name = '' },
         window = T{                          -- Where the settings window sits and its size, and where the overlay sits.
             tabs = T{},                     -- Which settings tabs this character shows.
+            sections = T{},                 -- Sections this character has opened or closed.
+            compact_navigation = false,
             x      = 120,
             y      = 20,
             width  = 840,
@@ -288,7 +289,7 @@ function defaults.make()
         },
         job_links = T{},                     -- A profile name per main job, keyed by job abbreviation.
     };
-    for _, name in ipairs(navigation.TAB_NAMES) do settings.window.tabs[name] = true; end
+    for _, name in ipairs(navigation.TAB_NAMES) do settings.window.tabs[navigation.key(name)] = true; end
     return parts.migrate(settings);
 end
 

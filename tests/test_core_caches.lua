@@ -66,11 +66,13 @@ details.forget();
 lessons.forget();
 -- The mock memory manager creates tables; exclude those from the core allocation measurement.
 local read_zone = player.zone;
-player.zone = function() return 103; end;
+local zone_reads = 0;
+player.zone = function() zone_reads = zone_reads + 1; return 103; end;
 local function quiet()
     lessons.take_in(0.5);
 end
 for i = 1, 1000 do quiet(); end
+zone_reads = 0;
 collectgarbage('collect');
 collectgarbage('stop');
 local before = collectgarbage('count');
@@ -78,5 +80,6 @@ for i = 1, 10000 do quiet(); end
 local allocated = (collectgarbage('count') - before) * 1024 / 10000;
 collectgarbage('restart');
 player.zone = read_zone;
+expect('empty observations do not reread the zone each frame', zone_reads, 0);
 check('quiet observations allocate less than one table per frame', allocated < 8, allocated);
 return MOCK.report();

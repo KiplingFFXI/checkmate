@@ -1,10 +1,10 @@
 -- Typical monster accuracy, evasion, AGI and DEX by level, for monsters with no data row.
 -- Each row covers the middle 80 percent of the monsters at that level that are not notorious.
--- Built by tools\export_data.py from phoenix/live 465ac4c076.
+-- Built by tools\export_data.py from phoenix/live 071c401048.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live 465ac4c076',
+    built   = 'phoenix/live 071c401048',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- { level, accuracy low, accuracy high, evasion low, evasion high, AGI low, AGI high, DEX low, DEX high }
     rows = {

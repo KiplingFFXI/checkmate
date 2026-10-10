@@ -1,4 +1,4 @@
-"""Spawn rules, reviewed danger moves and possible Blue Magic lessons."""
+"""Spawn rules, reviewed danger moves and possible BLU spells."""
 from collections import defaultdict
 import hashlib
 from pathlib import Path
@@ -130,18 +130,21 @@ GUARDS = {
     'scripts/actions/spells/black/stun.lua': '9bdcfbd090aec044006e8a00de85a52c5e842aa9d56d0e6a552e4c43dfd7ef9a',
     'scripts/actions/spells/black/poisonga.lua': '9bdcfbd090aec044006e8a00de85a52c5e842aa9d56d0e6a552e4c43dfd7ef9a',
     'scripts/actions/spells/black/poisonga_ii.lua': '9bdcfbd090aec044006e8a00de85a52c5e842aa9d56d0e6a552e4c43dfd7ef9a',
-    'scripts/globals/mobskills.lua': '4143e78653e6fd944978f6d4ad3c21e8c30342d7eb830e9a8282e8a617d74397',
+    'scripts/globals/mobskills.lua': '985812fe584f74d8fb6fb2228dd88dc9c8f511a77a088a3d15abe007a9dcc70c',
     'scripts/globals/spells/enfeebling_spell.lua': 'a9fec830186f0a14bca6c0062754d88a8974358098bb95a761f51b2749853029',
     'scripts/combat/action_mobskill_status_effect.lua': '1a8a4762bb79b3f869f2382b239c3bcd46f31c999666b4df9b86ce16084c8b56',
 }
-MODULE_GUARD = '85a7f9dfd484684c1a8a027475de2f1da7a87afe12bf006012bd9bf65b68e528'
+MODULE_GUARD = '0904fb7bbf5371f95b70b442c0135c4db2f91f7c1e0175fbbd09b43bcca232fb'
 NATIVE_GUARDS = {
+    ('src/map/spawn_handler.cpp', 'SpawnHandler::registerForRespawn'): 'a787e7fad3d19ae481ef05620ffd15d32d0dbb6b7a382c8a06a7d6c9e3785a8e',
+    ('src/map/spawn_slot.cpp', 'SpawnSlot::StartCooldown'): '9bffda0bd0b332bfcc4fd124d4f098f74910fd302c08f089a1b9c4f0b1ee09cb',
+    ('src/map/spawn_slot.cpp', 'SpawnSlot::AddMob'): '0edd3fb47a75e81718452f26a5aaba1f94968a1479d0621877f8978c6c110a8f',
     ('src/map/lua/lua_base_entity.cpp', 'CLuaBaseEntity::setSpellList'): '98465dae5a7b72aa7afa158aec5284908960d6f93c9d1e89b75d2780da768a23',
     ('src/map/utils/mobutils.cpp', 'SetSpellList'): '4d5256637436468c0c41eca0e990eb087e5cdb5908192b82d97b5107a5022b35',
     ('src/map/utils/mobutils.cpp', 'RecalculateSpellContainer'): '73067866e6b540c0ede552be06184f2323e428df03cffa88d79de061fb8a0716',
     ('src/map/mob_spell_list.cpp', 'LoadMobSpellList'): '330c538bc5a9103c6ae4aef008443e695e7651284dea7814abf695dfe2e1dec6',
     ('src/map/mob_spell_list.cpp', 'GetMobSpellList'): '2beb9238cf2dea223b97b3f3aeb5ff2c96fab29dfb83c5b1b7448132510e2593',
-    ('src/map/entities/battle_entity.cpp', 'CBattleEntity::OnMobSkillFinished'): 'ddc709c74fcb5f02ab83d0750d81313c58c73928107d5d12f0cc6bc6a66a59f9',
+    ('src/map/entities/battle_entity.cpp', 'CBattleEntity::OnMobSkillFinished'): '665f5b70e8806b8926619adbcee9bb195093920ac001a24707ba49b352c75260',
     ('src/map/action/action.cpp', 'action_t::normalize'): 'b1acece5a0d5e5f15d53662abd8f100e579cd2ea77898a127304423b4b35d194',
     ('src/map/packets/s2c/0x028_battle2.cpp', 'GP_SERV_COMMAND_BATTLE2::pack'): 'f06619391dd67720e395b8a5f11e039ca6dd927bdf4b005a792615acde943ea9',
     ('src/map/action/interrupts.cpp', 'AbilityInterrupt'): 'f9bcbee6bce229c10e94a2c7d52ca656ceecaef24bd1051e8184304c43016bdb',
@@ -155,14 +158,15 @@ NATIVE_GUARDS = {
     ('src/map/spawn_handler.cpp', 'hourInWindow'): '6c93d49e3d27378c6d7221df1422a472c704faeeffb32230d1a8b5fecad3f3ed',
     ('src/map/spawn_handler.cpp', 'spawnWindowOf'): '0f2c575815922d82299b659f3e7198ffe61e31a4950c926ade31ad0e782d3df5',
     ('src/map/spawn_handler.cpp', 'SpawnHandler::canSpawnNow'): '1e78ca08f24d5dcc45caaa48872dcbc30eed53d0c6b5c0154062e9d23b2bc461',
+    ('src/map/spawn_slot.cpp', 'SpawnSlot::TrySpawn'): '2aba6fd3ec910d87960b6378d6df6e76627154064e8ccd9c65f10b168b65ca39',
     ('src/map/spawn_handler.cpp', 'SpawnHandler::onGameHour'): '32396b99f84b9279701293eb1aef2d3ccbd5b2f5a0343b595d4044966a219025',
     ('src/map/spawn_handler.cpp', 'SpawnHandler::onWeatherChange'): 'f4096b2c65386c78e754fd917d9b7fab9d9c7723b34d12b378cc97072c8fc24b',
-    ('src/map/spawn_handler.cpp', 'SpawnHandler::Tick'): 'abe36001157afba334fe6ca920ffc0b65d06f6a925de7cef1ac23d3f7472668f',
+    ('src/map/spawn_handler.cpp', 'SpawnHandler::Tick'): '4eff2089485938083a3c09d668fee7ac30d89e4718afffc46c14c265946a0ec0',
     ('src/map/utils/blueutils.cpp', 'TryLearningSpells'): '343dd7ca9e943e2bfd8cbb709f77ea8c1b3bae66245dfd36408d7cdfa5f49b10',
-    ('src/map/entities/mob_entity.cpp', 'CMobEntity::DistributeRewards'): '195fda1214756a597dad53efdf2a31f55a1ed6bbe6895d2f9cf89d669a9471ea',
+    ('src/map/entities/mob_entity.cpp', 'CMobEntity::DistributeRewards'): '2c38b0cdef45991d9c785841fc53d77e87ef98a710f59e7ff1eafa7a43742fa0',
     ('src/map/spell.cpp', 'LoadSpellList'): 'e61fc2f6670c056570fe390dc0ef203518aa115b3f9029fbaa39b8ab1bbdb5bf',
     ('src/map/spell.cpp', 'CSpell::getJob'): '05f5549f6c334d97891f1fc0fcb6bfecae2c7f11989701e45378e9e869e4455a',
-    ('src/map/utils/battleutils.cpp', 'GetMaxSkill'): 'a97ae9f95003ff2c180867a2bd56b4cb62f28c89fdc96db62ed8f9e2a1432e9b',
+    ('src/map/utils/battleutils.cpp', 'GetMaxSkill'): '81b8356e4d7981493564196ca3df71b571271d5a8f60773962ad383f294f244b',
     ('src/map/utils/battleutils.cpp', 'LoadSkillTable'): 'e24b885a3be09fed37ba2c2a81c08ca9e42222ad2484ee2646856bc6a9f005ee',
     ('src/map/mobskill.cpp', 'CMobSkill::isAoE'): '2931b3481c6ec82aaafc4ebc9fc0791679fe41dd461e678001ab08117f3bcc7a',
     ('src/map/mobskill.cpp', 'CMobSkill::isConal'): '31ea8198df1076834da05cc53162bcc0267e208c3114624690df5a253db3eb3a',
@@ -258,7 +262,7 @@ def chooser(text, name, enum, prefix, trail=()):
     functions = function_parts(text)
     body = functions.get(name, '')
     if not body or name in trail:
-        return set(), False, ['The scripted move chooser is not resolved.']
+        return set(), False, ['The script picks its moves in a way checkmate could not read.']
     candidates, fallback, reasons = set(), False, []
     returns = re.findall(r'^\s*return\s+([^\n]+)', body, re.M)
     def choice_tables(source):
@@ -300,7 +304,7 @@ def chooser(text, name, enum, prefix, trail=()):
             for inserted in inserts:
                 number = literal(inserted, enum, prefix)
                 if number is None:
-                    reasons.append('A scripted choice table adds a move that is not resolved.')
+                    reasons.append('A move in the script\'s choice table could not be read.')
                 elif number > 0:
                     candidates.add(number)
             continue
@@ -323,7 +327,7 @@ def chooser(text, name, enum, prefix, trail=()):
                 if entries and all(number is not None for number in numbers):
                     candidates.update(number for number in numbers if number > 0)
                     continue
-        reasons.append('A scripted move chooser return is not resolved.')
+        reasons.append('The move returned by the script could not be read.')
     if not returns:
         reasons.append('The scripted move chooser has no readable return.')
     return candidates, fallback, list(dict.fromkeys(reasons))
@@ -396,7 +400,7 @@ def apply_sql(rows, columns, statement, where):
 
 
 def apply_spell_jobs(rows, statement, where):
-    """Keep loaded level/targeting changes; reject unreadable lesson identity changes."""
+    """Keep loaded level/targeting changes; reject unreadable spell identity changes."""
     match = re.fullmatch(r'UPDATE\s+`?\w+`?\s+SET\s+(.*?)\s+WHERE\s+(.*)', statement, re.I)
     if match is None:
         raise RuntimeError('%s changes spell identity/content; review encounter lessons' % where)
@@ -423,7 +427,7 @@ def apply_spell_jobs(rows, statement, where):
 def blue_entry(spell, tables, skill_id):
     jobs = spell.get('jobs')
     if not isinstance(jobs, int) or jobs < 0 or jobs >= 1 << (22 * 8):
-        raise RuntimeError('Unreadable Blue spell job levels: %s' % spell.get('name'))
+        raise RuntimeError('Unreadable BLU spell job levels: %s' % spell.get('name'))
     level = jobs.to_bytes(22, 'big')[15] or 255
     return dict(id=spell['spellid'], name=label(spell['name']), level=level,
                 min_skill=max(0, tables.max_skill(skill_id, 'blu', level) - 31))
@@ -836,11 +840,13 @@ class Reader:
         self.trades[zone] = out
         return out
 
-    def spawn(self, kind, attrs, combined):
+    def spawn(self, kind, attrs, combined, index=None):
         spawn = attrs.get('spawn') or {}
         kinds = spawn.get('type') or []
         kinds = [kinds] if isinstance(kinds, str) else kinds
-        notes, values = [], []
+        extra = getattr(kind, 'spawn_rules_by_index', {}).get(index) or {}
+        notes = list(extra.get('notes', ()))
+        values = [extra['value']] if extra.get('value') else []
         window = spawn.get('window')
         if not window:
             if 'at_night' in kinds:
@@ -860,7 +866,7 @@ class Reader:
             values.append('%s weather' % label(element) if element else 'Matching weather')
             notes.append('An unowned elemental requires weather matching its source element. Weather ending can make it despawn.')
         timer = spawn.get('respawn')
-        if isinstance(timer, (int, float)) and timer > 0:
+        if not extra.get('ferry') and isinstance(timer, (int, float)) and timer > 0:
             if not kind.nm and not re.search(r'setRespawnTime|setLocalVar\([\'\"](?:pop|respawn)', combined):
                 values.append('Respawn ' + duration(timer))
                 notes.append('Base respawn delay: %s after despawn. Spawn waves can shift this time; other conditions can delay the next appearance.' % duration(timer))
@@ -892,10 +898,10 @@ class Reader:
         if list_id and list_id not in self.skill_lists:
             reasons.append('The assigned TP-move list is missing from the source tables.')
         if kind.zone_dir.startswith('Dynamis-') or 'battlefield' in getattr(kind, 'types', ()) or pool:
-            reasons.append('Encounter setup can replace this monster\'s TP-move list; that setup is not resolved.')
+            reasons.append('The fight can replace this monster\'s TP-move list. That replacement list is unknown.')
             return set(), [], list(dict.fromkeys(reasons))
         if getattr(getattr(kind, 'effects', None), 'job_changes', ()):
-            reasons.append('Scripted job changes may add move lists that are not resolved.')
+            reasons.append('Job changes during the fight may add move lists that checkmate could not read.')
         parsed = lua_source.LuaFile('kit', combined)
         calls = [call for call in parsed.calls if call.own and call.method == 'setMobMod' and len(call.args) == 2]
         for call in sorted(calls, key=lambda call: (0 if call.handler == 'onMobInitialize' else 1 if call.handler == 'onMobSpawn' else 2, call.line_no)):
@@ -906,7 +912,7 @@ class Reader:
             if unknown:
                 if name == 'xi.mobMod.SKILL_LIST':
                     skills.clear()
-                reasons.append('A scripted %s value is not resolved.' % name.split('.')[-1].lower().replace('_', ' '))
+                reasons.append('A %s value in the script could not be read.' % name.split('.')[-1].lower().replace('_', ' '))
             if name == 'xi.mobMod.SKILL_LIST' and call.top and call.handler in ('onMobInitialize', 'onMobSpawn'):
                 skills.clear()
             for number in numbers:
@@ -928,7 +934,7 @@ class Reader:
             args = lua_source.call_arguments(combined, match.end() - 1)
             number = literal(args[0], move_enum, 'xi.mobSkill') if args else None
             if number is None:
-                reasons.append('A scripted %s argument is not resolved.' % ('move' if match['method'] == 'useMobAbility' else 'attack list'))
+                reasons.append('A %s choice in the script could not be read.' % ('move' if match['method'] == 'useMobAbility' else 'attack list'))
             elif number > 0:
                 if match['method'] == 'useMobAbility':
                     forced.add(number)
@@ -983,12 +989,12 @@ class Reader:
             lists.update(valid_lists)
             changed = True
             if missing:
-                spell_reasons.append('A scripted spell-list replacement is not resolved.')
+                spell_reasons.append('The script can replace the spell list, but the replacement could not be read.')
             if invalid:
                 spell_reasons.append('A scripted spell-list ID is missing from the source; its previous list is retained.')
         if ('setSpellList' in combined and not list_calls) or 'xi.mobMod.SPELL_LIST' in combined:
             lists.clear()
-            spell_reasons.append('A scripted spell-list replacement is not resolved.')
+            spell_reasons.append('The script can replace the spell list, but the replacement could not be read.')
         for current_list in sorted(lists):
             if current_list and current_list not in self.spell_lists:
                 spell_reasons.append('An assigned spell list is missing from the source tables.')
@@ -1005,7 +1011,7 @@ class Reader:
             spell_reasons.extend(unresolved)
         elif 'onMobSpellChoose' in combined:
             spell_ids.clear()
-            spell_reasons.append('A scripted spell chooser is not resolved.')
+            spell_reasons.append('The script picks its spells in a way checkmate could not read.')
         for match in re.finditer(r'\b(?:mob\w*|\w+Mob):castSpell\s*\(', combined):
             args = lua_source.call_arguments(combined, match.end() - 1)
             number = literal(args[0], spell_enum, 'xi.magic.spell') if args else None
@@ -1013,7 +1019,7 @@ class Reader:
                 spell_ids.add(number)
                 forced_spells.add(number)
             else:
-                spell_reasons.append('A scripted spell argument is not resolved.')
+                spell_reasons.append('A spell choice in the script could not be read.')
         spells = SpellCandidates(reasons=spell_reasons)
         for number in sorted(spell_ids):
             if number not in self.spells:
@@ -1086,7 +1092,7 @@ class Reader:
         spawns = {key & 0xFFF: value for key, value in (doc.get('spawns') or {}).items()
                   if isinstance(key, int) and value and (key & 0xFFF) in kind.ids}
         effective = getattr(kind, 'source_by_index', {})
-        per_spawn = {index: self.spawn(kind, effective.get(index) or overlays.merge_patch(attrs, spawn.get('attributes') or {}), combined)
+        per_spawn = {index: self.spawn(kind, effective.get(index) or overlays.merge_patch(attrs, spawn.get('attributes') or {}), combined, index)
                      for index, spawn in spawns.items()}
         if per_spawn and all(value == next(iter(per_spawn.values())) for value in per_spawn.values()):
             spawn_info = next(iter(per_spawn.values()))
@@ -1112,19 +1118,19 @@ class Reader:
         lessons = sorted({spell for skill in skills for spell in self.blue.get(skill, ())})
         if lessons:
             entries = [dict(self.blue_entries[n], skill_ids=sorted(skill for skill in skills if n in self.blue.get(skill, ()))) for n in lessons]
-            notes = ['Possible lessons from moves this monster can use. It must actually use the move before defeat; learning is not guaranteed.']
+            notes = ['Possible spells from moves this monster can use. It must actually use the move before defeat; learning is not guaranteed.']
             requirements = [
-                'The learner must be an eligible main-job Blue Mage, alive and within 100 yalms in the same zone, with enough current Blue Magic skill and an unlearned spell. Call for Help excludes learning.',
+                'You need Blue Mage as your main job and enough current Blue Magic skill. When the monster dies, you must be alive and within 100 yalms in the same zone. You cannot learn a spell you already know, or learn from a Call for Help kill.',
                 'Equipment skill bonuses count. The spell\'s casting level is not a minimum learning level.',
-                'The learner must belong to the party or alliance receiving kill credit, or receive solo kill credit. Only one eligible spell gets a learning attempt per defeat.']
+                'You or your party or alliance must get credit for the kill. Only one spell that meets the requirements gets a learning roll each time the monster dies.']
             if reasons:
-                notes += ['Additional lessons are unknown because part of the move selection is unresolved.'] + reasons
+                notes += ['Other spells may be missing because some move choices could not be read.'] + reasons
             info['blue'] = section(', '.join(item['name'] for item in entries), notes, spells=entries,
                                    requirements=requirements, incomplete=bool(reasons))
         elif reasons:
             info['blue'] = section('Unknown', reasons, incomplete=True)
         else:
-            info['blue'] = section('No learnable Blue spells', ['No enabled Blue Magic lesson is mapped to the usable source moves for this monster.'])
+            info['blue'] = section('No learnable BLU spells', ['No enabled BLU spell is mapped to the usable source moves for this monster.'])
         if (kind.zone_dir, kind.script) == TIAMAT:
             extra = 'Low-HP attack boost; flight; Firaga III'
             existing = info['dangers']

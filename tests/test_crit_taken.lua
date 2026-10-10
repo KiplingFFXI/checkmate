@@ -422,12 +422,11 @@ for _, entry in ipairs(MERIT_ANSWERS) do
     run(('/checkmate %s 0'):format(sub));
 end
 said = run('/checkmate meritfill off');
-expect('meritfill off', said, '[checkmate] Your crit merits now stay as you set them.');
+expect('meritfill off', said, '[checkmate] Your merit choices now stay as you set them.');
 check('and saves it', s.merits.fill_in == false and MOCK.last_save.merits.fill_in == false);
 expect('with it off the answers don\'t say how long yours holds', run('/checkmate critmerits 3'), '[checkmate] Your '
     .. 'Critical Hit Rate merits are now 3. Crit counts as many as your main level allows.');
-expect('meritfill on', run('/checkmate meritfill ON'), '[checkmate] Your crit merits now fill in from the merit list the '
-    .. 'server sends when you zone, and one of them when you change that merit.');
+expect('meritfill on', run('/checkmate meritfill ON'), '[checkmate] Your supported merits now fill in when you zone or change a rank in game.');
 expect('meritfill with another word', run('/checkmate meritfill maybe'), '[checkmate] Type /checkmate meritfill on|off.');
 check('which changes nothing', s.merits.fill_in == true and s.merits.crit_hit_rate == 3);
 run('/checkmate critmerits 0');
@@ -474,7 +473,8 @@ check('the merit list fills both in and saves once', merits() == '3 and 4' and s
     and MOCK.last_save.merits.enemy_crit_rate == 4, merits() .. ', ' .. saved .. ' saves');
 expect('and the next /check goes by them', said_of(bounder(74)), '7%');
 check('the same list again saves nothing', merit_list({ { 0x0144, 3 }, { 0x0146, 4 } }) == 0);
-check('a list without them leaves them', merit_list({ { 2564, 2 } }) == 0 and merits() == '3 and 4');
+check('a different supported merit saves its rank without changing either crit rank',
+    merit_list({ { 2564, 2 } }) == 1 and s.merits.beast_affinity == 2 and merits() == '3 and 4');
 check('one merit changed in the Mog House changes only that one', merit_list({ { 0x0146, 2 } }) == 1
     and merits() == '3 and 2', merits());
 check('a count over the most is kept at it', merit_list({ { 0x0146, 9 } }) == 1 and merits() == '3 and 4', merits());
@@ -548,9 +548,7 @@ check('help numbers has critmerits', has(said, '[checkmate] /checkmate critmerit
     .. 'merits. Each one adds 1% to Crit, and under level 40 fewer of them count.'), said);
 check('and enemycritmerits', has(said, '[checkmate] /checkmate enemycritmerits <0-4>  sets your Enemy Critical Hit Rate '
     .. 'merits. Each one takes 1% off Crit taken, and under level 40 fewer of them count.'), said);
-check('and meritfill, which says what one you set does', has(said, '[checkmate] /checkmate meritfill on|off  fills both in '
-    .. 'from the merit list the server sends when you zone, and one of them when you change that merit, or keeps the '
-    .. 'numbers you set. With it on, one you set by hand holds until you zone or change that merit.'), said);
+check('and meritfill points to the central sliders', has(said, '[checkmate] /checkmate meritfill on|off  fills supported ranks when you zone or change them in game. Use Merits for all sliders.'), said);
 check('right after the cutoff line', has(said, 'Off-hand and ranged use the hit cutoffs. / [checkmate] /checkmate '
     .. 'critmerits '), said);
 said = run('/checkmate help');
@@ -586,7 +584,7 @@ run('/checkmate enemycritmerits 0');
 
 local window = require('ui.settings_window');
 window.folded = window.folded or {};
-window.folded['Numbers/ADVANCED'] = true;
+window.folded['Combat/ADVANCED'], window.folded['Merits/OTHER'] = true, true;
 -- One frame with the mouse over every (?), so each one draws its tip. Returns the tips by path.
 local function tips()
     MOCK.hover = true;
@@ -599,34 +597,35 @@ run('/checkmate hide crittaken');
 MOCK.target.slot0 = 0;
 run('/checkmate');
 MOCK.frame();
-local N = 'Numbers/';
-check('the Numbers tab has both merit sliders and the switch', MOCK.drew('CRITICAL HIT RATE')
-    and MOCK.drew('ENEMY CRITICAL HIT RATE') and MOCK.gui.paths[N .. '##crit_merits'] == 'Slider'
-    and MOCK.gui.paths[N .. '##enemy_crit_merits'] == 'Slider' and MOCK.gui.paths[N .. 'Fill both in when you zone']
+local N, M = 'Combat/', 'Merits/';
+check('the Merits tab has both merit sliders and its one autofill switch', MOCK.drew('Critical Hit Rate')
+    and MOCK.drew('Enemy Critical Hit Rate') and MOCK.gui.paths[M .. 'crit_hit_rate/##rank'] == 'Slider'
+    and MOCK.gui.paths[M .. 'enemy_crit_rate/##rank'] == 'Slider' and MOCK.gui.paths[M .. 'Use my merits when I zone']
     == 'Checkbox');
-check('each slider counts merits', MOCK.gui.formats[N .. '##crit_merits'] == '%d merits'
-    and MOCK.gui.formats[N .. '##enemy_crit_merits'] == '%d merits');
+check('each slider counts merits', MOCK.gui.formats[M .. 'crit_hit_rate/##rank'] == '%d ranks'
+    and MOCK.gui.formats[M .. 'enemy_crit_rate/##rank'] == '%d ranks');
 check('their row switches stay available while each part is off', not s.printout.parts.crit.on
-    and not s.printout.parts.crittaken.on and MOCK.gui.paths[N .. 'crit/In chat'] == 'Checkbox'
-    and MOCK.gui.paths[N .. 'crittaken/In chat'] == 'Checkbox');
+    and not s.printout.parts.crittaken.on and MOCK.gui.paths[N .. 'crit/##chat'] == 'Checkbox'
+    and MOCK.gui.paths[N .. 'crittaken/##chat'] == 'Checkbox');
 check('and crit taken\'s cutoffs in a table of their own', MOCK.gui.tables['##cutoffs_lower'] == 3
     and MOCK.gui.paths[N .. '##crittaken_good'] == 'Slider' and MOCK.gui.paths[N .. '##crittaken_ok'] == 'Slider');
 local tip = tips();
-check('each slider\'s tip says which merits count from which level', has(tip[N .. '##crit_merits'], 'Each one adds 1% to '
+check('each slider\'s tip says which merits count from which level', has(tip[M .. 'crit_hit_rate/Critical Hit Rate'], 'Each one adds 1% to '
     .. 'the Crit part. Phoenix allows 0 to 4. The server only counts as many as your main level allows: none under 10, 1 '
-    .. 'from 10, 2 from 20, 3 from 30 and all 4 from 40.') and has(tip[N .. '##enemy_crit_merits'], 'Each one takes 1% '
-    .. 'off the Crit taken part.'), tip[N .. '##crit_merits']);
-check('the switch\'s tip says what one you drag does', has(tip[N .. 'Fill both in when you zone'], 'Sets both sliders '
-    .. 'from the merit list the server sends when you zone, and one of them when you change that merit, so they match '
-    .. 'what you have.') and has(tip[N .. 'Fill both in when you zone'], 'what you set holds until you zone or change '
-    .. 'that merit. Turn this off to keep your own numbers.')
-    and has(tip[N .. 'Fill both in when you zone'], 'Profiles don\'t keep your merits or this switch'),
-    tip[N .. 'Fill both in when you zone']);
+    .. 'from 10, 2 from 20, 3 from 30 and all 4 from 40.') and has(tip[M .. 'enemy_crit_rate/Enemy Critical Hit Rate'], 'Each one takes 1% '
+    .. 'off the Crit taken part.'), tip[M .. 'crit_hit_rate/Critical Hit Rate']);
+check('the switch\'s tip explains all ranks, manual choices and character ownership',
+    has(tip[M .. 'Use my merits when I zone'], 'Fills these ranks from the merit list received when you zone')
+    and has(tip[M .. 'Use my merits when I zone'], 'updates a rank when you change it in game')
+    and has(tip[M .. 'Use my merits when I zone'], 'Turn this off to keep your own choices.')
+    and has(tip[M .. 'Use my merits when I zone'], 'Merits stay with this character and are left out of profiles.'),
+    tip[M .. 'Use my merits when I zone']);
 check('and the Profiles tab\'s tip leaves the switch out of a profile too', has(tip['Profiles/PROFILES'], 'every setting '
-    .. 'except the job links, your merits, Fill both in when you zone, visible tabs, where this window'), tip['Profiles/PROFILES']);
+    .. 'except the job links, your merits, Use my merits when I zone, visible tabs, open categories, compact navigation, '
+    .. 'where this window'), tip['Profiles/PROFILES']);
 check('crit taken\'s cutoffs go the other way', has(tip[N .. '##crittaken_ok'], 'It prints in the Good color at or below '
     .. 'the first cutoff'), tip[N .. '##crittaken_ok']);
-check('and the part\'s own tip in the Printout tab', has(tip['Display/crittaken/##row_tip'], 'Lower is better, so its grade '
+check('and the part\'s own tip in the Display tab', has(tip['Display/crittaken/##row_tip'], 'Lower is better, so its grade '
     .. 'colors go the other way.') and has(tip['Display/crittaken/##row_tip'], 'says "(TP moves)"'));
 run('/checkmate show crittaken');
 MOCK.frame();
@@ -647,7 +646,7 @@ local function overlay_text()
 end
 check('the overlay\'s sample goblin shows both', has(overlay_text(), 'Crit: 7% // Crit taken: 9%'), overlay_text());
 local saves = MOCK.saved;
-MOCK.slide[N .. '##enemy_crit_merits'] = 4;
+MOCK.slide[M .. 'enemy_crit_rate/##rank'] = 4;
 MOCK.frame();
 check('dragging Enemy Critical Hit Rate says it edited something, without saving', edited == true
     and s.merits.enemy_crit_rate == 4 and MOCK.saved == saves);
@@ -657,20 +656,20 @@ MOCK.frame();
 MOCK.deactivate = false;
 check('it saves when let go', MOCK.saved == saves + 1 and MOCK.last_save.merits.enemy_crit_rate == 4);
 MOCK.frame();
-check('and it reads 4 merits', MOCK.gui.formats[N .. '##enemy_crit_merits'] == '%d merits');
-MOCK.slide[N .. '##crit_merits'] = 1;
+check('and it reads 4 merits', MOCK.gui.formats[M .. 'enemy_crit_rate/##rank'] == '%d ranks');
+MOCK.slide[M .. 'crit_hit_rate/##rank'] = 1;
 MOCK.frame();
 MOCK.deactivate = true;
 MOCK.frame();
 MOCK.deactivate = false;
 MOCK.frame();
-check('Critical Hit Rate at 1 merit', s.merits.crit_hit_rate == 1 and MOCK.gui.formats[N .. '##crit_merits'] == '%d merit'
+check('Critical Hit Rate at 1 merit', s.merits.crit_hit_rate == 1 and MOCK.gui.formats[M .. 'crit_hit_rate/##rank'] == '%d ranks'
     and has(overlay_text(), 'Crit: 8%'), overlay_text());
 saves = MOCK.saved;
-MOCK.clicks[N .. 'Fill both in when you zone'] = true;
+MOCK.clicks[M .. 'Use my merits when I zone'] = true;
 MOCK.frame();
 check('the switch turns off and saves at once', s.merits.fill_in == false and MOCK.saved == saves + 1);
-MOCK.clicks[N .. 'Fill both in when you zone'] = true;
+MOCK.clicks[M .. 'Use my merits when I zone'] = true;
 MOCK.frame();
 window.draw = draw_settings;
 run('/checkmate');

@@ -112,7 +112,7 @@ class InfoTests(unittest.TestCase):
     def test_crystals_are_not_th_and_scent_is_not_a_deaggro_promise(self):
         out = self.reader().read(self.kind(element='earth', detects=['scent']))[0]
         self.assertEqual(out['crystal']['value'], 'Earth crystal (conditional)')
-        self.assertIn('not ordinary Treasure Hunter', ' '.join(out['crystal']['notes']))
+        self.assertIn('not part of the normal Treasure Hunter loot table', ' '.join(out['crystal']['notes']))
         self.assertIn('does not guarantee', ' '.join(out['pursuit']['notes']))
 
     def test_unknown_mod_is_not_silently_exact(self):

@@ -1,12 +1,15 @@
 -- Every visible control can be found by the name shown in the window.
+MOCK.settings_all_sections = true;
 local defaults = require('ui.defaults');
 local window = require('ui.settings_window');
+window.folded = { ['Appearance/CHAT COLORS'] = true, ['Appearance/CUSTOM WINDOW COLORS'] = true,
+    ['Appearance/TABS'] = true, ['Combat/ADVANCED'] = true };
 local s = defaults.make();
 require('ui.skins').fill(s);
 window.set_open(true);
 window.draw(s, 'test');
 local routes = {
-    { 'Pets/Show its name', 'Numbers/Show its name', 'Checkbox' },
+    { 'Pets/Show its name', 'Combat/Show its name', 'Checkbox' },
     { 'Pets/pet/In overlay', 'Overlay/Pet', 'Checkbox' },
     { 'Weaknesses/Weak word', 'Magic/Weak word', 'InputText' },
     { 'Weaknesses/Weapon weak word', 'Magic/Weapon weak word', 'InputText' },
@@ -16,7 +19,7 @@ local routes = {
     { 'Blue Magic/components/lessons/##chat', 'Monster/Blue Magic', 'Checkbox' },
     { 'Blue Magic/components/chance/##overlay', 'Magic/blue/Blue', 'Checkbox' },
     { 'Effects/Time left', 'Immunities/Time left', 'Checkbox' },
-    { 'Monster/Copy details', 'Diagnostics/Copy summary', 'Button' },
+    { 'Monster/Open target details', 'Diagnostics/Copy summary', 'Button' },
     { 'Appearance/Font', 'Look/Font', 'BeginCombo' },
     { 'Appearance/##hit_label', 'Colors/##hit_label', 'BeginCombo' },
     { 'Abbreviations/In chat', 'Short/In chat', 'Checkbox' },
@@ -56,14 +59,17 @@ for path, widget in pairs(MOCK.gui.paths) do
 end
 check('search checked the visible controls', count > 100, count);
 check('help wording is searchable', window.search_tabs('available receive').Drops == true);
+for _, spell in ipairs({ 'Sleepga', 'Soporific', 'Yawn', 'Foe Lullaby', 'Flash' }) do
+    check('immunity help remains searchable: ' .. spell, window.search_tabs(spell).Weaknesses == true);
+end
 check('literal search treats punctuation as text', next(window.search_tabs('.*')) == nil);
 for _, route in ipairs({
-    { 'Show its name', 'Pets', 'Numbers' },
+    { 'Show its name', 'Pets', 'Combat' },
     { 'Show script warning', 'Weaknesses', 'Magic' },
     { 'Time left', 'Effects', 'Immunities' },
     { 'Pursuit', 'Aggro', 'Monster' },
     { 'Charm', 'Weaknesses', 'Monster' },
-    { 'Find target details', 'Monster', 'Diagnostics' },
+    { 'Open target details', 'Monster', 'Diagnostics' },
 }) do
     local found = window.search_tabs(route[1]);
     check('search routes ' .. route[1] .. ' to its current tab', found[route[2]] == true and found[route[3]] == nil);
@@ -92,12 +98,12 @@ MOCK.typing['Find settings'] = 'spell finder';
 MOCK.clicks['Blue Magic/Foot Kick (spellbook unknown)##577'] = true;
 MOCK.hover = true;
 window.draw(s, 'test');
-for _, label in ipairs({ 'Find a Blue spell', 'Unlearned spells only', 'Find a monster or zone', 'Monsters in this zone', 'Copy places' }) do
+for _, label in ipairs({ 'Find a BLU spell', 'Find only unlearned spells', 'Find a monster or zone', 'Monsters in this zone', 'Copy places' }) do
     local path = 'Blue Magic/' .. label;
     check('finder control keeps visible help: ' .. label, MOCK.gui.helps[path] and (MOCK.gui.tips[path] or '') ~= '');
     check('finder control remains searchable: ' .. label, window.search_tabs(label)['Blue Magic'] == true);
 end
-MOCK.typing['Blue Magic/Find a Blue spell'] = 'Foot';
+MOCK.typing['Blue Magic/Find a BLU spell'] = 'Foot';
 MOCK.typing['Blue Magic/Find a monster or zone'] = 'arena';
 window.draw(s, 'test');
 for _, id in ipairs({ 'finder_spell', 'finder_place' }) do

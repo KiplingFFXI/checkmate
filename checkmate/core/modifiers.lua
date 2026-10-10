@@ -1,11 +1,10 @@
 -- Gear and merit bonuses missing from the client's stat and skill totals.
 -- Unknown conditions and effect powers get a note instead of an assumed bonus.
 local player  = require('core.player');
-local packets = require('core.packets');
+local merits  = require('core.merits');
 local data    = require('data.modifiers');
 
 local modifiers = {};
-local ranks, revision = {}, 0;
 local NONE = {};
 local ELEMENTS = { 'fire', 'ice', 'wind', 'earth', 'thunder', 'water', 'light', 'dark' };
 
@@ -15,22 +14,11 @@ local function append(list, text)
 end
 
 function modifiers.on_merits(e)
-    if (type(e.data) ~= 'string' or #e.data < 8) then return; end
-    for key, merit in pairs(data.merits) do
-        local rank = packets.merit_count(e, merit.id);
-        if (rank ~= nil) then
-            rank = math.max(0, math.min(merit.most, rank));
-            if (ranks[key] ~= rank) then ranks[key], revision = rank, revision + 1; end
-        end
-    end
-end
-
-function modifiers.forget()
-    ranks, revision = {}, revision + 1;
+    return merits.on_packet(e);
 end
 
 function modifiers.version()
-    return revision;
+    return merits.version();
 end
 
 -- Read once per readout. player.read already includes stat and skill bonuses from gear.
@@ -83,7 +71,7 @@ function modifiers.read(me)
     for key, merit in pairs(data.merits) do
         if (job == merit.job and me.level >= merit.level
             and (key ~= 'troubadour' or buffs[data.buffs.troubadour])) then
-            local rank, school = ranks[key], merit.school;
+            local rank, school = merits.selected(key), merit.school;
             if (rank == nil) then
                 out.unknown_merits[school] = true;
             else

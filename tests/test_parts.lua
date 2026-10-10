@@ -92,11 +92,11 @@ s.printout.parts.family.on, s.printout.parts.vitals.on = false, false;
 s.printout.parts.blue.on, s.printout.parts.magic.on, s.blue.chat.chance = true, true, true;
 local output = plain(s, r);
 check('Blue combines lessons and spell chance in its own row', has(output,
-    'Blue Magic: Bomb Toss (not learned) | Spell chance 65% (Fire)'));
+    'Blue Magic: Bomb Toss (not learned) | Unresisted spell chance 65% (Fire)'));
 check('Magic contains only non-Blue chances', has(output, 'Magic: Elemental 75% (Fire)')
     and select(2, output:gsub('65%%', '')) == 1);
 s.blue.chat.lessons = false;
-check('the Blue chance can show without lessons', has(plain(s, r), 'Blue Magic: Spell chance 65% (Fire)')
+check('the Blue chance can show without lessons', has(plain(s, r), 'Blue Magic: Unresisted spell chance 65% (Fire)')
     and not has(plain(s, r), 'Bomb Toss'));
 s.magic.schools.blue.on, s.info.blue = false, false;
 check('old Blue flags no longer hide the component', parts.magic_settings(s, 'chat').schools.blue.on);

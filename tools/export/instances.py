@@ -225,6 +225,7 @@ def build(ctx, zone_id, script_dir):
                 own.update(max(1, level - shift) for level in levels)
             kind.levels.update(own)
             if links_here:
+                kind.available_ids.add(point['mobid'] & 0xFFF)
                 placed_by_instance.setdefault(instance['instanceid'], []).append((point['mobid'], kind))
     for kind in kinds.values():
         if kind.in_file:
@@ -296,6 +297,7 @@ def new_kind(ctx, script_dir, point, pool, resist_row, subjob_curve, read_script
     kind.species_id = species.id
     kind.assault_capped = capped
     kind.in_file = read_scripts
+    kind.available_ids = set()
     kind.attributes = instance_attributes(ctx.tables, chain, pool, types)
     kind.family = species.family
     kind.roam = [name for name, bit in ctx.tables.roam_flags.items() if bit and pool['roamflag'] & bit]

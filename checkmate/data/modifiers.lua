@@ -9,7 +9,7 @@ return {
         trick_attack = 87,
         troubadour = 348,
     },
-    built = 'phoenix/live 465ac4c076',
+    built = 'phoenix/live 071c401048',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     effects = {
         [5] = {
@@ -927,6 +927,11 @@ return {
             magic_accuracy = 3,
             name = 'nashira_gages',
         },
+        [14928] = {
+            blue_learning = 10,
+            level = 56,
+            name = 'magus_bazubands',
+        },
         [14977] = {
             level = 75,
             magic_accuracy = 5,
@@ -946,6 +951,11 @@ return {
             level = 75,
             magic_accuracy = 4,
             name = 'valkyries_cuffs',
+        },
+        [15024] = {
+            blue_learning = 11,
+            level = 74,
+            name = 'mag._bazubands_+1',
         },
         [15056] = {
             level = 71,
@@ -1776,6 +1786,11 @@ return {
             magic_accuracy = 4,
             name = 'salire_belt',
         },
+    },
+    learning_rate = {
+        base = 33,
+        main_job = 16,
+        outcomes = 100,
     },
     merits = {
         earth_magic_accuracy = {

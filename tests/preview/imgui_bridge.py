@@ -2,7 +2,7 @@
 Python half of the Ashita-style imgui bridge.
 
 Every function here takes arguments the way Ashita's GuiManager binding does (see
-C:/Games/PhoenixXI/addons/libs/annotations/SDK/IGuiManager.lua) and forwards them to imgui_bundle.
+addons/libs/annotations/SDK/IGuiManager.lua in your Ashita install) and forwards them to imgui_bundle.
 
 ImVec2 and ImVec4 are Lua tables { x, y } and { r, g, b, a }, and a { x = , y = } table works too.
 Bool and number out-params are one-slot Lua tables edited in place ({ false }, { 0 }), and a color is
@@ -207,7 +207,8 @@ class Bridge:
             B.window_stack.append('<child>')
             shown = imgui.begin_child(sid if isinstance(sid, str) else int(sid), vec2(size, 'size', imgui.ImVec2(0, 0)),
                                       _flags(child_flags), _flags(window_flags))
-            if B.forced_scroll is not None and sid == '##page':
+            page = isinstance(sid, str) and (sid == '##page' or sid.startswith('##page_') or sid == '##details_page')
+            if B.forced_scroll is not None and page:
                 imgui.set_scroll_y(float(B.forced_scroll))
             return shown
 

@@ -424,7 +424,7 @@ end
     Every call is checked. The function must exist in Ashita's IGuiManager annotations, no argument
     may be nil, and every Begin/End and Push/Pop pair must balance by the end of each frame. Each
     widget gets a path from the tab, the PushID ids and the open combo or list labels, like
-    'Printout/hit/##label'.
+    'Display/hit/##label'.
     Tests drive input by path. MOCK.clicks[path] = true clicks a Button, ArrowButton, Checkbox or
     Selectable. MOCK.typing[path] = text types into an InputText. MOCK.slide[path] = value moves a
     SliderInt or SliderFloat, or sets the first number of a ColorEdit4. Each of those is used once.
@@ -440,6 +440,7 @@ end
     true, so every (?) draws its tip.
     Navigation normally draws every matching page for broad control coverage. MOCK.navigation_real = true
     uses the real selection and wrapping; gui.nav_buttons records button sizes and SameLine joins.
+    MOCK.settings_all_sections also draws every Display section for broad control coverage.
     After each frame MOCK.gui holds what was drawn, in calls, names, paths (path -> widget), disabled
     (paths drawn greyed out), texts, formats (slider path -> format), previews (combo path -> the text
     it shows closed), tabs, colors (ImGuiCol id -> the first color pushed for it), fonts (each
@@ -673,6 +674,14 @@ end };
 local SPECIAL = {
     GetItemRectMin = function () return 0, 0; end,
     GetItemRectMax = function () return 100, 20; end,
+    GetScrollY = function () return this_window().scroll_y or 0; end,
+    SetScrollY = function (value)
+        need(type(value) == 'number', 'SetScrollY value');
+        local window = this_window();
+        window.scroll_y = value;
+        MOCK.gui.scroll_values = MOCK.gui.scroll_values or {};
+        MOCK.gui.scroll_values[window.name] = value;
+    end,
     SetScrollHereY = function (ratio)
         need(type(ratio) == 'number', 'SetScrollHereY ratio');
         MOCK.gui.scrolled[#MOCK.gui.scrolled + 1] = last_item;
@@ -767,6 +776,7 @@ local SPECIAL = {
     end,
     -- Once a combo or list box ends, the last thing drawn is the combo or list box itself.
     EndCombo = function () bump('combo', -1); last_item = path(''):sub(1, -2); pop(); end,
+    SetItemDefaultFocus = function () MOCK.gui.default_focus = last_item; end,
     BeginListBox = function (label, size)
         need(type(label) == 'string' and type(size) == 'table', 'BeginListBox args');
         seen(label, 'BeginListBox');
@@ -908,7 +918,7 @@ local SPECIAL = {
         return false;
     end,
     Selectable = function (label, selected)
-        need(type(label) == 'string' and type(selected) == 'boolean', 'Selectable args');
+        need(type(label) == 'string' and (selected == nil or type(selected) == 'boolean'), 'Selectable args');
         return take(MOCK.clicks, seen(label, 'Selectable')) == true;
     end,
     InputText = function (label, buffer, size)
@@ -1218,7 +1228,7 @@ local function to_T(value)
     return out;
 end
 
-local settings_lib = { current = nil, defaults = nil, callbacks = {} };
+local settings_lib = { current = nil, defaults = nil, callbacks = {}, logged_in = true, server_id = 1001, name = 'Fixture' };
 
 local function raise()
     for _, fn in pairs(settings_lib.callbacks) do fn(settings_lib.current); end
@@ -1241,6 +1251,9 @@ function settings_lib.reset()
     return true;
 end
 function settings_lib.switch_character(file)
+    settings_lib.server_id = MOCK.player.server_id;
+    settings_lib.logged_in = settings_lib.server_id ~= 0;
+    settings_lib.name = settings_lib.logged_in and 'Fixture' or '';
     local loaded = (file ~= nil) and to_T(file) or settings_lib.defaults:copy(true);
     settings_lib.current = loaded:merge(settings_lib.defaults);
     raise();
@@ -1556,6 +1569,12 @@ package.preload['ui.navigation'] = function ()
                 MOCK.gui.tabs[tab[1]] = true;
                 imgui.PushID(tab[1]);
                 draw_page(tab, settings);
+                if (tab[1] == 'Display' and MOCK.settings_all_sections and not require('ui.search').active()) then
+                    local panel = require('ui.settings_window');
+                    for _, page in ipairs({ 'Rows', 'Chat format', 'Overlay options' }) do
+                        if (page ~= panel.display_page) then panel.draw_display_content(settings, page); end
+                    end
+                end
                 imgui.PopID();
             end
         end

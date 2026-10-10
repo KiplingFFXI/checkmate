@@ -1,4 +1,4 @@
--- Finding lesson locations must keep unknown spellbooks, level gaps and encounter conditions visible.
+-- Finding spell locations must keep unknown spellbooks, level gaps and encounter conditions visible.
 local finder = require('core.blue_finder');
 local player = require('core.player');
 expect('finder does not load a zone on require', package.loaded['data.zones.900'], nil);
@@ -11,7 +11,7 @@ expect('remaining spell keeps its minimum skill', found[1].spell.min_skill, 25);
 MOCK.player.spell_data = false;
 finder.changed();
 found = finder.spells('', true, 0);
-expect('unknown spellbook keeps all possible lessons', #found, 2);
+expect('unknown spellbook keeps all possible spells', #found, 2);
 expect('unknown spellbook is labeled', finder.state(found[1].known), 'spellbook unknown');
 local read, calls = player.knows_spell, 0;
 player.knows_spell = function(id) calls = calls + 1; return read(id); end;
@@ -32,7 +32,7 @@ expect('missing levels stay unknown', finder.level_text(found[2].spell.monsters[
 local places = finder.places(spell, 'battlefield', nil);
 expect('place search includes encounter conditions', #places, 1);
 check('copy includes source restrictions', finder.copy(spell, places):find('Battlefield spawn.', 1, true));
-check('copy preserves incomplete coverage', finder.copy(spell, places):find('lesson list is incomplete', 1, true));
+check('copy preserves incomplete coverage', finder.copy(spell, places):find('learnable spell list is incomplete', 1, true));
 check('copy includes source revision', finder.copy(spell, places):find('Fixture source', 1, true));
 expect('finder never sends a game command', #MOCK.commands, 0);
 
@@ -44,7 +44,7 @@ MOCK.typing['Find settings'] = 'spell finder';
 MOCK.clicks['Blue Magic/Foot Kick (spellbook unknown)##577'] = true;
 window.draw(settings, 'test');
 check('spell finder is reachable through settings search', MOCK.drew('SPELL FINDER'));
-check('selected lesson shows its required skill', MOCK.drew('Minimum Blue Magic skill: 0.'));
+check('selected spell shows its required skill', MOCK.drew('Minimum Blue Magic skill: 0.'));
 MOCK.typing['Blue Magic/Find a monster or zone'] = 'arena';
 MOCK.clicks['Blue Magic/Copy places'] = true;
 window.draw(settings, 'test');
@@ -57,11 +57,18 @@ MOCK.player.spell_data, MOCK.player.known_spells = true, { [577] = true, [578] =
 finder.changed();
 window.draw(settings, 'test');
 check('learning removes a selected spell from unlearned results', MOCK.drew('0 matching spells.'));
-check('an empty result explains the filters', MOCK.drew('Clear the search or turn off Unlearned spells only'));
+check('an empty result explains the filters', MOCK.drew('Clear the search or turn off Find only unlearned spells'));
 expect('browsing locations sends no commands', #MOCK.commands, 0);
 addon.path = FIXTURES_PATH .. '/missing-finder';
 local empty, problem = finder.spells('', true, 5);
 expect('missing index returns an empty list', #empty, 0);
 check('missing index gives a readable error', problem:find('could not be read', 1, true));
 addon.path = original;
+local loader = loadfile;
+loadfile = function() return function() return { version = 1, spells = {} }; end; end;
+addon.path = FIXTURES_PATH .. '/unfiltered-finder';
+empty, problem = finder.spells('', false, 6);
+expect('an old unfiltered catalogue is not shown', #empty, 0);
+check('an old catalogue asks for a complete update', problem:find('Update the complete checkmate addon folder', 1, true));
+loadfile, addon.path = loader, original;
 return MOCK.report();

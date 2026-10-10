@@ -14,10 +14,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(os.path.dirname(HERE), 'out')
 PREVIEW = os.path.join(HERE, 'preview.py')
 
-TABS = ['Display', 'Numbers', 'Aggro', 'Magic', 'Blue Magic', 'Weaknesses', 'Pets', 'Monster', 'Drops', 'Effects', 'Abbreviations', 'Appearance', 'Profiles']
+TABS = ['Display', 'Combat', 'Merits', 'Aggro', 'Magic', 'Blue Magic', 'Weaknesses', 'Pets', 'Monster', 'Drops', 'Effects', 'Abbreviations', 'Appearance', 'Profiles']
 SKINS = ['phoenix', 'classic', 'minimal', 'contrast', 'ember', 'mint', 'lavender', 'colorblind']
 
-# The minimum 18px window is560 wide; navigation wraps independently of the page.
+# The minimum window at 18px is 560 pixels wide. Navigation wraps separately from the page.
 NARROW = ['--window-size', '560', '560']
 FULL = ['--size', '1600', '1359', '--window-size', '840', '1300']
 
@@ -27,7 +27,7 @@ TO_THE_END = ['--scroll', '100000']
 FULL_NARROW = ['--size', '1600', '1359', '--window-size', '560', '1300']
 
 # These widths allow two columns at 18 and 24px.
-WIDE_TABS = ['Display', 'Numbers', 'Aggro', 'Weaknesses', 'Drops', 'Abbreviations', 'Appearance', 'Profiles']
+WIDE_TABS = ['Display', 'Combat', 'Aggro', 'Weaknesses', 'Drops', 'Abbreviations', 'Appearance', 'Profiles']
 WIDE = ['--size', '1600', '1359', '--window-size', '1028', '1300']
 WIDE_24 = ['--size', '1500', '1359', '--window-size', '1348', '1300']
 

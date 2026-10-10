@@ -10,6 +10,7 @@
 
 local packets  = require('core.packets');
 local player   = require('core.player');
+local merits   = require('core.merits');
 
 local effects = {};
 
@@ -109,7 +110,6 @@ local queued   = 0;
 local rows     = {};           -- Reused rows for one action packet's results.
 local next_end = math.huge;    -- The soonest any effect runs out.
 local versions = 0;            -- Counts every change, so each one gets a number never used before.
-local ranks    = {};           -- Your merit ranks by key, like dia_iii, from the merit list sent when you zone.
 local names    = {};           -- The game's own names, by effect id, once read.
 local about    = {};           -- The game's own descriptions, by effect id, once read.
 local keep_duration;
@@ -212,18 +212,12 @@ end
 
 -- You zoned. Everything before it goes, in order with whatever came in before it.
 function effects.on_zone()
-    ranks = {};
     if (count > 0 or queued > 0) then note('zone', 0, nil, nil, false, nil, nil, os.clock()); end
 end
 
--- The merit list. Notes your ranks of the merits that make your own effects last longer.
+-- Merit packets do not need the duration data.
 function effects.on_merits(e)
-    if (type(e.data) ~= 'string' or #e.data < 8) then return; end
-    local d = load_data();
-    for key, merit in pairs(d.merits) do
-        local rank = packets.merit_count(e, merit.id);
-        if (rank ~= nil) then ranks[key] = math.min(rank, merit.most); end
-    end
+    return merits.on_packet(e);
 end
 
 -- The monster with this server id, made the first time something lands on it. Past MAX_MONSTERS, the one heard
@@ -371,9 +365,10 @@ local function seconds_for(d, row, info)
         return usual(d, row.effect), false, 'usual';
     end
     local seconds = info.top or info.seconds;
+    local rank = row.mine and info.merit and merits.selected(info.merit) or nil;
     if (info.merit ~= nil) then
         local merit = d.merits[info.merit];
-        seconds = merit.base + merit.per_rank * ((row.mine and ranks[info.merit]) or merit.most);
+        seconds = merit.base + merit.per_rank * (rank or merit.most);
     end
     if (row.mine and info.song ~= nil) then
         local bonus = gear_bonus(d.gear[info.song], player.SONG_SLOTS) + gear_bonus(d.gear.songs, player.SONG_SLOTS);
@@ -386,7 +381,7 @@ local function seconds_for(d, row, info)
         seconds = seconds + gear_bonus(d.gear[info.gear], player.ALL_SLOTS);
     end
     local basis = info.top ~= nil and 'random_maximum' or 'source_duration';
-    if (info.merit ~= nil and (not row.mine or ranks[info.merit] == nil)) then
+    if (info.merit ~= nil and rank == nil) then
         basis = 'merit_unknown';
     elseif (row.mine and (info.song ~= nil or info.gear ~= nil)) then
         basis = 'equipment';
@@ -655,10 +650,8 @@ function effects.description(id)
     return (about[id] ~= '') and about[id] or nil;
 end
 
--- Forgets everything, for turning the part off or after an error. The merit ranks stay, since they only come
--- when you zone.
-function effects.forget(reset_merits)
-    if (reset_merits) then ranks = {}; end
+-- Forget tracked effects when the part turns off or after an error. Merit choices stay separate.
+function effects.forget()
     data = nil;
     mobs, breaks, queue, queued, count, next_end = {}, {}, {}, 0, 0, math.huge;
 end

@@ -20,12 +20,17 @@ check('the settings parent does not scroll', bit.band(MOCK.gui.flags['checkmate#
 check('the selected page has its own stable child', #MOCK.gui.children == 1
     and MOCK.gui.children[1].name == 'checkmate##settings/Appearance/##page');
 check('search and all navigation stay outside the page path', MOCK.gui.paths['Find settings'] == 'InputText'
-    and #MOCK.gui.nav_buttons == 13 and MOCK.gui.paths['Appearance/##hit_label'] == 'BeginCombo');
+    and MOCK.gui.paths['##reset_actions'] == 'BeginCombo' and #MOCK.gui.nav_buttons == #nav.TAB_NAMES);
+check('chat colors start folded without hiding window style', MOCK.gui.paths['Appearance/##hit_label'] == nil
+    and MOCK.gui.paths['Appearance/Font'] == 'BeginCombo');
+MOCK.clicks['Appearance/CHAT COLORS'] = true;
+frame();
+check('opening chat colors reveals their controls', MOCK.gui.paths['Appearance/##hit_label'] == 'BeginCombo');
 MOCK.clicks['Appearance/CHAT COLORS'] = true;
 frame();
 check('folding chat colors hides those controls while keeping style and navigation',
     MOCK.gui.paths['Appearance/##hit_label'] == nil and MOCK.gui.paths['Appearance/Font'] == 'BeginCombo'
-    and #MOCK.gui.nav_buttons == 13);
+    and #MOCK.gui.nav_buttons == #nav.TAB_NAMES);
 MOCK.typing['Find settings'] = 'crit taken';
 frame();
 check('search opens the folded color section and keeps the matching active tab', nav.current() == 'Appearance'
@@ -69,7 +74,7 @@ frame();
 MOCK.child_clipped = true;
 frame();
 MOCK.child_clipped = false;
-check('a clipped child still ends cleanly and leaves navigation available', #MOCK.gui.nav_buttons == 13);
+check('a clipped child still ends cleanly and leaves navigation available', #MOCK.gui.nav_buttons == #nav.TAB_NAMES);
 nav.select('Monster');
 MOCK.window_size = { 560, 760 };
 frame();
@@ -79,10 +84,13 @@ frame();
 expect('danger filters share two columns in a wide window', MOCK.gui.tables['##danger_filters'], 2);
 MOCK.window_size = nil;
 nav.select('Display');
+window.select_display('Rows');
 MOCK.clicks['Display/name/Options'] = true;
 frame();
+frame();
 check('name options opens Chat format and scrolls it into view', MOCK.gui.paths['Display/chat_format/Show level'] == 'Checkbox'
-    and #MOCK.gui.scrolled > 0 and window.jump_chat_format == nil);
+    and #MOCK.gui.scrolled > 0 and window.option_target and not window.option_target.pending
+    and MOCK.gui.children[1].name == 'checkmate##settings/Display/##page_Chat format');
 frame();
 expect('the options jump is not repeated on following frames', #MOCK.gui.scrolled, 0);
 expect('window actions send no game commands', #MOCK.commands, 0);

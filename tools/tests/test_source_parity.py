@@ -93,7 +93,7 @@ class SourceParityTests(unittest.TestCase):
                 source_parity.check_guards(self.tree)
 
     def test_real_lottery_examples(self):
-        cases = [('Valkurm_Dunes/Damselfly', 10, 1, 1),
+        cases = [('South_Gustaberg/Rock_Lizard', 10, 1, 1),
                  ('Attohwa_Chasm/Corse', 10, 10800, 21600),
                  ('Quicksand_Caves/Helm_Beetle', 20, 3600, 3600)]
         for name, chance, low, high in cases:
@@ -105,10 +105,10 @@ class SourceParityTests(unittest.TestCase):
     def test_effective_nm_cooldowns_replace_helper_arguments(self):
         rules = ph_rules.NmRules(self.tree)
         # The PH passes one second, but the loaded NM despawn override bypasses it.
-        path = Path(self.tree) / 'scripts/zones/Valkurm_Dunes/mobs/Damselfly.lua'
+        path = Path(self.tree) / 'scripts/zones/South_Gustaberg/mobs/Rock_Lizard.lua'
         base = ph_rules.read(path.read_text(encoding='utf8'))[0][1]
         self.assertEqual(base['cooldown_min'], 1)
-        actual = rules.apply('Valkurm_Dunes', 'Valkurm_Emperor', base)
+        actual = rules.apply('South_Gustaberg', 'Leaping_Lizzy', base)
         self.assertEqual((actual['chance'], actual['cooldown_min'], actual['cooldown_max']), (10, 3600, 3600))
         self.assertEqual(len(rules.cooldowns), 9)
         self.assertEqual(rules.cooldowns['Castle_Zvahl_Keep', 'Baron_Vapula'], 7200)

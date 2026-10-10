@@ -13,7 +13,7 @@ check('all real generated datasets agree', real:find('Bundled data revisions and
 expect('diagnostics do not load the finder catalogue', package.loaded['data.blue_finder'], nil);
 
 local files, reads, closes, largest_read = {}, 0, 0, 0;
-local names = { 'bands', 'too_weak', 'pets', 'steal', 'crit', 'effects', 'modifiers', 'pdif', 'defenses', 'blue_finder' };
+local names = { 'bands', 'too_weak', 'pets', 'steal', 'crit', 'effects', 'modifiers', 'pdif', 'defenses', 'merits', 'blue_finder' };
 local function header(built, content)
     return '-- Built by tools/export_data.py from ' .. built .. '.\n-- It assumes ' .. content .. '.\n';
 end
@@ -41,7 +41,7 @@ end;
 
 local same = diagnostics.text('1');
 check('finder stamps are found before its large shared tables', same:find('settings match.', 1, true) ~= nil, same);
-expect('all ten generated globals are checked', reads, #names);
+expect('all generated globals are checked', reads, #names);
 expect('every opened header is closed', closes, reads);
 expect('the largest read is bounded to 4096 bytes', largest_read, 4096);
 expect('quiet repeated diagnostics reuse the summary', diagnostics.text('1'), same);
@@ -60,6 +60,13 @@ files.blue_finder = '-- No supported stamps.\nreturn {};';
 local unstamped = diagnostics.text('5');
 check('missing content cannot be treated as matching', unstamped:find('blue_finder: missing content stamp', 1, true) ~= nil, unstamped);
 files.blue_finder = header(bands.built, bands.content);
+files.merits = header('older merit rules', bands.content);
+local stale_merits = diagnostics.text('merits');
+check('a stale merit catalogue is named', stale_merits:find('merits: older merit rules', 1, true) ~= nil, stale_merits);
+files.merits = header(bands.built, 'different merit content');
+local merit_content = diagnostics.text('merit-content');
+check('merit catalogue content is checked', merit_content:find('merits: different merit content', 1, true) ~= nil, merit_content);
+files.merits = header(bands.built, bands.content);
 files.modifiers = "return { built = '" .. bands.built .. "', content = 'other content' };";
 local modifiers = diagnostics.text('6');
 check('table-stamped modifiers also check content', modifiers:find('modifiers: other content', 1, true) ~= nil, modifiers);

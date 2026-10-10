@@ -55,7 +55,7 @@ draws every tab to ../out/, each in its own run of preview.py. These are the fil
                         (the sample goblin with only that part shown), 12 and 24 (element at font
                         size 12 and 24), and skin_<id> (element in each skin)
 
-The Abbreviations tab includes 33 Effects words. Its wide layout starts the second section at Effects.
+The Abbreviations tab includes 33 Effects words. Groups use their normal saved open or closed state.
 Abbreviations_end.png and font_24_Abbreviations_end.png show the end of the longer tab.
 The effects, effects_only, effects_off, effects_wrap, effects_12 and effects_24 scenes check countdown
 layout; tip_effect checks its tooltip. Nonsquare countdown Dummies are excluded from mouse-icon targets.
@@ -68,11 +68,14 @@ capture fails too. details_scene.lua supplies level, magic, links and ph scenes 
 
 Use "Elemental" for magic, "+" for links, and "PH for" for ph. The Links scene uses the real list's
 hidden-count text, so it does not depend on a fixed count. An odd screen height avoids the screenshot
-row-swap artifact. Monster includes a scrollable full Target details view for lists over 20 names.
-The target-details scene uses a real 150-name Dynamis list; render once normally and once with --scroll 100000
+row-swap artifact. Target details is a separate scrollable view opened from the shared toolbar or Monster.
+The target-details scene uses a long Dynamis list; render once normally and once with --scroll 100000
 to inspect the full section's top and bottom:
 
-  python preview.py --full --tab Monster --size 1200 901 --window-size 980 760 --window "checkmate##settings" --exec "dofile(ADDON_DIR .. '/../tests/preview/details_scene.lua')('details')" --out target_details.png
+  python preview.py --full --size 1200 901 --window-size 980 760 --window "checkmate##settings" --exec "dofile(ADDON_DIR .. '/../tests/preview/details_scene.lua')('details'); require('ui.settings_window').details_open = true" --out target_details.png
+
+Do not pass --tab for the full details view: it replaces settings navigation. For Display's other views,
+use --exec "require('ui.settings_window').select_display('Chat format')" or 'Overlay options'.
 
 The Windows fonts come from C:\Windows\Fonts, loaded with the addon's own ui\window_font.lua.
 overlay_scene.lua's scenes run the whole addon with --full and --exec, and its top comment says what
@@ -102,8 +105,9 @@ Usage
                        string. Missing parent tables are created, with a warning.
   --window-size W H    force the settings window to W x H every frame, like a user dragging its
                        corner. Size constraints the addon sets still apply.
-  --scroll Y           scroll the settings window down Y pixels every frame. ImGui stops at the
-                       bottom, so a big number shows the end of a tab taller than the screen.
+  --scroll Y           scroll the settings page down Y pixels every frame, keeping navigation fixed.
+                       ImGui stops at the bottom, so a big number shows the end of a tall page.
+                       This includes each Display view and the dedicated Target details page.
   --window TEXT        crop to the window whose name contains TEXT (default: the biggest window
                        whose name doesn't start with ##)
   --margin PX          pixels kept around the window in the crop, default 10
@@ -125,6 +129,10 @@ Usage
                        tip waits 9 frames. The crop takes the tip in, and the run fails if ImGui ever
                        wants the mouse while it's there, since a click would then not reach the game.
                        It warns when no tip showed on the last frame.
+  --mouse-text TEXT    from the second frame on, hover the first overlay text run containing TEXT.
+                       It uses the previous frame's item bounds, even with icons off. The crop
+                       includes its tip. A missing final tooltip or mouse capture fails the run.
+                       Use enough frames for the normal hover delay.
   --font PATH          default ImGui font (default: fonts/Agave_Regular.ttf, Ashita's own)
   --font-size PX       default font size, default 18 (Ashita's)
 
@@ -147,10 +155,12 @@ stdout is one line:
   size     the window's outer size on the last frame
   content  ImGui's content size (what the cursor reached, without padding and decorations)
   scrollbar=y / x   shown when the window has a scrollbar
-  tab      the tab(s) whose BeginTabItem returned true on the last frame
+  tab      the settings page(s) actually drawn on the last frame, or - in the dedicated details view
   loaded=FILE@SIZE  each font the addon loaded with AddFontFromFileTTF, and the size it loaded at
   mouse_icon=N tip_frames=K   with --mouse-icon, the icon the mouse rests on and how many frames
-                    drew a tip
+                     drew a tip
+  mouse_text='TEXT' tip_frames=K   with --mouse-text, the text searched for and how many frames
+                     drew a tip
   warnings=N        count of warnings, each printed on stderr as "warning: ..."
 
 On failure the line starts with FAIL, ends with "error: <first error>" (the rest are on stderr as
@@ -195,8 +205,8 @@ version read from checkmate.lua. --full drives the whole addon instead.
 
 ImGui starts from its default style plus StyleColorsDark, and hello_imgui's theme is undone before the
 first frame. FontSizeBase is 18, the font scale and framebuffer scale are 1, and there's no ini file,
-so every run is ImGui's first use of the window. The mouse sits off the screen, so nothing is
-hovered, unless --mouse-icon puts it on an icon, and error recovery asserts are on. The background
+so every run is ImGui's first use of the window. The mouse sits off the screen unless --mouse-icon
+or --mouse-text places it over an overlay item. Error recovery asserts are on. The background
 behind the window is a dark blue-grey (19, 22, 26).
 
 
@@ -244,9 +254,10 @@ Known gaps
 - Ashita's own default ImGui style isn't known. ImGui's default dark style is assumed. checkmate
   pushes nearly every color and the spacing it cares about, so this only shows in things it doesn't
   push (ItemInnerSpacing, ScrollbarSize, IndentSpacing...).
-- Input is limited to --mouse-icon and --mouse-text hovering overlay items, plus forced --scroll.
-  Buttons are not pressed or dragged, so the tips behind each (?), open combos and the resize grip
-  highlight are not exercised. IsItemDeactivatedAfterEdit and the like are always false.
+- The CLI supplies --mouse-icon and --mouse-text hovering, forced --scroll and --tab selection.
+  It has no general click or drag option. Ordinary renders do not exercise help markers, open
+  dropdowns or resize grips. The bridge uses real ImGui input-state functions; a custom driver can
+  provide input events when an interaction needs a separate check.
 - Font rasterizing is imgui_bundle's (stb_truetype, OpenGL). The game draws through Direct3D 8 via
   dgVoodoo, so edge anti-aliasing can differ slightly. Glyph metrics and layout are the same font.
 - Keep --size at 1600 1200 or bigger. On a 1000 x 1000 screen the hidden window's framebuffer
@@ -287,23 +298,25 @@ Monster, search and undo
 
 expansion_scene.lua supplies fixed Monster data and four settings states: monster (normal settings),
 search (Show script warning highlighted), details_search (Blue Magic notes filtered by eligible), and
-undo (a saved profile just deleted). Use these without --full for settings previews. Choose the Monster,
-Weaknesses, Monster or Profiles tab to match. The overlay scene uses --full and --mouse-text "HP ~" to
+undo (a saved profile just deleted). Use these without --full for settings previews. Choose Monster,
+Weaknesses or Profiles for their settings scenes, and open details_search in the dedicated details view.
+The overlay scene uses --full and --mouse-text "HP ~" to
 check full notes on wrapped text with icons off. Every scene uses mocked game state.
 
   python preview.py --tab Monster --exec "dofile(ADDON_DIR .. '/../tests/preview/expansion_scene.lua')('monster')" --out monster.png
   python preview.py --tab Weaknesses --frames 10 --exec "dofile(ADDON_DIR .. '/../tests/preview/expansion_scene.lua')('search')" --out search.png
-  python preview.py --tab Monster --set look.font_size=24 --exec "dofile(ADDON_DIR .. '/../tests/preview/expansion_scene.lua')('details_search')" --out details.png
+  python preview.py --set look.font_size=24 --exec "dofile(ADDON_DIR .. '/../tests/preview/expansion_scene.lua')('details_search'); require('ui.settings_window').details_open = true" --out details.png
   python preview.py --tab Profiles --exec "dofile(ADDON_DIR .. '/../tests/preview/expansion_scene.lua')('undo')" --out undo.png
   python preview.py --full --window checkmate_overlay --size 1200 901 --frames 40 --mouse-text "HP ~" --exec "dofile(ADDON_DIR .. '/../tests/preview/expansion_scene.lua')('overlay')" --out monster_hover.png
 
-On a small screen, the tab bar scrolls so every tab stays reachable at a large font size. Target
-details uses normal window scrolling, and Copy details includes enabled sections hidden by a filter or
+On a small screen, navigation buttons wrap. Compact tab navigation uses one selector instead. Target
+details uses its own scrolling page, and Copy details includes enabled sections hidden by a filter or
 collapsed heading.
 
 Settings page scrolling
 -----------------------
 
 The settings window keeps its search and wrapping navigation above a scrolling child page.
---scroll moves that page, so end-of-page previews keep the header visible. Appearance and
-Abbreviations groups can fold closed; a search opens them until it is cleared.
+--scroll moves that page, so end-of-page previews keep the header visible. Display keeps a separate
+page for Rows, Chat format and Overlay options. Settings groups retain saved folds; a search opens
+matching content temporarily until it is cleared.

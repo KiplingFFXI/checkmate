@@ -1,4 +1,4 @@
--- Settings undo stays in memory. Disk profile changes have their own guarded undo.
+-- Settings Undo stays in memory. Profile Undo checks the saved file before restoring it.
 local defaults = require('ui.defaults');
 local parts = require('core.parts');
 
@@ -97,13 +97,14 @@ local SECTIONS = {
         'printout.show_range', 'printout.show_id', 'printout.show_ph', 'printout.number_style',
         'printout.defense_first', 'printout.extras_own_line', 'printout.replace_game_line',
         'printout.icons', 'printout.icons_only' }, chat = true },
-    overlay = { label = 'Overlay', paths = { 'overlay.on', 'overlay.locked', 'overlay.remember',
+    overlay = { label = 'Overlay', paths = { 'overlay.on', 'overlay.locked', 'overlay.remember', 'overlay.only_checked',
         'overlay.follow_cursor', 'overlay.show_level', 'overlay.show_range', 'overlay.show_id',
         'overlay.show_ph', 'overlay.own_lines', 'overlay.divider', 'overlay.separator',
         'overlay.icons', 'overlay.icons_only', 'overlay.element_look', 'overlay.tips',
         'overlay.hide_in_events', 'overlay.hide_with_ui', 'overlay.hide_on_map' }, overlay = true },
-    numbers = { label = 'Numbers', paths = { 'grades', 'ranged', 'pdif' },
+    combat = { label = 'Combat', paths = { 'grades', 'ranged', 'pdif' },
         rows = { 'hit', 'pdif', 'offhand', 'offhandpdif', 'ranged', 'rangedpdif', 'evade', 'block', 'parry', 'crit', 'crittaken' } },
+    merits = { label = 'Merits', paths = { 'merits.fill_in' } },
     aggro = { label = 'Aggro', paths = { 'aggro.detection', 'links' }, rows = { 'aggro', 'links', 'pursuit' } },
     magic = { label = 'Magic', paths = {}, rows = { 'magic' }, schools = true },
     blue = { label = 'Blue Magic', paths = { 'blue' }, rows = { 'blue' } },
@@ -111,23 +112,25 @@ local SECTIONS = {
         'elements.strength', 'elements.script_mark' }, rows = { 'weaknesses' }, immunities = true },
     pets = { label = 'Pets', paths = { 'pet.show_name', 'pet.show_level' }, rows = { 'pet' } },
     monster = { label = 'Monster', paths = { 'dangers' },
-        rows = { 'family', 'vitals', 'movement', 'spawn', 'claim', 'dangers', 'fight', 'traits', 'crystal', 'rewards' } },
+        rows = { 'job', 'family', 'vitals', 'movement', 'spawn', 'claim', 'dangers', 'fight', 'traits', 'crystal', 'rewards' } },
     drops = { label = 'Drops', paths = { 'drops.max_items', 'drops.min_chance', 'drops.sort',
         'drops.th_in_label', 'drops.notes' }, rows = { 'drops', 'steal' } },
     effects = { label = 'Effects', paths = { 'effects' }, rows = { 'effects' } },
     abbreviations = { label = 'Abbreviations', paths = { 'short', 'printout.short_words', 'overlay.short_words' } },
-    appearance = { label = 'Appearance', paths = { 'look', 'colors', 'window.tabs', 'printout.con_colors',
+    appearance = { label = 'Appearance', paths = { 'look', 'colors', 'window.tabs', 'window.sections',
+        'window.compact_navigation', 'printout.con_colors',
         'aggro.threat_colors', 'grades', 'overlay.font', 'overlay.font_size', 'overlay.opacity',
         'overlay.border', 'overlay.wrap' } },
     profiles = { label = 'Profiles', paths = { 'job_links', 'profile_source' } },
 };
-local SECTION_ORDER = { 'display', 'printout', 'overlay', 'numbers', 'aggro', 'magic', 'blue', 'weaknesses',
+local SECTION_ORDER = { 'display', 'printout', 'overlay', 'combat', 'merits', 'aggro', 'magic', 'blue', 'weaknesses',
     'pets', 'monster', 'drops', 'effects', 'abbreviations', 'appearance', 'profiles' };
 
 local function section_id(id)
     if (type(id) ~= 'string') then return nil; end
     local key = id:lower():gsub('[%s_-]+', '');
     if (key == 'bluemagic') then key = 'blue'; end
+    if (key == 'numbers') then key = 'combat'; end
     return (key == 'display' or SECTIONS[key]) and key or nil;
 end
 

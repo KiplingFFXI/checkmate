@@ -18,8 +18,14 @@ loads.
   checkmate\data\effects.lua           effect durations, removal rules, song gear and duration merits
   checkmate\data\modifiers.lua         supported equipped bonuses, merit ranks and effect uncertainty
   checkmate\data\defenses.lua          Shield and Parry rules, shield sizes, job ranks and gear conditions
+  checkmate\data\merits.lua            supported merit names, values, caps and input rules
   checkmate\data\pdif.lua              physical damage caps, level-correction zones and Defense effect warnings
-  checkmate\data\blue_finder.lua       supported Blue lessons by spell, monster, zone and spawn context
+  checkmate\data\blue_finder.lua       learnable BLU spells by monster, zone and spawn context
+
+data\spells.lua is maintained by hand. The exporter checks its spell choices and math tables against
+the selected Phoenix source, but does not rewrite it. If those checks fail, review the source change,
+update the affected values, then run the source checks again. After checking a new revision, update
+the source commit in its header even when the values stayed the same.
 
 It never changes the Phoenix repo. Every run copies the files it needs from the commit into a new temp folder
 with git archive, reads that copy, and deletes it at the end. Nothing is reused from an earlier run.
@@ -63,16 +69,15 @@ Every argument is optional.
 
   --repo PATH                 the Phoenix git checkout to read from
                               (default ..\Phoenix, the Phoenix folder next to this project)
-  --ref REF                   the branch or commit to read (default phoenix/live, the branch the
-                              Phoenix server runs)
+  --ref REF                   the branch or commit to read (default phoenix/live)
   --out FOLDER                the addon's data folder to write into (default checkmate\data)
   --restrict-content on|off   the server's RESTRICT_CONTENT setting (default on)
   --content TAGS              the ENABLE_<TAG> settings that are on, as a comma list (default rotz,cop,toau).
                               Every tag not listed is off.
 
-The live server's settings/main.lua isn't in git, so the content settings are arguments. The defaults are
-Phoenix's. Every file's header names the ref, the commit and the content settings, and /checkmate info prints
-them.
+The live server's settings/main.lua isn't in git, so the content settings are arguments. The defaults follow
+the reviewed Phoenix era setup. Every file's header names the ref, commit and content settings, and
+/checkmate info prints them. This does not verify the running server's configuration.
 
 
 What goes into a row
@@ -172,7 +177,9 @@ What goes into a row
   for an instance monster, the mods a battlefield group sets when its fight starts, and the literal calls on the
   damage taken, absorb and null mods at the top of onMobInitialize and onMobSpawn. The row holds what they come
   to the way damage_multipliers.lua and damage_spell.lua use them on a damage spell.
-- Placeholders the way xi.mob.phOnDespawn in scripts/globals/mobs.lua finds them. A spawn is a PH when its own
+- Placeholders from native YAML slots and the Lua PH helper. Native slots pair their fallback members with
+  the chance-based NMs in the same slot, after loaded data overlays. For xi.mob.phOnDespawn in
+  scripts/globals/mobs.lua, a spawn is a PH when its own
   onMobDespawn calls phOnDespawn for an NM and that NM's phList holds the spawn's id. The NM it can pop is the one
   the list gives for it. Both halves count, since a few list entries only keep one NM from popping while another
   is up, and a call does nothing when the list doesn't hold the spawn. The PH, the NM its despawn rolls for and
@@ -197,7 +204,9 @@ give an aggro note instead.
 The data files
 --------------
 
-Each zone file returns built, content, link_lists, monsters and by_name. link_lists holds each list of link
+Each zone file returns built, content, link_lists, monsters and by_name. An optional link_families map holds
+{ id, name } for an exact link name whose family is unambiguous. Missing or conflicting mappings stay absent.
+It changes only the display grouping, not link membership or conditions. link_lists holds each list of link
 names once, grouped by how each one links and numbered from 1, because many rows share the same list.
 Repeated danger entries and lists share local Lua tables only when every field matches, including conditions,
 levels and notes. The returned tables have the same shape as before. Treat generated facts as read-only. A row in
@@ -220,9 +229,10 @@ monsters has these fields. Only name, ids and levels are always there.
               spawn can pop. Each NM is a row in the same file, so the addon takes its name from there. Absent
               when none of its spawns is a PH.
   ph_rules    [PH spawn index][NM spawn index] = { chance, cooldown_min, cooldown_max, conditions }.
-              Chance is the source percent before server lottery multipliers. Cooldowns are seconds after the
-              NM despawns, with a range for a random cooldown. NM-side overrides and kill-only exceptions
-              are included. The notes describe the conditions found in the source. An
+              Chance is the source percent. The Lua helper applies server lottery multipliers; native slots
+              use their chance directly. Cooldowns are seconds after the NM despawns, with a range for a
+              random cooldown. Lua helper cooldowns can be scaled by server settings; native slot cooldowns
+              are used directly. NM-side overrides and kill-only exceptions are included in the notes. An
               unknown numeric value is absent. This never means the live lottery is open or that a timer is
               running. Existing ph_for identity still decides which spawns get a note.
   loot_conditions
@@ -245,7 +255,7 @@ monsters has these fields. Only name, ids and levels are always there.
   weapon_dmg  signed changes for slashing, piercing, blunt and hand_to_hand. Each SDT mod is divided by 100.
               These remain separate from general reductions and do not predict final attack damage.
   weapon_guard normal melee/ranged percentage changes, absorption chance and nullification chances. The
-              nullification roll only happens if absorption fails. Weapon hover and Monster > Target details show these.
+              nullification roll only happens if absorption fails. Weapon hover and Target details show these.
   absorb      the percent chance a damage spell heals it instead, for all magic or by element
   nullify     the percent chance a damage spell does nothing to it, for all magic or by element
   undead      true for the undead ecosystem
@@ -274,7 +284,8 @@ monsters has these fields. Only name, ids and levels are always there.
               name is there only when other monsters of its kind can join. Absent when nothing links with it,
               like a monster that never comes up on Phoenix. core\monsters.lua puts the groups in place when it
               loads the file, so the addon reads links as the groups.
-  flags       scripted_drops, exp_only, scripted_stats, scripted_aggro, scripted_elements, scripted_weapons scripted_defense and scripted_attack_skill, when they apply
+  flags       scripted_drops, exp_only, scripted_stats, scripted_aggro, scripted_elements, scripted_weapons,
+              scripted_defense and scripted_attack_skill, when they apply
 
 When a monster's level range crosses a job trait's level, its resist values change with the level. Then resist
 sits in each level's entry instead of on the row. meva does the same for the few monsters whose spawn script sets
@@ -437,12 +448,13 @@ The first line deletes the copy from last time, so each run starts fresh.
 It names the Phoenix build each copy came from, then goes zone by zone through every monster that's new, gone or
 changed, and says which fields changed. When a monster's drops changed, it shows each item's chance before and
 after at TH 0 to 4, worked out with the addon's own core\drops.lua. Link lists are compared by the names in
-them and how each one links, in the addon's words, so a list that only got a new number isn't a change. A
+them and how each one links, in the addon's words, so a list that only got a new number isn't a change.
+Changes to link_families are reported separately from monster stats and link membership. A
 placeholder is compared by its spawn index and the names of the NMs it can pop, like "330 for Valkurm Emperor", so
 an NM that only moved to a new spawn index isn't a change. Steal items are compared by name, so an item that only
 moved in the list isn't a change. A changed job reads like DRK/DRK to DRK/WAR, with both jobs spelled out, or WAR
 with no support job, or no job. The first report after the data got jobs leaves them out and says so. It also says
-when pets.lua, steal.lua, crit.lua, effects.lua, modifiers.lua or blue_finder.lua changed, but not what in them. The build stamp in every file isn't a change
+when pets.lua, steal.lua, crit.lua, effects.lua, modifiers.lua, pdif.lua, defenses.lua, merits.lua or blue_finder.lua changed, but not what in them. The build stamp in every file isn't a change
 either. When nothing else changed, it says so and writes nothing.
 
   --report FILE    writes the report to a file instead of printing it
@@ -455,14 +467,15 @@ The weekly job
 .github\workflows\weekly-data.yml runs on GitHub every Monday at 12:17 UTC. It checks out main and clones the
 newest commit of phoenix/live from https://github.com/phoenixffxi/Phoenix. The clone's remote is named phoenix,
 so the exporter reads phoenix/live there the same way it does here. Then it runs export_data.py and compares the
-new data with what's on main using data_report.py. It checks source parity and runs every exporter regression
-and the offline addon suite before a version bump, commit or pull request. The offline tests use official
+new data with what's on main using data_report.py. It checks source parity and runs the exporter suite
+and offline addon suite before a version bump, commit or pull request. The separate extraction comparison
+needs the manual setup under Source parity below; the weekly job skips it. The offline tests use official
 Ashita libraries pinned to commit 4171c74c8ddb2ca2a31654f199e6c1cee40d7256. A failed test stops the job.
 Those tests do not verify live gameplay or server deployment.
 
 If no monster changed, it stops there and the run shows green. A Phoenix commit that doesn't touch monster data
 only changes the build stamp, so it doesn't count. A change to bands.lua, too_weak.lua, pets.lua, steal.lua or
-crit.lua, effects.lua, modifiers.lua, pdif.lua, defenses.lua or blue_finder.lua counts the same as a changed monster.
+crit.lua, effects.lua, modifiers.lua, pdif.lua, defenses.lua, merits.lua or blue_finder.lua counts the same as a changed monster.
 
 If a monster changed, it gets a new version ready. It adds one to the last number of addon.version in
 checkmate\checkmate.lua, so 1.0.0 becomes 1.0.1. It puts a section for that version at the top of CHANGELOG.md
@@ -527,8 +540,10 @@ extra files or folders, linked paths, private home paths and credential markers 
 tools, settings, logs and notes are not release contents. Add a reviewed runtime file or zone to the manifest in
 build_release.py when the package needs one. Keep assets\weapons\SOURCES.txt with the icons.
 
-The zip uses fixed timestamps and permissions, so the same file contents produce the same SHA-256. It is checked
-before replacing the previous zip. A failed build leaves that previous archive intact.
+The builder also checks README.md, CHANGELOG.md and docs/GUIDE.md for private content without packing them.
+The zip uses fixed entry order, timestamps and permissions. Text line endings become LF; original PNG bytes
+stay unchanged. With the same compression runtime, the same inputs produce the same SHA-256, including across
+LF and CRLF checkouts. It is checked before replacing the previous zip. A failed build keeps that archive intact.
 
 
 Publishing the release
@@ -583,6 +598,7 @@ What's here
   export\aggro.py         aggro fields and the Too Weak table
   export\links.py         link parties, the names a monster links with and how each one links
   export\exists.py        which spawns ever come up on Phoenix, and the event each one fights in
+  export\spawn_rules.py   native lottery slots and ferry deck spawn conditions
   export\battlefields.py  the groups each battlefield puts its monsters in
   export\placeholders.py  which spawns are placeholders and the NMs each one can pop
   export\ph_rules.py      source lottery chances, cooldown bounds and eligibility notes
@@ -594,14 +610,15 @@ What's here
                           checks
   export\effects.py       effect durations, status removal rules, source checks, gear and merits for effects.lua
   export\modifiers.py     equipped combat bonuses, merits and uncertainty from effects and latents
+  export\merits.py        supported merit catalogue, rank limits, input rules and source guards
   export\weapons.py       source guards for native weapon damage math and loaded monster overrides
   export\info.py          identity, Charm eligibility, maximum estimates, movement, pursuit, rewards and traits
-  export\encounters.py    spawn rules, claim shields, danger lists, Blue lessons and fight notes
+  export\encounters.py    spawn rules, claim shields, danger lists, learnable BLU spells and fight notes
   export\danger_effects.py harmful effects from effective move and spell callbacks
   export\danger_crit.py   critical-hit paths and the buffs they require
   export\danger_jobs.py   known routes to those buffs, including job-special configuration
   export\danger_attacks.py harmful additional effects on normal monster attacks
-  export\blue_finder.py   source lesson locations from the finished enabled monster rows
+  export\blue_finder.py   BLU spell locations with supported spawn or encounter routes
   export\danger_details.py source geometry, shadow rules and selected removal options
   export\defenses.py      Shield and Parry rules, equipment, native skill inputs and rate comparison
   export\pdif.py          physical damage source guards, constants, Defense effect warnings and numeric comparison
@@ -656,8 +673,35 @@ Run the source checks without changing addon data or the Phoenix checkout:
 
   python tools\check_source.py --repo ..\Phoenix --ref phoenix/live
 
-An exact commit works with --ref too. --tree PATH reads an already extracted source tree. The command runs
-all exporter tests with actual source fixtures enabled. export_data.py also checks parity before building.
+An exact commit works with --ref too. --tree PATH reads an already extracted source tree. The command enables
+the source fixtures, but the fresh-extraction comparison skips unless CHECKMATE_SECOND_SOURCE_TREE points
+to a separate extraction of the same commit. export_data.py also checks parity before building.
+
+For the full check, run this from the project folder in PowerShell. It resolves the ref once, extracts it
+twice into separate temporary folders, runs the checks and removes both copies. It leaves your environment,
+addon data and Phoenix checkout unchanged. Replace phoenix/live with a full commit hash to check that build.
+
+@'
+import os
+import subprocess
+import sys
+sys.path.insert(0, 'tools')
+from export import tree
+
+repo, ref = sys.argv[1:]
+commit = tree.resolve(repo, ref)[0]
+print('Checking Phoenix ' + commit, flush=True)
+second = tree.extract(repo, commit)
+try:
+    env = os.environ.copy()
+    env['CHECKMATE_SECOND_SOURCE_TREE'] = second
+    result = subprocess.run([sys.executable, 'tools/check_source.py', '--repo', repo, '--ref', commit], env=env)
+finally:
+    tree.remove(second)
+raise SystemExit(result.returncode)
+'@ | python - ..\Phoenix phoenix/live
+
+The final test summary should have no skips. A source mismatch still needs review before any data refresh.
 
 The parity gate compares the hand-kept spell choices, effect resistance fields, classic staff fallback and
 level-based magic evasion with source tables. It executes Phoenix's own magic, Treasure Hunter and physical damage functions
@@ -682,12 +726,22 @@ also checks the player's level. Direct staff bonuses include eligible nonclassic
 the old classic staff table twice. Latents and effects with unavailable powers are labeled as unknown.
 Source parity separately checks the generated staff fields against merged item_mods.
 
-PH rules use the same enabled callbacks and verified PH/NM pairs as ph_for. Sandstorm gates and Citipati's
+Lua PH rules use the same enabled callbacks and verified PH/NM pairs as ph_for. Sandstorm gates and Citipati's
 next-respawn night gate are described beside the lottery. The pinned helper does not enforce its dayOnly
-option, so Leshonki's note says so. The NM's callback can replace the helper's cooldown: the loaded era
-module supplies nine enabled lottery cooldowns, including Valkurm Emperor's 60 minutes, and bypasses the
-server cooldown multiplier for them. Citipati, Black Triple Stars, Shii and Manes start their cooldown only
-after a kill.
+option, so Leshonki's note says so. The NM's callback can replace the helper's cooldown. Loaded era
+callbacks bypass the server cooldown multiplier where specified. Citipati, Black Triple Stars, Shii and
+Manes start their cooldown only after a kill.
+
+Native YAML slots also supply PH pairs, lottery chances and member cooldowns after loaded data overlays.
+They do not use the Lua helper's lottery chance or cooldown multipliers. Valkurm Emperor and Golden Bat
+use these slots. Their 15% roll applies only when their slot is empty and eligible to reroll. The one-hour
+member cooldown starts after despawn and is not a live countdown. A placeholder takes the first roll after
+a server restart. Time and weather checks still apply, and some respawns keep the same member instead of
+rerolling. The native slot and spawn-handler rules are guarded.
+
+The ferry reader uses the registered deck slot tables and their night/weather conditions. Fishing-only
+copies do not become deck entries. Ferry helpers, route callbacks and loaded overrides are checked before
+these routes count toward BLU spell availability. The shared deck roll is not an individual monster's chance.
 Fradubio's module saves its deadline across restarts. These callbacks and the helper are guarded; changed
 or new lottery-state code stops the export for review. The addon cannot know the NM's last despawn,
 shared lottery state or deployed server multipliers from this source snapshot.
@@ -715,9 +769,9 @@ that differ for a particular spawn. The existing row grouping and combat fields 
 
 The source schema stays the same. Display rows for each fact have independent chat and overlay switches.
 Pursuit is selected on Aggro. Charm joins Elements, Weapons and Immunities in one Weaknesses row, with
-separate component choices for each display. Blue combines lessons and spell chance using separate
+separate component choices for each display. Blue combines learnable spells and spell chance using separate
 chat/overlay choices; its stand-in spell stays in magic.schools.blue.spell. core.parts migrates old grouped
-settings before defaults merge. Monster keeps the other controls and searchable Target details. Source
+settings before defaults merge. Monster keeps the other controls and opens the shared Target details view. Source
 build reporting remains available through /checkmate info. Appearance combines chat colors and window
 style. Abbreviations keeps the existing stored word keys so saved custom text remains available.
 
@@ -763,33 +817,38 @@ and items keep their source conditions: Doom removal can fail, and Erase picks a
 ailment. The addon does not check inventory or recasts. Source guards cover the native targeting rules,
 effective callbacks, removal scripts and tables; unreadable metadata stays unknown.
 
-Blue Magic separates possible lessons from the client's learned-spell state. A resolved source move list
-with no lessons says 'No learnable Blue spells'. An unresolved list keeps 'Unknown' and a specific reason;
-it is never treated as no lessons. Known candidates remain listed when coverage is incomplete, with a
-note that additional lessons are unknown. A listed spell does not guarantee that the monster will choose
+Blue Magic separates learnable spells from the client's learned-spell state. A resolved source move list
+with no learnable spells says 'No learnable BLU spells'. An unresolved list keeps 'Unknown' and a specific reason;
+it is never treated as no learnable spells. Known candidates remain listed when coverage is incomplete, with a
+note that additional learnable spells are unknown. A listed spell does not guarantee that the monster will choose
 its move or the player will learn it. The client marks each possible spell known, not learned or
 spellbook unknown without requests.
-Each exported lesson also records its BLU spell level and minimum current Blue Magic skill. The minimum
+Each exported spell also records its BLU spell level and minimum current Blue Magic skill. The minimum
 comes from the native skill cap at that spell level, less 31, floored at zero. The spell level is not a
 minimum learning level. The addon can filter confirmed learned spells and show the client inputs read
 with the result, but does not decide full eligibility or predict a learning roll. An incomplete flag
-keeps filtered lists from claiming all possible lessons are known.
-Each lesson also keeps its monster move IDs. The optional observer reads completed action packets,
+keeps filtered lists from claiming all learnable spells are known.
+Each spell also keeps its monster move IDs. The optional observer reads completed action packets,
 including misses and resists, without requesting actions. Native function and category guards check
 the packet mapping and interruption rules. It clears observations for dead or missing identities,
 zoning and disabling tracking. It records observation only; charmed monsters and hidden eligibility
 conditions cannot all be determined from these packets. Saved manual details refresh only the move
 marker, preserving the captured spellbook state, stat inputs and their timestamp.
-blue_finder.lua uses those finished Blue sections, including per-spawn overrides, from enabled monster rows.
-Each location keeps its exact level ranges, move IDs, incomplete-list flag and source lesson, spawn and fight
-notes. Locations merge only when those facts match. Missing levels stay unknown. The catalogue is a list of
-supported source locations, not a complete list of teachers or a check for live spawns. Runtime loads it when
-the finder opens, reads the client spellbook for the unlearned filter, and sends no game commands.
+blue_finder.lua uses those finished Blue sections, including per-spawn overrides, after filtering each spawn
+ID by its supported source route. A separate strict reachability pass rejects guessed offsets, ambiguous
+locals and unrelated ID lookups; Lottery and Windowed spawns need an enabling route. SQL instance locations
+also need an accessible encounter. The broader Links reader and ordinary target rows remain unchanged.
+Each location keeps its exact level ranges, move IDs, incomplete-list flag and source spell, spawn and fight
+notes. Locations merge only when those facts match. Missing levels stay unknown. The version-2 catalogue is
+a list of supported source locations. It does not cover every possible spell source or show live spawns. Runtime
+rejects older finder data and asks for a complete addon update. It loads the catalogue when the finder opens,
+reads the client spellbook for the unlearned filter, and sends no game commands.
 
 To measure sharing without mixing in new features, benchmark_danger_sharing.py writes flat and shared copies
 of the same zone tables. It compares every returned value and measures LuaJIT load time and retained heap.
-It also checks the finder against every lesson/spawn context in the generated zones. Timings are offline
-measurements on the machine running the script, not in-game frame-time measurements.
+It also checks the finder against the spell/spawn contexts selected by the input catalogue, preserving that
+catalogue's availability filter and version. It does not infer new locations from the zone rows. Timings are
+offline measurements on the machine running the script, not in-game frame-time measurements.
 
 Claim shields describe their source configuration, not a live countdown. Hidden pop timers and battle
 state remain unknown.
@@ -802,8 +861,9 @@ full check_source.py gate before regeneration; test_info.py and test_encounters.
 Shield and Parry
 ----------------
 
-defenses.lua records source shield sizes, job skill ranks and the supported direct and conditional Parry
-bonuses for equipment at level 75 and below. This follows Phoenix's level cap. The client skill totals already contain skill merits and active skill gear. The server adds the
+defenses.lua records all valid source shield sizes and job skill ranks. Direct and conditional Parry
+bonuses cover equipment at level 75 and below, following Phoenix's level cap. The client skill totals already
+contain skill merits and active skill gear. The server adds the
 PARRY modifier again in its Parry formula; the addon follows that second addition separately. Unknown
 latent activation or augments cannot be treated as a known bonus. Shield Mastery changes TP and interruption
 protection, not the block chance. Newly enabled skill or rate traits stop the export for review.
@@ -821,3 +881,37 @@ Reprisal uses its fixed skill and block multipliers. Other unobserved buff power
 
 The parity check runs the pinned helpers against the addon across skill differences, shield sizes, caps,
 Reprisal and additive bonuses. Their 1..10,000 roll is preserved as a rate rounded down to 0.01%.
+
+Merits
+------
+
+merits.lua selects the inputs used by Checkmate from the loaded merits.yaml and its overlays. It keeps the
+native IDs, rank limits, bonus values and main-level caps. General merits apply on every job; the job lists
+on their menu entries are not calculation gates. Job merits require their main job at level 75.
+
+The catalogue covers STR, DEX, AGI, INT, MND and CHR; weapon, Evasion, Shield and Parry skills; the magic
+and instrument skills read by the estimates; both critical-rate merits; the supported direct magic-accuracy
+merits; Dia III, Bio III and Angon duration; and Beast Affinity. Guard, Enhancing, Summoning, unused stats,
+weapon-skill unlocks and unrelated ability merits are left out. Troubadour's source value is converted by
+its existing accuracy rule, so it is not a flat accuracy bonus per rank.
+
+Client skills and attributes already include their active merits. Editable estimates use the difference
+between a selected rank and an observed rank, with the source level cap applied to both. Weapon skills,
+Evasion and STR are marked as server-parameter inputs: editing those ranks does not reconstruct an
+Accuracy, Attack or Evasion reply. The native merit and client-skill rules are guarded before export.
+
+core.merits keeps observed ranks separate from saved choices. A merit packet changes only the IDs it
+contains; a missing ID never means zero. The shared reader stays active while display rows are off.
+Effects and pet calculations capture selected ranks with their other inputs. Later edits apply to new
+observations, not an existing timer or original jug summon.
+
+Learning chance
+---------------
+
+modifiers.lua also records the source learning base and supported BLUE_LEARN_CHANCE equipment bonuses.
+core.blue_learning reads actual equipped gear at the current level. It does not use selected merit ranks.
+The settings panel reads this only while Learning chance is open, at most four times per second.
+
+The percentage is conditional on an eligible attempt. Job, current skill, distance, death, move use,
+kill credit and Call for Help gates are separate. The reader guards the native roll and relevant item,
+trait, latent, augment, status and loaded-module routes. A changed source rule stops export for review.

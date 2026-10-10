@@ -224,11 +224,11 @@ local hare = { { rate = 150, item = 856 }, { rate = 100, item = 856 } };
 expect('two rolls of one item at TH 0 are 23.5%', chances(hare, 0)[856], 23.5);
 expect('and 49% at TH 2', chances(hare, 2)[856], 49);
 
--- Leaping Lizzy drops on a very common, a common and an uncommon roll.
-local lizzy = { { rate = 240, item = 926 }, { rate = 150, item = 15351 }, { rate = 100, item = 852 } };
+-- Leaping Lizzy has one very common and two uncommon drops.
+local lizzy = { { rate = 240, item = 926 }, { rate = 100, item = 15351 }, { rate = 100, item = 852 } };
 local th0, th4 = chances(lizzy, 0), chances(lizzy, 4);
-check('Leaping Lizzy at TH 0 is 24, 15 and 10%', th0[926] == 24 and th0[15351] == 15 and th0[852] == 10);
-check('and 64, 45 and 18% at TH 4', th4[926] == 64 and th4[15351] == 45 and th4[852] == 18);
+check('Leaping Lizzy at TH 0 is 24, 10 and 10%', th0[926] == 24 and th0[15351] == 10 and th0[852] == 10);
+check('and 64, 18 and 18% at TH 4', th4[926] == 64 and th4[15351] == 18 and th4[852] == 18);
 
 -- Wild Sheep has sheep tooth on a rare roll and on the despoil rare roll.
 local sheep = { { rate = 50, item = 882 }, { rate = 50, item = 882 } };

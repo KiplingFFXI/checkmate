@@ -7,7 +7,7 @@ Loads the generated files in LuaJIT and compares the monsters row by row. Links,
 compared by name so a changed index alone does not count. The build stamp is ignored too.
 Zone-level family labels are compared separately from actual link memberships.
 
-Also reports whether pets.lua, steal.lua, crit.lua, effects.lua, modifiers.lua or blue_finder.lua or pdif.lua or defenses.lua changed. Writes the report
+Also reports changes to the global pet, combat, merit and Blue finder tables. Writes the report
 and short changelog entries when requested, or prints the report. With no changes, it writes nothing.
 Older data may have no jobs; those comparisons leave jobs out and say why.
 """
@@ -25,7 +25,7 @@ AGGRO_LUA = os.path.join(os.path.dirname(HERE), 'checkmate', 'core', 'aggro.lua'
 # GitHub refuses a pull request body over 65536 characters, so the zone list stops before that.
 REPORT_LIMIT = 60000
 
-# Most CHANGELOG bullets about monsters. The last one counts the rest when there are more.
+# Limit the monster bullets in the changelog. The last counts any remaining changes.
 MOST_BULLETS = 5
 
 # The Treasure Hunter levels the drop tables show. Phoenix allows 0 to 4.
@@ -121,6 +121,8 @@ class Folder:
         self.pdif = without_stamps(load_file(pdif)) if os.path.exists(pdif) else None
         defenses = os.path.join(root, 'defenses.lua')
         self.defenses = without_stamps(load_file(defenses)) if os.path.exists(defenses) else None
+        merits = os.path.join(root, 'merits.lua')
+        self.merits = without_stamps(load_file(merits)) if os.path.exists(merits) else None
         blue_finder = os.path.join(root, 'blue_finder.lua')
         self.blue_finder = without_stamps(load_file(blue_finder)) if os.path.exists(blue_finder) else None
         self.rows = sum(len(rows) for _, rows in self.zones.values())
@@ -432,6 +434,9 @@ def compare(old, new):
     if old.defenses != new.defenses:
         notes.append('defenses.lua changed.')
         extra_bullets.append('Updated Shield and Parry inputs.')
+    if old.merits != new.merits:
+        notes.append('merits.lua changed.')
+        extra_bullets.append('The supported merit values, caps or input rules changed.')
     if old.pdif != new.pdif:
         notes.append('pdif.lua changed.')
         extra_bullets.append('The physical damage multiplier rules changed.')

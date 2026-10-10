@@ -133,6 +133,14 @@ class ShadowTests(unittest.TestCase):
     def test_unrecognized_helper_stays_unknown(self):
         self.assertTrue(danger_details.shadows('xi.unknown.applySomething(mob,target)')['unknown'])
 
+    def test_blue_action_argument_keeps_shadow_parameters_in_fourth_position(self):
+        before = ('local params = xi.spells.blue.getDefaultParams(caster)\n'
+                  'params.shadowBehavior = xi.mobskills.shadowBehavior.WIPE_SHADOWS\n'
+                  'xi.spells.blue.usePhysicalSpell(caster,target,spell,params)')
+        after = before.replace('spell,params)', 'spell,params,action)')
+        self.assertEqual(danger_details.shadows(after), danger_details.shadows(before))
+        self.assertEqual(danger_details.shadows(after)['rules'], [dict(mode='wipe', per_hit=True)])
+
     def test_legacy_random_check_is_a_range_before_the_effect(self):
         value = danger_details.shadows('local dmg = utils.takeShadows(target,1,math.randomInt(2,3))\nif dmg > 0 then target:copyStatusEffect(effect) end')
         self.assertEqual(value['rules'][0]['count_min'], 2)
@@ -196,6 +204,14 @@ class PinnedSourceTests(unittest.TestCase):
                                       mob_skill_distance=7, mob_skill_aoe_radius=0), {})
         self.assertEqual(value['shadows'][0]['mode'], 'ignore')
         self.assertEqual(value['unknown'], [])
+
+    def test_new_spriggan_moves_keep_explicit_shadow_counts(self):
+        for name, count in (('frenetic_flurry', 8), ('romp', 1)):
+            with self.subTest(name=name):
+                value = self.reader.skill(dict(mob_skill_id=-count, mob_skill_name=name, mob_skill_aoe=0,
+                                               mob_skill_distance=7, mob_skill_aoe_radius=0), {})
+                self.assertEqual(value['shadows'][0]['count'], count)
+                self.assertEqual(value['unknown'], [])
 
     def test_blood_drain_retains_pool_conditional_shadow_rule(self):
         value = self.reader.skill(dict(mob_skill_id=1, mob_skill_name='blood_drain', mob_skill_aoe=0,

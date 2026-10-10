@@ -18,6 +18,7 @@ from . import lua_source
 from . import overlays
 from . import rows
 from . import species as species_chain
+from . import spawn_rules
 from . import steal
 
 # The allegiance that fights players (data/enums/allegiance.yaml mob).
@@ -162,6 +163,19 @@ def build(ctx, dir_name, script_dir, in_dynamis):
     points = spawn_points(spawns, placed_spawns, up)
     aggro_and_links(ctx, dir_name, script_dir, in_dynamis, kinds, placed_spawns, ids, fomors, fights, up, points)
     ctx.placeholders.mark(dir_name, script_dir, tables, placed_spawns)
+    pairs, slot_facts = spawn_rules.native_slots(document, dict(placed_spawns))
+    ctx.placeholders.mark_slots(pairs, placed_spawns)
+    for spawn_id, kind in placed_spawns:
+        fact = up.ferry.get(spawn_id) or slot_facts.get(spawn_id)
+        if fact is not None:
+            if not hasattr(kind, 'spawn_rules_by_index'):
+                kind.spawn_rules_by_index = {}
+            kind.spawn_rules_by_index[spawn_id & 0xFFF] = fact
+    known = exists.Zone(ctx, dir_name, script_dir, document, tables, placed_spawns, fight_ids, pets, in_dynamis,
+                        strict=True)
+    available = {spawn_id & 0xFFF for spawn_id in known.sources}
+    for kind in kinds:
+        kind.available_ids = set(kind.ids) & available
     return kinds
 
 

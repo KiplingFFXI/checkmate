@@ -1,4 +1,4 @@
--- Completed monster moves observed nearby. This does not establish learning eligibility.
+-- Tracks monster moves seen nearby. Seeing a move does not mean you can learn it.
 local packets = require('core.packets');
 local player = require('core.player');
 local lessons = {};
@@ -113,6 +113,7 @@ end
 
 -- Only tracked monsters are checked for disappearance. There is no entity-list scan.
 function lessons.take_in(now)
+    if (count == 0 and #pending == 0) then return; end
     now = now or os.clock();
     current_zone();
     local events = pending;
@@ -153,7 +154,7 @@ function lessons.version(index)
     return revisions[index] or baseline;
 end
 
--- False means not observed for this identity. Nil means the identity or mapping cannot be read.
+-- False means this monster has not been seen using the move. Nil means the monster or move is unknown.
 function lessons.seen(index, skill)
     current_zone();
     if (not integer(skill) or skill < 1 or skill > 65535 or identity(index) == nil) then return nil; end

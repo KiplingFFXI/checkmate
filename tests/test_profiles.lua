@@ -1,8 +1,8 @@
 -- Saving, loading, renaming and deleting profiles, and what the shared file holds, window colors, font and the
 -- overlay included, and where the overlay sits left out. It also covers a profile with settings missing, one with
 -- wrong types, a broken file, job links loading a profile when you zone in on another job, a profile from
--- before the overlay leaving yours as it was, a profile from before Links was a part of its own, and short words,
--- with a profile from before them leaving both switches and your short forms as they were.
+-- before the overlay leaving yours as it was, a profile from before Links was a part of its own, and abbreviations,
+-- with a profile from before them leaving both switches and your abbreviations as they were.
 local FILE = MOCK_INSTALL_PATH .. '\\config\\addons\\checkmate\\profiles.json';
 local function read_file()
     local f = io.open(FILE, 'r');
@@ -628,9 +628,9 @@ check('and leaves the overlay on, with its look', cur().overlay.on == true and c
     and MOCK.last_save.overlay.on == true);
 MOCK.command('/checkmate overlay off');
 
--- Short words save and load with the rest. A profile saved before 1.2.0 has no short forms and no Short words switch
--- for chat, so loading it, by hand or through a job link, leaves both switches and your short forms as they are. One
--- missing a few short forms gets those from the defaults.
+-- Abbreviations save and load with the rest. A profile saved before 1.2.0 has no abbreviations and no Abbreviations switch
+-- for chat, so loading it, by hand or through a job link, leaves both switches and your abbreviations as they are. One
+-- missing a few abbreviations gets those from the defaults.
 s = cur();
 s.printout.short_words, s.overlay.short_words = true, true;
 s.short.aggro_aggressive, s.short.con_tough = 'Agg', '';

@@ -1,4 +1,4 @@
--- Places with a supported lesson in the bundled source. This does not read live spawns.
+-- Places with a learnable spell in the bundled source. This does not read live spawns.
 local player = require('core.player');
 local finder = {};
 local loaded_path, data, problem;
@@ -28,7 +28,7 @@ function finder.catalog()
         local chunk = loadfile(path);
         local ok, value;
         if (chunk ~= nil) then ok, value = pcall(chunk); end
-        if (not ok or type(value) ~= 'table' or value.version ~= 1 or type(value.spells) ~= 'table') then
+        if (not ok or type(value) ~= 'table' or value.version ~= 2 or type(value.spells) ~= 'table') then
             problem = 'The spell finder data could not be read. Update the complete checkmate addon folder.';
         else
             data = value;
@@ -123,7 +123,7 @@ end
 
 function finder.place_text(place)
     local lines = { place.name .. ' - ' .. place.zone_name .. ' - ' .. finder.level_text(place) };
-    if (place.incomplete) then lines[#lines + 1] = 'This monster\'s lesson list is incomplete.'; end
+    if (place.incomplete) then lines[#lines + 1] = 'This monster\'s learnable spell list is incomplete.'; end
     local seen = {};
     for _, list in ipairs({ place.context or {}, place.notes or {} }) do
         for _, note in ipairs(list) do
@@ -133,12 +133,12 @@ function finder.place_text(place)
     return table.concat(lines, '\n');
 end
 
-finder.LIMITS = 'These are places supported by the bundled source, not live sightings or a complete list of every possible teacher. '
+finder.LIMITS = 'These monsters have an enabled spawn or encounter path in the bundled Phoenix source. This is not a live spawn list or every possible source for the spell. '
     .. 'Spawn and fight conditions still apply. The monster must use the move, and the learning conditions still apply.';
 
 function finder.copy(spell, places)
     local source = finder.catalog();
-    local lines = { spell.name .. ' - possible Blue Magic lessons',
+    local lines = { spell.name .. ' - possible BLU spells',
         'Minimum Blue Magic skill: ' .. tostring(spell.min_skill or 'unknown') .. '.', finder.LIMITS };
     for _, place in ipairs(places) do lines[#lines + 1] = finder.place_text(place); end
     if (source ~= nil) then lines[#lines + 1] = 'Source: ' .. tostring(source.built or 'unknown'); end

@@ -66,10 +66,10 @@ run('/checkmate');
 check('and closes it', not window.is_open());
 
 -- Parts.
-local tab_names = { 'Display', 'Numbers', 'Aggro', 'Magic', 'Blue Magic', 'Weaknesses',
+local tab_names = { 'Display', 'Combat', 'Merits', 'Aggro', 'Magic', 'Blue Magic', 'Weaknesses',
     'Pets', 'Monster', 'Drops', 'Effects', 'Abbreviations', 'Appearance', 'Profiles' };
 for _, name in ipairs(tab_names) do
-    check(name .. ' tab starts visible', cur().window.tabs[name] == true);
+    check(name .. ' tab starts visible', cur().window.tabs[require('ui.navigation').key(name)] == true);
 end
 cur().printout.parts.magic.on, cur().magic.schools.elemental.on = true, true;
 said = run('/checkmate tab "mAgIc" off');
@@ -89,7 +89,27 @@ for _, value in ipairs({ 'tab bogus off', 'tab Magic', 'tab Magic maybe', 'tabs'
     check('invalid tab command leaves settings alone: ' .. value, MOCK.saved == saved_before and has(said, 'Type /checkmate'));
 end
 run('/checkmate tabs ALL');
-for _, name in ipairs(tab_names) do check('tabs all restores ' .. name, cur().window.tabs[name] == true); end
+for _, name in ipairs(tab_names) do
+    check('tabs all restores ' .. name, cur().window.tabs[require('ui.navigation').key(name)] == true);
+end
+said = run('/checkmate compacttabs on');
+check('compacttabs saves only the navigation choice', cur().window.compact_navigation == true
+    and MOCK.last_save.window.compact_navigation == true and cur().printout.parts.magic.on
+    and cur().magic.schools.elemental.on and has(said, 'compact tab selector'));
+said = run('/checkmate compacttabs OFF');
+check('compacttabs can restore wrapped tabs', cur().window.compact_navigation == false
+    and MOCK.last_save.window.compact_navigation == false and has(said, 'wrapped tab buttons'));
+local compact_saves = MOCK.saved;
+said = run('/checkmate compacttabs maybe');
+check('invalid compacttabs leaves the preference unchanged', MOCK.saved == compact_saves
+    and cur().window.compact_navigation == false and has(said, '/checkmate compacttabs on|off'));
+said = run('/checkmate tab combat off');
+check('Combat commands preserve the saved Numbers visibility key', not cur().window.tabs.Numbers
+    and cur().window.tabs.Combat == nil and MOCK.last_save.window.tabs.Numbers == false
+    and has(said, 'Combat is now hidden'));
+said = run('/checkmate tab NUMBERS on');
+check('the Numbers command remains an alias with current wording', cur().window.tabs.Numbers
+    and cur().window.tabs.Combat == nil and has(said, 'Combat is now visible'));
 run('/checkmate tab Printout off');
 check('the old Printout tab command controls Display', cur().window.tabs.Display == false);
 run('/checkmate tab Overlay on');
@@ -378,7 +398,7 @@ for _, switch in ipairs(SWITCHES) do
     end
 end
 
--- The chat's element icons, Icons only and short words, each off by default.
+-- The chat's element icons, Icons only and abbreviations, each off by default.
 for _, switch in ipairs({
     { 'icons', 'icons', 'Chat now puts the game\'s element symbol before each element name.',
         'Chat no longer puts a symbol before element names.' },
@@ -621,8 +641,8 @@ for _, id in ipairs({ 'elemental', 'enfeebling', 'dark', 'divine', 'healing', 'n
     said = run('/checkmate school ' .. id .. ' off');
     if (id == 'blue') then
         check('school blue changes both independent chance maps', on == true and cur().blue.chat.chance == false
-            and cur().blue.overlay.chance == false and said_on == '[checkmate] The Blue Magic row now has spell chance on.'
-            and said == '[checkmate] The Blue Magic row now has spell chance off.', said_on .. ' / ' .. said);
+            and cur().blue.overlay.chance == false and said_on == '[checkmate] The Blue Magic row now has unresisted spell chance on.'
+            and said == '[checkmate] The Blue Magic row now has unresisted spell chance off.', said_on .. ' / ' .. said);
     else
         check('school ' .. id, on == true and cur().magic.schools[id].on == false
             and said_on == ('[checkmate] The magic part now shows the %s school when you have skill in it.'):format(label)
@@ -1665,7 +1685,7 @@ check('and the zone\'s stamp after a /check there', has(said, 'Current zone: pho
 said = run('/checkmate help');
 check('help prints eleven commands', select(2, said:gsub('%[checkmate%] /checkmate', '')) == 11, said);
 check('help names the topics', has(said, '[checkmate] /checkmate help <topic>  lists the commands for one tab of the '
-    .. 'settings window. The topics are display, appearance, numbers, aggro, magic, blue, weaknesses, pets, monster, drops, effects, abbreviations, profiles '
+    .. 'settings window. The topics are display, appearance, combat, merits, aggro, magic, blue, weaknesses, pets, monster, drops, effects, abbreviations, profiles '
     .. 'and presets.'), said);
 check('help names the overlay right after show|hide', has(said, ' / [checkmate] /checkmate overlay on|off  turns the '
     .. 'overlay on or off. It shows what checkmate knows about the monster you have targeted. / [checkmate] /checkmate '
@@ -1683,10 +1703,10 @@ check('and so does help with a word that isn\'t a topic', run('/checkmate help m
 
 -- /checkmate help <topic> prints the commands for that tab. Help colors lists the colors after them, so it
 -- has one more. Help short lists the words after its commands.
-local TOPICS = { 'printout', 'overlay', 'colors', 'numbers', 'aggro', 'magic', 'blue', 'weaknesses', 'pets', 'monster',
+local TOPICS = { 'printout', 'overlay', 'colors', 'numbers', 'merits', 'aggro', 'magic', 'blue', 'weaknesses', 'pets', 'monster',
     'drops', 'effects', 'short', 'look', 'profiles' };
-local TOPIC_LINES = { printout = 23, overlay = 26, colors = 13, numbers = 10, aggro = 6, magic = 4, blue = 8,
-    weaknesses = 13, pets = 6, monster = 5, drops = 6, effects = 4, short = 4, look = 13, profiles = 9 };
+local TOPIC_LINES = { printout = 24, overlay = 27, colors = 14, numbers = 10, merits = 2, aggro = 6, magic = 4, blue = 8,
+    weaknesses = 13, pets = 6, monster = 5, drops = 6, effects = 4, short = 4, look = 14, profiles = 9 };
 local topic_text = {};
 for _, topic in ipairs(TOPICS) do
     topic_text[topic] = run('/checkmate help ' .. topic);
@@ -1695,6 +1715,7 @@ for _, topic in ipairs(TOPICS) do
         topic_text[topic]);
 end
 check('a topic in any case', run('/cmate help DROPS') == topic_text.drops);
+expect('Combat help and the old Numbers topic match', run('/checkmate help COMBAT'), topic_text.numbers);
 expect('Display help combines both old layout topics', run('/checkmate help display'), topic_text.printout .. ' / ' .. topic_text.overlay);
 local preset_help = run('/checkmate help presets');
 check('preset help names layouts and the local preview and undo controls', has(preset_help, '/checkmate preset <name>')
@@ -1703,6 +1724,9 @@ check('preset help names layouts and the local preview and undo controls', has(p
 check('moved controls leave their old help topics', not has(topic_text.numbers, '/checkmate petname ')
     and not has(topic_text.magic, '/checkmate weakword ') and not has(topic_text.magic, '/checkmate immunity ')
     and not has(topic_text.weaknesses, '/checkmate effecttimes '));
+check('Merits help distinguishes overrides from actual server readings', has(topic_text.merits, '/checkmate meritfill on|off')
+    and has(topic_text.merits, 'replace the observed merit contribution')
+    and has(topic_text.merits, 'actual server readings'));
 check('Blue Magic help separates lessons and the chance setting', has(topic_text.blue, '/checkmate infosection blue ')
     and has(topic_text.blue, '/checkmate school blue ') and has(topic_text.blue, '/checkmate spell blue '));
 check('moved source fact switches have their own help topics', has(topic_text.weaknesses, '/checkmate infosection charm ')
@@ -2004,6 +2028,9 @@ check('every font loaded during the load event', #MOCK.stray_font_loads() == 0, 
 MOCK.settings.switch_character({ window = { tabs = { Magic = false, Appearance = false } } });
 check('character load preserves hidden tabs but always restores Appearance', not cur().window.tabs.Magic
     and cur().window.tabs.Appearance and cur().window.tabs.Display);
+MOCK.settings.switch_character({ window = { tabs = { Numbers = false } } });
+check('a character with Numbers hidden keeps Combat hidden after the rename', not cur().window.tabs.Numbers
+    and cur().window.tabs.Combat == nil and not require('ui.navigation').visible(cur().window.tabs, 'Combat'));
 MOCK.settings.switch_character({});
 run('/checkmate tab Magic off');
 check('a missing window section does not share mutable tab defaults', MOCK.settings.defaults.window.tabs.Magic == true);

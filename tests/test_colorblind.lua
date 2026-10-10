@@ -110,9 +110,8 @@ check('the color math puts salmon and green 4.80 apart under protanopia', math.a
     and kind == 'protanopia', d .. ' ' .. kind);
 
 --[[
-    Every two chat colors that have to look different. Cons in one group may share a color, the way
-    checker gives Very Tough and Incredibly Tough one. Every con stays apart from every con in another
-    group.
+    Every two chat colors that have to look different. Difficulties in one group may share a color,
+    such as Very Tough and Incredibly Tough. Each group stays distinct from the others.
 ]]
 local PAIRS = {
     { 'good', 'ok' }, { 'ok', 'bad' }, { 'good', 'bad' },

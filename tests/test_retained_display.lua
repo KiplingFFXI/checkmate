@@ -6,7 +6,7 @@ local parameter_ids = { 'hit', 'offhand', 'ranged', 'evade' };
 local pdif_ids = { 'pdif', 'offhandpdif', 'rangedpdif' };
 local all = { 'hit', 'offhand', 'ranged', 'evade', 'pdif', 'offhandpdif', 'rangedpdif' };
 local reason = 'Your inputs changed after this reading. Check again to refresh it.';
-local earlier = 'This is the last calculated estimate, kept from your earlier reading.';
+local earlier = 'This estimate is kept from your earlier reading.';
 local function has(text, want) return (text or ''):find(want, 1, true) ~= nil; end
 local function count(text, want)
     local n, at = 0, 1;

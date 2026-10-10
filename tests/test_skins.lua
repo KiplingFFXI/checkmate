@@ -98,7 +98,7 @@ check('the ones that show in the window', painted[ImGuiCol_WindowBg] and painted
 check('a window color by key, any case', skins.window_color('BUTTONS_HOVERED').key == 'buttons_hovered'
     and skins.window_color('sort') == nil and skins.window_color(nil) == nil);
 
--- The skins look different from each other in chat, except where they share checker's con colors.
+-- The skins look different in chat, apart from the difficulty colors they share.
 local looks = {};
 for _, skin in ipairs(skins.LIST) do
     local parts = {};
@@ -254,7 +254,7 @@ for _, skin in ipairs(skins.LIST) do
     end
 end
 
--- The skin you picked stays current until anything it set differs. The Look tab shows that as Custom.
+-- The skin you picked stays current until one of its settings changes. Appearance then shows Custom.
 local classic = skins.find('classic');
 local function fresh_classic()
     local out_s = defaults.make();

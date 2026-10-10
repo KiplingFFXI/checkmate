@@ -10,6 +10,7 @@
 
 local spells = require('data.spells');
 local modifiers = require('core.modifiers');
+local merits = require('core.merits');
 
 local magic = {};
 
@@ -252,6 +253,8 @@ local function school_readout(me, mob, id, spell_id, known_inputs)
         notes[#notes + 1] = ('Known gear and merits add %+d magic accuracy. Your extra %+d is added too.')
             :format(bonus, me.extra_accuracy or 0);
     end
+    local wind = school.skill == SKILL_SINGING and me.ranged_skill == SKILL_WIND and SKILL_WIND or nil;
+    merits.qualify(out, me, spell.stat, school.skill, wind);
     return out;
 end
 

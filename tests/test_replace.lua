@@ -52,7 +52,7 @@ end
 check('a /checkparam you type shows', MOCK.reply(300, 250) == 0);
 check('another player\'s /checkparam shows', MOCK.reply(300, 250, 2002) == 0);
 
--- A /check line another addon like checker hid first is still read, with the setting on or off.
+-- A /check line another addon hid first is still read, with the setting on or off.
 local function hidden_first()
     local n = #MOCK.printed;
     local e = MOCK.check_packet(1, 39, 4, 174);
@@ -525,13 +525,13 @@ check('nothing left hidden', MOCK.reply(300, 250) == 0);
 
 -- The plain /check line --------------------------------------------------------------------------
 
--- With every part off, the name, level, difficulty and reading print in the game line's place.
+-- With every part off, the game's own line stays visible.
 for _, part in pairs(s.printout.parts) do part.on = false; end
 n = #MOCK.printed;
-check('every part off still hides the game\'s line', MOCK.packet(MOCK.check_packet(1, 39, 4, 171)).blocked);
+check('every part off leaves the game\'s line visible', not MOCK.packet(MOCK.check_packet(1, 39, 4, 171)).blocked);
 MOCK.frame();
 lines = MOCK.printed_since(n);
-check('and prints the plain /check line in its place', #lines == 1 and lines[1] == CHECK_LINE .. ' (High Evasion)', lines[1]);
+check('and prints no addon line', #lines == 0, table.concat(lines, ' / '));
 
 -- The same when the parts that are on have nothing to say. Fixture Rabbit has no immunities.
 s.printout.parts.weaknesses.on = true;

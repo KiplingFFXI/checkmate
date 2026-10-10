@@ -18,6 +18,8 @@ return function (draw)
         if (stack[1] == 'Display' and #stack == 2 and (widget == 'text' or widget == '##overlay')) then
             owner = table.concat(stack, '/') .. (widget == 'text' and '/##row_tip' or '/##overlay_tip');
             contents = {};
+        elseif (stack[1] == 'Display' and stack[2] == 'display_pages' and #stack == 2) then
+            owner, contents = table.concat(stack, '/') .. '/' .. widget, {};
         elseif (#stack == 0 and (widget == 'Preview##toolbar' or widget == 'Target details##toolbar')) then
             owner, contents = widget, {};
         end

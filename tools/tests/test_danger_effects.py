@@ -193,10 +193,10 @@ class PinnedSourceTests(unittest.TestCase):
 
     def test_complete_current_script_census(self):
         coverage = self.result['coverage']
-        self.assertEqual(coverage['scripts'], 1687)
+        self.assertEqual(coverage['scripts'], 1690)
         self.assertEqual(coverage['harmful_scripts'], 752)
         self.assertEqual(coverage['unresolved_scripts'], {})
-        self.assertEqual(coverage['watched_files'], 3007)
+        self.assertEqual(coverage['watched_files'], 3011)
 
     def test_sql_missing_handlers_remain_explicit(self):
         coverage = self.result['coverage']
@@ -234,7 +234,14 @@ class PinnedSourceTests(unittest.TestCase):
         text, unknown = self.sources.move('poison_breath_crawler')
         self.assertEqual(unknown, [])
         self.assertIn('mobStatusEffectMove', text)
+        self.assertIn('math.random(60, 300)', text)
         self.assertEqual(self.move('poison_breath_crawler')['effects'], ['Poison'])
+
+    def test_new_moves_and_monipulator_healing_do_not_become_debuffs(self):
+        for name in ('frenetic_flurry', 'romp', 'jittering_jig', 'pollen'):
+            with self.subTest(name=name):
+                self.assertEqual(self.move(name)['effects'], [])
+                self.assertEqual(self.move(name)['unknown'], [])
 
     def test_harmful_spells_include_shared_and_direct_helpers(self):
         rows = {row['name']: self.result['spells'].get(row['spellid']) for row in self.spells}

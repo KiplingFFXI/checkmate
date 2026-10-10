@@ -2,6 +2,28 @@
 
 Older entries describe that release. Later entries may change its behavior.
 
+## 1.14.5
+
+- Refreshed Phoenix data to `071c401048`, including drops, ferry monsters, lottery spawn rules, Silence and Nadrs Poison duration.
+- The spell finder filters out disabled encounters and monsters without a supported spawn route in the bundled Phoenix data.
+- Target details refreshes after label or abbreviation edits. Settings search finds spell names in immunity help.
+- Reduced idle work in BLU move tracking.
+- Merit rows now mark manual differences and explain whether a rank changes estimates or is for reference. Restore game ranks supports Undo, and the reset menu names the autofill option it restores.
+- Blue Magic separates Learning chance from Unresisted spell chance, folds detailed learning requirements, and makes hidden chat and overlay rows clearer.
+- Added optional compact tab navigation. Open and closed settings categories stay with the character across reloads; search expansions stay temporary.
+- Added Merits with one zone autofill switch and collapsible categories for supported ranks. Manual skill and stat choices replace the observed merit bonus instead of counting it twice; server stat replies stay unchanged.
+- Merit ranks are read even while their display rows are off. Effects and pet estimates use the selected ranks for new observations while keeping existing snapshots intact.
+- Blue Magic now shows Learning chance, the current learning gear bonus and the conditions for an eligible attempt.
+- Fixed the + and - buttons in the compact Display layout so rows close and reopen. Layout controls stay open while searching, and clearing the search restores your previous selection.
+- The overlay's name, level, ID and PH information now wrap at the chosen width. The preview follows the same header wrapping rules, and wrapped text keeps its hover help.
+- Display now has Rows, Chat format and Overlay options views. Options goes straight to the matching controls, with Back to Display to return to the rows.
+- Combat replaces Numbers with compact Offense and Defense tables. Existing commands and saved settings still work.
+- Appearance puts Overlay appearance below Window style, folds detailed color groups, and keeps Tabs at the bottom.
+- Show overlay offers Off, Any targeted monster and Only after checking. Remembered checks control whether a checked monster shows again when retargeted.
+- Added Reset... with Reset this tab and Reset all settings. A full reset asks before restoring the current character's settings and clearing remembered readings and Undo history. Saved profiles and other characters' settings stay as they are.
+- Added Clear all rows to turn off every chat and overlay row without changing other preferences. Undo last change restores the selection, and the game's own check line stays visible when every chat row is off.
+- Monster opens the shared Target details view instead of repeating the full lists below its settings. Blue Magic's readout and spell finder now give their separate unlearned filters clearer names.
+
 ## 1.14.4
 
 Since 1.1.0, checkmate adds a target overlay, more combat and monster details, and more ways to set up your display.
@@ -12,7 +34,7 @@ Since 1.1.0, checkmate adds a target overlay, more combat and monster details, a
 - Weaknesses combines elements, weapon damage types, immunities and Charm. Effects shows buffs and debuffs your client observed, with estimated timers where supported. Source changes and uncertain values keep their explanations.
 - Added separate monster rows for family, HP/MP estimates, movement, pursuit, spawn, claim rules, traits, crystals, rewards and fight rules. PH, drop and Steal details explain supported chances and conditions. Rewards includes gil and Mug where supported.
 - Dangers lists supported debuffs, moves that can crit and harmful effects from normal attacks, with their conditions. Filters and display limits keep it short; Target details keeps the full list with known targeting, shadow and removal notes. Incomplete move lists say so.
-- Blue Magic shows possible lessons and your client's learned state. Optional learning requirements and observed move use add context. The spell finder lists possible monsters, zones, levels and source conditions; it does not track live spawns or guarantee learning.
+- Blue Magic shows possible learnable spells and your client's learned state. Optional learning requirements and observed move use add context. The spell finder lists possible monsters, zones, levels and source conditions; it does not track live spawns or guarantee learning.
 - Links can group names by family when their linking conditions match, with exact names kept in hover help and Target details. Pet estimates can appear in chat and the overlay, using valid readings for the same pet and target.
 - Reworked settings with a combined Display table, search, wrapping tabs, tab visibility and separate Appearance and Abbreviations controls. Added eight starter presets, Chat and Overlay previews, Undo, section resets and safer profile changes. Mint and Lavender join the available skins.
 - Reduced repeated work in combat refreshes and settings previews. Updated the guide, help text and source notes while keeping existing settings and command aliases.
@@ -112,7 +134,7 @@ Since 1.1.0, checkmate adds a target overlay, more combat and monster details, a
 ## 1.6.0
 
 - Monster facts have their own rows, labels and order in Printout and Overlay, with New line on by default.
-- Weaknesses combines elements, weapon damage types, immunities and Charm. Blue Magic keeps possible lessons and spell chance together. Both have separate choices for chat and the overlay.
+- Weaknesses combines elements, weapon damage types, immunities and Charm. Blue Magic keeps possible learnable spells and spell chance together. Both have separate choices for chat and the overlay.
 - Pets can appear in the overlay using available source estimates or a retained stat reply for the same target.
 - Appearance combines Colors and Look. Abbreviations replaces Short. Existing commands and saved settings still work.
 
@@ -125,7 +147,7 @@ Since 1.1.0, checkmate adds a target overlay, more combat and monster details, a
 ## 1.5.1
 
 - Gil and Mug details appear only when the source confirms that the monster can drop ordinary gil.
-- Blue Magic distinguishes named lessons, a confirmed empty list and an unresolved list, with the reason in the details.
+- Blue Magic distinguishes named learnable spells, a confirmed empty list and an unresolved list, with the reason in the details.
 - Dangers lists supported threats with their conditions.
 
 ## 1.5.0

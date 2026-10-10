@@ -30,19 +30,19 @@ GUARDS = {
     'scripts/globals/spells/absorb_spell.lua':
         'ab296eede4669210021dfb043bd951c1392934c670416b07eddee9cec46e5037',
     'scripts/globals/bluemagic.lua':
-        '26c2132d9a8ba81f122896b68218cad92853103951bec0827875ae083f114aff',
+        'bc3f6816a066f9ff9745b0ac79811045b750dbfd1033c8c34f18fd98c91d9424',
     'scripts/actions/spells/blue/firespit.lua':
-        '91665a3fdad87a5666e1fbf280abbdb2d08c16c34d8573e88d89e02c1aed7607',
+        '882868f33e623a4d26f8d18cf5c4c6a85ca81d3f0bd72a1cc81ccac18e0f44f0',
     'scripts/actions/spells/blue/ice_break.lua':
-        'c33337efd90158d4d837d5a6dd3fedcb2c0d7157d0716a7caffc930c166427bf',
+        '48dcee6fa58e8427d20239a2f99ee451fa698a5f1ef2d8d56e6503c9a6cb0b4f',
     'scripts/actions/spells/blue/sandspin.lua':
-        'd300d725986a6d9fa8b2c335b588ebfd5c6e9cba21152a0527b4c457c7bf10b3',
+        '55ef6c5fe2b770a8c0d714c93a8a0a638e901d8739deef7c4f74d544dbc371d8',
     'scripts/actions/spells/blue/blitzstrahl.lua':
-        'cbb2ebf4d3813ce26824b59e0a94d0d667f7a67bcedfa021fd29aa1f417e4e10',
+        '75662b7f807efdc9b4f05acf990c4804bc37747e76fc569d33c936814f021c12',
     'scripts/actions/spells/blue/maelstrom.lua':
-        'b293352fcc008d65b9d46ff9708371de2db6fa328fdeaff699ae8b18a84192a5',
+        '5e413bb2de80db527e735ecc6c5e25ae06d1b1d012a2e1ce85cc61214439bc08',
     'scripts/actions/spells/blue/death_ray.lua':
-        '0efff1be14172128d0c980e3144c0c54bc5fc326e459017cb8e743f7df6460df',
+        'a79e27fec52d85e63b6105103f376338f5ef7e33f01cb80199c18361b6bba82c',
 }
 MODULE_GUARDS = {
     'modules/era/lua/combat/magic_burst.lua':
@@ -50,7 +50,7 @@ MODULE_GUARDS = {
     'modules/phoenix/lua/actions/spells/ninjutsu/damage_ninjutsu.lua':
         '822bfdd492a5ea4a060e016a29b19f3d400827894ee0d354a449e01eca4a9aa8',
     'modules/phoenix/lua/globals/spells/enfeebling_spell.lua':
-        '83dd8b4ea5270b7b8be9604abe1794746c9a0ff48b34ef51aa590eb892f33c02',
+        '1389cfaec3cf462da2bc39ba5d2379ba4317f0f74371d65d51ace62ef6dee3f1',
     'modules/phoenix/lua/globals/spells/damage_spell.lua':
         '7d370faf65dbd2a6605752670aa8455948eb98a3f85384048e5ec8cc99aae594',
     'modules/era/lua/actions/spells/spell_adjustments.lua':
@@ -250,7 +250,7 @@ def check(tree, addon=ADDON):
 
 
 def check_modifiers(tree, data):
-    """Check the generated staff bonuses independently of the modifier reader's field mapping."""
+    """Check generated bonuses independently of the modifier reader's field mapping."""
     levels = {row['itemId']: row['level'] for row in sqlfile.rows(str(Path(tree) / 'sql/item_equipment.sql'), 'item_equipment')}
     elements = ['fire', 'ice', 'wind', 'earth', 'thunder', 'water', 'light', 'dark']
     expected = {}
@@ -260,3 +260,22 @@ def check_modifiers(tree, data):
     actual = {item: {key: value for key, value in row.items() if key.startswith('staff_')}
               for item, row in data['items'].items() if any(key.startswith('staff_') for key in row)}
     same(actual, expected, 'generated elemental staff bonuses')
+
+    from . import modifiers
+    text = Path(tree, 'src/map/utils/blueutils.cpp').read_text(encoding='utf8')
+    base = re.search(r'auto chanceToLearn = (\d+) \+ PBlueMage->getMod\(xi::Mod::BLUE_LEARN_CHANCE\)', text)
+    outcomes = re.search(r'xirand::GetRandomNumber\((\d+)\) < chanceToLearn', text)
+    if not base or not outcomes:
+        raise RuntimeError('The source Blue learning roll needs a new parity reader.')
+    same(data.get('learning_rate'), {'base': int(base[1]), 'outcomes': int(outcomes[1]), 'main_job': 16},
+         'generated Blue learning roll')
+    mod_id = tables.read_enum(tree, 'mod')['blue_learn_chance']
+    levels = {row['itemId']: row['level'] for row in modifiers.sql_rows(tree, 'item_equipment')}
+    expected = {}
+    for table, field in [('item_mods', 'blue_learning'), ('item_latents', 'conditional_blue_learning')]:
+        for row in modifiers.sql_rows(tree, table):
+            if row['modId'] == mod_id and row['value'] and levels.get(row['itemId'], 100) <= 75:
+                expected.setdefault(row['itemId'], {})[field] = row['value'] if table == 'item_mods' else True
+    actual = {item: {key: value for key, value in row.items() if key in ('blue_learning', 'conditional_blue_learning')}
+              for item, row in data['items'].items() if 'blue_learning' in row or 'conditional_blue_learning' in row}
+    same(actual, expected, 'generated Blue learning equipment')

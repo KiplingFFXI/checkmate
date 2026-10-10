@@ -1,7 +1,7 @@
 --[[
     The spell that stands in for each magic school, and the tables the magic math needs.
 
-    Every value comes from the Phoenix server source (phoenix/live). The element is the spell's
+    Values match Phoenix server source at 071c401048 (phoenix/live). The element is the spell's
     element in sql/spell_list.sql. The stat and the bonus magic accuracy come from the spell's
     helper table. The rank, immunity, resist trait, effect evasion and resist state come from the
     effect's row in scripts/data/status_effect_tables.lua.
@@ -20,7 +20,7 @@ local spells = {};
 -- Tier I to IV nukes and elemental ninjutsu exist for these six elements.
 local NUKE_ELEMENTS = { 'fire', 'ice', 'wind', 'earth', 'thunder', 'water' };
 
--- Magical blue spells that use INT exist in era for these elements. Firespit is fire, Ice Break is
+-- Magical BLU spells that use INT exist in era for these elements. Firespit is fire, Ice Break is
 -- ice, Sandspin is earth, Blitzstrahl is thunder, Maelstrom is water and Death Ray is dark.
 -- Source: scripts/actions/spells/blue/*.lua (useMagicalSpell, dStat INT) and sql/spell_list.sql
 local BLUE_ELEMENTS = { 'fire', 'ice', 'earth', 'thunder', 'water', 'dark' };
@@ -122,7 +122,7 @@ spells.schools = {
         },
     },
 
-    -- Magical blue spells get no bonus magic accuracy in era.
+    -- Magical BLU spells get no bonus magic accuracy in era.
     -- Source: scripts/globals/bluemagic.lua useMagicalSpell
     blue = {
         label = 'Blue',

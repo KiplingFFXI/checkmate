@@ -1,6 +1,6 @@
 addon.name    = 'checkmate';
 addon.author  = 'Kipling';
-addon.version = '1.14.4';
+addon.version = '1.14.5';
 addon.desc    = 'Monster details, combat estimates and your pet on /check for Phoenix.';
 addon.link    = 'https://github.com/KiplingFFXI/checkmate';
 
@@ -41,6 +41,8 @@ local drops      = require('core.drops');
 local steal      = require('core.steal');
 local effects    = require('core.effects');
 local modifiers  = require('core.modifiers');
+local merits = require('core.merits');
+local merit_data = require('data.merits');
 local target_info = require('core.target');
 local check_details = require('core.check_details');
 local dangers = require('core.dangers');
@@ -211,6 +213,7 @@ end
 -- A setting changed. Turning the overlay off also clears its error, so turning it on again restarts it.
 local function overlay_changed()
     local s = checkmate.settings;
+    merits.changed();
     if (s.overlay.on ~= true) then
         checkmate.overlay_broken = false;
     end
@@ -310,9 +313,17 @@ local function tidy(s)
     if (not EFFECT_SHOWS[s.effects.show]) then
         s.effects.show = 'both';
     end
-    for key, merit in pairs(physical.MERITS) do
-        s.merits[key] = physical.clamp_merits(s.merits[key], merit.most);
+    for key, merit in pairs(merit_data.entries) do
+        if (s.merits[key] ~= nil) then
+            local rank = tonumber(s.merits[key]);
+            if (rank == nil or rank ~= rank or math.abs(rank) == math.huge) then
+                s.merits[key] = physical.MERITS[key] and 0 or nil;
+            else
+                s.merits[key] = math.max(0, math.min(merit.most, math.floor(rank)));
+            end
+        end
     end
+    if (type(s.merits.fill_in) ~= 'boolean') then s.merits.fill_in = true; end
     s.look.font = window_font.clean_id(s.look.font);
     s.look.font_size = window_font.clean_size(s.look.font_size);
     local o, start = s.overlay, DEFAULT_SETTINGS.overlay;
@@ -620,7 +631,7 @@ local function sample_result(settings_override)
             spawn = { value = 'Ordinary respawn' },
             claim = { value = 'No listed claim shield' },
             dangers = { value = 'Bomb Toss' },
-            blue = { value = 'No learnable Blue spells' },
+            blue = { value = 'No learnable BLU spells' },
             fight = { value = 'No listed special fight rules' },
             traits = { value = 'Double Attack 10%' },
             crystal = { value = 'Fire', notes = { 'Requires eligible EXP and Signet or Sanction. This is a separate roll from normal loot.' } },
@@ -805,8 +816,7 @@ end
 
 -- Your /check of a monster came back.
 local function on_check(target, index, level, param2, message, token)
-    local replacing = checkmate.settings.printout.replace_game_line;
-    if (not (replacing or part_on('name') or part_on('reading') or any_on(printout.PARTS)
+    if (not (printout.selected(checkmate.settings.printout)
         or pdif_wanted() or parameters_wanted() or part_wanted('pet'))) then
         return;
     end
@@ -922,7 +932,7 @@ local LINE_PART_LIST = table.concat(printout.PARTS, ', ');
 -- Up moves a part one place toward the name, and down one place away from it.
 local MOVE_STEPS = { up = -1, down = 1 };
 
--- The words /checkmate cutoff takes, each with its name on the Numbers tab.
+-- The words /checkmate cutoff takes, each with its name on the Combat tab.
 local CUTOFF_PARTS = { hit = 'Hit rate', evade = 'Evade', crit = 'Crit', crittaken = 'Crit taken' };
 local CUTOFF_GRADES = { good = 'Good', ok = 'OK' };
 
@@ -1097,7 +1107,7 @@ local function set_school(id, on)
     if (id == 'blue') then
         checkmate.settings.blue.chat.chance, checkmate.settings.blue.overlay.chance = on, on;
         save_settings();
-        say(('The Blue Magic row now has spell chance %s.'):format(on and 'on' or 'off'));
+        say(('The Blue Magic row now has unresisted spell chance %s.'):format(on and 'on' or 'off'));
         return;
     end
     school.on = on;
@@ -1135,13 +1145,14 @@ local function set_spell(id, words)
     for _, spell in ipairs(school.spells) do
         ids[#ids + 1] = spell.id;
     end
-    local list = ('The %s spells are %s.'):format(school.label, table.concat(ids, ', '));
+    local spell_kind = id == 'blue' and 'BLU' or school.label;
+    local list = ('The %s spells are %s.'):format(spell_kind, table.concat(ids, ', '));
     local spell = find_spell(school, words);
     if (spell == nil and words == '') then
         say(('Type /checkmate spell %s <spell>. '):format(id) .. list);
         return;
     elseif (spell == nil) then
-        say(('There is no %s spell called "%s". '):format(school.label, words) .. list);
+        say(('There is no %s spell called "%s". '):format(spell_kind, words) .. list);
         return;
     end
     checkmate.settings.magic.schools[id].spell = spell.id;
@@ -1735,17 +1746,18 @@ end
 -- Choose which details appear in each display.
 local function set_component(group, id, display, on)
     local s = checkmate.settings;
+    if (group == 'blue' and id == 'spells') then id = 'lessons'; end
     local valid = group == 'blue' and (id == 'lessons' or id == 'chance')
         or group == 'weaknesses' and (id == 'elements' or id == 'weapons' or id == 'immunities' or id == 'charm');
     if (not valid or (display ~= 'chat' and display ~= 'overlay') or on == nil) then
-        say(group == 'blue' and 'Type /checkmate bluepart <lessons|chance> <chat|overlay> on|off.'
+        say(group == 'blue' and 'Type /checkmate bluepart <spells|chance> <chat|overlay> on|off.'
             or 'Type /checkmate weakness <elements|weapons|immunities|charm> <chat|overlay> on|off.');
         return;
     end
     s[group][display][id] = on;
     save_settings();
     local labels = { elements = 'elements', weapons = 'weapon damage types', immunities = 'immunities',
-        charm = 'Charm', lessons = 'possible lessons', chance = 'spell chance' };
+        charm = 'Charm', lessons = 'possible spells', chance = 'unresisted spell chance' };
     say(('The %s %s line now %s %s.'):format(group == 'blue' and 'Blue Magic' or 'Weaknesses',
         display, on and 'shows' or 'leaves out', labels[id]));
 end
@@ -1773,7 +1785,7 @@ local function set_tab(args)
         say('Appearance stays visible so you can restore hidden tabs.');
         return;
     end
-    s.window.tabs[name] = on;
+    s.window.tabs[navigation.key(name)] = on;
     save_settings();
     say(('%s is now %s in the settings window. Its features are unchanged.'):format(name, on and 'visible' or 'hidden'));
 end
@@ -1838,11 +1850,20 @@ local RESET_WHAT = 'every one of this character\'s settings back to its default,
     .. 'the window\'s font, size and position, where the overlay sits, your merits and the job links. Your saved '
     .. 'profiles stay.';
 
+local function can_reset_settings()
+    return settings.logged_in == true and (settings.server_id or 0) > 0 and (settings.name or '') ~= '';
+end
+
 -- The first /checkmate reset says what it puts back. A second one within RESET_SECONDS does it.
-local function reset_settings()
+local function reset_settings(confirmed)
+    if (not can_reset_settings()) then
+        checkmate.reset_asked = nil;
+        say('Log into a character before resetting settings.');
+        return;
+    end
     local now = os.clock();
     local asked = checkmate.reset_asked;
-    if (asked == nil or now - asked > RESET_SECONDS) then
+    if (not confirmed and (asked == nil or now - asked > RESET_SECONDS)) then
         checkmate.reset_asked = now;
         say(('This puts %s Type /checkmate reset again within %d seconds to go ahead.')
             :format(RESET_WHAT, RESET_SECONDS));
@@ -1878,7 +1899,7 @@ local SWITCHES = {
     blueunlearned = {
         section = 'blue', key = 'only_unlearned',
         on = 'Blue Magic now hides spells your client says you already know. Unknown spellbook entries stay visible.',
-        off = 'Blue Magic now shows all possible lessons, including spells you already know.',
+        off = 'Blue Magic now shows all possible spells, including spells you already know.',
     },
     bluerequirements = {
         section = 'blue', key = 'requirements',
@@ -1980,9 +2001,13 @@ local SWITCHES = {
     },
     meritfill = {
         section = 'merits', key = 'fill_in',
-        on  = 'Your crit merits now fill in from the merit list the server sends when you zone, and one of them when '
-            .. 'you change that merit.',
-        off = 'Your crit merits now stay as you set them.',
+        on  = 'Your supported merits now fill in when you zone or change a rank in game.',
+        off = 'Your merit choices now stay as you set them.',
+    },
+    compacttabs = {
+        section = 'window', key = 'compact_navigation',
+        on = 'Settings now use a compact tab selector.',
+        off = 'Settings now use wrapped tab buttons.',
     },
     petname = {
         section = 'pet', key = 'show_name',
@@ -2043,6 +2068,11 @@ local SWITCHES = {
         section = 'overlay', key = 'locked',
         on  = 'The overlay is locked in place now.',
         off = 'Hold Shift and drag the overlay to move it, or drag its corner to change its width.',
+    },
+    overlaychecked = {
+        section = 'overlay', key = 'only_checked',
+        on  = 'The overlay now waits for your /check before showing a monster.',
+        off = 'The overlay now shows monsters as soon as you target them.',
     },
     overlayremember = {
         section = 'overlay', key = 'remember',
@@ -2342,7 +2372,7 @@ end
     colors. Any other word after help prints the topics again.
 ]]
 
-local TOPIC_LIST = 'display, appearance, numbers, aggro, magic, blue, weaknesses, pets, monster, drops, '
+local TOPIC_LIST = 'display, appearance, combat, merits, aggro, magic, blue, weaknesses, pets, monster, drops, '
     .. 'effects, abbreviations, profiles and presets';
 
 -- Lines that print in more than one place.
@@ -2380,6 +2410,13 @@ local CRIT_MERIT, ENEMY_CRIT_MERIT = physical.MERITS.crit_hit_rate, physical.MER
 -- Each tab's commands. /checkmate help colors also lists the color settings and chat colors after them, and
 -- /checkmate help abbreviations the words.
 local HELP_TOPICS = {
+    merits = {
+        'Merits has collapsible rank sliders and Use my merits when I zone at the top.',
+        '/checkmate meritfill on|off  fills supported ranks from the server merit list, or keeps your manual choices.',
+        'Skill and stat overrides replace the observed merit contribution. Zone once to establish that baseline.',
+        'Attack, Accuracy and Evasion from /checkparam remain your actual server readings.',
+        '/checkmate critmerits <0-4> and /checkmate enemycritmerits <0-4> still set those individual ranks.',
+    },
     monster = {
         '/checkmate dangerdebuff|dangercrit|dangerdispel|dangerdrain|dangerother on|off  selects Dangers categories.',
         '/checkmate dangermoves <0-50>  limits chat and overlay moves. Zero shows all; Target details keeps the full list.',
@@ -2390,6 +2427,7 @@ local HELP_TOPICS = {
             .. table.concat(monster_info.ORDER, ', ') .. '.',
     },
     printout = {
+        '/checkmate clearall  turns off every chat and overlay row. /checkmate undo restores the selection.',
         HELP_SHOW,
         '/checkmate label <part> <text>  sets a part\'s label, like Acc instead of Hit. Every part but reading has '
             .. 'one. Put text with spaces in quotes, and "" leaves the label out.',
@@ -2424,7 +2462,7 @@ local HELP_TOPICS = {
         '/checkmate icons on|off  puts the game\'s element symbol before each element name in chat, or leaves it out.',
         '/checkmate iconsonly on|off  shows only the element symbol without its name, or both. It needs icons on.',
         '/checkmate replace on|off  hides the game\'s own /check line so checkmate\'s lines take its place, or '
-            .. 'shows it again.',
+            .. 'shows it again. With every chat row off, the game\'s line stays visible.',
         HELP_SAMPLE,
     },
     overlay = {
@@ -2433,6 +2471,7 @@ local HELP_TOPICS = {
         ('/checkmate overlayshow|overlayhide <part>  shows or hides a part in the overlay. The parts are %s.')
             :format(OVERLAY_PART_LIST),
         '/checkmate overlaylevel on|off  shows or hides the level after the name.',
+        '/checkmate overlaychecked on|off  only shows monsters after your /check. Remember controls whether they show again when retargeted.',
         '/checkmate overlayrange on|off  shows or hides the levels a monster spawns at after its exact level.',
         '/checkmate overlayid on|off  shows or hides the monster\'s ID.',
         '/checkmate overlayph on|off  shows or hides the PH note.',
@@ -2476,9 +2515,9 @@ local HELP_TOPICS = {
             .. 'color, or every answer in the Words color.',
         HELP_GRADES,
     },
-    numbers = {
+    combat = {
         '/checkmate show|hide block|parry  changes the Shield block and Parry chat rows. Use overlayshow|overlayhide for the overlay.',
-        'Block and Parry show conditional chances for eligible normal attacks. They read your current gear and skills without requesting parameters.',
+        'Block and Parry show your chance when the game allows the roll against a normal melee attack. They use your current gear and skills without requesting stats.',
         '/checkmate pdifmode range|ratio|both  chooses the multiplier range, Attack/Defense ratio or both.',
         '/checkmate show|hide pdif|offhandpdif|rangedpdif  changes each pDIF chat row. Use overlayshow|overlayhide for the overlay.',
         'A manual /check refreshes enabled pDIF rows. Changed inputs keep the last estimate with a Check again note.',
@@ -2492,9 +2531,7 @@ local HELP_TOPICS = {
         ('/checkmate enemycritmerits <0-%d>  sets your Enemy Critical Hit Rate merits. Each one takes %d%% off Crit '
             .. 'taken, and under level %d fewer of them count.'):format(ENEMY_CRIT_MERIT.most,
             ENEMY_CRIT_MERIT.per_merit, physical.all_merits_level(ENEMY_CRIT_MERIT.most)),
-        '/checkmate meritfill on|off  fills both in from the merit list the server sends when you zone, and one of '
-            .. 'them when you change that merit, or keeps the numbers you set. With it on, one you set by hand holds '
-            .. 'until you zone or change that merit.',
+        '/checkmate meritfill on|off  fills supported ranks when you zone or change them in game. Use Merits for all sliders.',
         HELP_GRADES,
         '/checkmate rangedfar on|off  adds or leaves out your ranged hit rate outside the sweet spot, like (55% at 25 '
             .. 'yalms). The main number is always the one in the sweet spot.',
@@ -2531,12 +2568,13 @@ local HELP_TOPICS = {
         '/checkmate blueseen on|off  shows observed move use. Not observed does not mean the monster has not used it.',
         '/checkmate blueunlearned on|off  hides spells your client says you already know. Unknown spellbook entries stay visible.',
         '/checkmate bluerequirements on|off  shows learning requirements in hover help and Target details.',
-        '/checkmate bluepart <lessons|chance> <chat|overlay> on|off  selects what appears in Blue Magic.',
+        '/checkmate bluepart <spells|chance> <chat|overlay> on|off  selects what appears in Blue Magic.',
         '/checkmate show|hide blue  shows or hides the Blue Magic row in chat. Use overlayshow|overlayhide for the overlay.',
-        '/checkmate infosection blue on|off  turns possible lessons on or off inside the Blue Magic row.',
-        '/checkmate school blue on|off  turns spell chance on or off inside the Blue Magic row.',
-        '/checkmate spell blue <spell>  chooses the stand-in Blue spell. Leave the spell out to list the choices.',
-        'The knownmagic and macc settings apply to Blue Magic too. See /checkmate help magic.',
+        '/checkmate infosection blue on|off  turns possible spells on or off inside the Blue Magic row.',
+        '/checkmate school blue on|off  turns Unresisted spell chance on or off inside the Blue Magic row.',
+        '/checkmate spell blue <spell>  chooses the stand-in BLU spell. Leave the spell out to list the choices.',
+        'The knownmagic and macc settings apply to Unresisted spell chance, not Learning chance. '
+            .. 'See /checkmate help magic.',
     },
     weaknesses = {
         '/checkmate weakness <elements|weapons|immunities|charm> <chat|overlay> on|off  selects one component.',
@@ -2615,6 +2653,8 @@ HELP_TOPICS.appearance[#HELP_TOPICS.appearance + 1] =
     '/checkmate tab <tab> on|off  shows or hides a settings tab for this character. Its features stay unchanged.';
 HELP_TOPICS.appearance[#HELP_TOPICS.appearance + 1] =
     '/checkmate tabs all  shows every settings tab again. Appearance always stays available.';
+HELP_TOPICS.appearance[#HELP_TOPICS.appearance + 1] =
+    '/checkmate compacttabs on|off  uses one tab selector or the wrapped tab buttons.';
 HELP_TOPICS.abbreviations = HELP_TOPICS.short;
 HELP_TOPICS.display = {};
 for _, id in ipairs({ 'printout', 'overlay' }) do
@@ -2682,6 +2722,7 @@ local function print_abbreviation_help()
 end
 
 local function print_help(word)
+    if (word == 'numbers') then word = 'combat'; end
     if (word == 'short') then word = 'abbreviations'; end
     if (word == 'look' or word == 'colors') then word = 'appearance'; end
     if (word == 'windowcolors') then
@@ -2705,6 +2746,15 @@ end
 -- The commands with words of their own, by tab. Each gets the command's words and the first word after
 -- the command in lowercase. The rest are in SWITCHES, CHOICES and NUMBERS.
 local COMMANDS = {
+    clearall = function ()
+        if (not require('ui.display').clear(checkmate.settings)) then
+            say('Every chat and overlay row is already off.');
+            return;
+        end
+        ui_tools.label = 'Clear all display rows';
+        save_settings();
+        say('Every chat and overlay row is off. Type /checkmate undo to restore them.');
+    end,
     preset = function (args)
         local id = rest(args, 3);
         local ok, preset = ui_tools.presets.apply(checkmate.settings, id);
@@ -2821,7 +2871,7 @@ ashita.events.register('command', 'checkmate_command', function (e)
 end);
 
 --[[
-    Packets. checkmate only ever blocks the game's line for your own /check while replacing it is on,
+    Packets. checkmate only ever blocks the game's line for your own /check while replacement and a chat row are on,
     and the reply lines to its own /checkparam.
 ]]
 
@@ -2846,7 +2896,7 @@ local function on_message(e)
         end
         checkmate.check_token = checkmate.check_token + 1;
         local check = on_check(target, index, param1, param2, message, checkmate.check_token);
-        if (checkmate.settings.printout.replace_game_line) then
+        if (checkmate.settings.printout.replace_game_line and printout.selected(checkmate.settings.printout)) then
             e.blocked = true;
         end
         -- The overlay keeps it too, even when the chat printout had nothing to print.
@@ -2867,29 +2917,17 @@ local function on_message(e)
     end
 end
 
---[[
-    The merit list came in. While meritfill is on, each crit merit it has sets yours, which saves your settings
-    when that changes it. The server sends every merit when you zone and one when you change a merit, so one you
-    set by hand holds until you zone or change that merit. data\crit.lua names each merit by its settings key.
-]]
+-- Read ranks even with autofill off. They are the baseline for manual skill and stat changes.
 local function fill_merits(e)
-    local m = checkmate.settings.merits;
-    if (m.fill_in ~= true) then
-        return;
+    local changed, observed_changed = merits.on_packet(e);
+    for key, count in pairs(changed) do
+        -- A server refresh leaves the last settings undo in place.
+        if (ui_tools.saved and ui_tools.saved.merits) then ui_tools.saved.merits[key] = count; end
     end
-    local changed = false;
-    for key, merit in pairs(physical.MERITS) do
-        local count = packets.merit_count(e, merit.id);
-        if (count ~= nil) then
-            count = physical.clamp_merits(count, merit.most);
-            changed = changed or count ~= m[key];
-            m[key] = count;
-            -- A server refresh is not a user edit and must not replace the last settings undo.
-            if (ui_tools.saved and ui_tools.saved.merits) then ui_tools.saved.merits[key] = count; end
-        end
-    end
-    if (changed) then
+    if (next(changed) ~= nil) then
         save_settings();
+    elseif (observed_changed and overlay_on()) then
+        overlay.changed(checkmate.settings);
     end
 end
 
@@ -2925,14 +2963,7 @@ ashita.events.register('packet_in', 'checkmate_packet_in', function (e)
         pet.on_sync(index);
         tell_overlay(overlay.on_pet_sync, index);
     elseif (id == packets.ID.MERITS) then
-        local count = packets.merit_count(e, pet.AFFINITY_ID);
-        if (count ~= nil) then
-            pet.on_affinity(count);
-        end
         fill_merits(e);
-        modifiers.on_merits(e);
-        if (overlay_on()) then overlay.changed(checkmate.settings); end
-        tell_effects(effects.on_merits, e);
     elseif (id == packets.ID.SPELLS) then
         blue_finder.changed();
         local s = checkmate.settings;
@@ -2942,10 +2973,10 @@ ashita.events.register('packet_in', 'checkmate_packet_in', function (e)
         check_details.forget();
         lessons.on_zone();
         effects.forget(true);
-        modifiers.forget();
         player.on_base_hp(nil);
         player.forget_attacks();
         checkmate.my_id = packets.zone_in(e);
+        merits.on_zone(checkmate.my_id);
         monsters.forget_zone();
         checkmate.ready = {};
         pet.forget();
@@ -2975,7 +3006,10 @@ end);
 -- it shares a line, and is left out when it's alone.
 local function update_checkparam(now)
     local kind, about = checkparam.ready(now);
-    if (kind == 'pet' and not pet.out(about)) then
+    if (kind == 'me' and not (parameters_wanted() or pdif_wanted())) then
+        local check = checkparam.cancel('me');
+        if (check ~= nil) then stop_waiting(check, 'me'); end
+    elseif (kind == 'pet' and (not part_wanted('pet') or not pet.out(about))) then
         pet_gone(checkparam.cancel('pet'));
     elseif (kind ~= nil) then
         checkparam.sent(now, kind);
@@ -3034,7 +3068,15 @@ local function draw_window()
     local details;
     if (overlay_on()) then details = target_info.current(); else details = check_details.current(); end
     settings_window.set_target_details(details);
+    settings_window.reset_available = can_reset_settings();
     local result = settings_window.draw(checkmate.settings, addon.version, sample_result);
+    if (result.preferences and ui_tools.saved and ui_tools.saved.window) then
+        ui_tools.saved.window.sections = ui_tools.history.copy(checkmate.settings.window.sections);
+    end
+    if (result.reset_all) then
+        reset_settings(true);
+        return;
+    end
     if (result.sample) then
         print_sample();
     end
@@ -3048,8 +3090,11 @@ local function draw_window()
     elseif (result.save) then
         ui_tools.label = result.label;
         save_settings();
-    elseif (result.edited and overlay_on()) then
-        overlay.changed(checkmate.settings);
+    elseif (result.edited) then
+        merits.changed();
+        if (overlay_on()) then overlay.changed(checkmate.settings); end
+    elseif (result.preferences) then
+        settings.save();
     end
 end
 
@@ -3093,8 +3138,9 @@ end);
 
 ashita.events.register('load', 'checkmate_load', function ()
     checkmate.my_id = player.server_id() or 0;
-    pet.on_load();
     tidy(checkmate.settings);
+    merits.configure(checkmate.settings, settings.server_id or checkmate.my_id);
+    pet.on_load();
     tracking_changed();
     ui_tools.saved = ui_tools.history.capture(checkmate.settings);
     profiles.changed(checkmate.settings);
@@ -3109,7 +3155,7 @@ ashita.events.register('unload', 'checkmate_unload', function ()
     check_details.forget();
     lessons.forget();
     effects.forget(true);
-    modifiers.forget();
+    merits.forget();
     settings.save();
     icons.clear();
 end);
@@ -3124,13 +3170,13 @@ settings.register('settings', 'checkmate_settings_update', function (s)
         check_details.forget();
         lessons.forget();
         effects.forget(true);
-        modifiers.forget();
         player.on_base_hp(nil);
         player.forget_attacks();
-        pet.on_load();
         checkmate.settings = s;
     end
     tidy(checkmate.settings);
+    local filled = merits.configure(checkmate.settings, settings.server_id or player.server_id() or 0);
+    if (s ~= nil) then pet.on_load(); end
     ui_tools.history.clear(checkmate.settings);
     ui_tools.saved = ui_tools.history.capture(checkmate.settings);
     profiles.changed(checkmate.settings);
@@ -3142,4 +3188,5 @@ settings.register('settings', 'checkmate_settings_update', function (s)
     checkmate.last_job = nil;
     checkmate.job_check = true;
     overlay_changed();
+    if (next(filled) ~= nil) then settings.save(); end
 end);

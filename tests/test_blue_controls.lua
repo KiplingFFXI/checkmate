@@ -1,4 +1,4 @@
--- The lesson filter and its notes must work in both displays and survive settings changes.
+-- The BLU spell filter and its notes work in both displays and survive settings changes.
 dofile(ADDON_DIR .. '/checkmate.lua');
 MOCK.fire('load');
 local s = MOCK.settings.current;

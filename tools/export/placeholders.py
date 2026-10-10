@@ -214,6 +214,19 @@ class Reader:
                         kind.ph_rules.setdefault(spawn_id & 0xFFF, {})[nm & 0xFFF] = self.nm_rules.apply(
                             script_dir, kinds[nm].script, rule)
 
+    @staticmethod
+    def mark_slots(pairs, placed):
+        """Native slots carry their own chance and cooldown, without the Lua PH helper."""
+        kinds = dict(placed)
+        for ph, nm, rule in pairs:
+            if ph not in kinds or nm not in kinds:
+                continue
+            if kinds[nm].name != kinds[nm].link_name:
+                raise RuntimeError('A native PH names an NM with an ambiguous display name.')
+            kind = kinds[ph]
+            kind.ph_for.setdefault(ph & 0xFFF, set()).add(nm & 0xFFF)
+            kind.ph_rules.setdefault(ph & 0xFFF, {})[nm & 0xFFF] = rule
+
     def despawn_nms(self, ids, script_dir, script):
         """The NM ids a monster's onMobDespawn names in its phOnDespawn calls, as Phoenix runs it."""
         if script_dir in self.dynamis.zone_dirs and not self.dynamis.keeps(script_dir, script, 'onMobDespawn'):

@@ -1,4 +1,4 @@
-"""Direct combat bonuses on equipped items and observed merit ranks.
+"""Read direct combat bonuses from items and merit definitions.
 
 Reads direct item bonuses. Latents and unknown status powers get a note.
 Skill and attribute bonuses are already in the client totals, so they are left out.
@@ -14,7 +14,8 @@ CORE_GUARDS = {
     'scripts/combat/basic/magic_hit_rate.lua': 'fbc693800ada2b1c59f24329007a6f29ffb5a143da6c5d610c96a12f54bd70ad',
     'scripts/combat/physical_hit_rate.lua': '1ced36b369f7fff60eb7d4f0073c925c5f8b732b44fb9c84ee63959b963deebc',
 }
-WANTED = {'crithitrate': 'crit', 'crithitrate_only_wep': 'weapon_crit', 'macc': 'magic_accuracy'}
+WANTED = {'crithitrate': 'crit', 'crithitrate_only_wep': 'weapon_crit', 'macc': 'magic_accuracy',
+          'blue_learn_chance': 'blue_learning'}
 WANTED.update({name + '_macc': name for name in ELEMENTS})
 WANTED.update({name + '_staff_bonus': 'staff_' + name for name in ELEMENTS})
 WANTED.update({'force_' + ('lightning' if name == 'thunder' else name) + '_dwbonus': 'weather_' + name
@@ -30,6 +31,53 @@ MERITS = {
 for element in ELEMENTS[:6]:
     name = 'lightning' if element == 'thunder' else element
     MERITS[name + '_magic_accuracy'] = ('rdm_group_1', 5, element)
+
+LEARNING_GUARD = '338aaec5e4b13e58427cfeb7ef528f134f7eb66ab3dc6a1627c16bd043481562'
+LEARNING_PATHS = ('src/map/utils/blueutils.cpp', 'src/common/xirand.h',
+                  'src/map/utils/charutils.cpp', 'src/map/entities/mob_entity.cpp',
+                  'src/map/entities/battle_entity.cpp', 'src/map/utils/battleutils.cpp')
+
+
+def learning_digest(tree):
+    root = Path(tree)
+    paths = set(LEARNING_PATHS) | set(aggro.lua_files_loaded(tree))
+    for entry in overlays.init_entries(tree):
+        base = root / 'modules' / entry
+        if base.is_file() and base.suffix in ('.cpp', '.h'):
+            paths.add(base.relative_to(root).as_posix())
+        elif base.is_dir():
+            paths.update(path.relative_to(root).as_posix() for path in base.rglob('*')
+                         if path.suffix in ('.cpp', '.h'))
+    paths.update(path.relative_to(root).as_posix() for path in (root / 'scripts/effects').glob('*.lua'))
+    direct = re.compile(r'\bBLUE_LEARN_CHANCE\b|(?:addMod|setMod)\(\s*945\b')
+    for path in (root / 'scripts').rglob('*.lua'):
+        if direct.search(lua_source.strip_comments(path.read_text(encoding='utf8'))):
+            paths.add(path.relative_to(root).as_posix())
+    chunks = ['\n'.join(overlays.init_entries(tree))]
+    for relative in sorted(paths):
+        text = (root / relative).read_text(encoding='utf8')
+        text = lua_source.strip_comments(text) if relative.endswith('.lua') else re.sub(
+            r'/\*.*?\*/|//[^\n]*', '', text, flags=re.S)
+        chunks.append(relative + '\n' + ' '.join(text.split()))
+    return hashlib.sha256('\n'.join(chunks).encode()).hexdigest()
+
+
+def learning_rate(tree, allowed):
+    if learning_digest(tree) != LEARNING_GUARD:
+        raise RuntimeError('Blue learning source changed; review the roll, equipment and status routes.')
+    number = tables.read_enum(tree, 'mod')['blue_learn_chance']
+    for row in sql_rows(tree, 'augments'):
+        if row['modId'] == number and row['value'] and not row['isPet']:
+            raise RuntimeError('A Blue learning augment needs a current-equipment reader.')
+    for row in sql_rows(tree, 'traits'):
+        if row['modifier'] == number and row['value'] and row['level'] <= 75 and allowed.allows(row['content_tag']):
+            raise RuntimeError('An enabled Blue learning trait needs a new reader.')
+    text = Path(tree, 'src/map/utils/blueutils.cpp').read_text(encoding='utf8')
+    base = re.search(r'chanceToLearn\s*=\s*(\d+)\s*\+\s*PBlueMage->getMod\(xi::Mod::BLUE_LEARN_CHANCE\)', text)
+    outcomes = re.search(r'GetRandomNumber\((\d+)\)\s*<\s*chanceToLearn', text)
+    if base is None or outcomes is None:
+        raise RuntimeError('Blue learning roll is not readable.')
+    return {'base': int(base[1]), 'outcomes': int(outcomes[1]), 'main_job': 16}
 
 
 def sql_rows(tree, table):
@@ -75,7 +123,9 @@ def equipment(tree):
                 continue
             entry = found.setdefault(row['itemId'], {'level': item['level'], 'name': item['name']})
             if conditional:
-                entry['conditional_crit' if field in ('crit', 'weapon_crit') else 'conditional_magic'] = True
+                condition = 'conditional_crit' if field in ('crit', 'weapon_crit') else (
+                    'conditional_blue_learning' if field == 'blue_learning' else 'conditional_magic')
+                entry[condition] = True
             else:
                 if field in entry:
                     raise RuntimeError('Duplicate direct modifier %s on item %d' % (field, row['itemId']))
@@ -184,6 +234,7 @@ def build(tree, roots, allowed):
             raise RuntimeError('%s overrides the magic accuracy calculation. Update the modifier reader.' % file)
     statuses = overlays.load_merged(tree, roots, 'status_effects')['status_effects']
     return {'items': equipment(tree), 'merits': merit_rows(tree, roots), 'effects': effect_rows(tree, roots),
+            'learning_rate': learning_rate(tree, allowed),
             'buffs': {name: statuses[name]['id'] for name in
                       ('mighty_strikes', 'flash', 'food', 'troubadour', 'sneak_attack', 'trick_attack')}}
 

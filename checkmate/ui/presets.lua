@@ -3,27 +3,27 @@ local parts = require('core.parts');
 
 local presets = {};
 local LIST = {
-    { id = 'minimal', name = 'Minimal', description = 'Difficulty, aggro and links, with little extra text.',
+    { id = 'minimal', name = 'Minimal', description = 'Shows difficulty, aggro and links with little extra text.',
         chat = { 'difficulty', 'aggro', 'links' }, overlay = { 'difficulty', 'aggro', 'links' } },
-    { id = 'melee', name = 'Melee', description = 'Hit chance, normal-hit pDIF and critical chance.',
+    { id = 'melee', name = 'Melee', description = 'Shows hit chance, pDIF for normal hits and critical chance.',
         chat = { 'difficulty', 'hit', 'pdif', 'crit' },
         overlay = { 'difficulty', 'hit', 'pdif', 'offhand', 'offhandpdif', 'crit', 'weaknesses', 'effects' } },
-    { id = 'mage', name = 'Mage', description = 'Elemental and enfeebling spell estimates with weaknesses.',
+    { id = 'mage', name = 'Mage', description = 'Shows elemental and enfeebling spell estimates with weaknesses.',
         chat = { 'difficulty', 'magic', 'weaknesses' },
         overlay = { 'difficulty', 'magic', 'weaknesses', 'effects', 'aggro' } },
-    { id = 'ranged', name = 'Ranged', description = 'Ranged hit chance and pDIF, with current distance.',
+    { id = 'ranged', name = 'Ranged', description = 'Shows ranged hit chance and pDIF with current distance.',
         chat = { 'difficulty', 'ranged', 'rangedpdif' },
         overlay = { 'difficulty', 'ranged', 'rangedpdif', 'weaknesses', 'aggro' } },
-    { id = 'tank', name = 'Tank', description = 'Evade, shield block and parry, with observed effects and dangers.',
+    { id = 'tank', name = 'Tank', description = 'Shows evade, shield block and parry with observed effects and dangers.',
         chat = { 'difficulty', 'evade', 'block', 'parry' },
         overlay = { 'difficulty', 'evade', 'block', 'parry', 'crittaken', 'dangers', 'effects' } },
-    { id = 'blue_mage', name = 'Blue Mage', description = 'Possible Blue Magic lessons and their source conditions. Spell landing chance stays off.',
+    { id = 'blue_mage', name = 'Blue Mage', description = 'Shows possible BLU spells and the conditions for learning them. Spell landing chance stays off.',
         chat = { 'difficulty', 'blue' },
         overlay = { 'difficulty', 'blue', 'weaknesses', 'family', 'spawn' } },
-    { id = 'pet_job', name = 'Pet Job', description = 'Supported pet estimates, Charm eligibility and pulling details.',
+    { id = 'pet_job', name = 'Pet Job', description = 'Shows estimates for supported pets, Charm rules and pulling details.',
         chat = { 'difficulty', 'pet', 'weaknesses' },
         overlay = { 'difficulty', 'pet', 'weaknesses', 'family', 'aggro', 'links' } },
-    { id = 'thief', name = 'Thief', description = 'Rewards, drops and Steal, with their conditions.',
+    { id = 'thief', name = 'Thief', description = 'Shows rewards, drops and Steal with their conditions.',
         chat = { 'difficulty', 'rewards', 'drops', 'steal' },
         overlay = { 'difficulty', 'rewards', 'drops', 'steal', 'aggro', 'links' } },
 };
@@ -45,7 +45,7 @@ local function metadata(preset)
     local out = copy(preset);
     out.changes = {
         'Enables the overlay and puts each overlay part on its own line.',
-        'Replaces chat and overlay row selections and their order. Keeps your labels and abbreviations.',
+        'Changes chat and overlay rows and their order. Keeps your labels and abbreviations.',
         'Shows up to 3 Links entries, 3 drop items and 3 danger moves.',
         'Target details keeps full Links and Dangers lists.',
         'Keeps your colors, fonts, positions, visible tabs, merits, Treasure Hunter and manual accuracy inputs.',
@@ -53,7 +53,7 @@ local function metadata(preset)
     if (preset.id == 'mage') then
         out.changes[#out.changes + 1] = 'Enables Elemental and Enfeebling estimates using your selected spells.';
     elseif (preset.id == 'blue_mage') then
-        out.changes[#out.changes + 1] = 'Shows unlearned spells and requirements. Find possible sources in the Blue Magic finder.';
+        out.changes[#out.changes + 1] = 'Shows unlearned spells and requirements. Use the finder for places to learn them.';
     elseif (preset.id == 'pet_job') then
         out.changes[#out.changes + 1] = 'Adds Charm eligibility to Weaknesses.';
         out.changes[#out.changes + 1] = 'Pet estimates need a supported pet and enough stat information.';

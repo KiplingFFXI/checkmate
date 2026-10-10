@@ -1,6 +1,9 @@
 """
 Which placed spawns can ever be up on Phoenix, and which confrontation event each one fights in.
 
+Links use the broad reference scan below. The BLU finder uses a separate strict pass: unknown offsets and
+first-ID expansions are not spawn proof, and Lottery/Windowed spawns need an explicit enabling route.
+
 The server builds a monster for every placed spawn (zoneutils.cpp InsertMobs), but a spawn whose type is scripted
 and that has no respawn time never comes up on its own (zoneutils.cpp: m_AllowRespawn stays false and
 registerForRespawn returns at once). Such a spawn is only up when something spawns it. So a spawn is up when one
@@ -50,6 +53,8 @@ import re
 
 from . import lua_source
 from . import overlays
+from . import ph_rules
+from . import spawn_rules
 from . import sqlfile
 from .tables import module_statements
 
@@ -204,10 +209,82 @@ def offsets(sign, value, loops):
     return [number if sign == '+' else -number for number in found]
 
 
+def expression_end(text, start):
+    """End of a balanced Lua expression, stopping at a top-level newline or comma."""
+    depth, quote, escaped = 0, None, False
+    for at in range(start, len(text)):
+        char = text[at]
+        if quote:
+            if char == quote and not escaped:
+                quote = None
+            escaped = char == '\\' and not escaped
+        elif char in "'\"":
+            quote = char
+        elif char in '({[':
+            depth += 1
+        elif char in ')}]':
+            depth -= 1
+            if depth < 0:
+                return at
+        elif not depth and char in '\n,;':
+            return at
+    return len(text)
+
+
+def spawn_text(text):
+    """Keep spawn arguments and their readable local inputs, not unrelated lookups in the same file."""
+    parts = []
+    for match in SPAWN_CALL.finditer(text):
+        start = match.end() - 1
+        end = expression_end(text, start)
+        call = text[match.start():end]
+        if 'setRespawnTime' in match.group():
+            arguments = lua_source.call_arguments(text, start)
+            bounds = ph_rules.seconds(arguments[0]) if len(arguments) == 1 else None
+            if not bounds or bounds[0] <= 0 or bounds[1] < bounds[0]:
+                continue
+        # Include the receiver of GetMobByID(...):spawn() and localMob:setRespawnTime(...).
+        line = text.rfind('\n', 0, match.start()) + 1
+        receiver = text[line:match.start()].strip()
+        if receiver.endswith(':') or match.group().lstrip().startswith(':'):
+            call = receiver + call
+        parts.append(call)
+    assignments = []
+    for match in re.finditer(r'\blocal\s+(\w+)\s*=\s*(?!function\b)', text):
+        end = expression_end(text, match.end())
+        assignments.append((match[1], text[match.start():end]))
+    loops = list(re.finditer(r'\bfor\s+(\w+)\s*=\s*([^\n]*?)\bdo\b', text))
+    definitions = {}
+    for name, body in assignments:
+        definitions.setdefault(name, set()).add(' '.join(body.split('=', 1)[1].split()))
+    for match in loops:
+        definitions.setdefault(match[1], set()).add(' '.join(match[2].split()))
+    ambiguous = {name for name, values in definitions.items() if len(values) > 1}
+    mentions = lambda body: any(re.search(r'\b' + re.escape(name) + r'\b', body) for name in ambiguous)
+    needed = '\n'.join(part for part in parts if not mentions(part))
+    assignments = [(name, body) for name, body in assignments if name not in ambiguous and not mentions(body)]
+    used = set()
+    while True:
+        additions = [(name, body) for name, body in assignments
+                     if name not in used and re.search(r'\b' + re.escape(name) + r'\b', needed)]
+        if not additions:
+            break
+        for name, body in additions:
+            used.add(name)
+            needed += '\n' + body
+    # A literal loop bounds a spawn argument; an unrelated loop supplies no IDs.
+    for match in loops:
+        if not mentions(match.group()) and re.search(r'\b' + re.escape(match[1]) + r'\b', needed):
+            needed += '\n' + match.group()
+    aliases = [match.group() for pattern in (ALIAS, ALIAS_REQUIRE) for match in pattern.finditer(text)
+               if not mentions(match.group())]
+    return '\n'.join(aliases + [needed])
+
+
 class Refs:
     """The monsters one piece of Lua names, unresolved."""
 
-    def __init__(self, text, own_enum=None):
+    def __init__(self, text, own_enum=None, with_strict=True):
         self.spawns = bool(SPAWN_CALL.search(text))
         self.confrontation = bool(CONFRONTATION.search(text))
         loops = {var: (min(int(a), int(b)), max(int(a), int(b))) for var, a, b in LOOP.findall(text)}
@@ -244,13 +321,21 @@ class Refs:
         self.ids = {int(number) for number in LITERAL_ID.findall(text)}
         # zone:queryEntitiesByName('Dalham') names every spawn of that script.
         self.names = set(BY_NAME.findall(text))
-        found = set()
+        found, strict = set(), set()
         for sign, value in SELF_OFFSET.findall(text):
-            found.update(offsets(sign, value, loops))
+            steps = offsets(sign, value, loops)
+            found.update(steps)
+            if not isinstance(steps, Unknown):
+                strict.update(steps)
         for var in set(SELF_VAR.findall(text)):
             for sign, value in re.findall(r'\b%s\s*([+-])\s*(\w+)' % re.escape(var), text):
-                found.update(offsets(sign, value, loops))
+                steps = offsets(sign, value, loops)
+                found.update(steps)
+                if not isinstance(steps, Unknown):
+                    strict.update(steps)
         self.self_offsets = found
+        self.strict_self_offsets = strict
+        self.strict_refs = Refs(spawn_text(text), own_enum, False) if with_strict else self
 
 
 class Index:
@@ -260,6 +345,7 @@ class Index:
         self.tree = tree
         self.content = content
         self.cache = {}
+        self.spawn_rules = spawn_rules.Reader(tree)
         self.globals = []
         for rel in self.global_files():
             refs = self.refs(rel)
@@ -537,8 +623,9 @@ def merged_spawn(template, spawn):
 class Zone:
     """Works out which placed spawns of one YAML zone are ever up, and what brings each one up."""
 
-    def __init__(self, ctx, dir_name, script_dir, document, tables, placed, fight_ids, pets, in_dynamis):
+    def __init__(self, ctx, dir_name, script_dir, document, tables, placed, fight_ids, pets, in_dynamis, strict=False):
         self.ctx = ctx
+        self.strict = strict
         self.index = ctx.exists
         self.script_dir = script_dir
         self.enum = enum_name(script_dir)
@@ -551,6 +638,8 @@ class Zone:
             self.by_script.setdefault(kind.script, []).append(spawn_id)
         self.tables = tables
         self.keys = id_keys(ctx.tree, script_dir, self.tables)
+        reader = getattr(self.index, 'spawn_rules', None)
+        self.ferry = reader.ferry(script_dir, self.keys) if reader is not None else {}
         self.sources = {}
         self.natural = set()
         self.pets = pets
@@ -565,9 +654,15 @@ class Zone:
         return new
 
     def mark_static(self, fight_ids, in_dynamis):
+        for spawn_id in self.ferry:
+            self.add(spawn_id, 'natural')
         for spawn_id, kind in self.placed.items():
             types, respawn = merged_spawn(self.templates.get(kind.template) or {}, self.spawns[spawn_id])
-            if 'scripted' not in types or respawn > 0:
+            natural = 'scripted' not in types or respawn > 0
+            # Lottery and Windowed start with respawning disabled. A slot alone cannot enable them.
+            if self.strict and set(types) in ({'lottery'}, {'windowed'}):
+                natural = False
+            if natural:
                 self.natural.add(spawn_id)
                 self.add(spawn_id, 'natural')
         for spawn_id in fight_ids:
@@ -600,9 +695,13 @@ class Zone:
 
     def resolve(self, refs, self_ids=()):
         """The placed spawn ids a Refs reaches."""
+        if self.strict:
+            refs = refs.strict_refs
         found = set()
         for zone, key, index, steps in refs.keys:
             if zone not in (self.enum, ANY_ZONE) or key not in self.keys:
+                continue
+            if self.strict and isinstance(steps, Unknown):
                 continue
             ids = self.keys[key]
             if index is not None:
@@ -611,7 +710,8 @@ class Zone:
                 found.update(ids)
                 # A key named plainly stands for its script's first id. Count all of that script's spawns.
                 script = self.script_of(ids[0]) if ids else None
-                found.update(self.tables.get(script, []) if script else [])
+                if not self.strict:
+                    found.update(self.tables.get(script, []) if script else [])
             else:
                 for base in ids[:1]:
                     found.update(base + step for step in steps)
@@ -625,7 +725,8 @@ class Zone:
             found.update(self.by_script.get(name, []))
         for base in self_ids:
             # An unknown offset counts 0 too, but 0 from its own id is the monster itself.
-            found.update(base + step for step in refs.self_offsets if step)
+            steps = refs.strict_self_offsets if self.strict else refs.self_offsets
+            found.update(base + step for step in steps if step)
         return {spawn_id for spawn_id in found if spawn_id in self.placed}
 
     def script_of(self, spawn_id):
@@ -675,7 +776,7 @@ class Zone:
             for spawn_id in self.resolve(refs):
                 self.add(spawn_id, source)
             # A zone file's handler that spawns names some monsters by their script name.
-            if rel.startswith(zone_folder):
+            if not self.strict and rel.startswith(zone_folder):
                 for name, bodies in handler_bodies(index.text(rel) or '').items():
                     body = '\n'.join(bodies)
                     if SPAWN_CALL.search(body):
@@ -689,6 +790,8 @@ class Zone:
             if refs is None or not refs.spawns:
                 continue
             body = handler_text(index.text(rel) or '', 'onMobInitialize')
+            if self.strict:
+                body = spawn_text(body)
             if re.search(r'\bmob\s*:\s*(?:setRespawnTime|spawn)\s*\(', body):
                 for spawn_id in ids:
                     self.add(spawn_id, 'reach')
@@ -768,8 +871,12 @@ class Zone:
         if offset:
             return [offset]
         found = set()
-        for value in re.findall(r'setMobMod\(\s*xi\.mobMod\.ASTRAL_PET_OFFSET\s*,\s*([^)]*?)\s*\)', text):
-            found.update(number or ASTRAL_OFFSET for number in offsets('+', value, {}))
+        values = re.findall(r'setMobMod\(\s*xi\.mobMod\.ASTRAL_PET_OFFSET\s*,\s*([^)]*?)\s*\)', text)
+        for value in values:
+            steps = offsets('+', value, {})
+            if self.strict and isinstance(steps, Unknown):
+                return []
+            found.update(number or ASTRAL_OFFSET for number in steps)
         return found or [ASTRAL_OFFSET]
 
     def owners(self, spawn_id):
@@ -848,3 +955,5 @@ class AstralRefs:
         self.ids = set()
         self.names = set()
         self.self_offsets = set(offsets)
+        self.strict_self_offsets = self.self_offsets
+        self.strict_refs = self

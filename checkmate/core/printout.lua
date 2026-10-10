@@ -16,6 +16,13 @@ local printout = {};
 printout.PARTS = layout.ORDER;
 printout.DEFAULT_ORDER = layout.DEFAULT_ORDER;
 
+function printout.selected(ps)
+    for _, part in pairs(ps.parts) do
+        if (part.on == true) then return true; end
+    end
+    return false;
+end
+
 -- The color each part's label and label divider print in.
 local LABEL_COLORS = {
     name = 'name', difficulty = 'difficulty', hit = 'hit_label', offhand = 'offhand_label', ranged = 'ranged_label',
@@ -1488,12 +1495,17 @@ local function name_value(s, result, show_level)
     if (show_level) then
         text = text .. level_value(s, result);
     end
+    local header = s.printout.display == 'overlay';
+    if (header) then text = MARK:format('level', 'name') .. text .. MARK:format('end', 'text'); end
     if (s.printout.show_id) then
-        text = text .. paint(s, 'id', (' (%s)'):format(printout.id_text(s.printout, result.id)));
+        local id = paint(s, 'id', (' (%s)'):format(printout.id_text(s.printout, result.id)));
+        if (header) then id = MARK:format('level', 'id') .. id .. MARK:format('end', 'text'); end
+        text = text .. id;
     end
-    text = text_tip(s, 'level', 'name', text);
+    if (not header) then text = text_tip(s, 'level', 'name', text); end
     if (s.printout.show_ph and result.ph_for ~= nil) then
-        text = text .. text_tip(s, 'ph', 'ph', paint(s, 'ph', (' (%s)'):format(printout.ph_text(s.printout, result.ph_for))));
+        local ph = paint(s, 'ph', (' (%s)'):format(printout.ph_text(s.printout, result.ph_for)));
+        text = text .. (header and (MARK:format('ph', 'ph') .. ph .. MARK:format('end', 'text')) or text_tip(s, 'ph', 'ph', ph));
     end
     return { text = text };
 end
@@ -1640,6 +1652,7 @@ end
 ]]
 function printout.lines(s, result)
     local ps = s.printout;
+    if (not printout.selected(ps)) then return {}, nil, {}; end
     local sep = divider_text(ps);
     local label_sep = label_divider_text(ps);
     local line_color = color_code(s.colors.line);
@@ -1732,7 +1745,9 @@ function printout.lines(s, result)
 
     if (result.cant_gauge) then
         local name = printout.clean_text(result.name);
-        lines[#lines + 1] = line_color .. name .. ' ' .. word(s, 'line_cant_gauge');
+        local text = name .. ' ' .. word(s, 'line_cant_gauge');
+        if (ps.display == 'overlay') then text = MARK:format('level', 'name') .. text .. MARK:format('end', 'text'); end
+        lines[#lines + 1] = line_color .. text;
         add('effects');
         end_line();
     end

@@ -52,11 +52,11 @@ function dangers.readout(source, low, high, options)
     local incomplete = source.incomplete == true or source.coverage == 'partial' or source.coverage == 'unresolved';
     local coverage = source.coverage or (incomplete and 'partial' or 'resolved');
     if (coverage == 'unresolved') then
-        append(notes, seen, 'The move list is unresolved. Missing entries do not mean this monster is safe.');
+        append(notes, seen, 'The full move list is unknown. There may be threats that are not listed.');
     elseif (incomplete) then
         append(notes, seen, 'This move list is incomplete. Other threats may be missing.');
     elseif (#entries == 0) then
-        append(notes, seen, 'No qualifying threats were found in the resolved move list for this level range. This is not a safety rating.');
+        append(notes, seen, 'No tracked threats are listed for these levels. This does not mean the monster is safe.');
     end
     for _, reason in ipairs(source.reasons or {}) do append(notes, seen, reason); end
     for _, note in ipairs(source.general_notes or {}) do append(notes, seen, note); end
@@ -76,7 +76,7 @@ function dangers.readout(source, low, high, options)
         value = value .. ' (list incomplete)';
     end
     if (more > 0 or #selected < #entries) then
-        append(notes, seen, 'Display settings hide some moves. Target details has no length limit; Copy details also includes filtered moves.');
+        append(notes, seen, 'Your display settings hide some moves. Target details has no length limit. Copy details also includes moves hidden by filters.');
     end
     return { value = value, notes = notes, entries = entries, selected = selected, coverage = coverage,
         incomplete = incomplete, more = more, hidden = #entries - #selected };

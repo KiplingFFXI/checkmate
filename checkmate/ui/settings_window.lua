@@ -24,6 +24,8 @@ local chat_colors = require('ui.chat_colors');
 local overlay     = require('ui.overlay');
 local search      = require('ui.search');
 local dangers     = require('core.dangers');
+local merits = require('core.merits');
+local merit_data = require('data.merits');
 local ui = { display = require('ui.display'), presets = require('ui.presets'), history = require('ui.history'),
     preview = require('ui.preview'), navigation = require('ui.navigation') };
 
@@ -120,19 +122,19 @@ end
 settings_window.SWATCHES = SWATCHES;
 
 settings_window.INFO_SECTIONS = {
-    { 'family', 'Family', 'Its family and type from the source.' },
+    { 'family', 'Family', 'Its family and type in Phoenix\'s data.' },
     { 'charm', 'Charm', 'Its listed charm rules. Eligibility is not a success chance.', 'Weaknesses' },
-    { 'vitals', 'HP and MP', 'Source HP and MP, with estimates or unknown inputs labeled.' },
+    { 'vitals', 'HP and MP', 'Its listed HP and MP. Estimates and unknown values are marked.' },
     { 'movement', 'Movement', 'Its listed movement speed and movement rules.' },
-    { 'pursuit', 'Pursuit', 'How it tracks or follows targets, where the source provides that information.', 'Aggro' },
-    { 'spawn', 'Spawn', 'Spawn rules from the source. These are not a live spawn timer.' },
+    { 'pursuit', 'Pursuit', 'How it tracks or follows targets, when Phoenix\'s data gives that information.', 'Aggro' },
+    { 'spawn', 'Spawn', 'Its listed spawn rules. This does not show a live spawn timer.' },
     { 'claim', 'Claim shield', 'Listed claim and help rules. These do not describe its current owner.' },
-    { 'dangers', 'Dangers', 'Moves that can inflict debuffs or crit, plus other listed threats. Hover for conditions, or open Target details for the full list. This does not predict the next move. Missing or unresolved moves can leave gaps, so an empty section does not mean the monster is safe.' },
-    { 'blue', 'Blue Magic', 'Possible learnable moves from the source, followed by whether your client says each spell is known or not learned. No learnable Blue spells means the resolved move list has none. Unknown means the source list is unresolved; spellbook unknown means your learned-spell list is unavailable. Hover for the reason and any gaps in the lesson list. Learning conditions still apply.', 'Blue Magic' },
+    { 'dangers', 'Dangers', 'Moves that can inflict debuffs or crit, plus other listed threats. Hover for conditions, or open Target details for the full list. This does not predict the next move. Some moves may be missing or unknown, so an empty section does not mean the monster is safe.' },
+    { 'blue', 'Blue Magic', 'Its possible learnable BLU spells, followed by whether your client says you know each one. No learnable BLU spells means its complete move list has none. Unknown means checkmate does not have a complete move list. Spellbook unknown means your learned-spell list is unavailable. Hover for the reason and any gaps. Learning conditions still apply.', 'Blue Magic' },
     { 'fight', 'Fight rules', 'Known fight rules and script conditions.' },
     { 'traits', 'Traits', 'Listed monster traits and special behavior.' },
     { 'crystal', 'Crystal', 'Its listed crystal. A listed crystal is not a guaranteed drop.' },
-    { 'rewards', 'Rewards', 'Source reward rules. Eligibility and server settings can change what you receive.' },
+    { 'rewards', 'Rewards', 'Its listed reward rules. What you receive depends on meeting their conditions and on server settings.' },
 };
 
 
@@ -154,7 +156,7 @@ settings_window.PDIF_MODES = { { id = 'range', name = 'Multiplier range' },
 local SORTS = { { id = 'chance', name = 'By chance' }, { id = 'name', name = 'By name' } };
 local ELEMENT_LOOKS = { { id = 'game', name = 'Game pictures' }, { id = 'badges', name = 'Colored badges' } };
 
--- The cutoff tables on the Numbers tab, each with its id, its two headers, the tip on its OK sliders and its rows by
+-- The cutoff tables on the Combat tab, each with its id, its two headers, the tip on its OK sliders and its rows by
 -- label and settings key. The second holds the number that's better the lower it is, so its cutoffs go the other way.
 local CUTOFFS = {
     { id = '##cutoffs', good = 'Good at or above', ok = 'OK at or above', tip = 'cutoffs',
@@ -170,7 +172,7 @@ local CUTOFFS = {
 local TIPS = {
     pdif_mode = 'Show the ordinary noncritical damage multiplier range, the Attack/Defense ratio with its inputs, '
         .. 'or both. This applies to all three pDIF rows. Hover keeps both explanations and any known curve cap. '
-        .. 'These are estimates from your retained Attack reply and stored monster Defense, not a damage prediction. '
+        .. 'These are estimates from your saved Attack reply and stored monster Defense, not a damage prediction. '
         .. 'Use /check to refresh Attack, including when only an overlay pDIF row is on.',
     effects       = 'Options for the Effects part, in chat and in the overlay.',
     effects_show  = 'Which effects the part lists. Debuffs and buffs lists what you and others put on the '
@@ -191,7 +193,7 @@ local TIPS = {
         .. 'knows that monster by, so two with the same name have different IDs.',
     id_word       = 'The word before the ID. Clear it to get (17199202).',
     show_ph       = 'Adds the NM this placeholder can pop, like (PH for Valkurm Emperor). The note only names '
-        .. 'the NM. In the overlay, hover it for known lottery rules, or open Monster > Target details. '
+        .. 'the NM. In the overlay, hover it for known lottery rules, or open Target details. '
         .. 'Those rules do not tell you whether the NM is up or its window is open.',
     ph_word       = 'The word before the NM. Clear it to get (Valkurm Emperor).',
     parts         = 'Parts print after the name, top to bottom, and the arrows move them. Type your own word in a '
@@ -212,10 +214,9 @@ local TIPS = {
         .. 'numbers, spaces and symbols.',
     number_style  = 'How a range prints for hit rate, off-hand, ranged, evade, shield block, parry, crit, crit taken, '
         .. 'magic, steal and pet numbers: the bounds or their approximate middle. Shield block and Parry keep fractional percentages.',
-    replace       = 'Hides the game\'s own line for your /check, and checkmate\'s lines take its place. If none of '
-        .. 'your parts would print anything, checkmate still prints the name, level, difficulty and the evasion and '
-        .. 'defense reading. With it off, you see the game\'s line too, unless checker is loaded. checker hides '
-        .. 'that line either way.',
+    replace       = 'Hides the game\'s own line for your /check, and checkmate\'s lines take its place. If your selected '
+        .. 'parts have nothing to show, checkmate prints the name, level, difficulty and evasion and defense reading. '
+        .. 'With every chat row off, the game\'s line stays visible. Another addon can still hide it.',
     sample        = 'Prints a made-up /check in chat with your settings, in the real chat colors.',
     icons         = 'Puts the game\'s own element symbol from the chat font in front of each element name. That\'s '
         .. 'each element in Weaknesses, and the element inside the brackets after a Magic school\'s chance. '
@@ -230,6 +231,9 @@ local TIPS = {
         .. 'yourself, and it reads the reply.',
     overlay_on    = 'Turns the overlay on. It\'s off by default, and while it\'s off checkmate doesn\'t read your '
         .. 'target at all.',
+    overlay_checked = 'Keeps unchecked monsters hidden until your /check reply arrives. With Keep readings when switching targets on, '
+        .. 'checked monsters show again when you target them. With it off, changing targets hides them until you /check again. '
+        .. 'Settings previews still use sample data.',
     overlay_lock  = 'Hold Shift and drag the overlay to move it, or drag its bottom right corner to change its width. '
         .. 'This stops both, so neither happens by accident. Without Shift, or with this on, clicks go through the '
         .. 'overlay to the game.',
@@ -243,7 +247,7 @@ local TIPS = {
     overlay_spot  = 'Puts the overlay back where it starts, near the top left of your screen. You can also type '
         .. '/checkmate overlayspot with the spot you want, or hold Shift and drag it unless it\'s locked.',
     overlay_parts = 'Pick what the overlay shows. It uses the same labels, words and colors as the chat printout, so '
-        .. 'change those on the Display, Appearance and Abbreviations tabs, and the options on the Numbers, Aggro, Magic, Drops, '
+        .. 'change those on the Display, Appearance and Abbreviations tabs, and the options on the Combat, Aggro, Magic, Drops, '
         .. 'Weaknesses, Blue Magic, Monster and Effects tabs count for it too. The parts after the difficulty go in the same order as the chat '
         .. 'printout. Hit rate, off-hand, ranged and evade use the stat reply from your manual /check. '
         .. 'Check again after changing gear or buffs. The passive overlay never requests stats.',
@@ -272,7 +276,8 @@ local TIPS = {
         .. 'the text sits right on the game, so it can be hard to read over bright ground.',
     overlay_border = 'Draws a line around the overlay in your skin\'s border color. Its corners follow the Corner '
         .. 'roundness on the Appearance tab.',
-    overlay_wrap  = 'A line wider than this wraps onto the next one. Lists break after a comma or a divider, '
+    overlay_wrap  = 'A line wider than this wraps onto the next one. The name, level, ID and PH note wrap as needed. '
+        .. 'Lists break after a comma or a divider, '
         .. 'without splitting bracketed details like (Sight, Sound). Long source descriptions also wrap between '
         .. 'words. Never keeps each part on one line however wide it gets. You can also hold Shift and drag the '
         .. 'overlay\'s bottom right corner to set this, down to 100 px.',
@@ -294,7 +299,7 @@ local TIPS = {
         .. 'element whose game picture won\'t load gets its badge. It needs Show icons on.',
     overlay_tips  = 'Rest the mouse on overlay text or an icon to see its full name and details. Text tips work '
         .. 'with Show icons off. The name explains where the level came from and how old the reading is. Links '
-        .. 'shows up to 20 names; Monster > Target details has the full list. Tips wait a moment before '
+        .. 'shows up to 20 names; Target details has the full list. Tips wait a moment before '
         .. 'showing, hide while you hold a mouse button, and let clicks through to the game.',
     sample_colors = 'Prints a made-up /check in chat in the real chat colors. The swatches here are only close to '
         .. 'how they look in game. The overlay uses these exact swatch colors.',
@@ -303,7 +308,7 @@ local TIPS = {
     threat_colors = 'With this on, Aggressive answers print in Threat, and Too weak, Not aggressive and Never '
         .. 'aggressive print in Safe. With it off, they all print in Words.',
     grades        = 'With this on, the hit rate, off-hand, ranged, evade, crit, crit taken and pet numbers use the '
-        .. 'Good, OK and Bad colors, going by the cutoffs on the Numbers tab. With it off, they use each part\'s '
+        .. 'Good, OK and Bad colors, going by the cutoffs on the Combat tab. With it off, they use each part\'s '
         .. 'Number color.',
 
     cutoffs       = 'The number prints in the Good color at or above the first cutoff, and in the OK color at or '
@@ -315,15 +320,15 @@ local TIPS = {
         .. 'range goes by its middle.',
     crit_merits   = ('Your Critical Hit Rate merits, under Others in the game\'s merit menu. Each one adds %d%% to the '
         .. 'Crit part. Phoenix allows 0 to %d. The server only counts as many as your main level allows: %s. A level '
-        .. 'sync counts too, and checkmate follows it. With Fill both in when you zone on, the server\'s merit list '
+        .. 'sync counts too, and checkmate follows it. With Use my merits when I zone on, the server\'s merit list '
         .. 'sets it for you.'):format(physical.MERITS.crit_hit_rate.per_merit, physical.MERITS.crit_hit_rate.most,
         physical.merit_steps_text(physical.MERITS.crit_hit_rate.most)),
     enemy_crit_merits = ('Your Enemy Critical Hit Rate merits, under Others in the game\'s merit menu. Each one takes '
         .. '%d%% off the Crit taken part. Phoenix allows 0 to %d. The server only counts as many as your main level '
-        .. 'allows: %s. A level sync counts too, and checkmate follows it. With Fill both in when you zone on, the '
+        .. 'allows: %s. A level sync counts too, and checkmate follows it. With Use my merits when I zone on, the '
         .. 'server\'s merit list sets it for you.'):format(physical.MERITS.enemy_crit_rate.per_merit,
         physical.MERITS.enemy_crit_rate.most, physical.merit_steps_text(physical.MERITS.enemy_crit_rate.most)),
-    merit_fill    = 'Sets both sliders from the merit list the server sends when you zone, and one of them when you '
+    merit_fill    = 'Sets supported ranks from the merit list the server sends when you zone, and a rank when you '
         .. 'change that merit, so they match what you have. You can still drag them, to see what more merits would '
         .. 'do, and what you set holds until you zone or change that merit. Turn this off to keep your own numbers. '
         .. 'Profiles don\'t keep your merits or this switch, since each character has its own.',
@@ -430,7 +435,8 @@ local TIPS = {
     spacing       = 'The space between rows.',
 
     profiles      = 'Every character shares the profiles. A profile holds every setting except the job links, your '
-        .. 'merits, Fill both in when you zone, visible tabs, where this window and the overlay sit, and this window\'s size. Pick '
+        .. 'merits, Use my merits when I zone, visible tabs, open categories, compact navigation, where this window '
+        .. 'and the overlay sit, and this window\'s size. Pick '
         .. 'one in the list to overwrite, load, rename or delete it.',
     profile_name  = 'Type a name here for Save as new or Rename.',
     save_new      = 'Saves your settings as a new profile with the name in the box.',
@@ -445,16 +451,16 @@ local TIPS = {
 -- What each row of the parts table prints.
 local PART_TIPS = {
     block = 'Your shield block chance against this monster when a block check is allowed. It is a conditional '
-        .. 'rate, not the share of all incoming attacks you will block. Numbers has its chat and overlay switches.',
+        .. 'rate, not the share of all incoming attacks you will block. Combat has its chat and overlay switches.',
     parry = 'Your parry chance against this monster when a parry check is allowed. It is a conditional rate, '
-        .. 'not the share of all incoming attacks you will parry. Numbers has its chat and overlay switches.',
+        .. 'not the share of all incoming attacks you will parry. Combat has its chat and overlay switches.',
     pdif = 'Your main-hand pDIF: the possible multiplier for normal noncritical hits and the Attack/Defense ratio. '
-        .. 'It uses your /checkparam Attack reply and the monster\'s stored Defense. Numbers has the display options. '
+        .. 'It uses your /checkparam Attack reply and the monster\'s stored Defense. Combat has the display options. '
         .. 'Critical hits, weapon skills, hit chance and damage-taken rules are separate.',
     offhandpdif = 'The same pDIF estimate for your off-hand weapon, using its own Attack reply. It only appears '
-        .. 'when you wield a weapon in each hand. Numbers has the display options.',
+        .. 'when you wield a weapon in each hand. Combat has the display options.',
     rangedpdif = 'The same pDIF estimate for normal ranged attacks, using your Ranged Attack reply. It appears '
-        .. 'when you have a ranged weapon and ammunition. Numbers has the display options.',
+        .. 'when you have a ranged weapon and ammunition. Combat has the display options.',
     weaknesses = 'Elements, weapon damage types, immunities and Charm on one line. Pick each component on the Weaknesses tab.',
     effects       = 'The effects you have seen land on the monster, with estimated time left. It only knows '
         .. 'the action messages your client received since you zoned or turned this on. Missing observations '
@@ -474,7 +480,7 @@ local PART_TIPS = {
         .. '/checkparam, so its line waits for the answer too. The number is your hit rate in your weapon\'s '
         .. 'sweet spot, where you shoot with your full accuracy. Past the sweet spot you hit less, and past 25 '
         .. 'yalms you\'re too far away to shoot. It only shows when you can shoot, with a bow, crossbow or gun and '
-        .. 'its ammo, or something to throw. The Numbers tab can add your hit rate at 25 yalms.',
+        .. 'its ammo, or something to throw. The Combat tab can add your hit rate at 25 yalms.',
     evade      = 'Your chance to dodge the monster\'s attacks, from your evasion in that same /checkparam, so its '
         .. 'line waits for the answer too. It says "with Signet" when Signet raises it.',
     crit          = 'How often your melee hits are critical hits, out of the ones that land. It uses your DEX '
@@ -483,7 +489,7 @@ local PART_TIPS = {
         .. 'It needs no /checkparam, but waits if it shares a line with Hit, Off-hand, Ranged or Evade, or is below it.',
     crittaken  = 'How often the monster\'s hits on you are critical hits, out of the ones that land. It\'s 5%, plus up '
         .. 'to 15% more when its DEX is far enough over your AGI, plus a few monsters\' own crit bonus, less your '
-        .. 'Enemy Critical Hit Rate merits from the Numbers tab and the gear that lowers it, like Safety Mantle. Lower '
+        .. 'Enemy Critical Hit Rate merits from the Merits tab and the gear that lowers it, like Safety Mantle. Lower '
         .. 'is better, so its grade colors go the other way. It\'s for the monster\'s normal swings and its counters. Its TP moves roll their crits their own way, so '
         .. 'a monster that swings with nothing but TP moves says "(TP moves)", and one that never swings at all, like '
         .. 'the Memory Receptacles, says "(no swings)". One of them that can counter, like Nantina, shows the number '
@@ -541,11 +547,11 @@ local OVERLAY_PART_TIPS = {
         .. 'requirements and which attacks can reach the block check.',
     parry = 'Your conditional parry chance against the selected monster. Hover explains the weapon '
         .. 'requirements and which attacks can reach the parry check.',
-    pdif = 'Your main-hand pDIF from a retained Attack reply and stored monster Defense. A manual /check '
+    pdif = 'Your main-hand pDIF from a saved Attack reply and stored monster Defense. A manual /check '
         .. 'refreshes Attack for this row. The passive overlay never requests stats. Hover shows the reply age.',
-    offhandpdif = 'Off-hand pDIF from its retained Attack reply. It appears while you wield two weapons. '
+    offhandpdif = 'Off-hand pDIF from its saved Attack reply. It appears while you wield two weapons. '
         .. 'A manual /check refreshes it. The passive overlay never requests stats, and changed gear or buffs can make the reply stale.',
-    rangedpdif = 'Ranged pDIF from a retained Ranged Attack reply, while a ranged weapon and ammunition are '
+    rangedpdif = 'Ranged pDIF from a saved Ranged Attack reply, while a ranged weapon and ammunition are '
         .. 'equipped. A manual /check refreshes it. The passive overlay never requests stats; changed gear or buffs can make the reply stale.',
     weaknesses = 'Elements, weapon damage types, immunities and Charm on one line, with separate component choices for the overlay.',
     effects       = 'The effects you have seen land, like the chat\'s Effects part. Their estimated times count '
@@ -591,10 +597,15 @@ for _, section in ipairs(settings_window.INFO_SECTIONS) do
         OVERLAY_PART_TIPS[section[1]] = section[3];
     end
 end
-PART_TIPS.blue = PART_TIPS.blue .. ' Its row also shows the optional Blue spell chance.';
+PART_TIPS.blue = PART_TIPS.blue .. ' Its row also shows the optional Unresisted spell chance.';
 OVERLAY_PART_TIPS.blue = PART_TIPS.blue;
-OVERLAY_PART_TIPS.pet = 'Your pet estimates from a retained /check or source data for a charmed pet. A manual /check '
-    .. 'can refresh its stats. The passive overlay never requests pet stats. An unknown or replaced pet cannot reuse another pet\'s snapshot.';
+OVERLAY_PART_TIPS.pet = 'Your pet estimates from a saved /check, or stored monster data for a charmed pet. A manual /check '
+    .. 'can refresh its stats. The passive overlay never requests pet stats. An unknown or replaced pet cannot reuse another pet\'s stats.';
+
+local MONSTER_CATEGORIES = { { 'job', 'Job', PART_TIPS.job } };
+for _, section in ipairs(settings_window.INFO_SECTIONS) do
+    if (section[4] == nil) then MONSTER_CATEGORIES[#MONSTER_CATEGORIES + 1] = section; end
+end
 
 -- What the overlay does on its own, under its Hide it options. Each note is one short sentence.
 local OVERLAY_NOTES = {
@@ -629,7 +640,7 @@ local IMMUNITY_COVERS = {
 
 -- What each heading on the Abbreviations tab covers.
 local WORD_GROUP_TIPS = {
-    ['Monster'] = 'The default source-detail labels, including Charm within Weaknesses. Custom row labels stay as typed.',
+    ['Monster'] = 'The default monster detail labels, including Charm within Weaknesses. Custom row labels stay as typed.',
     ['Weapons'] = 'The four weapon damage type names. Their signed percentages stay with them.',
     ['Effects'] = 'The names of the debuffs in the Effects part, like Paralyze. A monster\'s own buffs, '
         .. 'like Protect, are the game\'s own names and keep their spelling.',
@@ -704,10 +715,10 @@ local COLOR_TIPS = {
     rangedpdif_label = LABEL_TIP,
     rangedpdif_number = 'The ranged pDIF multiplier and ratio. Percentage grade colors do not apply.',
     rangedpdif_detail = 'Ranged pDIF input labels, Attack and Defense, unknown values and script warnings.',
-    info_label = 'The independent source-detail row labels and their label dividers.',
+    info_label = 'The monster detail row labels and their label dividers.',
     info_name = 'The Charm label within Weaknesses.',
-    info_value = 'The source-detail values, including Charm within Weaknesses.',
-    info_detail = 'The divider between Blue lessons and Spell chance.',
+    info_value = 'The monster detail values, including Charm within Weaknesses.',
+    info_detail = 'The divider between learnable BLU spells and Unresisted spell chance.',
     effects_label     = LABEL_TIP,
     effects_name      = 'The names of the debuffs on the monster, like Paralyze.',
     effects_buff      = 'The names of the buffs the monster gave itself, like Protect.',
@@ -796,7 +807,7 @@ local COLOR_TIPS = {
     pet_number        = 'Your pet\'s numbers while grade colors are off. With them on, the Grades colors paint them.',
     pet_detail        = 'The dividers inside the part, "unknown" and the "?" after a number.',
     good              = 'Hit rate, off-hand, ranged, evade, crit and pet numbers at or above the good cutoff on the '
-        .. 'Numbers tab, and crit taken at or below its own.',
+        .. 'Combat tab, and crit taken at or below its own.',
     ok                = 'Numbers at or above the OK cutoff but under the good one. Crit taken goes the other way.',
     bad               = 'Numbers under the OK cutoff, or crit taken over its OK cutoff.',
 };
@@ -875,6 +886,8 @@ end
 
 local open = { false };
 local result = { save = false, sample = false, edited = false };
+local reset_owner = nil;
+settings_window.display_page = 'Rows';
 local look = nil;         -- Your window look this frame.
 local scale = 1;          -- The font size this frame over BASE_FONT_SIZE.
 local window_width = 0;   -- The window's width this frame.
@@ -908,6 +921,7 @@ end
 -- Opening the window reads profiles.json again, since another character can change it.
 function settings_window.set_open(value)
     open[1] = value;
+    if (not value) then reset_owner = nil; end
     if (value) then
         profiles.refresh();
         status = nil;
@@ -1061,6 +1075,22 @@ local function heading(title, tip)
     imgui.Separator();
 end
 
+function settings_window.focus_control(id)
+    local target = settings_window.option_target;
+    if (target == nil or target.id ~= id or target.page ~= settings_window.page_name) then return; end
+    if (target.pending) then
+        imgui.SetScrollHereY(0.2);
+        target.pending, target.until_time = false, os.clock() + 1.5;
+    end
+    if (os.clock() <= target.until_time) then
+        local x1, y1 = imgui.GetItemRectMin();
+        local x2, y2 = imgui.GetItemRectMax();
+        imgui.GetWindowDrawList():AddRect({ x1 - 2, y1 - 2 }, { x2 + 2, y2 + 2 }, imgui.GetColorU32(look.headings), 2, 0, 2);
+    else
+        settings_window.option_target = nil;
+    end
+end
+
 -- Wraps at the edge of its section.
 local function note(words, color)
     imgui.PushStyleColor(ImGuiCol_Text, color or look.notes);
@@ -1070,27 +1100,64 @@ local function note(words, color)
     imgui.PopStyleColor(1);
 end
 
--- Search opens folded groups until it is cleared, then puts their previous state back.
-function settings_window.section_open(title, tip, default_open)
-    settings_window.folded = settings_window.folded or {};
-    local key = (settings_window.page_name or '') .. '/' .. title;
-    local saved = settings_window.folded[key];
-    local searching = settings_window.query_text ~= nil and settings_window.query_text ~= '';
-    if (searching or saved ~= nil) then imgui.SetNextItemOpen(searching or saved, ImGuiCond_Always); end
-    imgui.Spacing();
-    imgui.PushStyleColor(ImGuiCol_Text, look.headings);
-    local shown = imgui.CollapsingHeader(title, default_open == false and 0 or ImGuiTreeNodeFlags_DefaultOpen);
-    imgui.PopStyleColor(1);
-    search.mark(title, tip);
-    if (tip ~= nil and imgui.IsItemHovered()) then
-        imgui.BeginTooltip();
-        imgui.PushTextWrapPos(px(TIP_WIDTH));
-        imgui.TextUnformatted(tip);
-        imgui.PopTextWrapPos();
-        imgui.EndTooltip();
+do
+    local section_owner, section_store;
+    local section_saved = {};
+
+    function settings_window.bind_sections(settings)
+        if (type(settings.window.sections) ~= 'table') then settings.window.sections = T{}; end
+        settings_window.folded = settings_window.folded or {};
+        local stored = settings.window.sections;
+        if (section_owner ~= settings or section_store ~= stored) then
+            if (section_owner ~= nil) then settings_window.folded = {}; end
+            section_owner, section_store, section_saved = settings, stored, {};
+            for key, value in pairs(stored) do
+                if (type(value) == 'boolean') then
+                    settings_window.folded[key], section_saved[key] = value, value;
+                end
+            end
+        elseif (settings_window.section_refresh) then
+            for key, value in pairs(section_saved) do
+                if (stored[key] ~= value) then settings_window.folded[key], section_saved[key] = nil, nil; end
+            end
+            for key, value in pairs(stored) do
+                if (type(value) == 'boolean' and section_saved[key] ~= value) then
+                    settings_window.folded[key], section_saved[key] = value, value;
+                end
+            end
+        end
+        settings_window.section_refresh = false;
     end
-    if (not searching) then settings_window.folded[key] = shown; end
-    return shown;
+
+    -- Search and Options can open sections without changing your saved choices.
+    function settings_window.section_open(title, tip, default_open)
+        settings_window.folded = settings_window.folded or {};
+        local key = (settings_window.page_name or '') .. '/' .. title;
+        local saved = settings_window.folded[key];
+        local searching = settings_window.query_text ~= nil and settings_window.query_text ~= '';
+        if (saved == nil) then saved = default_open ~= false; end
+        imgui.SetNextItemOpen(searching or saved, ImGuiCond_Always);
+        imgui.Spacing();
+        imgui.PushStyleColor(ImGuiCol_Text, look.headings);
+        local shown = imgui.CollapsingHeader(title, default_open == false and 0 or ImGuiTreeNodeFlags_DefaultOpen);
+        imgui.PopStyleColor(1);
+        search.mark(title, tip);
+        if (tip ~= nil and imgui.IsItemHovered()) then
+            imgui.BeginTooltip();
+            imgui.PushTextWrapPos(px(TIP_WIDTH));
+            imgui.TextUnformatted(tip);
+            imgui.PopTextWrapPos();
+            imgui.EndTooltip();
+        end
+        if (not searching) then
+            settings_window.folded[key] = shown;
+            if (shown ~= saved and section_store ~= nil and section_store[key] ~= shown) then
+                section_store[key], section_saved[key] = shown, shown;
+                result.preferences = true;
+            end
+        end
+        return shown;
+    end
 end
 
 -- A short note when a part these settings belong to is off in the chat printout, and in the overlay too while
@@ -1249,6 +1316,9 @@ local function draw_name_section(settings)
     local ps, o = settings.printout, settings.overlay;
     local overlay_on = o.on == true;
     heading('NAME AND LEVEL');
+    settings_window.focus_control('name');
+    settings_window.focus_control('difficulty');
+    settings_window.focus_control('reading');
     local name = ps.parts.name;
     checkbox('Show the name##name', name, 'on', TIPS.show_name);
     beside(SECOND_COLUMN);
@@ -1414,7 +1484,7 @@ local function draw_colors_tab(settings)
 end
 
 --[[
-    Numbers tab.
+    Combat tab.
 ]]
 
 -- Each cutoff table's name column is as wide as the widest name in both, so their sliders line up.
@@ -1457,6 +1527,7 @@ end
 local function draw_pet_section(settings)
     local p = settings.pet;
     heading('PET', TIPS.pet);
+    settings_window.focus_control('pet');
     display_switches(settings, 'pet');
     checkbox('Show its name', p, 'show_name', TIPS.pet_name);
     beside(SECOND_COLUMN);
@@ -1477,40 +1548,140 @@ end
 
 function settings_window.draw_pdif_section(settings)
     heading('PDIF', PART_TIPS.pdif);
-    display_switches(settings, 'pdif');
     choice('pDIF display', settings.pdif, 'mode', settings_window.PDIF_MODES, TIPS.pdif_mode);
     note('Normal noncritical hits only. The multiplier range is separate from the Attack/Defense ratio.');
-    heading('OFF-HAND PDIF', PART_TIPS.offhandpdif);
-    display_switches(settings, 'offhandpdif');
-    heading('RANGED PDIF', PART_TIPS.rangedpdif);
-    display_switches(settings, 'rangedpdif');
 end
 
-local function draw_numbers_tab(settings)
+local function combat_rows(settings, ids, suffix)
+    if (not imgui.BeginTable('##combat_' .. suffix, 3, TABLE_FLAGS)) then return; end
+    imgui.TableSetupColumn('Feature', STRETCH);
+    imgui.TableSetupColumn('Chat', ImGuiTableColumnFlags_WidthFixed, px(40));
+    imgui.TableSetupColumn('Overlay', ImGuiTableColumnFlags_WidthFixed, px(70));
+    imgui.TableHeadersRow();
+    for _, id in ipairs(ids) do
+        imgui.PushID(id);
+        imgui.TableNextRow(); imgui.TableNextColumn(); cell_text(PART_NAMES[id]);
+        settings_window.focus_control(id);
+        help(PART_TIPS[id]);
+        imgui.TableNextColumn(); checkbox('##chat', settings.printout.parts[id], 'on');
+        imgui.TableNextColumn(); checkbox('##overlay', settings.overlay.parts, id);
+        imgui.PopID();
+    end
+    imgui.EndTable();
+end
+
+local function draw_combat_tab(settings)
     if (settings_window.section_open('OFFENSE')) then
-        for _, id in ipairs({ 'hit', 'offhand', 'ranged', 'crit' }) do
-            heading(PART_NAMES[id]:upper(), PART_TIPS[id]);
-            display_switches(settings, id);
-        end
+        combat_rows(settings, { 'hit', 'pdif', 'offhand', 'offhandpdif', 'ranged', 'rangedpdif', 'crit' }, 'offense');
         draw_ranged_section(settings);
         settings_window.draw_pdif_section(settings);
     end
     if (settings_window.section_open('DEFENSE')) then
-        for _, id in ipairs({ 'evade', 'crittaken', 'block', 'parry' }) do
-            heading(PART_NAMES[id]:upper(), PART_TIPS[id]);
-            display_switches(settings, id);
+        combat_rows(settings, { 'evade', 'crittaken', 'block', 'parry' }, 'defense');
+    end
+    if (settings_window.section_open('ADVANCED', 'Grade cutoffs for combat estimates.', false)) then
+        draw_cutoffs_section(settings);
+    end
+end
+
+local MERIT_GROUPS = {};
+for _, name in ipairs({ 'Attributes', 'Combat skills', 'Magic skills', 'Other', 'Job merits' }) do
+    local group = { name = name, entries = {} };
+    for key, entry in pairs(merit_data.entries) do
+        if (entry.category == name) then group.entries[#group.entries + 1] = { key = key, data = entry }; end
+    end
+    table.sort(group.entries, function(a, b) return a.data.id < b.data.id; end);
+    MERIT_GROUPS[#MERIT_GROUPS + 1] = group;
+end
+
+local function draw_merits_tab(settings)
+    checkbox('Use my merits when I zone', settings.merits, 'fill_in',
+        'Fills these ranks from the merit list received when you zone, and updates a rank when you change it in game. '
+        .. 'Turn this off to keep your own choices. Merits stay with this character and are left out of profiles. '
+        .. 'Skills and stats already include merits. To replace that bonus without counting it twice, checkmate must first read your rank from the game.');
+    local read, total, manual, restorable = 0, 0, 0, 0;
+    for key in pairs(merit_data.entries) do
+        total = total + 1;
+        local actual, chosen = merits.observed(key), settings.merits[key];
+        if (actual ~= nil) then
+            read = read + 1;
+            if (chosen ~= actual) then restorable = restorable + 1; end
+            if (chosen ~= nil and chosen ~= actual) then manual = manual + 1; end
         end
     end
-    if (settings_window.section_open('ADVANCED', 'Grade cutoffs and your critical-hit merit inputs.', false)) then
-        local m = settings.merits;
-        draw_cutoffs_section(settings);
-        heading('CRITICAL HIT RATE');
-        slider(imgui.SliderInt, '##crit_merits', m, 'crit_hit_rate', 0, physical.MERITS.crit_hit_rate.most,
-            (m.crit_hit_rate == 1) and '%d merit' or '%d merits', TIPS.crit_merits);
-        heading('ENEMY CRITICAL HIT RATE');
-        slider(imgui.SliderInt, '##enemy_crit_merits', m, 'enemy_crit_rate', 0, physical.MERITS.enemy_crit_rate.most,
-            (m.enemy_crit_rate == 1) and '%d merit' or '%d merits', TIPS.enemy_crit_merits);
-        checkbox('Fill both in when you zone', m, 'fill_in', TIPS.merit_fill);
+    note(read == 0 and 'Zone once to read your merit ranks.' or ('Ranks read: %d / %d'):format(read, total)
+        .. (manual > 0 and (' | Manual: %d'):format(manual) or ''));
+    if (manual > 0) then
+        if (settings.merits.fill_in) then
+            note('Zoning replaces manual ranks. Changing a merit in game replaces that rank too.');
+        else
+            note('Manual ranks stay in use while zone autofill is off.');
+        end
+    end
+    imgui.BeginDisabled(restorable == 0);
+    if (imgui.Button('Restore game ranks')) then
+        for key in pairs(merit_data.entries) do
+            local actual = merits.observed(key);
+            if (actual ~= nil) then settings.merits[key] = actual; end
+        end
+        result.save, result.label = true, 'Restore game ranks';
+    end
+    imgui.EndDisabled();
+    help('Restores ranks already read from the game. Unread ranks and the autofill switch stay as they are. '
+        .. 'Undo restores your previous choices. Zone once if no ranks have been read.');
+    note('Sliders change estimates, not your character.');
+    for _, group in ipairs(MERIT_GROUPS) do
+        if (settings_window.section_open(group.name:upper(), nil, false)) then
+            if (group.name == 'Combat skills' or group.name == 'Attributes') then
+                note('Reference rows keep the actual values sent by the server.');
+            elseif (group.name == 'Job merits') then
+                note('Job merits apply only on the matching main job at the required level.');
+                note('Timers and pets keep the ranks selected when the effect landed or the pet was summoned.');
+            end
+            if (imgui.BeginTable('##merits_' .. group.name, 3, TABLE_FLAGS)) then
+                imgui.TableSetupColumn('Merit', STRETCH);
+                imgui.TableSetupColumn('Selected', ImGuiTableColumnFlags_WidthFixed, px(130));
+                imgui.TableSetupColumn('From game', ImGuiTableColumnFlags_WidthFixed, px(90));
+                imgui.TableHeadersRow();
+                for _, item in ipairs(group.entries) do
+                    local key, entry = item.key, item.data;
+                    local actual = merits.observed(key);
+                    local chosen = settings.merits[key];
+                    local manual_rank = actual ~= nil and chosen ~= nil and actual ~= chosen;
+                    imgui.PushID(key);
+                    imgui.TableNextRow(); imgui.TableNextColumn(); cell_text(entry.name);
+                    local tip = key == 'crit_hit_rate' and TIPS.crit_merits
+                        or key == 'enemy_crit_rate' and TIPS.enemy_crit_merits
+                        or entry.conditions and table.concat(entry.conditions, ' ')
+                        or 'Uses the selected rank in supported estimates. Level limits still apply.';
+                    if (chosen == nil and actual == nil) then tip = tip .. ' No rank has been read or selected yet.'; end
+                    help(tip, entry.name);
+                    imgui.TextDisabled(entry.kind == 'parameter' and 'Reference only' or 'Changes estimates');
+                    if (entry.kind == 'parameter') then
+                        search.mark('Reference only', tip);
+                    end
+                    imgui.TableNextColumn();
+                    number[1] = chosen or actual or 0;
+                    imgui.SetNextItemWidth(-1);
+                    if (manual_rank) then imgui.PushStyleColor(ImGuiCol_Text, look.headings); end
+                    if (imgui.SliderInt('##rank', number, 0, entry.most,
+                        chosen == nil and actual == nil and 'Unset' or '%d ranks', ImGuiSliderFlags_AlwaysClamp)) then
+                        settings.merits[key], result.edited = number[1], true;
+                    end
+                    save_when_done();
+                    if (manual_rank) then imgui.PopStyleColor(1); end
+                    search.mark(entry.name, tip);
+                    if (manual_rank) then
+                        imgui.PushStyleColor(ImGuiCol_Text, look.headings);
+                        imgui.TextUnformatted('Manual');
+                        imgui.PopStyleColor(1);
+                    end
+                    imgui.TableNextColumn(); cell_text(actual ~= nil and tostring(actual) or 'Unknown');
+                    imgui.PopID();
+                end
+                imgui.EndTable();
+            end
+        end
     end
 end
 
@@ -1524,13 +1695,16 @@ local function draw_aggro_tab(settings)
     if (begin_sections('##aggro_sections')) then
         imgui.TableNextColumn();
         heading('AGGRESSIVE', TIPS.aggressive);
+        settings_window.focus_control('aggro');
         part_off_note(settings, 'aggro');
         checkbox('Show how it finds you', a, 'detection', TIPS.detection);
         heading('PURSUIT');
+        settings_window.focus_control('pursuit');
         display_switches(settings, 'pursuit');
         note('Pursuit has its own display row. Detection describes how it first notices you.');
         imgui.TableNextColumn();
         heading('LINKS');
+        settings_window.focus_control('links');
         part_off_note(settings, 'links');
         -- First, so it sits next to Show how it finds you.
         checkbox('Show how each one links', links, 'link_how', TIPS.link_how);
@@ -1548,7 +1722,7 @@ end
 
 local function draw_schools_section(settings, blue_only)
     local m = settings.magic;
-    heading(blue_only and 'SPELL CHANCE' or 'SCHOOLS', TIPS.schools);
+    heading(blue_only and 'UNRESISTED SPELL CHANCE' or 'SCHOOLS', TIPS.schools);
     part_off_note(settings, blue_only and 'blue' or 'magic');
     if (imgui.BeginTable('##schools', 2, TABLE_FLAGS)) then
         imgui.TableSetupColumn('School');
@@ -1571,7 +1745,7 @@ local function draw_schools_section(settings, blue_only)
     end
 
     if (blue_only) then
-        note('This is your spell chance, not a chance to learn a spell. It appears in the Blue Magic row.');
+        note('Unresisted spell chance appears in the Blue Magic row. Learning chance is separate.');
         note('The extra magic accuracy settings on Magic apply here too.');
         return;
     end
@@ -1599,6 +1773,8 @@ local function draw_elements_section(settings)
 end
 
 local function draw_magic_tab(settings)
+    heading('MAGIC', PART_TIPS.magic);
+    settings_window.focus_control('magic');
     draw_schools_section(settings);
     note('Blue Magic has its own tab.');
 end
@@ -1608,40 +1784,100 @@ end
 ]]
 
 
+do
+local learning_result, learning_read_at;
+local function draw_learning_roll()
+    if (not settings_window.section_open('LEARNING CHANCE')) then return; end
+    local now = os.clock();
+    if (learning_read_at == nil or now - learning_read_at >= 0.25) then
+        learning_result, learning_read_at = require('core.blue_learning').read(), now;
+    end
+    local roll = learning_result;
+    if (roll.chance ~= nil) then
+        note(('%s%g%% per eligible attempt (%g%% base + %g%% from equipped gear).'):format(
+            roll.uncertain and '~' or '', roll.chance, roll.base, roll.gear_bonus));
+        for _, item in ipairs(roll.items) do
+            local name = item.name:gsub('_', ' '):gsub('(%a)([%w]*)', function(first, rest)
+                return first:upper() .. rest;
+            end);
+            note(('%s: +%g%%'):format(name, item.bonus));
+        end
+        if (not roll.main_job_ok) then note('Your main job must be Blue Mage to learn spells.'); end
+    else
+        note(roll.reason or 'Your learning inputs are not known.');
+    end
+    if (roll.uncertain) then note('Some learning bonuses are unknown. Open Learning requirements for details.'); end
+    imgui.Indent(px(10));
+    if (settings_window.section_open('LEARNING REQUIREMENTS',
+        'Conditions for an attempt to learn a spell. The percentage applies only after these are met.', false)) then
+        for _, words in ipairs(roll.notes or {}) do note(words); end
+        note('The monster must use an unlearned move. You must be alive and meet its Blue Magic skill requirement.');
+        note('Stay within 100 yalms and receive kill credit with your party or alliance.');
+        note('Call for Help prevents learning. There is at most one attempt per defeat.');
+        note('Skill merits help meet the requirement; they do not raise the learning chance.');
+    end
+    imgui.Unindent(px(10));
+end
+
 function settings_window.draw_blue_tab(settings)
     heading('BLUE MAGIC');
-    display_switches(settings, 'blue');
-    note('Possible lessons and the optional spell chance share this row. Choose each for chat and overlay.');
+    settings_window.focus_control('blue');
+    if (imgui.BeginTable('##blue_visibility', 3, TABLE_FLAGS)) then
+        imgui.TableSetupColumn('Row', STRETCH);
+        imgui.TableSetupColumn('Chat');
+        imgui.TableSetupColumn('Overlay');
+        imgui.TableHeadersRow();
+        imgui.PushID('blue');
+        imgui.TableNextRow(); imgui.TableNextColumn(); cell_text('Show Blue row');
+        imgui.TableNextColumn(); checkbox('##chat', settings.printout.parts.blue, 'on',
+            'Shows the Blue Magic row in chat. Choose its contents below.');
+        imgui.TableNextColumn(); checkbox('##overlay', settings.overlay.parts, 'blue',
+            'Selects the Blue Magic row for the overlay. Choose its contents below.');
+        imgui.PopID();
+        imgui.EndTable();
+    end
+    local chat_on, overlay_on = settings.printout.parts.blue.on, settings.overlay.parts.blue;
+    if (not settings.overlay.on) then
+        note('The overlay is off. Turn it on in Display > Overlay options to show this row.');
+    end
+    note('Choose the contents of each visible Blue row. Hidden rows keep their selections.');
     if (imgui.BeginTable('##blue_components', 3, TABLE_FLAGS)) then
         imgui.TableSetupColumn('Component', STRETCH);
         imgui.TableSetupColumn('Chat');
         imgui.TableSetupColumn('Overlay');
         imgui.TableHeadersRow();
+        if (not chat_on or not overlay_on) then
+            imgui.TableNextRow(); imgui.TableNextColumn();
+            imgui.TableNextColumn(); if (not chat_on) then note('Row hidden'); end
+            imgui.TableNextColumn(); if (not overlay_on) then note('Row hidden'); end
+        end
         imgui.PushID('components');
         for _, item in ipairs({ { 'lessons', 'Learnable spells', PART_TIPS.blue },
-            { 'chance', 'Spell chance', SCHOOL_TIPS.blue } }) do
+            { 'chance', 'Unresisted spell chance', SCHOOL_TIPS.blue } }) do
             imgui.PushID(item[1]);
             imgui.TableNextRow(); imgui.TableNextColumn(); cell_text(item[2]);
-            imgui.TableNextColumn(); checkbox('##chat', settings.blue.chat, item[1], item[3]);
-            imgui.TableNextColumn(); checkbox('##overlay', settings.blue.overlay, item[1], item[3]);
+            imgui.TableNextColumn(); checkbox('##chat', settings.blue.chat, item[1], item[3], not chat_on);
+            imgui.TableNextColumn(); checkbox('##overlay', settings.blue.overlay, item[1], item[3], not overlay_on);
             imgui.PopID();
         end
         imgui.PopID();
         imgui.EndTable();
     end
-    checkbox('Only unlearned spells', settings.blue, 'only_unlearned',
-        'Hides lessons your client says you already know. Unknown spellbook entries stay visible. Spell chance is unchanged.');
+    checkbox('Show only unlearned spells', settings.blue, 'only_unlearned',
+        'Hides spells your client says you already know. Unknown spellbook entries stay visible. Unresisted spell chance is unchanged.');
     checkbox('Show learning requirements', settings.blue, 'requirements',
         'Shows the required Blue Magic skill and the job, skill, HP and distance read with the result. '
         .. 'Find them in hover help and Target details. Conditions are checked again on defeat.');
     checkbox('Show observed move use', settings.blue, 'seen',
         'Marks a move when checkmate sees this monster finish using it. Not observed means it may have happened out of view. '
         .. 'The marker clears when the monster disappears. It does not confirm learning eligibility.');
+    draw_learning_roll();
     heading('STAND-IN SPELL');
     choice('Spell', settings.magic.schools.blue, 'spell', spells.schools.blue.spells, SCHOOL_TIPS.blue,
         #spells.schools.blue.spells == 1);
-    note('The extra magic accuracy settings on Magic apply here too. Spell chance is not a learning chance.');
+    note('Magic accuracy settings on Magic affect Unresisted spell chance, not Learning chance.');
     require('ui.blue_finder').draw(settings);
+end
 end
 
 function settings_window.draw_monster_tab(settings)
@@ -1651,24 +1887,24 @@ function settings_window.draw_monster_tab(settings)
         imgui.TableSetupColumn('Chat');
         imgui.TableSetupColumn('Overlay');
         imgui.TableHeadersRow();
-        for _, section in ipairs(settings_window.INFO_SECTIONS) do
-            if (section[4] == nil) then
-                imgui.PushID(section[1]);
-                imgui.TableNextRow(); imgui.TableNextColumn();
-                imgui.AlignTextToFramePadding();
-                note(section[2]);
-                help(section[3], section[2]);
-                imgui.TableNextColumn();
-                checkbox('##chat', settings.printout.parts[section[1]], 'on', 'Shows ' .. section[2] .. ' in your /check printout.');
-                imgui.TableNextColumn();
-                checkbox('##overlay', settings.overlay.parts, section[1], 'Shows ' .. section[2] .. ' while the overlay is on.');
-                imgui.PopID();
-            end
+        for _, section in ipairs(MONSTER_CATEGORIES) do
+            imgui.PushID(section[1]);
+            imgui.TableNextRow(); imgui.TableNextColumn();
+            imgui.AlignTextToFramePadding();
+            note(section[2]);
+            if (section[1] ~= 'dangers') then settings_window.focus_control(section[1]); end
+            help(section[3], section[2]);
+            imgui.TableNextColumn();
+            checkbox('##chat', settings.printout.parts[section[1]], 'on', 'Shows ' .. section[2] .. ' in your /check printout.');
+            imgui.TableNextColumn();
+            checkbox('##overlay', settings.overlay.parts, section[1], 'Shows ' .. section[2] .. ' while the overlay is on.');
+            imgui.PopID();
         end
         imgui.EndTable();
     end
     note('Pursuit is on Aggro, Charm is on Weaknesses, and Blue Magic has its own tab.');
     heading('DANGERS DISPLAY');
+    settings_window.focus_control('dangers');
     if (begin_sections('##danger_filters')) then
         for _, id in ipairs(dangers.CATEGORIES) do
             imgui.TableNextColumn();
@@ -1682,7 +1918,8 @@ function settings_window.draw_monster_tab(settings)
         settings.dangers.max_moves == 0 and 'All' or '%d',
         'Limits the moves in chat and the overlay, followed by + more. Zero shows all matching moves. '
         .. 'Target details keeps every move and its conditions.');
-    settings_window.draw_target_details(settings);
+    if (imgui.Button('Open target details')) then settings_window.details_open = true; end
+    help('Opens the full target details, including combat inputs, monster facts and the complete Dangers list.', 'Open target details');
 end
 
 local function draw_drops_tab(settings)
@@ -1690,6 +1927,8 @@ local function draw_drops_tab(settings)
     if (begin_sections('##drops_sections')) then
         imgui.TableNextColumn();
         heading('TREASURE HUNTER');
+        settings_window.focus_control('drops');
+        settings_window.focus_control('steal');
         part_off_note(settings, 'drops');
         slider(imgui.SliderInt, '##th', d, 'th', 0, drops.TH_MAX, 'TH %d', TIPS.th);
         imgui.TableNextColumn();
@@ -1726,6 +1965,7 @@ local EFFECTS_NOTE = 'The times are estimates. A wear-off message clears your ti
 settings_window.draw_effects_tab = function (settings)
     local e = settings.effects;
     heading('EFFECTS', TIPS.effects);
+    settings_window.focus_control('effects');
     part_off_note(settings, 'effects');
     choice('Show', e, 'show', EFFECT_SHOWS, TIPS.effects_show);
     checkbox('Time left', e, 'times', TIPS.effects_times);
@@ -1767,6 +2007,7 @@ end
 
 settings_window.draw_weaknesses_tab = function (settings)
     heading('WEAKNESSES');
+    settings_window.focus_control('weaknesses');
     display_switches(settings, 'weaknesses');
     note('One line combines the components you choose for each display.');
     if (imgui.BeginTable('##weakness_components', 3, TABLE_FLAGS)) then
@@ -1947,6 +2188,9 @@ end
 function settings_window.changed()
     clashes = nil;
     settings_window.preview_cache = nil;
+    settings_window.details_dirty = true;
+    reset_owner = nil;
+    settings_window.section_refresh = true;
 end
 
 --[[
@@ -2037,23 +2281,30 @@ local function draw_look_tab(settings)
         imgui.TableNextColumn();
         draw_skin_section(settings);
         draw_font_section(settings.look);
+        imgui.TableNextColumn();
         heading('SHAPE');
         slider(imgui.SliderInt, 'Corner roundness', window_look, 'rounding', 0, skins.ROUNDING_MAX, '%d px',
             TIPS.rounding);
         slider(imgui.SliderInt, 'Spacing', window_look, 'spacing', skins.SPACING_MIN, skins.SPACING_MAX, '%d px',
             TIPS.spacing);
-        for _, group in ipairs(skins.WINDOW_COLOR_GROUPS) do
-            if (group.name == LOOK_SPLIT) then
-                imgui.TableNextColumn();
-            end
-            window_color_group(window_look, group, per_row);
-        end
         imgui.EndTable();
+    end
+    if (settings_window.section_open('CUSTOM WINDOW COLORS', 'Adjusts individual colors for the settings window and overlay.', false)) then
+        if (begin_sections('##window_colors')) then
+            imgui.TableNextColumn();
+            for _, group in ipairs(skins.WINDOW_COLOR_GROUPS) do
+                if (group.name == LOOK_SPLIT) then
+                    imgui.TableNextColumn();
+                end
+                window_color_group(window_look, group, per_row);
+            end
+            imgui.EndTable();
+        end
     end
 end
 
 function settings_window.draw_tab_visibility(settings)
-    if (not settings_window.section_open('TABS')) then return; end
+    if (not settings_window.section_open('TABS', nil, false)) then return; end
     note('Hide tabs you do not use. Their features keep working.');
     note('Appearance always stays available.');
     local nav = require('ui.navigation');
@@ -2064,7 +2315,7 @@ function settings_window.draw_tab_visibility(settings)
         for _, name in ipairs(nav.TAB_NAMES) do
             if (name ~= 'Appearance') then
                 imgui.TableNextColumn();
-                checkbox(name, settings.window.tabs, name,
+                checkbox(name, settings.window.tabs, nav.key(name),
                     'Shows the ' .. name .. ' tab. Hiding it does not turn off any feature.');
             end
         end
@@ -2079,15 +2330,20 @@ function settings_window.draw_tab_visibility(settings)
 end
 
 local function draw_appearance_tab(settings)
-    settings_window.draw_tab_visibility(settings);
-    if (settings_window.section_open('WINDOW STYLE')) then draw_look_tab(settings); end
+    if (settings_window.section_open('WINDOW STYLE')) then
+        checkbox('Compact tab navigation', settings.window, 'compact_navigation',
+            'Uses one tab selector instead of rows of tab buttons, leaving more room in a short window. '
+            .. 'Hidden tabs and settings search work the same way.');
+        draw_look_tab(settings);
+    end
     imgui.Spacing();
-    if (settings_window.section_open('CHAT COLORS')) then draw_colors_tab(settings); end
     if (settings_window.section_open('OVERLAY APPEARANCE')) then
         imgui.PushID('overlay_appearance');
         settings_window.draw_overlay_appearance(settings.overlay);
         imgui.PopID();
     end
+    if (settings_window.section_open('CHAT COLORS', nil, false)) then draw_colors_tab(settings); end
+    settings_window.draw_tab_visibility(settings);
 end
 
 --[[
@@ -2372,14 +2628,45 @@ function settings_window.draw_toolbar(settings)
     if (imgui.Button('Undo last change')) then result.undo = true; end
     imgui.EndDisabled();
     help(ui.history.status(settings) or 'No settings change to undo in this session.');
-    if (not settings_window.details_open) then
-        settings_window.flow_button('Reset this section', true);
-        if (imgui.Button('Reset this section')) then result.reset_section = ui.navigation.current(); end
-        help('Resets this tab to its defaults. Keeps your manual combat inputs, labels and window positions. '
-            .. 'Appearance resets styling; Abbreviations resets custom words; Profiles clears job links. '
-            .. 'Saved profile files stay as they are. Undo last change restores these settings.');
+    beside();
+    settings_window.place_control('', px(120), true);
+    imgui.SetNextItemWidth(px(120));
+    if (imgui.BeginCombo('##reset_actions', 'Reset...')) then
+        imgui.BeginDisabled(settings_window.details_open == true);
+        local on_merits = ui.navigation.current() == 'Merits';
+        if (imgui.Selectable(on_merits and 'Reset autofill option' or 'Reset this tab')) then
+            result.reset_section = ui.navigation.current();
+        end
+        hover_help(on_merits and 'Turns Use my merits when I zone back on. Your selected ranks stay as they are. '
+            .. 'Use Restore game ranks on Merits to replace them. Undo restores this change.'
+            or 'Restores this tab\'s defaults. Keeps manual combat inputs, labels and window positions. Undo restores the change.');
+        imgui.EndDisabled();
+        imgui.BeginDisabled(settings_window.reset_available ~= true);
+        if (imgui.Selectable('Reset all settings') and settings_window.reset_available == true) then reset_owner = settings; end
+        hover_help('Resets every setting for this character after confirmation. Saved profiles and other characters stay as they are. '
+            .. 'Log into a character to use it.');
+        imgui.EndDisabled();
+        imgui.EndCombo();
     end
+    help('Restores this tab\'s options or every setting for this character. Merits resets only its autofill switch. '
+        .. 'Reset all asks for confirmation.');
     imgui.Separator();
+end
+
+local function draw_reset_confirmation()
+    if (imgui.BeginChild('##reset_confirmation', { 0, 0 }, 0, ImGuiWindowFlags_NoSavedSettings)) then
+        heading('RESET ALL SETTINGS');
+        note('Reset every setting for this character?');
+        note('This includes colors, fonts, layout, window positions, hidden tabs, abbreviations, manual combat inputs, merits and job links.');
+        note('Your saved profiles and other characters\' settings stay as they are.');
+        note('Remembered readings and Undo history will be cleared. This cannot be undone.');
+        if (imgui.Button('Reset all settings')) then
+            result.reset_all, reset_owner = true, nil;
+        end
+        settings_window.flow_button('Cancel', false);
+        if (imgui.Button('Cancel##reset_all')) then reset_owner = nil; end
+    end
+    imgui.EndChild();
 end
 
 function settings_window.draw_preview(settings)
@@ -2418,12 +2705,24 @@ end
     Display tab.
 ]]
 
+settings_window.OVERLAY_MODES = { { id = 'off', name = 'Off' }, { id = 'target', name = 'Any targeted monster' },
+    { id = 'checked', name = 'Only after checking' } };
+local overlay_mode = { id = 'off' };
+
 local function draw_overlay_section(settings)
     local o = settings.overlay;
     heading('OVERLAY', TIPS.overlay);
-    checkbox('Show the overlay', o, 'on', TIPS.overlay_on);
+    overlay_mode.id = not o.on and 'off' or (o.only_checked and 'checked' or 'target');
+    local before = overlay_mode.id;
+    choice('Show overlay', overlay_mode, 'id', settings_window.OVERLAY_MODES,
+        'Off hides the overlay. Any targeted monster shows the monster you select. Only after checking waits for your /check reply. '
+            .. 'Keep readings when switching targets controls whether checked monsters show again. Settings previews still work.');
+    if (overlay_mode.id ~= before) then
+        o.on = overlay_mode.id ~= 'off';
+        if (o.on) then o.only_checked = overlay_mode.id == 'checked'; end
+    end
     checkbox('Lock it in place', o, 'locked', TIPS.overlay_lock);
-    checkbox('Remember each monster\'s /check', o, 'remember', TIPS.overlay_remember);
+    checkbox('Keep readings when switching targets', o, 'remember', TIPS.overlay_remember);
     checkbox('Follow the cursor while you pick a target', o, 'follow_cursor', TIPS.overlay_cursor);
     -- Shift and drag is the spot's other control.
     if (imgui.Button('Move it back')) then
@@ -2484,45 +2783,75 @@ local function draw_overlay_hide_section(o)
     end
 end
 
-function settings_window.draw_display_tab(settings)
-    heading('DISPLAY', 'Choose what goes into chat and the overlay. Both use the same row order and labels.');
-    ui.display.draw(settings, {
-        names = PART_NAMES, tips = PART_TIPS, overlay_tips = OVERLAY_PART_TIPS,
-        checkbox = checkbox, text_box = text_box, help = help, note = note, move = move_buttons,
-        label_max = LABEL_MAX, changed = function () result.save = true; end,
-        options = function (id)
-            local pages = { name = 'Display', reading = 'Display', difficulty = 'Display',
-                aggro = 'Aggro', links = 'Aggro', pursuit = 'Aggro', magic = 'Magic', blue = 'Blue Magic',
-                weaknesses = 'Weaknesses', pet = 'Pets', effects = 'Effects', drops = 'Drops', steal = 'Drops' };
-            local page = pages[id];
-            if (page == nil) then
-                page = ({ hit = true, offhand = true, ranged = true, evade = true, crit = true, crittaken = true,
-                    pdif = true, offhandpdif = true, rangedpdif = true, block = true, parry = true })[id]
-                    and 'Numbers' or 'Monster';
-            end
-            settings_window.go_to(page, settings);
-            if (page == 'Display') then settings_window.jump_chat_format = true; end
-        end,
-    });
-    if (settings_window.section_open('CHAT FORMAT', nil, false)) then
-        if (settings_window.jump_chat_format) then
-            imgui.SetScrollHereY(0.05);
-            settings_window.jump_chat_format = nil;
-        end
+function settings_window.select_display(page)
+    if (page ~= 'Rows' and page ~= 'Chat format' and page ~= 'Overlay options') then return false; end
+    settings_window.display_page = page;
+    return true;
+end
+
+function settings_window.open_row_options(id, settings)
+    local pages = { name = 'Display', reading = 'Display', difficulty = 'Display',
+        aggro = 'Aggro', links = 'Aggro', pursuit = 'Aggro', magic = 'Magic', blue = 'Blue Magic',
+        weaknesses = 'Weaknesses', pet = 'Pets', effects = 'Effects', drops = 'Drops', steal = 'Drops' };
+    local page = pages[id];
+    local defense = id == 'evade' or id == 'crittaken' or id == 'block' or id == 'parry';
+    if (page == nil) then
+        page = (defense or ({ hit = true, offhand = true, ranged = true, crit = true,
+            pdif = true, offhandpdif = true, rangedpdif = true })[id]) and 'Combat' or 'Monster';
+    end
+    settings_window.return_to_display = { scroll = imgui.GetScrollY() or 0 };
+    settings_window.go_to(page, settings);
+    settings_window.option_target = { id = id, page = page, pending = true };
+    if (page == 'Display') then settings_window.select_display('Chat format'); end
+    if (page == 'Combat') then
+        settings_window.folded = settings_window.folded or {};
+        settings_window.folded['Combat/' .. (defense and 'DEFENSE' or 'OFFENSE')] = true;
+    end
+end
+
+function settings_window.draw_display_content(settings, page)
+    if (page == 'Rows') then
+        heading('DISPLAY', 'Choose what goes into chat and the overlay. Both use the same row order and labels.');
+        ui.display.draw(settings, {
+            names = PART_NAMES, tips = PART_TIPS, overlay_tips = OVERLAY_PART_TIPS,
+            checkbox = checkbox, text_box = text_box, help = help, note = note, move = move_buttons,
+            label_max = LABEL_MAX, changed = function (label) result.save, result.label = true, label; end,
+            options = function (id) settings_window.open_row_options(id, settings); end,
+        });
+    elseif (page == 'Chat format') then
+        heading('CHAT FORMAT');
         imgui.PushID('chat_format');
         draw_name_section(settings);
         checkbox('Defense first', settings.printout, 'defense_first', PART_TIPS.reading);
         checkbox('Put the extras on their own line', settings.printout, 'extras_own_line', TIPS.extras);
         draw_lines_section(settings.printout);
         imgui.PopID();
-    end
-    if (settings_window.section_open('OVERLAY OPTIONS', nil, false)) then
+    elseif (page == 'Overlay options') then
         imgui.PushID('overlay_options');
         draw_overlay_section(settings);
         draw_overlay_parts_section(settings);
         draw_overlay_icons_section(settings.overlay);
         draw_overlay_hide_section(settings.overlay);
         imgui.PopID();
+    end
+end
+
+function settings_window.draw_display_tab(settings)
+    imgui.PushID('display_pages');
+    for index, page in ipairs({ 'Rows', 'Chat format', 'Overlay options' }) do
+        if (index > 1) then settings_window.flow_button(page, false); end
+        if (settings_window.display_page == page) then imgui.PushStyleColor(ImGuiCol_Button, look.open_tab); end
+        local clicked = imgui.Button(page);
+        if (settings_window.display_page == page) then imgui.PopStyleColor(1); end
+        if (clicked) then settings_window.select_display(page); end
+        hover_help('Opens ' .. page .. ' settings.');
+    end
+    imgui.PopID();
+    imgui.Separator();
+    if (search.active()) then
+        for _, page in ipairs({ 'Rows', 'Chat format', 'Overlay options' }) do settings_window.draw_display_content(settings, page); end
+    else
+        settings_window.draw_display_content(settings, settings_window.display_page);
     end
 end
 
@@ -2549,15 +2878,16 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
             .. 'notes buttons checkboxes border background opacity rounding undo reset window style chat colors '
             .. 'color difficulty threat safe grades good ok bad number label words details chat swatches sample '
             .. 'your times others times estimate badges',
-        Numbers = 'hit off-hand ranged evade shield block parry guard defensive skill equipment crit critical hit taken merits fill zone cutoffs good ok bad pdif multiplier attack defense ratio cap '
+        Combat = 'numbers combat hit off-hand ranged evade shield block parry guard defensive skill equipment crit critical hit taken merits fill zone cutoffs good ok bad pdif multiplier attack defense ratio cap '
             .. 'sweet spot outside 25 yalms current distance',
+        Merits = 'merits ranks autofill automatic zone skill attribute job manual baseline reference only changes estimates restore game ranks from game',
         Pets = 'pet name level hit word evade word jug charmed wyvern automaton accuracy evasion',
         Aggro = 'aggro aggressive detection sight sound true magic low hp ability ambush night awake form hate '
             .. 'links names superlink how each most max limit pursuit scent tracking follows',
         Magic = 'magic schools stand-in spell elemental enfeebling divine dark singing ninjutsu accuracy '
             .. 'extra known gear merits direct bonus chance',
-        ['Blue Magic'] = 'blue magic learn lessons known spellbook unknown spell chance skill accuracy observed move use seen '
-            .. 'spell finder find lesson monster zone places unlearned',
+        ['Blue Magic'] = 'blue magic learn spells known spellbook unknown spell chance skill accuracy observed move use seen learning roll rate gear Magus Bazubands '
+            .. 'spell finder find monster zone places unlearned',
         Weaknesses = 'weakness resistance resists elemental strength rank damage weapons slashing piercing '
             .. 'blunt impact hand-to-hand immunity immune sleep bind silence stun gravity poison paralysis '
             .. 'petrify amnesia blind charm',
@@ -2585,14 +2915,15 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
         Printout = { 'show_name', 'name_label', 'show_level', 'show_range', 'range_word', 'show_id', 'id_word',
             'show_ph', 'ph_word', 'parts', 'extras', 'header', 'divider', 'custom', 'label_divider', 'custom_label',
             'number_style', 'replace', 'sample', 'icons', 'icons_only' },
-        Overlay = { 'overlay', 'overlay_on', 'overlay_lock', 'overlay_remember', 'overlay_cursor', 'overlay_spot',
+        Overlay = { 'overlay', 'overlay_on', 'overlay_checked', 'overlay_lock', 'overlay_remember', 'overlay_cursor', 'overlay_spot',
             'overlay_parts', 'overlay_show_level', 'overlay_show_range', 'overlay_show_id', 'overlay_show_ph',
             'overlay_lines', 'overlay_short', 'overlay_divider', 'overlay_custom', 'overlay_font', 'overlay_font_size',
             'overlay_opacity', 'overlay_border', 'overlay_wrap', 'overlay_events', 'overlay_ui', 'overlay_map',
             'overlay_icons', 'overlay_icons_only', 'overlay_element_look', 'overlay_tips' },
         Appearance = { 'sample_colors', 'con_colors', 'threat_colors', 'grades', 'skin', 'reset_skin', 'undo',
             'font', 'font_size', 'rounding', 'spacing' },
-        Numbers = { 'cutoffs', 'cutoffs_taken', 'crit_merits', 'enemy_crit_merits', 'merit_fill', 'ranged_far', 'pdif_mode' },
+        Combat = { 'cutoffs', 'cutoffs_taken', 'ranged_far', 'pdif_mode' },
+        Merits = { 'crit_merits', 'enemy_crit_merits', 'merit_fill' },
         Pets = { 'pet', 'pet_name', 'pet_level', 'pet_hit_word', 'pet_evade_word' },
         Aggro = { 'aggressive', 'detection', 'link_how', 'link_names', 'max_links' },
         Magic = { 'schools', 'extra_accuracy' },
@@ -2609,7 +2940,7 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
     end
     local more_tips = {
         Printout = PART_TIPS, Overlay = OVERLAY_PART_TIPS, Appearance = COLOR_TIPS, Pets = { pet = PART_TIPS.pet },
-        Weaknesses = IMMUNITY_TIPS, Abbreviations = WORD_TIPS,
+        Weaknesses = IMMUNITY_COVERS, Abbreviations = WORD_TIPS,
     };
     for tab, entries in pairs(more_tips) do
         for _, words in pairs(entries) do terms[tab] = terms[tab] .. ' ' .. words; end
@@ -2627,18 +2958,18 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
         Printout = 'Show the name Label Show level Show its level range too Range word Show its ID ID word '
             .. 'Show if it is a PH PH word Defense first Put the extras on their own line '
             .. '[checkmate] at the start of each line Element icons',
-        Overlay = 'Lock it in place Background Divider In cutscenes and NPC talk While the map is open '
+        Overlay = 'Show overlay Off Any targeted monster Only after checking Keep readings when switching targets Only show after /check Lock it in place Background Divider In cutscenes and NPC talk While the map is open '
             .. 'While the game interface is hidden Wrap lines wider than',
-        Appearance = 'Color by difficulty Color by grade Color by threat Print a sample Corner roundness Spacing Reset to skin',
-        Numbers = 'Show current distance Show it outside the sweet spot too Fill both in when you zone pDIF display '
+        Appearance = 'Color by difficulty Color by grade Color by threat Print a sample Corner roundness Spacing Reset to skin Compact tab navigation selector',
+        Combat = 'Show current distance Show it outside the sweet spot too pDIF display '
             .. 'In chat In overlay Multiplier range Attack/Defense ratio Both',
         Aggro = 'Most entries shown Group names by family Show how it finds you Show how each one links Show the names it links with Pursuit In chat In overlay',
         Magic = 'Healing Include known gear and merits',
-        ['Blue Magic'] = 'In chat In overlay Component Chat Overlay Learnable spells Spell chance Stand-in spell Only unlearned spells Show learning requirements eligibility '
-            .. 'Find a Blue spell Unlearned spells only Monsters in this zone Find a monster or zone Copy places Clear',
+        ['Blue Magic'] = 'Show Blue row Row hidden Component Chat Overlay Learnable spells Unresisted spell chance Learning chance Learning requirements Stand-in spell Show only unlearned spells Show learning requirements eligibility '
+            .. 'Find a BLU spell Find only unlearned spells Monsters in this zone Find a monster or zone Copy places Clear',
         Weaknesses = 'In chat In overlay Component Chat Overlay Elements Weapons Immunities Charm Immune word Resists word Weak word Show how strong each one is Show script warning',
         Pets = 'In chat In overlay Show its name Show its level Hit word Evade word',
-        Monster = 'Category Chat Overlay Find target details Copy details Copy shown Clear details Target details',
+        Monster = 'Category Chat Overlay Open target details',
         Drops = 'Hide items under Most items shown Order Treasure Hunter in the label Drop notes',
         Effects = 'Show Say when none were observed Mark estimated times with ~ Time left',
         Abbreviations = 'Print a sample Reset every abbreviation',
@@ -2647,9 +2978,16 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
     for tab, labels in pairs(controls) do terms[tab] = terms[tab] .. ' ' .. labels; end
     terms.Appearance = terms.Appearance .. ' ' .. table.concat(require('ui.navigation').TAB_NAMES, ' ');
     for _, color in ipairs(skins.WINDOW_COLORS) do terms.Appearance = terms.Appearance .. ' ' .. color.label; end
-    terms.Display = terms.Printout .. ' ' .. terms.Overlay .. ' Enabled only Options Label New line Order Chat format Overlay options';
+    terms.Display = terms.Printout .. ' ' .. terms.Overlay .. ' Rows Clear all rows Enabled only Options Label New line Order Chat format Overlay options';
     terms.Printout, terms.Overlay = nil, nil;
-    terms.Numbers = terms.Numbers .. ' Offense Defense Advanced';
+    terms.Combat = terms.Combat .. ' Offense Defense Advanced';
+    terms.Merits = (terms.Merits or '') .. ' Use my merits when I zone ranks selected read autofill';
+    for _, group in ipairs(MERIT_GROUPS) do
+        terms.Merits = terms.Merits .. ' ' .. group.name;
+        for _, item in ipairs(group.entries) do terms.Merits = terms.Merits .. ' ' .. item.data.name; end
+    end
+    terms.Appearance = terms.Appearance .. ' Custom window colors';
+    terms.Monster = terms.Monster .. ' Open target details ' .. PART_TIPS.job;
     terms.Profiles = terms.Profiles .. ' Starter presets Minimal Melee Mage Ranged Tank Blue Mage Pet Job Thief Preview Apply';
     terms.Appearance = terms.Appearance .. ' ' .. (TIPS.overlay_font or '') .. ' Overlay appearance Font size Background Border Wrap lines wider than';
     for name, words in pairs(terms) do terms[name] = (name .. ' ' .. words):lower(); end
@@ -2695,11 +3033,11 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
         query[1], settings_window.query_text = '', '';
         search.query('', look and look.accent);
         settings_window.details_open = false;
-        if (settings.window.tabs[page] == false) then settings.window.tabs[page], result.save = true, true; end
+        local key = ui.navigation.key(page);
+        if (settings.window.tabs[key] == false) then settings.window.tabs[key], result.save = true, true; end
         ui.navigation.select(page);
         if (page == 'Display') then
-            settings_window.folded = settings_window.folded or {};
-            settings_window.folded['Display/CHAT FORMAT'] = true;
+            settings_window.select_display('Chat format');
         end
     end
 
@@ -2751,7 +3089,8 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
                 end
             end
             local stamp = table.concat(keys, ':');
-            if (details_groups == nil or stamp ~= details_stamp) then
+            if (details_groups == nil or stamp ~= details_stamp or settings_window.details_dirty) then
+                settings_window.details_dirty = nil;
                 details_stamp = stamp;
                 details_groups = require('ui.tips').detail_groups(settings, target_details);
                 local all = {};
@@ -2833,7 +3172,8 @@ end)();
 -- The tabs in order, each drawn by its function.
 local TABS = {
     { 'Display',    settings_window.draw_display_tab },
-    { 'Numbers',    draw_numbers_tab },
+    { 'Combat',     draw_combat_tab },
+    { 'Merits',     draw_merits_tab },
     { 'Aggro',      draw_aggro_tab },
     { 'Magic',      draw_magic_tab },
     { 'Blue Magic', settings_window.draw_blue_tab },
@@ -2851,6 +3191,8 @@ local TABS = {
 -- the next frame, even while it's open.
 function settings_window.place_again()
     place_now = true;
+    reset_owner = nil;
+    settings_window.option_target, settings_window.return_to_display, settings_window.restore_display_scroll = nil, nil, nil;
 end
 
 --[[
@@ -2894,7 +3236,22 @@ function settings_window.draw_page(tab, settings)
     search.begin_tab(tab[1]);
     settings_window.page_name = tab[1];
     settings_window.pending_row, settings_window.layout_width = nil, window_width - WINDOW_EDGES;
-    if (imgui.BeginChild('##page', { 0, 0 }, 0, ImGuiWindowFlags_NoSavedSettings)) then
+    if (settings_window.return_to_display ~= nil) then
+        if (imgui.Button('Back to Display')) then
+            settings_window.restore_display_scroll = settings_window.return_to_display.scroll;
+            settings_window.return_to_display, settings_window.option_target = nil, nil;
+            settings_window.go_to('Display', settings);
+            settings_window.select_display('Rows');
+        end
+        hover_help('Returns to the row list where you opened Options.');
+    end
+    local child = '##page';
+    if (tab[1] == 'Display' and not search.active()) then child = child .. '_' .. settings_window.display_page; end
+    if (imgui.BeginChild(child, { 0, 0 }, 0, ImGuiWindowFlags_NoSavedSettings)) then
+        if (child == '##page_Rows' and settings_window.restore_display_scroll ~= nil) then
+            imgui.SetScrollY(settings_window.restore_display_scroll);
+            settings_window.restore_display_scroll = nil;
+        end
         settings_window.draw_preview(settings);
         tab[2](settings);
         search.finish_tab();
@@ -2904,11 +3261,16 @@ end
 
 function settings_window.draw(settings, version, sample_provider)
     result.save, result.sample, result.edited = false, false, false;
+    result.preferences = false;
+    result.reset_all = false;
     result.undo, result.reset_section, result.label = nil, nil, nil;
     settings_window.sample_provider = sample_provider or settings_window.sample_provider;
     if (not open[1]) then
+        reset_owner = nil;
         return result;
     end
+    settings_window.bind_sections(settings);
+    if (reset_owner ~= settings or settings_window.reset_available ~= true) then reset_owner = nil; end
 
     look = settings.look.imgui;
     settings_window.overlay_own_lines = settings.overlay.own_lines == true;
@@ -2935,7 +3297,9 @@ function settings_window.draw(settings, version, sample_provider)
         search.begin_tab(nil);
         settings_window.pending_row, settings_window.layout_width = nil, window_width - WINDOW_EDGES;
         settings_window.draw_toolbar(settings);
-        if (settings_window.details_open) then
+        if (reset_owner ~= nil) then
+            draw_reset_confirmation();
+        elseif (settings_window.details_open) then
             settings_window.draw_detail_header();
             if (imgui.BeginChild('##details_page', { 0, 0 }, 0, ImGuiWindowFlags_NoSavedSettings)) then
                 settings_window.draw_target_details(settings);
@@ -2954,8 +3318,10 @@ function settings_window.draw(settings, version, sample_provider)
     imgui.PopFont();
     imgui.PopStyleVar(sizes);
     imgui.PopStyleColor(colors);
+    if (not open[1]) then reset_owner, result.reset_all = nil, false; end
     if (result.edited) then
         settings_window.preview_cache = nil;
+        settings_window.details_dirty = true;
         profiles.changed(settings);
     end
     return result;

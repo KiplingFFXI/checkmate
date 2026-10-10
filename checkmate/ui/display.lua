@@ -8,6 +8,20 @@ local unavailable = { value = false };
 local expanded;
 local saved_order, ordered = nil, {};
 local TABLE_FLAGS = bit.bor(ImGuiTableFlags_RowBg, ImGuiTableFlags_BordersInnerH, ImGuiTableFlags_SizingStretchProp);
+local CLEAR_TIP = 'Turns off every chat and overlay row, including rows hidden by filters. Other settings stay as '
+    .. 'they are. Undo last change restores the row selections.';
+
+function display.clear(settings)
+    local changed = false;
+    for _, part in pairs(settings.printout.parts) do
+        if (part.on ~= false) then part.on, changed = false, true; end
+    end
+    for id, on in pairs(settings.overlay.parts) do
+        if (on ~= false) then settings.overlay.parts[id], changed = false, true; end
+    end
+    enabled[1] = false;
+    return changed;
+end
 
 local function rows(settings)
     local order = settings.printout.order;
@@ -108,9 +122,17 @@ end
 function display.draw(settings, ui)
     imgui.Checkbox('Enabled only', enabled);
     ui.help('Shows rows selected for chat or the overlay. Hidden rows keep their place in the order.');
+    imgui.SameLine();
+    if (imgui.Button('Clear all rows') and display.clear(settings) and ui.changed ~= nil) then ui.changed('Clear all display rows'); end
+    ui.help(CLEAR_TIP);
+    search.mark('Clear all rows', CLEAR_TIP);
     local order = rows(settings);
+    local searching = search.active();
     local wide = imgui.GetContentRegionAvail() >= 850 * imgui.GetFontSize() / 18;
-    if (not wide) then ui.note('Use + beside a row to edit its label, line break and order.'); end
+    if (not wide) then
+        ui.note(searching and 'Layout controls stay open while you search. Clear Find settings to collapse them.'
+            or 'Use + beside a row to edit its label, line break and order.');
+    end
     local in_table = begin_table(wide, '');
     if (not in_table) then return; end
     local function draw_row(id, index)
@@ -119,9 +141,15 @@ function display.draw(settings, ui)
         imgui.TableNextRow();
         imgui.TableNextColumn();
         if (not wide) then
-            if (imgui.Button((expanded == id and '-' or '+') .. '##layout')) then
-                expanded = expanded == id and nil or id;
+            imgui.BeginDisabled(searching);
+            if (imgui.Button(((searching or expanded == id) and '-' or '+') .. '##layout') and not searching) then
+                if (expanded == id) then
+                    expanded = nil;
+                else
+                    expanded = id;
+                end
             end
+            imgui.EndDisabled();
             ui.help('Edits this row\'s label, line break and order.');
             imgui.SameLine();
         end
@@ -141,7 +169,7 @@ function display.draw(settings, ui)
         if (wide) then controls(settings, ui, id, index, #order); imgui.TableNextColumn(); end
         options(ui, id);
         imgui.PopID();
-        if (not wide and (expanded == id or search.active())) then
+        if (not wide and (expanded == id or searching)) then
             imgui.EndTable();
             editor(settings, ui, id, index, #order);
             in_table = begin_table(false, '_' .. id);

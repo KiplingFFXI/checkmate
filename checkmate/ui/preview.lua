@@ -3,6 +3,7 @@ local imgui = require('imgui');
 local printout = require('core.printout');
 local colors = require('ui.chat_colors');
 local fonts = require('ui.window_font');
+local header_layout = require('ui.header_layout');
 
 local preview = {};
 local cached;
@@ -28,55 +29,89 @@ end
 
 -- Chat bytes never become ImGui control text. Unsupported glyphs use a plain separator.
 function preview.runs(line)
-    local out, code, at = {}, 1, 1;
+    local out, code, at, kind, id = {}, 1, 1;
     local function add(text)
         text = text:gsub('[\129-\159\224-\252].', ' '):gsub('[\128-\255]', '')
             :gsub('[^\32-\126]', '');
-        if (text ~= '') then out[#out + 1] = { text = text, code = printout.safe_color(code) }; end
+        if (text ~= '') then out[#out + 1] = { text = text, code = printout.safe_color(code), tip_kind = kind, tip_id = id }; end
     end
     while (at <= #line) do
-        local marker = line:find('\30', at, true);
+        local marker = line:find('[\29\30]', at);
         if (marker == nil) then add(line:sub(at)); break; end
         add(line:sub(at, marker - 1));
-        local next_code = line:byte(marker + 1);
-        if (next_code == nil) then break; end
-        code, at = printout.safe_color(next_code), marker + 2;
+        if (line:byte(marker) == 29) then
+            local first, last, next_kind, next_id = line:find('\29(%a+):([%w_]+)\29', marker);
+            if (first == marker) then
+                kind, id = next_kind ~= 'end' and next_kind or nil, next_kind ~= 'end' and next_id or nil;
+                at = last + 1;
+            else at = marker + 1; end
+        else
+            local next_code = line:byte(marker + 1);
+            if (next_code == nil) then break; end
+            code, at = printout.safe_color(next_code), marker + 2;
+        end
     end
     return out;
 end
 
 local function lay_out_line(line, width, out)
-    local used, started = 0, false;
-    for _, run in ipairs(preview.runs(line)) do
-        local pieces = {};
-        if (run.text:find('%S') == nil) then pieces[1] = run.text;
-        else for part in run.text:gmatch('%s*%S+%s*') do pieces[#pieces + 1] = part; end end
-        for _, part in ipairs(pieces) do
-            local text = part;
-            if (not started) then text = text:gsub('^%s+', ''); end
-            local size = imgui.CalcTextSize(text);
-            if (started and used + size > width) then
-                text, used, started = text:gsub('^%s+', ''), 0, false;
-                size = imgui.CalcTextSize(text);
+    local chunks, chunk = {}, {};
+    local function flush()
+        if (#chunk > 0) then chunks[#chunks + 1], chunk = chunk, {}; end
+    end
+    for _, run in ipairs(header_layout.prepare(preview.runs(line), width, imgui.CalcTextSize, '  ')) do
+        if (run.header) then
+            if (run.break_before) then flush(); end
+            chunk[#chunk + 1] = run;
+            if (run.breaks) then flush(); end
+        else
+            flush();
+            if (run.text:find('%S') == nil) then chunks[#chunks + 1] = { run };
+            else
+                for part in run.text:gmatch('%s*%S+%s*') do chunks[#chunks + 1] = { { code = run.code, text = part } }; end
             end
+        end
+    end
+    flush();
+    local used, started = 0, false;
+    for _, each in ipairs(chunks) do
+        local size = 0;
+        for _, run in ipairs(each) do size = size + imgui.CalcTextSize(run.text); end
+        local tail = each[#each].text:match('%s*$');
+        local fit = size - imgui.CalcTextSize(tail);
+        local wrapped = started and used + fit > width;
+        if (wrapped) then
+            local previous = out[#out];
+            if (previous and previous.text) then previous.text = previous.text:gsub('%s+$', ''); end
+            used, started = 0, false;
+            if (each[1].header) then
+                out[#out + 1] = { code = each[1].code, text = '  ', same_line = false };
+                used, started = imgui.CalcTextSize('  '), true;
+            end
+        end
+        for index, run in ipairs(each) do
+            local text = run.text;
+            if (wrapped and index == 1) then text = text:gsub('^%s+', ''); end
+            if (not started) then text = text:gsub('^%s+', ''); end
+            local part_size = imgui.CalcTextSize(text);
             -- Split an unbroken custom label rather than widening its child panel.
-            while (size > width and #text > 1) do
-                local count = math.max(1, math.floor(#text * width / size));
+            while (not run.header and part_size > width and #text > 1) do
+                local count = math.max(1, math.floor(#text * width / part_size));
                 while (count > 1 and imgui.CalcTextSize(text:sub(1, count)) > width) do count = count - 1; end
                 out[#out + 1] = { code = run.code, text = text:sub(1, count), same_line = started };
                 text, used, started = text:sub(count + 1), 0, false;
-                size = imgui.CalcTextSize(text);
+                part_size = imgui.CalcTextSize(text);
             end
             if (text ~= '') then
                 out[#out + 1] = { code = run.code, text = text, same_line = started };
-                used, started = used + size, true;
+                used, started = used + part_size, true;
             end
         end
     end
     if (not started) then out[#out + 1] = { text = ' ' }; end
 end
 
--- The caller replaces revision after an edit. Readouts and their effect times are snapshots.
+-- The caller replaces revision after an edit. Each readout keeps the effect times it was made with.
 local function layout(s, result, opts, face, size, width)
     if (opts.revision ~= nil and cached ~= nil and cached.revision == opts.revision
         and cached.settings == s and cached.result == result and cached.display == opts.display

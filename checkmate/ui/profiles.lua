@@ -3,7 +3,7 @@
     Read the file before changing it, then write a temporary copy and replace the original only
     after the write succeeds. An unreadable file stays untouched.
 
-    Job links, merits and visible tabs belong to each character. Window positions and size belong to this screen.
+    Job links, merits and window preferences stay with each character.
 ]]
 
 local json     = require('json');
@@ -31,8 +31,7 @@ profiles.JOBS = {
     'BRD', 'RNG', 'SAM', 'NIN', 'DRG', 'SMN', 'BLU', 'COR', 'PUP',
 };
 
--- Settings a profile leaves alone. Job links and your merits belong to each character, and where the window and
--- the overlay sit and the window's size belong to this screen. Tab visibility stays with the character too.
+-- Profiles leave job links, merits, navigation and window positions with each character.
 local NOT_SAVED = { job_links = true, window = true, merits = true, profile_source = true };
 
 -- Sections a profile from an older version may not have. Yours stays as it is when it's missing, so loading an

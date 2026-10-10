@@ -363,7 +363,7 @@ do
     blue.extra, blue.spells = nil, nil;
     blue.incomplete, blue.value = true, 'Unknown';
     expect('Monster validator accepts unresolved lessons without a fake list', info_problem(row), nil);
-    blue.incomplete, blue.requirements, blue.value = nil, nil, 'No learnable Blue spells';
+    blue.incomplete, blue.requirements, blue.value = nil, nil, 'No learnable BLU spells';
     expect('Monster validator accepts resolved no-lesson metadata', info_problem(row), nil);
     row.info.family.incomplete = true;
     check('Monster validator rejects Blue-only fields on another section', info_problem(row) ~= nil);
@@ -893,8 +893,8 @@ check('Fire Elemental, Valkurm Dunes, level 38', stats_are(row, 38, 135, 121, 37
 check('and its immunities and ranks', immune_of(row) == 'bind,paralyze' and row.ranks.fire == 11 and row.ranks.water == -3);
 row = find(107, 'Leaping Lizzy');
 check('Leaping Lizzy, level 10', row and row.nm and stats_are(row, 10, 41, 37, 15, 11, 11, 12));
-check('Leaping Lizzy at TH 0 is 24, 15 and 10%', chance(row, 926, 0) == 24 and chance(row, 15351, 0) == 15 and chance(row, 852, 0) == 10);
-check('and 64, 45 and 18% at TH 4', chance(row, 926, 4) == 64 and chance(row, 15351, 4) == 45 and chance(row, 852, 4) == 18);
+check('Leaping Lizzy at TH 0 is 24, 10 and 10%', chance(row, 926, 0) == 24 and chance(row, 15351, 0) == 10 and chance(row, 852, 0) == 10);
+check('and 64, 18 and 18% at TH 4', chance(row, 926, 4) == 64 and chance(row, 15351, 4) == 18 and chance(row, 852, 4) == 18);
 row = find(100, 'Wild Rabbit');
 check('Wild Rabbit, West Ronfaure, at TH 0, 2 and 4', chance(row, 4358, 0) == 15 and chance(row, 856, 0) == 10
     and chance(row, 4358, 2) == 40 and chance(row, 856, 2) == 15 and chance(row, 4358, 4) == 45 and chance(row, 856, 4) == 18);
@@ -1596,8 +1596,8 @@ lines = readout(103, 330, 'Damselfly', 21, 0);
 check('the Damselfly at 330 is the PH for Valkurm Emperor', lines[1]:find('^%[checkmate%] Damselfly %(Lv 21, range 21%-22%) '
     .. '%(PH for Valkurm Emperor%)  Too Weak') ~= nil, lines[1]);
 local emperor_rules = monsters.ph_details(monsters.find(103, 330), 330);
-check('Valkurm Emperor uses the loaded era cooldown, not its PH helper argument', emperor_rules ~= nil
-    and emperor_rules[1].chance == 10 and emperor_rules[1].cooldown_min == 3600 and emperor_rules[1].cooldown_max == 3600);
+check('Valkurm Emperor uses the loaded native slot chance and cooldown', emperor_rules ~= nil
+    and emperor_rules[1].chance == 15 and emperor_rules[1].cooldown_min == 3600 and emperor_rules[1].cooldown_max == 3600);
 MOCK.command('/checkmate id on');
 lines = readout(103, 330, 'Damselfly', 21, 0);
 check('after its ID', lines[1]:find('^%[checkmate%] Damselfly %(Lv 21, range 21%-22%) %(ID 17199434%) %(PH for Valkurm '

@@ -1,9 +1,9 @@
-"""A Blue Magic source catalogue built only from the final enabled monster rows."""
+"""BLU spell locations with an enabled spawn or encounter path."""
 import math
 
 from . import lua_writer
 
-VERSION = 1
+VERSION = 2
 
 
 def ranges(levels):
@@ -55,10 +55,15 @@ class Builder:
     def __init__(self):
         self.spells, self.places, self.zones = {}, {}, set()
 
-    def add_zone(self, number, name, rows):
+    def add_zone(self, number, name, rows, available):
+        if available is None:
+            raise RuntimeError('Blue finder needs the zone\'s available spawn IDs')
+        available = set(available)
         self.zones.add(number)
         for row in rows:
-            for index in row.get('ids', ()) or (None,):
+            for index in row.get('ids', ()):
+                if index not in available:
+                    continue
                 sections = effective(row, index)
                 blue = sections.get('blue')
                 if not isinstance(blue, dict):
@@ -100,12 +105,12 @@ class Builder:
                                            place.get('low', -1), place.get('high', -1), tuple(place['indices'])))
             spells.append(dict(spell, monsters=places))
         return {'version': VERSION, 'spells': spells,
-                'coverage': 'Only possible lessons present in the enabled monster data are listed. Missing entries do not establish that a spell has no source.',
+                'coverage': 'Only monsters with an enabled spawn or encounter path are listed. A missing entry does not mean the spell cannot be learned.',
                 'zones': len(self.zones)}
 
 
 def write(path, data, stamp):
-    lines = ['-- Possible Blue Magic source places from the final enabled monster rows.'] + lua_writer.stamp_lines(stamp)
+    lines = ['-- BLU spell locations with an enabled spawn or encounter path.'] + lua_writer.stamp_lines(stamp)
     shared = lua_writer.SharedValues(data['spells'])
     lines += shared.lines()
     lines += ['return {', '    version = %d,' % data['version'],

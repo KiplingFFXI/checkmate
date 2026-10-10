@@ -357,8 +357,8 @@ class Preview:
         if not self.style_done:
             self.setup_style()
             self.style_done = True
-        # No mouse over anything, so nothing renders hovered, unless --mouse-icon puts it on an icon the last frame
-        # drew. This runs before the next frame's begin_frame, so the icons are the last frame's.
+        # Nothing is hovered unless --mouse-icon or --mouse-text places the mouse over an item.
+        # This runs before begin_frame, so it uses the previous frame's item positions.
         x = y = -imgui_bridge.FLT_MAX
         n = self.args.mouse_icon
         if n is not None and 0 < n <= len(self.bridge.dummies):

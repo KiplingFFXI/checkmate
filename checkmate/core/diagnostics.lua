@@ -1,8 +1,8 @@
--- Build information for /checkmate info. Header reads avoid loading unused datasets.
+-- Reads build stamps for /checkmate info without loading every data table.
 local bands = require('data.bands');
 local monsters = require('core.monsters');
 local diagnostics = {};
-local FILES = { 'bands', 'too_weak', 'pets', 'steal', 'crit', 'effects', 'modifiers', 'pdif', 'defenses', 'blue_finder' };
+local FILES = { 'bands', 'too_weak', 'pets', 'steal', 'crit', 'effects', 'modifiers', 'pdif', 'defenses', 'merits', 'blue_finder' };
 local cached, cached_key = nil, nil;
 
 local function stamps(header)

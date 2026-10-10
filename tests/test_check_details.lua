@@ -35,6 +35,11 @@ expect('source-only details send no parameter command', #MOCK.commands, 0);
 MOCK.command('/checkmate');
 MOCK.typing['Find settings'] = 'target details';
 MOCK.frame();
+check('settings offer the dedicated details view', MOCK.gui.paths['Monster/Open target details'] == 'Button'
+    and MOCK.gui.paths['Monster/Copy details'] == nil);
+MOCK.clicks['Monster/Open target details'] = true;
+MOCK.frame();
+MOCK.frame();
 check('settings explain the saved manual result', MOCK.drew('Your latest /check: Fixture Goblin.'));
 MOCK.zone_in(901);
 expect('zoning clears the saved check', details.current(), nil);

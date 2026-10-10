@@ -1,5 +1,6 @@
--- Conditional shield and parry rolls for ordinary incoming melee attacks.
+-- Shield block and parry chances when a normal melee attack allows the roll.
 local defenses = {};
+local merits;
 local data;
 local function source()
     data = data or require('data.defenses');
@@ -86,7 +87,7 @@ local function gear(data, own, out, kind)
     end
     if (conditional) then
         out.uncertain = true;
-        add(out, 'Conditional parry bonuses on your gear are included as a range.');
+        add(out, 'The range includes gear bonuses that may not be active.');
     end
     if (reduced) then
         out.uncertain = true;
@@ -98,9 +99,9 @@ end
 function defenses.readout(own, mob, kind)
     local out = { notes = {}, observed_at = own and own.observed_at };
     if (kind == 'parry') then
-        add(out, 'Chance for an eligible ordinary melee parry roll, not total damage avoidance. Face the attacker, be engaged, and be able to act.');
+        add(out, 'Your chance when the game allows a parry roll against a normal melee attack. Face the attacker, be engaged, and be able to act. This is not your chance to avoid all damage.');
     else
-        add(out, 'Chance for an eligible ordinary melee shield roll, not total damage avoidance. Face the attacker and be able to act.');
+        add(out, 'Your chance when the game allows a block roll against a normal melee attack. Face the attacker and be able to act. This is not your chance to avoid all damage.');
     end
     if (mob and mob.row and mob.row.no_swings) then
         return unavailable(out, 'This monster does not use ordinary melee attacks. Counters and special attacks have separate rules.', 'no_melee');
@@ -109,11 +110,11 @@ function defenses.readout(own, mob, kind)
         return unavailable(out, 'This monster uses TP moves instead of ordinary melee attacks. Those moves have separate defensive rules.', 'tp_moves');
     end
     if (own == nil or own.reason or own.level == nil or own.main_job == nil) then
-        return unknown(out, own and own.reason or 'Your defensive inputs are not known.');
+        return unknown(out, own and own.reason or 'Your job, gear or skill could not be read.');
     end
     local data = source();
     local rank = job_rank(data, own, kind);
-    if (rank == nil) then return unknown(out, 'Your job eligibility is not known.'); end
+    if (rank == nil) then return unknown(out, 'Whether your jobs allow this skill is unknown.'); end
     if (rank == 0) then return unavailable(out, 'Your current jobs do not have this defensive skill.', 'job_unavailable'); end
     local shield;
     if (kind == 'block') then
@@ -135,16 +136,20 @@ function defenses.readout(own, mob, kind)
         if (own.main_skill == nil) then return unknown(out, 'Your main-hand weapon could not be read.'); end
     end
     local skill = own.skills and own.skills[kind == 'block' and 30 or 31];
-    if (skill == nil) then return unknown(out, 'Your defensive skill is not known.'); end
+    if (skill == nil) then return unknown(out, 'Your skill could not be read.'); end
     out.eligible, out.skill = true, skill;
+    if (own.merit_inputs ~= nil) then
+        merits = merits or require('core.merits');
+        merits.qualify(out, own, nil, kind == 'block' and 30 or 31);
+    end
     local buffs = own.buffs or {};
     local direct = gear(data, own, out, kind);
     if (kind == 'block' and buffs[data.palisade_effect]) then
         out.uncertain = true;
-        add(out, 'Palisade is active. Its hidden block-rate power is not included.');
+        add(out, 'Palisade is active. The strength of its block bonus is unknown, so it is left out.');
     end
     if (kind == 'parry') then
-        add(out, 'The client skill total and the source formula\'s separate direct parry bonus are counted.');
+        add(out, 'This uses your skill total and the extra Parry bonus from gear that Phoenix adds separately.');
         if (own.has_augments or own.augments_unknown) then
             out.uncertain = true;
             add(out, own.has_augments and 'Your gear has augments. Their separate direct parry bonus is not known.'
@@ -156,10 +161,10 @@ function defenses.readout(own, mob, kind)
         end
         if (buffs[data.issekigan_effect]) then
             out.uncertain = true;
-            add(out, 'Issekigan is active. Its hidden parry-rate power is not included.');
+            add(out, 'Issekigan is active. The strength of its parry bonus is unknown, so it is left out.');
         end
     elseif (buffs[data.reprisal_effect]) then
-        add(out, 'Reprisal is included using its source skill and block-rate multipliers.');
+        add(out, 'Reprisal uses the skill and block-rate bonuses listed in the Phoenix source.');
     end
     for id, effect in pairs(data.unknown_effects or {}) do
         if (effect[kind] and buffs[id] and id ~= data.palisade_effect and id ~= data.issekigan_effect) then
@@ -169,7 +174,7 @@ function defenses.readout(own, mob, kind)
     end
     for id, name in pairs(data.prevent_effects or {}) do
         if (buffs[id]) then
-            add(out, name .. ' currently prevents the roll. The number is conditional on being able to act.');
+            add(out, name .. ' currently stops you from blocking or parrying. The number assumes you can act.');
             break;
         end
     end
@@ -213,7 +218,7 @@ function defenses.readout(own, mob, kind)
         out.scripted, out.uncertain = true, true;
         add(out, 'The monster can change the weapon skill used by this estimate.');
     end
-    add(out, 'Earlier avoidance and special attacks have separate rules.');
+    add(out, 'An attack may be avoided before this roll. Special attacks can use different rules.');
     return out;
 end
 

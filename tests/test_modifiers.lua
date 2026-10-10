@@ -4,6 +4,14 @@ local physical = require('core.physical');
 local magic = require('core.magic');
 local data = require('data.modifiers');
 local spells = require('data.spells');
+local merits = require('core.merits');
+local merit_settings;
+
+local function reset_merits()
+    merits.forget();
+    merit_settings = { merits = { fill_in = true } };
+    merits.configure(merit_settings, 'modifier tests');
+end
 
 local function me(job, level)
     return { main_job = job or 4, level = level or 75, dex = 50, agi = 50, int = 50, mnd = 50, chr = 50,
@@ -24,7 +32,7 @@ local function item_named(name)
     for id, row in pairs(data.items) do if (row.name == name) then return id; end end
 end
 
-modifiers.forget();
+reset_merits();
 MOCK.player.equipment = {};
 local own = me();
 local inputs = read(own);
@@ -114,6 +122,15 @@ expect('element-specific merit does not apply to another element', modifiers.mag
 expect('RDM merit selects the stronger tied fire element', nuke(own, true).element, 'fire');
 expect('observed RDM merit improves its selected nuke chance', nuke(own, true).low, 56);
 check('observed zero ranks remove uncertainty too', not nuke(own, true).uncertain);
+merit_settings.merits.fill_in, merit_settings.merits.fire_magic_accuracy = false, 4;
+read(own);
+expect('manual magic merit choices replace the observed rank', modifiers.magic_accuracy(own, 'elemental', 'fire', true), 12);
+expect('a manual choice does not rewrite the observed rank', merits.observed('fire_magic_accuracy'), 2);
+modifiers.on_merits(MOCK.merit_packet({ { data.merits.fire_magic_accuracy.id, 1 } }));
+read(own);
+expect('autofill off keeps the selected magic rank after a packet', modifiers.magic_accuracy(own, 'elemental', 'fire', true), 12);
+expect('legacy manual accuracy still excludes automatic merits', modifiers.magic_accuracy(own, 'elemental', 'fire', false), 0);
+merit_settings.merits.fill_in = true;
 own.level = 74; read(own);
 expect('job merits do not apply below 75', modifiers.magic_accuracy(own, 'elemental', 'fire', true), 0);
 own = me(4); read(own);
@@ -125,7 +142,7 @@ own.buffs = {}; read(own);
 expect('Troubadour adds nothing without its buff', own.modifiers.magic_merits.singing, nil);
 local ok = pcall(modifiers.on_merits, { data = '' });
 check('a short merit packet is harmless', ok);
-modifiers.forget(); own = me(5); read(own);
+reset_merits(); own = me(5); read(own);
 check('forget clears merit observations', own.modifiers.unknown_merits.fire == true);
 
 own = me(); own.buffs[data.buffs.mighty_strikes] = true; read(own);

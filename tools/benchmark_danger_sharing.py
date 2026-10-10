@@ -65,6 +65,20 @@ def files(path):
     return {int(item.stem): item.read_text(encoding='ascii') for item in folder.glob('*.lua') if item.stem.isdigit()}
 
 
+def finder_source(path):
+    """Reuse the input catalogue's location selection; this benchmark only changes storage."""
+    if path.suffix.lower() == '.zip':
+        with zipfile.ZipFile(path) as archive:
+            names = [name for name in archive.namelist() if re.search(r'(?:^|/)data/blue_finder\.lua$', name)]
+            if len(names) == 1:
+                return archive.read(names[0]).decode('ascii')
+    else:
+        for candidate in (path / 'blue_finder.lua', path.parent / 'blue_finder.lua'):
+            if candidate.is_file():
+                return candidate.read_text(encoding='ascii')
+    raise RuntimeError('The storage benchmark needs the matching blue_finder.lua catalogue.')
+
+
 def zone_name(text, number):
     match = re.match(r'-- (.*?) \(zone \d+\)\.', text)
     return match.group(1) if match else 'Zone %d' % number
@@ -115,11 +129,13 @@ def summarize(rows, mode):
             'largest_retained_zone': max(rows, key=lambda row: row[mode]['retained_kib'])['zone']}
 
 
-def source_facts(number, name, rows):
-    """Enumerate every lesson/spawn context independently of the catalogue builder."""
+def source_facts(number, name, rows, available):
+    """List every spell and spawn context independently of the catalogue builder."""
     facts = set()
     for row in rows:
         for index in row.get('ids', ()) or (None,):
+            if index not in available:
+                continue
             sections = dict(row.get('info', {}))
             sections.update(row.get('info_by_index', {}).get(index, {}))
             blue = sections.get('blue', {})
@@ -171,6 +187,11 @@ def run(source, repetitions):
         raise RuntimeError('No zone files found in %s' % source)
     lua = luajit21.LuaRuntime(unpack_returned_tuples=True)
     same, measure = equality(lua), probe(lua)
+    stored = lua.execute(finder_source(source))
+    availability = {}
+    for spell in stored.spells.values():
+        for place in spell.monsters.values():
+            availability.setdefault(place.zone, set()).update(place.indices.values())
     rows = []
     expected = set()
     finder = blue_finder.Builder()
@@ -201,22 +222,20 @@ def run(source, repetitions):
                                  'load_ms': statistics.median(value[0] for value in values),
                                  'retained_kib': statistics.median(value[1] for value in values)}
             rows.append(result)
-            finder.add_zone(number, name, inputs)
-            expected.update(source_facts(number, name, inputs))
+            available = availability.get(number, set())
+            finder.add_zone(number, name, inputs, available)
+            expected.update(source_facts(number, name, inputs, available))
         catalogue = finder.finish()
+        catalogue['version'], catalogue['coverage'] = stored.version, stored.coverage
         catalogue_text = blue_finder.write(Path(folder) / 'finder.lua', catalogue, stamp)
         actual = catalogue_facts(python_value(lua.execute(catalogue_text)))
         if actual != expected:
             raise RuntimeError('Finder source identity mismatch: %d missing, %d extra' % (len(expected - actual), len(actual - expected)))
-        generated_match = None
-        generated = source / 'blue_finder.lua'
-        if source.is_dir() and generated.is_file():
-            stored = lua.execute(generated.read_text(encoding='ascii'))
-            error = same(lua.execute(catalogue_text), stored)
-            if error:
-                raise RuntimeError('Generated Blue finder changed %s' % error)
-            generated_match = True
-            stored = None
+        error = same(lua.execute(catalogue_text), stored)
+        if error:
+            raise RuntimeError('Generated Blue finder changed %s' % error)
+        generated_match = True
+        stored = None
         finder_samples = [measure(catalogue_text, perf_counter) for _ in range(repetitions)]
     return {'source': str(source), 'zones': len(rows), 'semantic_match': True,
             'repetitions': repetitions, 'runtime': lua.eval('_VERSION .. " / " .. jit.version'),

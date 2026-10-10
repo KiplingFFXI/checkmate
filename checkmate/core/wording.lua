@@ -131,7 +131,7 @@ wording.GROUPS = {
             { key = 'school_healing',    full = spells.schools.healing.label,    short = 'Heal', spot = 'school' },
             { key = 'school_ninjutsu',   full = spells.schools.ninjutsu.label,   short = 'Nin',  spot = 'school' },
             { key = 'school_singing',    full = spells.schools.singing.label,    short = 'Sing', spot = 'school' },
-            { key = 'school_blue',       full = 'Spell chance',                  short = 'Chance', spot = 'school' },
+            { key = 'school_blue',       full = 'Unresisted spell chance',       short = 'Chance', spot = 'school' },
             { key = 'magic_immune',      full = 'immune', short = 'imm',   spot = 'school_word' },
             { key = 'magic_never',       full = 'never',  short = 'never', spot = 'school_word' },
         },

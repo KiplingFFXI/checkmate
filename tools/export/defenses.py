@@ -7,7 +7,7 @@ from . import aggro, content, effects, lua_source, lua_writer, modifiers, overla
 
 PHYSICAL = 'scripts/combat/physical_utilities.lua'
 SKILLS = 'scripts/data/skill_ranks.lua'
-SOURCE_GUARD = 'd3e755c1441ef127acaa08f9811097a5e5ae9f956baf1349d2b3c301ffba2956'
+SOURCE_GUARD = '5462985e7b408b0067626ee76ada1b345b84b2d7e299eb63b90f311a0b5e767f'
 PATHS = (PHYSICAL, SKILLS, 'src/map/utils/attackutils.cpp', 'src/map/attack.cpp',
          'src/map/utils/charutils.cpp', 'src/map/utils/mobutils.cpp', 'src/map/utils/battleutils.cpp',
          'src/map/utils/zoneutils.cpp', 'src/map/entities/battle_entity.cpp',

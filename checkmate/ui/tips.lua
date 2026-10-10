@@ -1,7 +1,7 @@
 --[[
     Hover help for overlay text and icons. It uses full names even when the readout uses abbreviations.
     text() builds the explanation when the hovered item changes. more() updates times and ages while
-    the tip stays open. details() gathers the same explanations for Monster's Target details.
+    the tip stays open. details() gathers the same explanations for Target details.
 ]]
 
 local printout   = require('core.printout');
@@ -190,7 +190,7 @@ local function info_tip(_, result, id, full)
             summary = summary .. '; ...';
         end
         return printout.clean_text(section.label) .. ': ' .. summary
-            .. '. Open Monster > Target details for every listed move and its conditions.';
+            .. '. Open Target details for every listed move and its conditions.';
     end
     return text;
 end
@@ -407,7 +407,7 @@ local function level_tip(_, result)
         unknown = 'The monster\'s level is not known.',
     };
     local text = printout.clean_text(result.name or 'The monster') .. '. '
-        .. (sources[p.level_source] or 'No level source was recorded.');
+        .. (sources[p.level_source] or 'checkmate did not record where this level came from.');
     if (p.level_source == 'check' or p.level_source == 'widescan') then
         text = text .. ' A monster can respawn outside your sight with the same ID. A fresh /check or widescan '
             .. 'confirms its current level.';
@@ -420,7 +420,7 @@ end
 
 local PDIF_PARTS = { pdif = 'Main-hand', offhandpdif = 'Off-hand', rangedpdif = 'Ranged' };
 local PARAMETER_PARTS = { hit = true, offhand = true, ranged = true, evade = true };
-local RETAINED = 'This is the last calculated estimate, kept from your earlier reading.';
+local RETAINED = 'This estimate is kept from your earlier reading.';
 
 local function pdif_tip(result, id)
     local value = result[id] or {};
@@ -442,7 +442,7 @@ local function pdif_tip(result, id)
     out[#out + 1] = 'Hit chance, critical hits, weapon skills and damage-taken rules are separate.';
     if (type(value.attack) ~= 'number') then out[#out + 1] = 'No usable Attack stat reply is available.'; end
     out[#out + 1] = 'A manual /check refreshes enabled pDIF rows, including overlay-only rows. The passive overlay does not request stats.';
-    if (value.uncertain) then out[#out + 1] = 'The ~ marks an estimate with unresolved inputs or conditions.'; end
+    if (value.uncertain) then out[#out + 1] = 'The ~ means some inputs or conditions are unknown.'; end
     for _, note in ipairs(value.notes or {}) do out[#out + 1] = printout.clean_text(note); end
     if (value.scripted) then out[#out + 1] = 'The ? means the stored monster defense can change during the fight.'; end
     return table.concat(out, ' ');
@@ -467,7 +467,7 @@ local function number_details(_, result, id)
             local reason = printout.clean_text(value.unavailable_reason);
             out[#out + 1], seen[reason] = reason, true;
         end
-        if (value.uncertain) then out[#out + 1] = 'The ~ marks an estimate with unresolved inputs or conditions.'; end
+        if (value.uncertain) then out[#out + 1] = 'The ~ means some inputs or conditions are unknown.'; end
         for _, note in ipairs(value.notes or {}) do
             local clean = printout.clean_text(note);
             if (not seen[clean]) then out[#out + 1], seen[clean] = clean, true; end
@@ -475,13 +475,13 @@ local function number_details(_, result, id)
         return table.concat(out, ' ');
     end
     local explanations = {
-        hit = 'Main-hand hit chance from your last /checkparam and the monster\'s source stats.',
-        offhand = 'Off-hand hit chance from your last /checkparam and the monster\'s source stats.',
+        hit = 'Main-hand hit chance from your last /checkparam and the monster\'s stored stats.',
+        offhand = 'Off-hand hit chance from your last /checkparam and the monster\'s stored stats.',
         ranged = 'Ranged hit chance in the weapon\'s sweet spot. A shown distance does not change this estimate.',
         evade = 'The chance the monster\'s normal swings miss you. Other avoidance rolls are separate.',
         crit = 'Critical-hit chance for your melee swings, using the available attributes, gear and merits.',
         crittaken = 'Critical-hit chance among the monster\'s normal hits that land. TP moves use separate rules.',
-        pet = 'Your pet\'s estimated level and combat numbers. A pet /checkparam is a snapshot of its stats.',
+        pet = 'Your pet\'s estimated level and combat numbers. A pet /checkparam reads its stats at that moment.',
         reading = 'The evasion and defense reading at your last /check. Gear or buffs changed since then can make it stale.',
     };
     local text = explanations[id];
@@ -494,7 +494,7 @@ local function number_details(_, result, id)
         if (id == 'pet') then
             text = text .. notes_text(value.hit and value.hit.notes) .. notes_text(value.evade and value.evade.notes);
             if (value.parameter_state == 'checked') then
-                text = text .. ' The retained stats belong to this pet and target. Later gear, buffs or levels can make them stale.';
+                text = text .. ' These saved stats are for this pet against this monster. Later gear, buffs or levels can make them out of date.';
             elseif (value.parameter_state == 'unknown') then
                 text = text .. ' There is no matching pet stat reply for this target. Unknown numbers stay unknown.';
             elseif (value.parameter_state == 'source') then
@@ -507,12 +507,12 @@ local function number_details(_, result, id)
     local p = result.provenance or {};
     if (PARAMETER_PARTS[id] and p.parameter_state ~= nil) then
         if (p.parameter_state == 'received') then
-            text = text .. ' These are retained stats. Check again after changing gear or buffs.';
+            text = text .. ' These stats are saved from your last reply. Check again after changing gear or buffs.';
         elseif (p.parameter_state == 'waiting') then
             text = text .. ' Waiting for the stat reply after your manual /check.';
         elseif (p.parameter_state == 'stale') then
             if (value == nil or not value.retained) then
-                text = text .. ' The retained stats are stale. Check again to refresh this estimate.';
+                text = text .. ' Your saved stats are out of date. Check again to refresh this estimate.';
             end
         else
             text = text .. ' No usable stat reply is available. Check this monster to request fresh stats.';
@@ -579,12 +579,12 @@ local function number_tip(s, result, id)
         end
         if (#inputs > 0) then out[#out + 1] = 'Inputs: ' .. table.concat(inputs, '; '); end
         out[#out + 1] = 'Requirements: face the attacker, ' .. (id == 'parry' and 'be engaged, ' or '') .. 'be able to act.';
-        out[#out + 1] = 'Scope: eligible ordinary melee rolls, not the share of all incoming attacks.';
+        out[#out + 1] = 'This chance applies when an ordinary melee attack can be blocked or parried. It is not the share of all incoming attacks.';
         if (value.unavailable_reason ~= nil) then limit(value.unavailable_reason); end
         for _, note in ipairs(value.notes or {}) do
-            if (not note:find('Chance for an eligible ordinary melee', 1, true)
-                and note ~= 'Earlier avoidance and special attacks have separate rules.'
-                and not note:find('The client skill total and the source formula', 1, true)
+            if (not note:find('Your chance when the game allows a', 1, true)
+                and note ~= 'An attack may be avoided before this roll. Special attacks can use different rules.'
+                and not note:find('This uses your skill total and the extra Parry bonus', 1, true)
                 and not (value.shield_name and note:find('(size ', 1, true))
                 and not (value.attacker_skill_low and note:find('Monster ', 1, true) == 1)) then limit(note); end
         end
@@ -602,12 +602,12 @@ local function number_tip(s, result, id)
             out[#out + 1] = 'Working ratio: ' .. span(value.corrected_ratio_low, value.corrected_ratio_high)
                 .. '; curve cap ' .. span(value.cap_low, value.cap_high) .. ' (not the maximum multiplier).';
         end
-        out[#out + 1] = 'Scope: normal noncritical attacks only; possible multipliers, not average or final damage.';
+        out[#out + 1] = 'Normal noncritical attacks only. This shows possible multipliers, not average or final damage.';
         out[#out + 1] = 'Refresh: /check. The passive overlay does not request stats.';
         local shorter = {
             ['Normal noncritical attacks only. This is a possible multiplier range, not an average or final damage.'] = false,
             ['Attack comes from the last matching reply. Unseen buff potency changes can make that reading stale.'] = 'Unseen buff potency changes can make Attack stale.',
-            ['Defense is the bundled spawn baseline. Unseen effects and fight changes can alter it.'] = 'Defense is the spawn baseline; unseen effects or fight changes can alter it.',
+            ['Defense is the bundled spawn baseline. Unseen effects and fight changes can alter it.'] = 'Defense uses the stored stats at spawn. Unseen effects or fight changes can alter it.',
             ['The curve cap is applied before the melee random factor.'] = false,
             ['The monster script can change its defense during the fight.'] = 'The ? marks stored monster defense that can change during the fight.',
         };
@@ -621,7 +621,7 @@ local function number_tip(s, result, id)
     if (#limits > 0) then
         out[#out + 1] = (value.uncertain and 'Uncertainty: ' or 'Notes: ') .. table.concat(limits, '\n');
     elseif (value.uncertain) then
-        out[#out + 1] = 'Uncertainty: unresolved inputs or conditions (~).';
+        out[#out + 1] = 'The ~ means some inputs or conditions are unknown.';
     end
     return table.concat(out, '\n');
 end
@@ -678,14 +678,14 @@ local function links_tip(_, result, id, complete)
     local list = result.links;
     if (list == nil) then return nil; end
     if (not list.links) then return 'No links are listed in the bundled data for this monster. Scripts may still call helpers.'; end
-    local out = { 'Possible links from the source data, not a list of nearby living monsters.' };
+    local out = { 'These monsters can link according to Phoenix\'s data. This does not show which are nearby or alive.' };
     if (list.grouped) then
         out[#out + 1] = 'Family labels group only the names listed here, not every monster in that family.';
     end
     local names = list.all_names or list.names or {};
     for index, name in ipairs(names) do
         if (not complete and index > 20) then
-            out[#out + 1] = ('%d more. Full list: Monster > Target details.'):format(#names - 20);
+            out[#out + 1] = ('%d more. Full list: Target details.'):format(#names - 20);
             break;
         end
         local tags = list.all_tags and list.all_tags[name] or (list.tags and list.tags[index]);
@@ -716,7 +716,7 @@ local function ph_tip(_, result)
         end
         out[#out + 1] = text .. notes_text(rule.conditions);
     end
-    out[#out + 1] = 'These rules come from Phoenix\'s code. They do not show whether the NM is up or its window is open. Server settings can change the chance and cooldown.';
+    out[#out + 1] = 'These rules come from Phoenix\'s code. They do not show whether the NM is up or its window is open. Some scripted lotteries also use server chance and cooldown settings.';
     return table.concat(out, '\n');
 end
 

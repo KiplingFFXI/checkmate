@@ -12,12 +12,12 @@ HELPERS = {
 }
 CRITICAL_STATUSES = ('MIGHTY_STRIKES', 'AZURE_LORE', 'EFFLUX', 'CHAIN_AFFINITY', 'SNEAK_ATTACK')
 GUARDS = {
-    'scripts/globals/mobskills.lua': '4143e78653e6fd944978f6d4ad3c21e8c30342d7eb830e9a8282e8a617d74397',
-    'scripts/combat/physical_utilities.lua': '64f08a4dc892fd0f03a133ea1bb1028f0a024a50061a7caf9f57b1d67fb3148e',
-    'scripts/globals/bluemagic.lua': '26c2132d9a8ba81f122896b68218cad92853103951bec0827875ae083f114aff',
-    'src/map/ai/controllers/mob_controller.cpp': 'cf0d9154b618fa2ef78c80c7100e551fdc9c7a8f7c91cf290aa23eceadc7aa7d',
+    'scripts/globals/mobskills.lua': '985812fe584f74d8fb6fb2228dd88dc9c8f511a77a088a3d15abe007a9dcc70c',
+    'scripts/combat/physical_utilities.lua': '8d11d62686a51a142f4a63fa76be7acd56f9f484c7e447070c5ab750241f999c',
+    'scripts/globals/bluemagic.lua': 'bc3f6816a066f9ff9745b0ac79811045b750dbfd1033c8c34f18fd98c91d9424',
+    'src/map/ai/controllers/mob_controller.cpp': '3d0b0fa4f29a6e5fe1ad109078972f193272a7021bcc7476595c7d4e657c76ce',
 }
-MODULE_GUARD = 'e1de87174551cd5c1e3fcb83882632925a261eedaf578614e78b592121f830fb'
+MODULE_GUARD = '31bcb490bdca4e090d024cd8faabd38e6d05318d2f30315ff14bae66b29a74d6'
 CALL = re.compile(r'\b(' + '|'.join(re.escape(name) for name in HELPERS) + r')\s*\(')
 SHARED_CHANGE = re.compile(r'xi\.mobskills\.(?:mobPhysicalMove|mobRangedMove|handleSinglePhysicalHit|handleSingleRangedHit)|'
                            r'xi\.combat\.physical\.(?:calculateSwingCriticalRate|calculateRangedCriticalRate)|xi\.spells\.blue\.')
@@ -168,7 +168,7 @@ def critical_facts(text):
 
 
 def spell_facts(text):
-    """Physical Blue spells need a buff route; a parameter table alone is not enough."""
+    """Physical BLU spells need a buff route; a parameter table alone is not enough."""
     text = code(text)
     out = dict(can_crit=False, mighty_strikes=False, required_statuses=[], sneak_attack=False,
                labels=[], notes=[], unknown=[])
@@ -179,15 +179,15 @@ def spell_facts(text):
     out['notes'].append('Can crit with Azure Lore, Efflux or Chain Affinity. Its current critical chance is not known.')
     for match in calls:
         args = lua_source.call_arguments(text, match.end() - 1)
-        if not args or len(args) != 4 or not re.fullmatch(r'\w+', args[3]):
-            out['unknown'].append('A physical Blue spell uses unreadable parameters.')
+        if not args or len(args) not in (4, 5) or not re.fullmatch(r'\w+', args[3]):
+            out['unknown'].append('A physical BLU spell uses unreadable parameters.')
             continue
         values = re.findall(r'\b' + re.escape(args[3]) + r'\.attackType\s*=\s*([^\n]+)', text[:match.start()])
         values = {value.strip().rstrip(',;') for value in values}
         if not values or values <= {'xi.attackType.PHYSICAL', 'xi.attackType.NONE'}:
             out['sneak_attack'] = True
         elif values != {'xi.attackType.RANGED'}:
-            out['unknown'].append('A physical Blue spell changes its attack type in an unreadable way.')
+            out['unknown'].append('A physical BLU spell changes its attack type in an unreadable way.')
     if out['sneak_attack']:
         out['notes'].append('Sneak Attack requires a single target and the caster to be behind it or have Hide.')
     return out

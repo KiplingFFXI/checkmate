@@ -30,22 +30,22 @@ EXTRA_METHODS = re.compile(r'\b(?:mob\w*)\s*:\s*(speed|setBaseSpeed|setAnimation
 
 # Changes here need a review of the stored facts and estimates.
 GUARDS = {
-    'src/map/utils/mobutils.cpp': '60cd8fca29f63bc3a4fcddba4f90022c1d7ad1ea50314493835b039bcc53e988',
-    'src/map/entities/battle_entity.cpp': '3ffb8d2d0660073142253330b7ff3d8a0ce06681af6dc75175c7bbba92bcd178',
-    'src/map/entities/mob_entity.cpp': '78a50c65327981fd5e7b6361ae854eaaecd404600bf48b6c0e6fc4e7596a8482',
+    'src/map/utils/mobutils.cpp': '2ac10808f4398c224f8ffbe209389c7ef6d1fd3055b1c7db2d96b62317535702',
+    'src/map/entities/battle_entity.cpp': '7116cc8b94b2fc734c59c82309935ae7b6f7d3766e53d5f53b4f664143827904',
+    'src/map/entities/mob_entity.cpp': '8005abbc1398135d1c02ab87cc1f71793dbe104d2bcc5feed37188215c705aa1',
     'src/map/grades.cpp': 'd5c5bd981b8a3b5a91312eff7f52fe08ae158c728c53e0cc160d9a2c57bd65af',
     'src/map/instance_loader.cpp': '704f0013a317a0add9cd432469c6f0cae9ffb042876f3e61ac80ff376110fb4a',
-    'src/map/ai/controllers/mob_controller.cpp': 'f6518753d8fc07883a4e21afe242ee20285f3c5aa03fdece7862ebef637d1778',
+    'src/map/ai/controllers/mob_controller.cpp': 'b7cc20a4d2252e049ffaa0014abb43d5cff6822e0a8064ba8a5b9e90d1aa6c63',
     'src/map/data/shared_types/mob_attributes/dataset.cpp': '8cfd4ed2de15c7ecabb81d0f27f421d23ab25b4191ed1fb0bd9ce168d3e5c3f9',
-    'src/map/lua/lua_base_entity.cpp': 'b55d57c06ba29d6ff44eae1ea8bfb5c6f5969620aa42156cbd3d40f634a173d4',
-    'scripts/globals/job_utils/beastmaster.lua': 'ec3d35d9d097192ec1b08d317e1f3336bf4a478e929b256fecd1d477950ee25b',
+    'src/map/lua/lua_base_entity.cpp': '188d9b9b5cb19b7afe7590b4cef1d47a79385f1631bd1c7b9deb3e85a757a1bf',
+    'scripts/globals/job_utils/beastmaster.lua': '94d4ff6800cc8d11d588993f8c0c6d544d64838008e1a42e488d2467ba346846',
     'modules/phoenix/lua/custom/exp_penalties.lua': 'fcc1b93356db22fe94a077e1256e6676769466f3983388baaf239db32d7fca92',
-    'src/map/utils/zoneutils.cpp': 'b6cb460d2be671b8b1789a72f0219d4245268e486f513730b905b8fdcac391c9',
-    'src/map/attackround.cpp': 'db1da0f7668a848176d2e2a182152483c90bb18aa82cb15682b0349f6385da28',
-    'src/map/utils/battleutils.cpp': '63028079ac1ba766db68fc905c45a61c51561fde485f3f806fa7390f0913b733',
+    'src/map/utils/zoneutils.cpp': '4b4a0c73c84948588bbeada8bca32b81bda9fd7bf7395224a004be3af3d7c399',
+    'src/map/attackround.cpp': '4bf06ac41df75fc7690b3ebda64fe91c93edadf8f6f67f8853ab0829992f8256',
+    'src/map/utils/battleutils.cpp': '9ed0e465ebdd99d7f56b3bfd388b415b19597cd1fc03b21519abb40420db50cb',
     'scripts/globals/job_utils/thief.lua': '2818aca1ab4b9ca9de8d9de65e931798c0c0ef840fe3aea5a9cbcf338dd50d8a',
 }
-MODULE_GUARD = '6919b758d1477c0feb1a53b5c3021451534522803b85afb698bf0abc640a4967'
+MODULE_GUARD = '9bfea357df0693c0b79a2361c08ab92cfdc2b4446575bd08aaad50af81ca45db'
 
 
 def fingerprint(text):
@@ -258,7 +258,7 @@ class Reader:
         if not can_drop_gil(mob) or self.settings.get('MOB_GIL_MULTIPLIER', 1) <= 0:
             return [], []
         bits = []
-        notes = ['Gil drops require an eligible kill without Call for Help. Server settings can prevent them; party size and player bonuses change the amount.']
+        notes = ['Gil can drop when the kill meets the reward rules and Call for Help was not used. Server settings can stop it from dropping. Party size and player bonuses affect the amount.']
         low, high = mob.get('gil_min', 0), mob.get('gil_max', 0)
         if low > 0 and high > 0:
             top = low if high <= low else max(high, low + 2) - 1
@@ -333,7 +333,7 @@ class Reader:
                 'Bhaflau_Remnants', 'Silver_Sea_Remnants', 'Nyzul_Isle'} or pet:
             eligible = False
         value = 'Eligibility can change' if 'charm' in dynamic else 'Charm eligible' if eligible else 'Not charm eligible'
-        info['charm'] = section(value, 'Eligibility only. This does not estimate Charm success or duration.',
+        info['charm'] = section(value, 'This tells you whether Charm is allowed. It does not predict success or duration.',
             'An existing master, encounter restrictions and current states can prevent Charm.',
             'A script or loaded override changes the eligibility rules.' if 'charm' in dynamic else '')
         info['vitals'] = self.vitals(kind, raw, analysis, pet)
@@ -359,17 +359,17 @@ class Reader:
         crystal_value = 'Crystal reward disabled' if blocked_rewards else title(element) + ' crystal (conditional)' if element != 'none' else 'No base crystal element'
         info['crystal'] = section(crystal_value,
             'Source crystal element: %s.' % title(element),
-            'Crystals are separate conditional rewards, not ordinary Treasure Hunter drop rolls.',
-            'Requires an eligible zone and battle, sufficient EXP eligibility, and an eligible Signet/Sanction recipient.',
+            'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.',
+            'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.',
             'Stored encounter, zone or no-drops rules block the ordinary crystal reward.' if blocked_rewards else
             'No-drops settings, region control and party conditions can prevent the reward.')
-        reward_notes = ['Actual EXP depends on level, party, claim, eligibility and server settings.']
+        reward_notes = ['Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.']
         if blocked_rewards:
             reward_notes.append('Stored encounter, zone or no-drops rules block the ordinary seal reward.')
         elif kind.nm:
             reward_notes.append('Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.')
         else:
-            reward_notes.append('Seals require an eligible zone and EXP-awarding kill, drops enabled, and the party reward cooldown.')
+            reward_notes.append('Seals need a supported zone, a kill that awards EXP, and drops to be enabled. The party reward cooldown must also be over.')
             reward_notes.append('With Abyssea disabled, levels below 50 can give Beastmen\'s Seals; level 50+ can also give Kindred\'s Seals.')
         reward_bits = []
         if mob.get('no_drops') or kind.effects.drops_off:
@@ -393,9 +393,9 @@ class Reader:
         combat = raw.get('combat') or {}
         delay = kind.instance_pool['cmbDelay'] if hasattr(kind, 'instance_pool') else combat.get('delay', 240)
         trait_notes = ['Base attack delay %s (source delay units), before haste, slows and fight changes.' % delay,
-                       'Multi-attacks and counters are conditional; these are modifier values, not an exact attack timer.',
+                       'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.',
                        'Store TP changes the monster\'s TP gain, not the player\'s TP feed.',
-                       'Lists stored job traits and literal modifiers. Buffs and conditional callbacks may add others.']
+                       'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.']
         values = {name: set() for name in LABELS}
         for own_level in sorted(kind.levels) or [1]:
             own_mods, _ = self.modifiers(kind, raw, analysis, own_level)

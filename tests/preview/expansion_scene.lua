@@ -6,7 +6,7 @@ return function (scene)
         { id = 'family', label = 'Family', value = 'Goblins', notes = { 'From the stored family data.' } },
         { id = 'charm', label = 'Charm', value = 'Unknown', notes = { 'The source does not establish whether Charm can land.' } },
         { id = 'vitals', label = 'HP and MP', value = 'HP ~4,210-4,840, MP unknown',
-            notes = { 'These are source maximums, not current HP or MP. Fight scaling and scripts can change them.' } },
+            notes = { 'These are the maximum HP and MP listed in the source. They do not show what the monster has left. Fight scaling and scripts can change them.' } },
         { id = 'blue', label = 'Blue Magic', value = 'Bomb Toss (not learned), Frypan (learned)',
             notes = { 'You must see the eligible move. The client spell list says whether you already know the spell.' } },
         { id = 'fight', label = 'Fight rules', value = 'Time limit: 30 minutes',

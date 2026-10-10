@@ -20,6 +20,7 @@ local chat_colors = require('ui.chat_colors');
 local icons       = require('ui.icons');
 local tips        = require('ui.tips');
 local window_font = require('ui.window_font');
+local header_layout = require('ui.header_layout');
 
 local overlay = {};
 
@@ -134,7 +135,7 @@ end
 --[[
     Marks where a line can break: after the divider, after a comma between names, and after the divider in
     front of a count like "| +14 more" or "| +14", which is split off first. A break only goes where no
-    bracket is open, so "(High Evasion, Low Defense)" and "(Lv 42, range 40-44)" never split. The divider
+    bracket is open, so "(High Evasion, Low Defense)" stays together. Header fields have their own word breaks. The divider
     runs don't count brackets, so a custom divider with one in it can't throw the count off. A part's
     brackets never run past a divider, so once the break at a divider is worked out the count starts again,
     and a lone bracket in a word you typed only holds up its own part and the divider after it. An icon never
@@ -146,7 +147,7 @@ local function mark_breaks(runs, divider)
         local text = run.text;
         local count = text ~= nil and divider ~= '' and #text > #divider and text:sub(1, #divider) == divider
             and text:find('^%+%d+ ?[^%(%)]*$', #divider + 1) ~= nil;
-        if (text == nil or run.glued) then
+        if (text == nil or run.glued or run.header) then
             out[#out + 1] = run;
         elseif (run.tip_kind == 'info' or (run.tip_kind == 'number'
             and (run.tip_id == 'pdif' or run.tip_id == 'offhandpdif' or run.tip_id == 'rangedpdif'))) then
@@ -299,8 +300,13 @@ end
 ]]
 local function lay_out(runs, divider, wrap, out)
     local chunks, chunk = {}, { runs = {}, width = 0 };
-    for _, run in ipairs(mark_breaks(runs, divider)) do
+    for _, run in ipairs(mark_breaks(header_layout.prepare(runs, wrap, width_of, INDENT), divider)) do
+        if (run.break_before and #chunk.runs > 0) then
+            chunks[#chunks + 1] = chunk;
+            chunk = { runs = {}, width = 0 };
+        end
         chunk.runs[#chunk.runs + 1] = run;
+        chunk.header = chunk.header or run.header;
         chunk.width = chunk.width + run_width(run);
         if (run.breaks) then
             chunks[#chunks + 1] = chunk;
@@ -320,10 +326,20 @@ local function lay_out(runs, divider, wrap, out)
         if (last.text ~= nil) then
             fit = fit - width_of(last.text) + width_of((last.text:gsub('%s+$', '')));
         end
+        -- A header that fits needn't move just because its following divider won't.
+        if (each.header and last.divider and droppable) then
+            fit = each.width - run_width(last);
+        end
         if (filled and wrap > 0 and x + fit > wrap) then
             close_at_wrap(line, droppable);
             out[#out + 1] = finish(line);
             line, x = { { code = each.runs[1].code, text = INDENT } }, width_of(INDENT);
+            if (each.runs[1].header and each.runs[1].text ~= nil) then
+                local first = each.runs[1];
+                local text = first.text:gsub('^%s+', '');
+                each.width = each.width - width_of(first.text) + width_of(text);
+                each.runs[1] = { code = first.code, text = text, tip_kind = first.tip_kind, tip_id = first.tip_id };
+            end
         end
         for _, run in ipairs(each.runs) do
             line[#line + 1] = run;

@@ -28,6 +28,7 @@ local lessons = require('core.lessons');
 local target = {};
 
 local kept     = {};     -- Your last /check of each monster in this zone, by entity index.
+local fresh_checks = nil; -- Checks received since the target was last read.
 local scans    = {};     -- Widescan levels, cleared when that monster dies or leaves sight.
 local pending  = {};     -- What the packet handlers noted since the last frame, oldest first.
 local my_level = nil;    -- Your main level, or nil until it's read in this zone.
@@ -138,6 +139,8 @@ local function take(event)
             defense = event.defense, impossible = event.impossible, my_level = target.my_level(), at = os.clock(),
             token = event.token, parameter_state = event.parameter_state,
             parameter_reason = event.parameter_state == 'waiting' and 'Waiting for the stat reply.' or PARAMETER_UNKNOWN };
+        fresh_checks = fresh_checks or {};
+        fresh_checks[index] = true;
     elseif (event.kind == 'parameters') then
         local check = kept[index];
         if (check ~= nil and check.id == event.id and type(event.token) == 'number' and check.token == event.token) then
@@ -190,6 +193,7 @@ local function take(event)
         return;
     elseif (event.kind == 'zone') then
         kept, scans, my_level, my_sub, dead, stale = {}, {}, nil, nil, nil, true;
+        fresh_checks = nil;
         scan_times, next_inputs = {}, 0;
         pet_checks, pet_signature = {}, nil;
         parameter_signature, condition_signature, ranged_distance = nil, nil, nil;
@@ -218,16 +222,32 @@ function target.take_in()
     end
 end
 
--- Reads your target and returns its entity index, 0 for none. `o` is the overlay settings. A new target
--- shows again even if the last one died, and with Remember off it forgets every /check.
+-- Reads your target and returns its entity index, or 0 when it should stay hidden. With Remember off,
+-- changing targets discards earlier checks but keeps a reply that just arrived for the new target.
 function target.read(o)
     local index = player.target_index(o.follow_cursor == true);
     if (index ~= shown) then
         shown, dead, stale, shown_id, readout = index, nil, true, nil, nil;
         if (o.remember ~= true) then
-            kept = {};
-            pet_checks = {};
+            -- A reply can arrive before the first frame after changing targets.
+            local fresh = fresh_checks and fresh_checks[index] and kept[index];
+            kept = fresh and { [index] = fresh } or {};
+            pet_checks = fresh and pet_checks[index] and { [index] = pet_checks[index] } or {};
         end
+    end
+    fresh_checks = nil;
+    if (o.only_checked == true) then
+        local saved = kept[index];
+        local name, id;
+        if (saved ~= nil) then name, id = player.monster(index); end
+        if (saved == nil or name == nil or saved.id ~= id or index == dead) then
+            if (saved ~= nil and (name == nil or saved.id ~= id)) then
+                kept[index], pet_checks[index] = nil, nil;
+            end
+            readout, shown_id, stale = nil, nil, true;
+            return 0;
+        end
+        shown_id = id;
     end
     return index;
 end
@@ -454,6 +474,13 @@ end
 -- The readout for your target, worked out again when something changed, or nil when there's nothing to show.
 -- `s` is your settings.
 function target.readout(s)
+    if (s.overlay.only_checked == true) then
+        local saved = kept[shown];
+        if (saved == nil or saved.id ~= shown_id or shown == dead) then
+            readout, stale = nil, true;
+            return nil, false;
+        end
+    end
     local parts, now = s.overlay.parts, os.clock();
     local magic_on = parts.magic == true or display_parts.blue_enabled(s, 'chance', 'overlay');
     local pdif_on = parts.pdif == true or parts.offhandpdif == true or parts.rangedpdif == true;
@@ -544,6 +571,7 @@ end
 -- aren't tracked meanwhile. The next frame loads this zone's data again.
 function target.forget()
     kept, scans, pending, my_level, my_sub, shown, dead = {}, {}, {}, nil, nil, 0, nil;
+    fresh_checks = nil;
     stale, ready, readout, shown_id, effects_seen = true, false, nil, nil, 0;
     scan_times, next_inputs = {}, 0;
     pet_checks, pet_signature = {}, nil;

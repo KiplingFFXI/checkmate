@@ -11,10 +11,13 @@ local function cur() return MOCK.settings.current; end
 -- One frame that must not stop checkmate.
 local function frame()
     MOCK.avail = 1100;
+    MOCK.settings_all_sections = true;
     local panel = require('ui.settings_window');
     panel.folded = panel.folded or {};
     panel.folded['Display/CHAT FORMAT'], panel.folded['Display/OVERLAY OPTIONS'] = true, true;
-    panel.folded['Numbers/ADVANCED'], panel.folded['Appearance/OVERLAY APPEARANCE'] = true, true;
+    panel.folded['Combat/ADVANCED'], panel.folded['Appearance/OVERLAY APPEARANCE'] = true, true;
+    panel.folded['Appearance/CUSTOM WINDOW COLORS'], panel.folded['Appearance/TABS'] = true, true;
+    panel.folded['Appearance/CHAT COLORS'], panel.folded['Merits/OTHER'] = true, true;
     local n = #MOCK.printed;
     MOCK.frame();
     for _, line in ipairs(MOCK.printed_since(n)) do
@@ -94,7 +97,7 @@ end
     defaults before both.
 ]]
 local PAIRS = {
-    -- Printout tab.
+    -- Display: Chat format.
     { 'Show the name', click('Display/chat_format/Show the name##name'), '/checkmate hide name',
         function (s) return s.printout.parts.name.on; end },
     { 'the name\'s label', type_in('Display/chat_format/Label##name', 'Mob'), '/checkmate label name Mob',
@@ -197,12 +200,20 @@ local PAIRS = {
     { 'Replace the game\'s /check line', click('Display/chat_format/Replace the game\'s /check line'), '/checkmate replace off',
         function (s) return s.printout.replace_game_line; end },
 
-    -- Overlay tab.
-    { 'Show the overlay', click('Display/overlay_options/Show the overlay'), '/checkmate overlay on',
-        function (s) return s.overlay.on; end },
+    -- Display: Overlay options.
+    { 'Show overlay: Off', pick('Display/overlay_options/Show overlay', 'Off'), '/checkmate overlay off',
+        function (s) return { s.overlay.on, s.overlay.only_checked }; end,
+        setup = function (s) s.overlay.on, s.overlay.only_checked = true, false; end },
+    { 'Show overlay: Any targeted monster', pick('Display/overlay_options/Show overlay', 'Any targeted monster'),
+        { '/checkmate overlaychecked off', '/checkmate overlay on' },
+        function (s) return { s.overlay.on, s.overlay.only_checked }; end },
+    { 'Show overlay: Only after checking', pick('Display/overlay_options/Show overlay', 'Only after checking'),
+        { '/checkmate overlaychecked on', '/checkmate overlay on' },
+        function (s) return { s.overlay.on, s.overlay.only_checked }; end,
+        setup = function (s) s.overlay.on, s.overlay.only_checked = false, false; end },
     { 'Lock it in place', click('Display/overlay_options/Lock it in place'), '/checkmate overlaylock on',
         function (s) return s.overlay.locked; end },
-    { 'Remember each monster\'s /check', click('Display/overlay_options/Remember each monster\'s /check'), '/checkmate overlayremember off',
+    { 'Keep readings when switching targets', click('Display/overlay_options/Keep readings when switching targets'), '/checkmate overlayremember off',
         function (s) return s.overlay.remember; end },
     { 'Follow the cursor', click('Display/overlay_options/Follow the cursor while you pick a target'), '/checkmate overlaycursor on',
         function (s) return s.overlay.follow_cursor; end },
@@ -293,40 +304,40 @@ local PAIRS = {
     { 'a badge color', pick('Appearance/##badge_fire', 'Coral'), '/checkmate color badge_fire coral',
         function (s) return s.colors.badge_fire; end },
 
-    -- Numbers tab.
-    { 'shield block in chat', click('Numbers/block/In chat'), '/checkmate show block',
+    -- Combat and Merits tabs.
+    { 'shield block in chat', click('Combat/block/##chat'), '/checkmate show block',
         function (s) return s.printout.parts.block.on; end },
-    { 'shield block in the overlay', click('Numbers/block/In overlay'), '/checkmate overlayshow block',
+    { 'shield block in the overlay', click('Combat/block/##overlay'), '/checkmate overlayshow block',
         function (s) return s.overlay.parts.block; end },
-    { 'parry in chat', click('Numbers/parry/In chat'), '/checkmate show parry',
+    { 'parry in chat', click('Combat/parry/##chat'), '/checkmate show parry',
         function (s) return s.printout.parts.parry.on; end },
-    { 'parry in the overlay', click('Numbers/parry/In overlay'), '/checkmate overlayshow parry',
+    { 'parry in the overlay', click('Combat/parry/##overlay'), '/checkmate overlayshow parry',
         function (s) return s.overlay.parts.parry; end },
-    { 'main-hand pDIF in chat', click('Numbers/pdif/In chat'), '/checkmate show pdif',
+    { 'main-hand pDIF in chat', click('Combat/pdif/##chat'), '/checkmate show pdif',
         function (s) return s.printout.parts.pdif.on; end },
-    { 'off-hand pDIF in the overlay', click('Numbers/offhandpdif/In overlay'), '/checkmate overlayshow offhandpdif',
+    { 'off-hand pDIF in the overlay', click('Combat/offhandpdif/##overlay'), '/checkmate overlayshow offhandpdif',
         function (s) return s.overlay.parts.offhandpdif; end },
-    { 'ranged pDIF in chat', click('Numbers/rangedpdif/In chat'), '/checkmate show rangedpdif',
+    { 'ranged pDIF in chat', click('Combat/rangedpdif/##chat'), '/checkmate show rangedpdif',
         function (s) return s.printout.parts.rangedpdif.on; end },
-    { 'pDIF ratio mode', pick('Numbers/pDIF display', 'Attack/Defense ratio'), '/checkmate pdifmode ratio',
+    { 'pDIF ratio mode', pick('Combat/pDIF display', 'Attack/Defense ratio'), '/checkmate pdifmode ratio',
         function (s) return s.pdif.mode; end },
-    { 'pDIF multiplier mode', pick('Numbers/pDIF display', 'Multiplier range'), '/checkmate pdifmode range',
+    { 'pDIF multiplier mode', pick('Combat/pDIF display', 'Multiplier range'), '/checkmate pdifmode range',
         function (s) return s.pdif.mode; end },
-    { 'pDIF both mode', pick('Numbers/pDIF display', 'Both'), '/checkmate pdifmode both',
+    { 'pDIF both mode', pick('Combat/pDIF display', 'Both'), '/checkmate pdifmode both',
         function (s) return s.pdif.mode; end, setup = function (s) s.pdif.mode = 'range'; end },
-    { 'a Good cutoff', slide('Numbers/##hit_good', 90), '/checkmate cutoff hit good 90',
+    { 'a Good cutoff', slide('Combat/##hit_good', 90), '/checkmate cutoff hit good 90',
         function (s) return s.grades.hit_good; end, release = true },
-    { 'an OK cutoff', slide('Numbers/##crit_ok', 6), '/checkmate cutoff crit ok 6',
+    { 'an OK cutoff', slide('Combat/##crit_ok', 6), '/checkmate cutoff crit ok 6',
         function (s) return s.grades.crit_ok; end, release = true },
-    { 'the Crit taken Good cutoff', slide('Numbers/##crittaken_good', 3), '/checkmate cutoff crittaken good 3',
+    { 'the Crit taken Good cutoff', slide('Combat/##crittaken_good', 3), '/checkmate cutoff crittaken good 3',
         function (s) return s.grades.crittaken_good; end, release = true },
-    { 'the Crit taken OK cutoff', slide('Numbers/##crittaken_ok', 12), '/checkmate cutoff crittaken ok 12',
+    { 'the Crit taken OK cutoff', slide('Combat/##crittaken_ok', 12), '/checkmate cutoff crittaken ok 12',
         function (s) return s.grades.crittaken_ok; end, release = true },
-    { 'Critical Hit Rate', slide('Numbers/##crit_merits', 3), '/checkmate critmerits 3',
+    { 'Critical Hit Rate', slide('Merits/crit_hit_rate/##rank', 3), '/checkmate critmerits 3',
         function (s) return s.merits.crit_hit_rate; end, release = true },
-    { 'Enemy Critical Hit Rate', slide('Numbers/##enemy_crit_merits', 2), '/checkmate enemycritmerits 2',
+    { 'Enemy Critical Hit Rate', slide('Merits/enemy_crit_rate/##rank', 2), '/checkmate enemycritmerits 2',
         function (s) return s.merits.enemy_crit_rate; end, release = true },
-    { 'Fill both in when you zone', click('Numbers/Fill both in when you zone'), '/checkmate meritfill off',
+    { 'Use my merits when I zone', click('Merits/Use my merits when I zone'), '/checkmate meritfill off',
         function (s) return s.merits.fill_in; end },
     { 'Show its name', click('Pets/Show its name'), '/checkmate petname off',
         function (s) return s.pet.show_name; end },
@@ -336,9 +347,9 @@ local PAIRS = {
         function (s) return s.pet.hit_word; end, release = true },
     { 'a cleared Evade word', type_in('Pets/Evade word', ''), '/checkmate petevadeword ""',
         function (s) return s.pet.evade_word; end, release = true },
-    { 'Show it outside the sweet spot too', click('Numbers/Show it outside the sweet spot too'), '/checkmate rangedfar on',
+    { 'Show it outside the sweet spot too', click('Combat/Show it outside the sweet spot too'), '/checkmate rangedfar on',
         function (s) return s.ranged.show_far; end },
-    { 'Show current distance', click('Numbers/Show current distance'), '/checkmate rangeddistance on',
+    { 'Show current distance', click('Combat/Show current distance'), '/checkmate rangeddistance on',
         function (s) return s.ranged.show_distance; end },
 
     -- Aggro tab.
@@ -460,7 +471,7 @@ for _, row in ipairs(display_rows) do
     local id, tab = row[1], row[2];
     for _, display in ipairs({ 'chat', 'overlay' }) do
         local label = display == 'chat' and 'In chat' or 'In overlay';
-        if (tab == 'Monster') then label = '##' .. display; end
+        if (tab == 'Monster' or id == 'blue') then label = '##' .. display; end
         local command = display == 'chat' and 'show' or 'overlayshow';
         PAIRS[#PAIRS + 1] = { id .. ' ' .. display, click(tab .. '/' .. id .. '/' .. label),
             '/checkmate ' .. command .. ' ' .. id,
@@ -475,8 +486,12 @@ for _, group in ipairs({
         for _, display in ipairs({ 'chat', 'overlay' }) do
             PAIRS[#PAIRS + 1] = { group.key .. ' ' .. id .. ' ' .. display,
                 click(group.tab .. '/components/' .. id .. '/##' .. display),
-                '/checkmate ' .. group.command .. ' ' .. id .. ' ' .. display .. (id == 'chance' and ' on' or ' off'),
-                function (s) return { s[group.key].chat[id], s[group.key].overlay[id] }; end };
+                '/checkmate ' .. group.command .. ' ' .. (id == 'lessons' and 'spells' or id) .. ' ' .. display
+                    .. (id == 'chance' and ' on' or ' off'),
+                function (s) return { s[group.key].chat[id], s[group.key].overlay[id] }; end,
+                setup = function (s)
+                    if (group.key == 'blue') then s.printout.parts.blue.on, s.overlay.parts.blue = true, true; end
+                end };
         end
     end
 end
@@ -488,7 +503,7 @@ PAIRS[#PAIRS + 1] = { 'Undo delete', click('Profiles/Undo delete'), '/checkmate 
     function (s) return { profiles.exists('Undo me'), s.job_links.WAR }; end,
     setup = function (s) profiles.save(s, 'Undo me'); s.job_links.WAR = 'Undo me'; profiles.delete(s, 'Undo me'); end };
 
-PAIRS[#PAIRS + 1] = { 'Only unlearned spells', click('Blue Magic/Only unlearned spells'), '/checkmate blueunlearned on',
+PAIRS[#PAIRS + 1] = { 'Show only unlearned spells', click('Blue Magic/Show only unlearned spells'), '/checkmate blueunlearned on',
     function (s) return s.blue.only_unlearned; end };
 PAIRS[#PAIRS + 1] = { 'Show learning requirements', click('Blue Magic/Show learning requirements'), '/checkmate bluerequirements off',
     function (s) return s.blue.requirements; end };
@@ -505,7 +520,7 @@ PAIRS[#PAIRS + 1] = { 'Most danger moves shown', slide('Monster/Most danger move
 for _, name in ipairs(require('ui.navigation').TAB_NAMES) do
     if (name ~= 'Appearance') then
         PAIRS[#PAIRS + 1] = { 'tab ' .. name, click('Appearance/tabs/' .. name),
-            '/checkmate tab "' .. name .. '" off', function (s) return s.window.tabs[name]; end };
+            '/checkmate tab "' .. name .. '" off', function (s) return s.window.tabs[require('ui.navigation').key(name)]; end };
     end
 end
 PAIRS[#PAIRS + 1] = { 'Restore all tabs', click('Appearance/Restore all tabs'), '/checkmate tabs all',
@@ -529,7 +544,7 @@ local function from_defaults(pair, change)
         frame();
         MOCK.deactivate = false;
     else
-        MOCK.command(command);
+        for _, each in ipairs(type(command) == 'table' and command or { command }) do MOCK.command(each); end
     end
     MOCK.open = {};
     local used = next(MOCK.clicks) == nil and next(MOCK.typing) == nil and next(MOCK.slide) == nil;
@@ -540,12 +555,13 @@ end
 for _, pair in ipairs(PAIRS) do
     local window_value, window_saved, before, used = from_defaults(pair, 'window');
     local command_value, command_saved = from_defaults(pair, 'command');
-    check(pair[1] .. ' and ' .. pair[3], used and not same(before, window_value) and same(window_value, command_value)
+    local command_label = type(pair[3]) == 'table' and table.concat(pair[3], ', ') or pair[3];
+    check(pair[1] .. ' and ' .. command_label, used and not same(before, window_value) and same(window_value, command_value)
         and same(window_saved, command_saved) and same(window_value, window_saved),
         ('before %s, window %s saved %s, command %s saved %s%s'):format(show(before), show(window_value),
         show(window_saved), show(command_value), show(command_saved), used and '' or ', an input found no control'));
 end
-check('every pair ran', #PAIRS == 226, #PAIRS);
+check('every pair ran', #PAIRS == 229, #PAIRS);
 
 -- Print a sample on each tab with one prints the same lines as /checkmate sample.
 reset();
@@ -625,8 +641,8 @@ check('the commands set every value', same(set, { 'Mob', 'Acc', true, 'difficult
     true, 'Pilfer', true, 1, true, 'Class', false, true, 1, 'Pulls', true, 3, false, false, 1, true, true, 'x', 'more',
     true, 'Affects', 'buffs', false, true, 1 }),
     show(set));
--- Where the overlay sits belongs to this screen, so a profile never moves it. Your merits belong to you, so a profile
--- never holds them.
+-- The overlay position stays with this character, so a profile never moves it. Merits stay with the character too,
+-- so profiles never hold them.
 MOCK.command('/checkmate overlayspot 300 400');
 MOCK.command('/checkmate critmerits 2');
 MOCK.command('/checkmate profile save Everything');

@@ -20,6 +20,16 @@ s.window.tabs.Magic = false;
 history.record(s, before, 'Hide Magic');
 check('tab visibility is a setting that can be undone', history.undo(s) and s.window.tabs.Magic);
 before = history.capture(s);
+s.window.tabs.Numbers = false;
+history.record(s, before, 'Hide Combat');
+check('Combat visibility undo keeps the saved Numbers key', history.undo(s) and s.window.tabs.Numbers
+    and s.window.tabs.Combat == nil);
+before = history.capture(s);
+s.window.compact_navigation = true;
+check('compact navigation is an actual setting change', history.record(s, before, 'Compact navigation'));
+check('Undo restores wrapped navigation without changing geometry', history.undo(s)
+    and s.window.compact_navigation == false and s.window.x == 701);
+before = history.capture(s);
 s.job_links.WAR = 'New link';
 history.record(s, before, 'Job link');
 check('undo removes a newly added leaf', history.undo(s) and s.job_links.WAR == nil);
@@ -44,10 +54,11 @@ s.printout.parts.magic.label, s.short.hit = 'Spells', 'Land';
 s.colors.hit_good, s.look.font_size = 73, 22;
 s.merits.crit_hit_rate, s.magic.extra_accuracy, s.magic.known_inputs, s.drops.th = 4, 45, false, 3;
 presets.apply(s, 'Mage'); profiles.mark_preset(s, 'mage');
+s.overlay.only_checked = true;
 before = history.capture(s);
 local changed, label = history.reset_section(s, 'Display');
 check('Display resets its two row sets', changed and not s.overlay.on and not s.printout.parts.magic.on
-    and not s.overlay.parts.magic and s.printout.parts.aggro.on);
+    and not s.overlay.parts.magic and s.printout.parts.aggro.on and not s.overlay.only_checked);
 check('Display reset preserves words, style, geometry and manual inputs', s.printout.parts.magic.label == 'Spells'
     and s.short.hit == 'Land' and s.colors.hit_good == 73 and s.look.font_size == 22 and s.window.x == 701
     and s.merits.crit_hit_rate == 4 and s.magic.extra_accuracy == 45 and not s.magic.known_inputs and s.drops.th == 3);
@@ -61,6 +72,45 @@ check('Drops reset does not change pet or magic rows', history.reset_section(s, 
 check('the parent can record a reset at its own save boundary', history.record(s, before, 'Reset Drops') and history.undo(s));
 check('unknown section is rejected without changes', not history.reset_section(s, 'not a section') and history.equal(s, before));
 local sections = history.sections();
-expect('all section reset choices are described', #sections, 15);
+expect('all section reset choices are described', #sections, 16);
+local combat, numbers = false, false;
+for _, section in ipairs(sections) do
+    if (section.id == 'combat' and section.name == 'Combat') then combat = true; end
+    if (section.id == 'numbers') then numbers = true; end
+end
+check('reset choices display Combat without a second Numbers entry', combat and not numbers);
+local old_fill, old_shield = s.merits.fill_in, s.merits.shield_skill;
+s.merits.fill_in, s.merits.shield_skill = false, 3;
+before = history.capture(s);
+check('Merits reset restores autofill without replacing manual ranks', history.reset_section(s, 'Merits')
+    and s.merits.fill_in == true and s.merits.shield_skill == 3);
+check('Merits reset can be undone', history.undo(s) and history.equal(s, before));
+s.merits.fill_in, s.merits.shield_skill = old_fill, old_shield;
+s.window.compact_navigation = true;
+before = history.capture(s);
+check('Appearance reset includes navigation while preserving manual ranks', history.reset_section(s, 'Appearance')
+    and s.window.compact_navigation == false and s.merits.crit_hit_rate == 4
+    and s.window.x == 701);
+check('Appearance reset restores compact navigation through Undo', history.undo(s) and history.equal(s, before));
+s.window.compact_navigation = false;
+for _, name in ipairs({ 'Combat', 'numbers' }) do
+    s.printout.parts.pdif.on, s.overlay.parts.pdif, s.pdif.mode = true, true, 'ratio';
+    before = history.capture(s);
+    changed, label = history.reset_section(s, name);
+    check(name .. ' resets the same combat rows and options', changed and label == 'Reset Combat'
+        and not s.printout.parts.pdif.on and not s.overlay.parts.pdif and s.pdif.mode == 'both');
+    check(name .. ' reset can be undone without changing manual inputs', history.undo(s)
+        and history.equal(s, before) and s.magic.extra_accuracy == 45 and s.merits.crit_hit_rate == 4);
+end
+s.printout.parts.job.on, s.overlay.parts.job, s.printout.parts.job.new_line = true, true, false;
+s.printout.parts.job.label = 'Monster job';
+before = history.capture(s);
+changed, label = history.reset_section(s, 'Monster');
+check('Monster reset includes both Job displays and its line break', changed and label == 'Reset Monster'
+    and not s.printout.parts.job.on and not s.overlay.parts.job and s.printout.parts.job.new_line);
+check('Monster reset preserves custom labels, unrelated rows and manual inputs', s.printout.parts.job.label == 'Monster job'
+    and s.printout.parts.pet.on and s.overlay.parts.pet and s.printout.parts.pdif.on and s.overlay.parts.pdif
+    and s.magic.extra_accuracy == 45 and s.merits.crit_hit_rate == 4 and s.drops.th == 3);
+check('Monster reset undo restores Job and all earlier settings', history.undo(s) and history.equal(s, before));
 check('no profile file was written', #profiles.names() == 0);
 return MOCK.report();

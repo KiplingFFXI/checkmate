@@ -90,7 +90,7 @@ text = MOCK.plain(table.concat(printout.lines(s, r), '\n'));
 check('family entries retain existing conditions and overflow formatting', has(text, 'Goblin family (Sight)') and has(text, '+1 more'));
 local hover = tips.text(s, r, 'links', 'links');
 check('family hover narrows its claim to listed names', has(hover, 'Family labels group only the names listed here')
-    and has(hover, 'not every monster in that family') and has(hover, 'not a list of nearby living monsters'));
+    and has(hover, 'not every monster in that family') and has(hover, 'does not show which are nearby or alive'));
 check('family hover keeps exact names and individual conditions', has(hover, 'Goblin Thug (Sight)')
     and has(hover, 'Goblin Weaver (Sight)') and has(hover, 'Named helper (Superlink)'));
 check('full details retain exact membership', has(tips.details(s, r), 'Named helper (Superlink)'));

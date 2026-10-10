@@ -37,11 +37,11 @@ expect('defensive snapshot age is independent of attack replies', out.observed_a
 expect('job and equipment permit the conditional roll', out.eligible, true);
 expect('shield type is available to the hover', out.shield_size, 1);
 expect('monster comparison skill is retained', out.attacker_skill_low, 200);
-check('shield tooltip explains its conditional denominator', table.concat(out.notes, ' '):find('not total damage avoidance', 1, true));
+check('shield tooltip explains its conditional denominator', table.concat(out.notes, ' '):find('not your chance to avoid all damage', 1, true));
 own.buffs = { [2] = true };
 out = defenses.readout(own, mob, 'block');
 expect('temporary prevention does not erase the planning chance', out.low, 55);
-check('current prevention is disclosed', table.concat(out.notes, ' '):find('Sleep currently prevents', 1, true));
+check('current prevention is disclosed', table.concat(out.notes, ' '):find('Sleep currently stops you from blocking or parrying', 1, true));
 own.buffs = {};
 out = defenses.readout(own, mob, 'parry');
 expect('plain unaugmented parry is not flagged for nonexistent augments', out.uncertain, nil);

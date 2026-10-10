@@ -8,7 +8,7 @@
 - [Choose what to show](#choose-what-to-show)
 - [Understand estimates and refresh readings](#understand-estimates-and-refresh-readings)
 - [Filter Dangers and read move details](#filter-dangers-and-read-move-details)
-- [Find and track Blue Magic lessons](#find-and-track-blue-magic-lessons)
+- [Find and track BLU spells](#find-and-track-blu-spells)
 - [Read Effects and pet estimates](#read-effects-and-pet-estimates)
 - [Use commands](#use-commands)
 - [What checkmate reads, sends and saves](#what-checkmate-reads-sends-and-saves)
@@ -31,13 +31,16 @@ For an update, replace the old `addons\checkmate` folder with the new one, then 
 
 Type `/checkmate` to open settings. **Find settings** searches controls and their help. **Previous match** and **Next match** step through results on the current tab. The tabs and search stay at the top while the page scrolls. Resize the panel to fit your screen; controls wrap as the width changes.
 
-- **Display** puts chat and overlay rows in one table, with shared labels, order and line breaks. Use **Enabled only** to shorten the list. At smaller widths, use **+** beside a row for its layout controls. **Options** opens its settings.
-- **Numbers** groups combat settings under Offense, Defense and Advanced. Grade cutoffs and merit inputs are under Advanced.
-- **Appearance** holds skins, colors, fonts and tab visibility. Hiding a tab does not turn off its features, and Appearance always stays available.
+- **Display** has **Rows**, **Chat format** and **Overlay options** views. Rows puts chat and overlay choices in one table, with shared labels, order and line breaks. Use **Enabled only** to shorten the list. At smaller widths, **+** opens a row's layout controls and **-** closes them. They stay open while you search; clearing **Find settings** restores your previous selection. **Options** goes straight to that row's controls. **Back to Display** returns to the rows.
+- **Combat** groups combat settings into compact Offense and Defense tables. Grade cutoffs are under Advanced.
+- **Merits** keeps supported merit ranks in collapsible categories. **Use my merits when I zone** is at the top; turn it off to keep your manual choices. **From game** shows the last rank received from the server. Rows say whether the selected rank changes estimates or is for reference only. **Manual** marks a rank that differs from the game. **Restore game ranks** replaces choices with known ranks, leaves unread choices alone, and supports Undo.
+- **Appearance** holds skins, colors and fonts. Overlay appearance sits below Window style. Detailed color groups start folded, and **Tabs** is folded at the bottom. Hiding a tab does not turn off its features, and Appearance always stays available.
 - **Abbreviations** lets you shorten the addon's words separately in chat and the overlay.
 - **Profiles** offers starter presets and saves a setup for reuse across characters or a main job. Profile changes leave your window position and hidden tabs alone.
 
-Hover a control's help marker for its explanation. In the overlay, hover text or icons for a short result, inputs and conditions. **Target details**, available at the top of every tab, keeps supported combat and monster notes and full Links and Dangers lists, including your last manual `/check` when the overlay is off. Its search, filters and folded sections do not remove anything from **Copy details**.
+Hover a control's help marker for its explanation. In the overlay, hover text or icons for a short result, inputs and conditions. **Target details**, available at the top of every tab or through **Open target details** on Monster, keeps supported combat and monster notes and full Links and Dangers lists, including your last manual `/check` when the overlay is off. Its search, filters and folded sections do not remove anything from **Copy details**.
+
+For a shorter panel, enable **Appearance > Window style > Compact tab navigation**, or use `/checkmate compacttabs on`. It replaces the wrapped tab buttons with one selector. Search and hidden tabs still work. Settings categories remember your open and closed choices for this character between reloads. Search opens them temporarily without replacing those choices.
 
 Choose **Mint** for dark green panels and mint highlights, or **Lavender** for dark plum panels and soft purple highlights. Both are under **Appearance > Window style > Skin**. You can also use `/checkmate skin mint` or `/checkmate skin lavender`.
 
@@ -62,7 +65,13 @@ Presets enable the overlay, change the selected rows and their order, and limit 
 
 **Preview** at the top of settings shows either Chat or Overlay, using Sample or Current target data. It reads the result already available and sends no requests. The preview uses text for game symbols; **Print a sample** shows the real chat output.
 
-**Undo last change** restores recent settings changes during this session, including loading a profile or applying a preset. **Reset this section** resets the current tab while keeping manual combat inputs, custom labels and window positions. Appearance resets styling, Abbreviations resets custom words, and Profiles clears job links without deleting saved profiles. **Undo overwrite** restores the previous saved version of a profile if it has not changed again. The heading tells you when your settings are modified from a preset or saved profile.
+**Undo last change** restores recent settings changes during this session, including loading a profile or applying a preset. Under **Reset...**, **Reset this tab** restores the current tab while keeping manual combat inputs, custom labels and window positions. Appearance resets styling, Abbreviations resets custom words, and Profiles clears job links without deleting saved profiles. **Undo overwrite** restores the previous saved version of a profile if it has not changed again. The heading tells you when your settings are modified from a preset or saved profile.
+
+On Merits, the menu says **Reset autofill option** because it only turns zone autofill back on. Your selected ranks stay in place. Use **Restore game ranks** to replace the ranks that have been read.
+
+**Reset... > Reset all settings** restores every setting for the current character after confirmation, including manual inputs, merits, labels, colors, layout, positions and job links. You must be logged into a character. Saved profiles and other characters' settings stay as they are. It also clears remembered readings and Undo history. Use **Cancel** to keep your settings.
+
+**Clear all rows** under **Display > Rows** turns off every chat and overlay row, including rows hidden by a filter. It keeps your labels, layout, appearance and other settings. The game's own `/check` line stays visible when every chat row is off. **Undo last change** restores the selection. You can also use `/checkmate clearall` and `/checkmate undo`.
 
 ## Choose what to show
 
@@ -83,7 +92,7 @@ Presets enable the overlay, change the selected rows and their order, and limit 
 
 **Links** groups matching names by family, such as **Goblin family (Sight)**. Two or more names can group when their family and linking conditions match. Other names stay separate. These labels cover the listed names, not every monster in that family or the monsters currently nearby. Hover for names or open **Target details** for the full list. Under **Aggro**, turn off **Group names by family** to keep each name separate, or use `/checkmate linkfamilies off`. **Most entries shown** applies after grouping.
 
-The overlay and optional rows can be turned on as needed. It hides for the map, cutscenes and hidden game interface according to its settings. Hold Shift to move it or change its width when it is unlocked. Missing pictures leave readable text; weapon names and percentages stay visible even with Icons only.
+Under **Display > Overlay options**, **Show overlay** lets you choose **Off**, **Any targeted monster** or **Only after checking**. It hides for the map, cutscenes and hidden game interface according to its settings. Hold Shift to move it or change its width when it is unlocked. Missing pictures leave readable text; weapon names and percentages stay visible even with Icons only.
 
 ## Understand estimates and refresh readings
 
@@ -99,21 +108,25 @@ The bundled data comes from Phoenix's source code at a particular revision. It d
 
 Hit rate, off-hand hit rate, ranged hit rate and Evade can appear in either display. Enable their Overlay switches under Display. They fill in after your manual `/check` receives its stat reply. If your gear, buffs or stats change, the overlay keeps the last calculated numbers with a **Check again** note. Their hover help keeps the original inputs and reply age. Another `/check` refreshes them. HP and TP changes add an estimate marker because conditional bonuses may have changed. The passive overlay never requests stats.
 
-Checked numbers have no time limit. The monster dying or leaving sight clears its saved readings. Zoning, turning the overlay off or resetting settings clears all saved readings. With **Remember** off, changing targets clears them too.
+Checked numbers have no time limit. The monster dying or leaving sight clears its saved readings. Zoning, turning the overlay off or resetting settings clears all saved readings. Turning off **Keep readings when switching targets** also clears them when you change targets.
+
+Choose **Only after checking** to keep unchecked monsters hidden. **Keep readings when switching targets** lets them show again when retargeted; with it off, you need to check again after changing targets. `/checkmate overlaychecked on` selects this behavior while the overlay is enabled. Settings previews still work.
 
 Combat numbers use the inputs available when the result is built. A `/checkparam` reading is a snapshot; later gear, buffs, debuffs or fight changes can affect it. Magic hover help names the selected spell and explains whether its percentage means landing at all or doing full, unresisted damage.
 
 Under **Magic**, **Include known gear and merits** controls the manual accuracy field. With it on, enter only bonuses checkmate has not already counted, such as food. With it off, enter your complete direct magic accuracy bonus from gear, food and merits. Skills and attributes are counted separately in either mode. Do not add bonuses already included automatically a second time.
 
+The **Merits** sliders change supported estimates without changing your character. Skill and attribute totals already include merits, so Checkmate replaces the observed contribution with your selected one. Zone once to establish the baseline. Without it, the current client total stays in use and the details explain why. Your actual Attack, Accuracy and Evasion from `/checkparam` stay as received; weapon-skill, Evasion and STR rank choices do not rewrite those readings. Level and job limits still apply. Merits are saved per character and are left out of profiles.
+
 ### pDIF
 
-Choose the pDIF rows and their display mode under **Numbers**. They start off. Ratio mode includes the Attack and Defense inputs: 558 Attack against 365 Defense gives a ratio of 1.53. Range mode shows the possible multiplier for ordinary, noncritical attacks. It is not average or final damage, and does not describe weapon skills. Hover help keeps both views and explains the curve cap.
+Choose the pDIF rows and their display mode under **Combat**. They start off. Ratio mode includes the Attack and Defense inputs: 558 Attack against 365 Defense gives a ratio of 1.53. Range mode shows the possible multiplier for ordinary, noncritical attacks. It is not average or final damage, and does not describe weapon skills. Hover help keeps both views and explains the curve cap.
 
 pDIF uses your Attack from the stat reply and the monster's bundled Defense for its known level or range. After your inputs change, the overlay keeps that monster's last calculated estimate with a **Check again** note. It does not combine the old Attack with your new gear or stats. Scripted Defense changes and observed Defense effects keep their warnings; values that were never known stay unknown. Where the source cannot establish the server's level-correction setting, the range covers both possibilities and says so.
 
 ### Shield block and Parry
 
-**Shield block** and **Parry** start off and have separate chat and overlay switches under Numbers. They read your current skills and gear without requesting stats. Shield block uses your equipped shield, Shield skill and the monster's combat skill rating. Parry uses your weapon, Parrying skill, supported bonuses and the monster's level. Gear bonus coverage follows Phoenix's level-75 cap. Hover help names the inputs and any missing conditions.
+**Shield block** and **Parry** start off and have separate chat and overlay switches under **Combat > Defense**. They read your current skills and gear without requesting stats. Shield block uses your equipped shield, Shield skill and the monster's combat skill rating. Parry uses your weapon, Parrying skill, supported bonuses and the monster's level. Gear bonus coverage follows Phoenix's level-75 cap. Hover help names the inputs and any missing conditions.
 
 These are chances when the attack reaches an eligible block or parry roll. Both require you to face the attacker and be able to act; parrying also requires you to be engaged. Blocking reduces damage. Parrying avoids the hit. The percentages do not add to Evade or describe your total damage avoidance. Known reasons, such as **No shield equipped** or an unsupported job, appear on the row. Unreadable inputs still say **unknown**. Monsters without ordinary swings explain why the estimate is unavailable. Unresolved bonuses keep an estimate marker and explanation.
 
@@ -121,7 +134,9 @@ These are chances when the attack reaches an eligible block or parry roll. Both 
 
 Weapon percentages describe the target's damage-type multiplier, not your final damage. General melee and ranged damage changes, absorption and nullification have separate entries. Attack, defense, shields and other effects still matter. Magical, hybrid and formless attacks can follow different rules.
 
-PH details show the supported lottery chance, conditions and cooldown after the NM despawns. They do not establish an open spawn window. Drops retain script and EXP conditions. Steal also depends on an item being available and your ability to receive it.
+Spawn notes include supported time, weather and ferry deck conditions. PH details show the supported lottery chance, conditions and cooldown after the NM despawns. Some scripted lotteries also use server chance and cooldown settings. These notes do not establish an open spawn window or a live countdown.
+
+Drops retain script and EXP conditions. Steal also depends on an item being available and your ability to receive it.
 
 ## Filter Dangers and read move details
 
@@ -131,17 +146,23 @@ Use category filters and the move limit to keep the chat and overlay short. Targ
 
 `No listed threats` means none were found in the resolved source list for the known level or range. `Move list unresolved` or `list incomplete` means moves may be missing. None of these predicts the next action or makes a safety promise.
 
-## Find and track Blue Magic lessons
+## Find and track BLU spells
 
-The Blue Magic row combines possible lessons with an optional spell-chance estimate. Select lessons and chance separately for chat and overlay. Magic's gear, merit and accuracy options also apply to the Blue chance.
+The Blue Magic row combines **Learnable spells** with an optional **Unresisted spell chance** estimate. Select them separately for chat and overlay. Magic's gear, merit and accuracy options apply to Unresisted spell chance, not Learning chance.
 
-Possible lessons come from the monster's supported source move list. Your client's spellbook supplies **known**, **not learned** or **spellbook unknown**. Only unlearned hides confirmed known spells; unreadable entries stay visible. A resolved list with no lessons says so. Incomplete lists keep their known candidates and explain the gap.
+Possible learnable spells come from the monster's supported source move list. Your client's spellbook supplies **known**, **not learned** or **spellbook unknown**. **Show only unlearned spells** hides confirmed known spells from the readout; unreadable entries stay visible. A resolved list with no learnable spells says so. Incomplete lists keep their known candidates and explain the gap.
 
 **Show learning requirements** adds minimum Blue Magic skill and the inputs read with the result to hover help and Target details. These are a snapshot. The monster must use the move, the server checks the other conditions on defeat, and learning still has a chance to fail. A spell's casting level is not a minimum learning level.
 
+**Learning chance**, in the Blue Magic tab, shows the base 33% chance plus supported learning gear you currently have equipped. At their required levels, Magus Bazubands add 10 percentage points and Magus Bazubands +1 add 11. The percentage and gear stay visible while the section is open. The nested **Learning requirements** starts closed; open it for the conditions. This is the chance for an eligible attempt, not a guarantee that this monster will teach you a spell. You must be alive on main-job Blue Mage, meet the actual skill requirement, be within 100 yalms, and receive kill credit with your party or alliance. The monster must have used an unlearned move, and Call for Help prevents learning. There is at most one attempt per defeat. Blue Magic skill merits can help meet the skill requirement; they do not increase Learning chance directly. Manual merit choices do not change the actual skill shown in learning requirements.
+
+**Unresisted spell chance** estimates whether a magical BLU spell avoids a resist. It is separate from learning. **Show Blue row** controls whether the row appears in chat or the overlay. A hidden column says **Row hidden** and dims its component choices, keeping their selections for when you turn it back on. If the overlay itself is off, enable it under **Display > Overlay options** too.
+
 **Show observed move use** can mark a completed move as seen. Misses and resists count; ready messages and interruptions do not. Not observed can mean the move happened before tracking began or out of view. Tracking starts off and does not establish learning eligibility.
 
-**Spell finder** works without a selected monster. Choose a spell, then search its possible monsters and zones. It keeps exact source level ranges and known spawn or fight conditions. You can filter to unlearned spells or your current zone and copy the matching places. It does not find living monsters. An absent entry does not prove that a monster cannot teach the spell.
+**Spell finder** works without a selected monster. Choose a spell, then search its possible monsters and zones. It keeps exact source level ranges and known spawn or fight conditions. **Find only unlearned spells** filters the finder independently of the readout. You can also filter by your current zone and copy the matching places.
+
+The finder uses enabled content and supported spawn or encounter routes in the bundled Phoenix data. Places without an established route are left out. It does not check whether a monster is alive or whether the live server has changed. A missing entry does not mean the spell cannot be learned from that monster.
 
 ## Read Effects and pet estimates
 
@@ -179,7 +200,7 @@ Use commands for quick changes or to open a settings view. `/checkmate preset <n
 | `/checkmate replace off` | Keep the game's original `/check` line. |
 | `/checkmate reset` | Reset this character's settings. Repeat within 10 seconds to confirm; saved profiles remain. |
 
-Help topics are `display`, `numbers`, `aggro`, `magic`, `blue`, `weaknesses`, `pets`, `monster`, `drops`, `effects`, `abbreviations`, `appearance`, `profiles` and `presets`. The older `printout` and `overlay` topics still work.
+Help topics are `display`, `combat`, `merits`, `aggro`, `magic`, `blue`, `weaknesses`, `pets`, `monster`, `drops`, `effects`, `abbreviations`, `appearance`, `profiles` and `presets`. The older `numbers`, `printout` and `overlay` names still work in commands.
 
 ## What checkmate reads, sends and saves
 

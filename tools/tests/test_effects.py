@@ -58,6 +58,12 @@ xi.combat.action.executeMobskillStatusEffect(pet, target, skill, effectTable)'''
             with self.assertRaisesRegex(RuntimeError, 'modules/new.lua changes an Effects source'):
                 effects.check_source('unused')
 
+    def test_new_nadrs_override_cannot_silently_change_duration(self):
+        with mock.patch.object(effects.aggro, 'lua_files_loaded', return_value=['modules/new.lua']), \
+             mock.patch.object(effects, 'source', return_value="m:addOverride('xi.items.nadrs.onItemAdditionalEffect', f)"):
+            with self.assertRaisesRegex(RuntimeError, 'modules/new.lua changes an Effects source'):
+                effects.check_source('unused')
+
     def test_removal_metadata_uses_groups_negative_and_remove(self):
         rows = {'sleep': {'id': 2, 'exclusion_group': 'sleep', 'negative': 'sleep_ii'},
                 'sleep_ii': {'id': 19, 'exclusion_group': 'sleep'},
@@ -79,7 +85,7 @@ class PhoenixTests(unittest.TestCase):
 
     def test_spell_duration_boundaries(self):
         spells = self.data['spells']
-        for number, low, high in [(258, 13, 60), (252, 2, 7), (254, 80, 300), (58, 30, 120), (59, 2, 120)]:
+        for number, low, high in [(258, 13, 60), (252, 2, 7), (254, 80, 300), (58, 30, 120), (59, 30, 120)]:
             self.assertEqual((spells[number]['seconds'], spells[number]['top']), (low, high))
         self.assertEqual(spells[253]['seconds'], 60)
         self.assertEqual(spells[259]['seconds'], 90)
@@ -106,6 +112,12 @@ class PhoenixTests(unittest.TestCase):
         for number, seconds in [(305, 180), (310, 120), (345, 300), (371, 120)]:
             self.assertEqual(self.data['skills'][number]['seconds'], seconds)
 
+    def test_loaded_poison_range_keeps_its_upper_duration_estimate(self):
+        text = effects.source(self.tree, 'modules/phoenix/lua/actions/mobskills/poison_breath_crawler_pre_wotg.lua')
+        self.assertIn('math.random(60, 300)', text)
+        self.assertEqual(effects.duration_value('duration', text), 300)
+        self.assertEqual(self.data['skills'][345]['seconds'], 300)
+
     def test_branch_durations_are_not_reported_as_literals(self):
         names = {'hellsnap', 'charm', 'fragrant_breath', 'venom_spray'}
         found = {row['_name']: row for row in self.data['skills'].values() if row['_name'] in names}
@@ -122,6 +134,28 @@ class PhoenixTests(unittest.TestCase):
                          {2: 25, 10: 5, 149: 60})
         self.assertTrue(set(self.data['procs']) <= set(self.data['proc_effects']))
         self.assertEqual(len(self.data['procs']), 125)
+        self.assertEqual(self.data['procs'][17650], 60)
+        self.assertEqual(self.data['proc_effects'][17650], 3)
+        self.assertNotIn(18198, self.data['procs'])
+
+    def test_scripted_nadrs_requires_its_item_modifier(self):
+        original = effects.sql_rows
+        def without_nadrs(tree, table):
+            return [row for row in original(tree, table)
+                    if not (table == 'item_mods' and row['itemId'] == 17650)]
+        with mock.patch.object(effects, 'sql_rows', side_effect=without_nadrs):
+            _, procs, proc_effects, _ = effects.equipment(self.tree)
+        self.assertNotIn(17650, procs)
+        self.assertNotIn(17650, proc_effects)
+
+    def test_changed_nadrs_script_stops_export(self):
+        original = effects.source
+        def changed(tree, relative):
+            text = original(tree, relative)
+            return text.replace('math.random(30, 60)', 'math.random(30, 90)') if relative == 'scripts/items/nadrs.lua' else text
+        with mock.patch.object(effects, 'source', side_effect=changed):
+            with self.assertRaisesRegex(RuntimeError, 'nadrs.lua changed'):
+                effects.check_source(self.tree)
 
     def test_picture_ids_and_removal_rules(self):
         pictured = self.data['pictured']

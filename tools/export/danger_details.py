@@ -7,7 +7,7 @@ import re
 from . import aggro, danger_effects, lua_source, overlays, tables
 
 
-SOURCE_GUARD = '11a921f8ec70b0202dd1a035eb01db695a48501351749bbd667f3a0bce70402c'
+SOURCE_GUARD = 'd6b21bfacac2a7eb23ab8e9b291c1367bf3faf3bf99e7275d6bb6c8a31ab9583'
 SOURCE_FILES = (
     'src/map/mobskill.cpp', 'src/map/spell.cpp', 'src/map/entities/battle_entity.cpp',
     'src/map/ai/controllers/mob_controller.cpp', 'src/map/ai/states/magic_state.cpp',
@@ -93,7 +93,7 @@ def yards(value):
 def geometry(row, spell=False):
     out = {'notes': [], 'unknown': []}
     if row.get('targeting_scripted'):
-        out['unknown'].append('The monster script changes targeting. Its final range and area are not established here.')
+        out['unknown'].append('The script changes who the move targets. Its final range and area are unknown.')
         return out
     if spell:
         aoe = row.get('AOE')

@@ -57,7 +57,7 @@ local help = tips.text(s, result, 'number', 'pdif');
 check('hover includes both forms regardless of display mode', has(help, 'Result: 1.15-1.93x') and has(help, 'A/D ratio 1.53'));
 check('working ratio and curve cap are separate', has(help, 'Working ratio: 1.40')
     and has(help, 'curve cap 2.00') and has(help, 'not the maximum multiplier') and not has(help, 'cap: 2.00x'));
-check('source caveats and noncritical scope stay visible', has(help, 'normal noncritical attacks only; possible multipliers, not average or final damage.')
+check('source caveats and noncritical scope stay visible', has(help, 'Normal noncritical attacks only. This shows possible multipliers, not average or final damage.')
     and has(help, value.notes[2]) and has(help, 'stored monster defense') and has(help, 'can change during the fight'));
 MOCK.now = 100;
 expect('hover gives the Attack reply its own age', tips.more(s, result, 'number', 'pdif'), 'Attack stat reply: 0:20 ago.');
@@ -73,7 +73,7 @@ result.pdif = { notes = { 'Attack is unknown.' } };
 text = lines();
 check('unreadable inputs stay unknown rather than zero', has(text, 'unknown; Ratio unknown (Attack unknown / Defense unknown)') and not has(text, '0.00'));
 check('unknown attack never claims a reply was received', has(tips.text(s, result, 'number', 'pdif'), 'No usable Attack stat reply is available.'));
-check('unknown pDIF still states its noncritical scope', has(tips.text(s, result, 'number', 'pdif'), 'normal noncritical attacks only;'));
+check('unknown pDIF still states its noncritical scope', has(tips.text(s, result, 'number', 'pdif'), 'Normal noncritical attacks only.'));
 result.dual_wield, result.shoots = false, false;
 for _, id in ipairs(ids) do s.printout.parts[id].on = true; end
 local _, fewer = lines();
@@ -94,21 +94,21 @@ local loaded = defaults.make();
 check('load pDIF choices independently', profiles.load(loaded, 'pDIF settings') and loaded.pdif.mode == 'ratio'
     and loaded.printout.parts.pdif.label == 'Damage factor' and loaded.overlay.parts.pdif);
 MOCK.navigation_real = true;
-require('ui.navigation').select('Numbers');
+require('ui.navigation').select('Combat');
 window.set_open(true);
 MOCK.frame(0);
 window.draw(s, 'test');
 for _, id in ipairs(ids) do
-    check(id .. ' has both Numbers display controls', MOCK.gui.paths['Numbers/' .. id .. '/In chat'] == 'Checkbox'
-        and MOCK.gui.paths['Numbers/' .. id .. '/In overlay'] == 'Checkbox');
+    check(id .. ' has both Combat display controls', MOCK.gui.paths['Combat/' .. id .. '/##chat'] == 'Checkbox'
+        and MOCK.gui.paths['Combat/' .. id .. '/##overlay'] == 'Checkbox');
 end
-check('pDIF mode has its own non-percent control', MOCK.gui.paths['Numbers/pDIF display'] == 'BeginCombo');
-MOCK.open['Numbers/pDIF display'] = true;
-MOCK.clicks['Numbers/pDIF display/Multiplier range'] = true;
+check('pDIF mode has its own non-percent control', MOCK.gui.paths['Combat/pDIF display'] == 'BeginCombo');
+MOCK.open['Combat/pDIF display'] = true;
+MOCK.clicks['Combat/pDIF display/Multiplier range'] = true;
 local changed = window.draw(s, 'test');
-check('Numbers mode selection updates settings and requests save', changed.save and s.pdif.mode == 'range');
-check('pDIF options are found through settings search', window.search_tabs('Attack/Defense ratio').Numbers
-    and window.search_tabs('pDIF').Numbers and window.search_tabs('pDIF').Appearance);
+check('Combat mode selection updates settings and requests save', changed.save and s.pdif.mode == 'range');
+check('pDIF options are found through settings search', window.search_tabs('Attack/Defense ratio').Combat
+    and window.search_tabs('pDIF').Combat and window.search_tabs('pDIF').Appearance);
 expect('display controls send no game commands', #MOCK.commands, 0);
 local target = require('core.target');
 target.read = function () return 224; end;

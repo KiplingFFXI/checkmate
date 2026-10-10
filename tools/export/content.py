@@ -6,7 +6,7 @@ The exporter takes these as arguments instead of reading a settings file, becaus
 settings/main.lua isn't in git.
 """
 
-# Phoenix runs with RESTRICT_CONTENT on and only these expansions on.
+# The reviewed Phoenix defaults enable only these expansions.
 DEFAULT_ON = ['rotz', 'cop', 'toau']
 
 

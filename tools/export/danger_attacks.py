@@ -5,7 +5,7 @@ import re
 
 from . import aggro, danger_effects, lua_source, overlays
 
-SOURCE_GUARD = '584d133399cd748ff9f4a83b1bfa64733e72c9cac3060c5b219f485669bcf0a6'
+SOURCE_GUARD = 'abfcc076c3437e78bb51e9d403094638984bb9cedbacb5c15f0fef1543ca57ae'
 SOURCE_FILES = (
     'src/map/utils/battleutils.cpp', 'src/map/utils/battleutils.h',
     'src/map/entities/battle_entity.cpp', 'src/map/lua/luautils.cpp',
@@ -248,7 +248,7 @@ class Reader:
         if 'BLOOD_WEAPON' in statuses or set(skills) & BLOOD_WEAPON_IDS or re.search(
                 r'\b(?:mob|mobArg|actor):addStatusEffect(?:Ex)?\(\s*xi\.effect\.BLOOD_WEAPON\b', kit_text):
             labels.add('HP drain')
-            notes.append('Normal hits can drain HP while Blood Weapon is active. It does not drain undead targets; the active buff is not established here.')
+            notes.append('Normal hits can drain HP while Blood Weapon is active, except against undead targets. This list does not show whether Blood Weapon is active now.')
         native_values = {(attrs.get('mods') or {}).get('enspell', 0)}
         parsed = lua_source.LuaFile('native ordinary proc', kit_text)
         calls = [call for call in parsed.calls if call.own and call.method in ('setMod', 'addMod', 'delMod')

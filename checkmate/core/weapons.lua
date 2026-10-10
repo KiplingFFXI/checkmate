@@ -28,7 +28,7 @@ local function field(row, level, name)
     return row[name] or NONE, false;
 end
 
--- Percent is the signed change from neutral, before generic reductions or other damage math.
+-- Percent shows the change from normal damage, before other reductions or damage calculations.
 function weapons.readout(row, level)
     if (row == nil) then return nil; end
     local types, types_unknown = field(row, level, 'weapon_dmg');

@@ -90,7 +90,7 @@ function parts.magic_settings(s, display)
     return out;
 end
 
--- Old groups expand once, where they occurred. The caller fills genuinely missing rows afterward.
+-- Expand each old group once, in its original place. The caller adds any rows still missing.
 function parts.expand_order(value)
     local out, seen = {}, {};
     local function add(id)

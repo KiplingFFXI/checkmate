@@ -2,6 +2,12 @@
 
 Older entries describe that release. Later entries may change its behavior.
 
+## 1.14.7
+
+- Added Escape closes overlay under Display > Overlay options. It is off by default.
+- When enabled, Escape hides the overlay during combat too. Your next check brings it back, and saved readings are kept.
+- Settings controls get Escape first. Escape still works in the game as usual.
+
 ## 1.14.6
 
 - Escape closes settings during combat too. Text fields, dropdowns and reset confirmation get the first Escape before the window closes.

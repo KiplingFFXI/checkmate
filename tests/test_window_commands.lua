@@ -7,6 +7,7 @@ local profiles = require('ui.profiles');
 local defaults = require('ui.defaults');
 local json     = require('json');
 local function cur() return MOCK.settings.current; end
+check('Escape closes overlay starts off', cur().overlay.escape_closes == false);
 
 -- One frame that must not stop checkmate.
 local function frame()
@@ -211,6 +212,11 @@ local PAIRS = {
         { '/checkmate overlaychecked on', '/checkmate overlay on' },
         function (s) return { s.overlay.on, s.overlay.only_checked }; end,
         setup = function (s) s.overlay.on, s.overlay.only_checked = false, false; end },
+    { 'Escape closes overlay on', click('Display/overlay_options/Escape closes overlay'), '/checkmate overlayescape on',
+        function (s) return s.overlay.escape_closes; end },
+    { 'Escape closes overlay off', click('Display/overlay_options/Escape closes overlay'), '/checkmate overlayescape off',
+        function (s) return s.overlay.escape_closes; end,
+        setup = function (s) s.overlay.escape_closes = true; end },
     { 'Lock it in place', click('Display/overlay_options/Lock it in place'), '/checkmate overlaylock on',
         function (s) return s.overlay.locked; end },
     { 'Keep readings when switching targets', click('Display/overlay_options/Keep readings when switching targets'), '/checkmate overlayremember off',
@@ -561,7 +567,7 @@ for _, pair in ipairs(PAIRS) do
         ('before %s, window %s saved %s, command %s saved %s%s'):format(show(before), show(window_value),
         show(window_saved), show(command_value), show(command_saved), used and '' or ', an input found no control'));
 end
-check('every pair ran', #PAIRS == 229, #PAIRS);
+check('every pair ran', #PAIRS == 231, #PAIRS);
 
 -- Print a sample on each tab with one prints the same lines as /checkmate sample.
 reset();
@@ -613,6 +619,7 @@ local PROFILE_COMMANDS = {
     '/checkmate abbreviation list_more more',
     '/checkmate show effects', '/checkmate label effects Affects', '/checkmate effects buffs',
     '/checkmate effecttimes off', '/checkmate overlayshow effects', '/checkmate color effects_time white',
+    '/checkmate overlayescape on',
 };
 for _, command in ipairs(PROFILE_COMMANDS) do
     MOCK.command(command);
@@ -631,7 +638,7 @@ local function profile_values(s)
         p.parts.links.label, p.parts.links.new_line, s.links.max_links, s.links.link_how, s.overlay.parts.links,
         s.colors.links_detail, p.short_words, s.overlay.short_words, s.short.con_tough, s.short.list_more,
         p.parts.effects.on, p.parts.effects.label, s.effects.show, s.effects.times, s.overlay.parts.effects,
-        s.colors.effects_time,
+        s.colors.effects_time, s.overlay.escape_closes,
     };
 end
 local set = profile_values(cur());
@@ -639,7 +646,7 @@ check('the commands set every value', same(set, { 'Mob', 'Acc', true, 'difficult
     .. 'job aggro links magic weaknesses effects family vitals movement pursuit spawn claim dangers blue fight traits crystal rewards drops steal pet', false, 'custom', ' | ', 'midpoint', 90, 6, 'sleep', 25, 0,
     2.5, 'name', false, false, false, 'Bnd', 9, 10, false, 'Acc', 'OH', true, true, 'custom', ' ~ ', 20, 300, true, false,
     true, 'Pilfer', true, 1, true, 'Class', false, true, 1, 'Pulls', true, 3, false, false, 1, true, true, 'x', 'more',
-    true, 'Affects', 'buffs', false, true, 1 }),
+    true, 'Affects', 'buffs', false, true, 1, true }),
     show(set));
 -- The overlay position stays with this character, so a profile never moves it. Merits stay with the character too,
 -- so profiles never hold them.
@@ -669,7 +676,7 @@ check('profiles.json holds them', everything.printout.parts.name.label == 'Mob' 
     and everything.short.list_more == 'more' and everything.printout.parts.effects.on == true
     and everything.printout.parts.effects.label == 'Affects' and everything.effects.show == 'buffs'
     and everything.effects.times == false and everything.overlay.parts.effects == true
-    and everything.colors.effects_time == 1);
+    and everything.colors.effects_time == 1 and everything.overlay.escape_closes == true);
 check('but not where the window or the overlay sits', everything.window == nil);
 check('or your merits', everything.merits == nil);
 MOCK.command('/checkmate label name Other');
@@ -707,6 +714,15 @@ MOCK.command('/checkmate profile load Icons');
 check('and a profile brings them back', same(icon_values(cur()), icon_set) and same(icon_values(MOCK.last_save), icon_set),
     show(icon_values(cur())));
 profiles.delete(cur(), 'Icons');
+
+-- Older profiles with overlay settings take the new option from its default.
+local earlier = defaults.make();
+earlier.overlay.escape_closes = nil;
+profiles.save(earlier, 'Earlier overlay');
+cur().overlay.escape_closes = true;
+check('older overlay profiles leave Escape closing off', profiles.load(cur(), 'Earlier overlay')
+    and cur().overlay.escape_closes == false);
+profiles.delete(cur(), 'Earlier overlay');
 
 for _, name in ipairs({ 'Everything', 'Fresh', 'Over', 'Three', 'New', 'Linked', 'Undo me' }) do
     profiles.delete(cur(), name);

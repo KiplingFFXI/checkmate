@@ -76,6 +76,7 @@ These are the main suite groups. run.py discovers every test_*.lua file, includi
   test_rogues_ring.lua     Steal ranges when base HP or Level Sync leaves the Ring latent uncertain
   test_settings_search.lua visible controls and help lead to the right settings tab
   test_settings_escape.lua focused closing, combat, text/dropdown cancellation and reset confirmation
+  test_overlay_escape.lua optional dismissal, new checks, saved readings and settings input priority
   test_profile_io.lua      failed reads, writes and file replacement preserve saved profiles
   test_packets.lua         fixed-field packet bounds and no state changes from truncated packets
   test_current_inputs.lua  gear, buffs and stats refresh while keeping the same target

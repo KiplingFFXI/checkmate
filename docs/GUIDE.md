@@ -96,6 +96,8 @@ On Merits, the menu says **Reset autofill option** because it only turns zone au
 
 Under **Display > Overlay options**, **Show overlay** lets you choose **Off**, **Any targeted monster** or **Only after checking**. It hides for the map, cutscenes and hidden game interface according to its settings. Hold Shift to move it or change its width when it is unlocked. Missing pictures leave readable text; weapon names and percentages stay visible even with Icons only.
 
+**Escape closes overlay** is in the same section and starts off. Turn it on to hide the overlay with Escape, including during combat. It stays hidden until your next manual `/check` reply arrives, even if you switch targets. This works with either overlay mode and does not clear saved readings or change your settings. Settings, text fields and dropdowns get Escape first. Escape still works in the game as usual. You can also use `/checkmate overlayescape on` or `off`.
+
 ## Understand estimates and refresh readings
 
 The bundled data comes from Phoenix's source code at a particular revision. It describes that source, not hidden fight state or a live server lookup. Later server changes can make it stale. `/checkmate info` shows the addon version, source revision and content settings. It checks the shared data files and current zone for missing or mixed revisions and content settings. It cannot verify the running server's deployed revision.
@@ -200,6 +202,7 @@ Use commands for quick changes or to open a settings view. `/checkmate preset <n
 | `/checkmate show <part>` / `hide <part>` | Enable or disable a chat row. |
 | `/checkmate overlayshow <part>` / `overlayhide <part>` | Enable or disable an overlay row. |
 | `/checkmate overlay on\|off` | Show or hide the target overlay. |
+| `/checkmate overlayescape on\|off` | Let Escape hide the overlay until your next manual `/check`. |
 | `/checkmate label <part> <text>` | Change a row label. Use `""` for no label. |
 | `/checkmate newline <part> on\|off` | Set a row's chat line break. |
 | `/checkmate move <part> up\|down` | Change row order. |

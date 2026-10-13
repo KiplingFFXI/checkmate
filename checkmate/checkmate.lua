@@ -1,6 +1,6 @@
 addon.name    = 'checkmate';
 addon.author  = 'Kipling';
-addon.version = '1.14.6';
+addon.version = '1.14.7';
 addon.desc    = 'Monster details, combat estimates and your pet on /check for Phoenix.';
 addon.link    = 'https://github.com/KiplingFFXI/checkmate';
 
@@ -2074,6 +2074,11 @@ local SWITCHES = {
         on  = 'The overlay now waits for your /check before showing a monster.',
         off = 'The overlay now shows monsters as soon as you target them.',
     },
+    overlayescape = {
+        section = 'overlay', key = 'escape_closes',
+        on  = 'Escape now hides the overlay until your next /check.',
+        off = 'Escape no longer hides the overlay.',
+    },
     overlayremember = {
         section = 'overlay', key = 'remember',
         on  = 'The overlay now keeps your last /check of each monster until it dies, leaves sight or you zone, and the '
@@ -2472,6 +2477,7 @@ local HELP_TOPICS = {
             :format(OVERLAY_PART_LIST),
         '/checkmate overlaylevel on|off  shows or hides the level after the name.',
         '/checkmate overlaychecked on|off  only shows monsters after your /check. Remember controls whether they show again when retargeted.',
+        '/checkmate overlayescape on|off  lets Escape hide the overlay until your next /check. Off by default.',
         '/checkmate overlayrange on|off  shows or hides the levels a monster spawns at after its exact level.',
         '/checkmate overlayid on|off  shows or hides the monster\'s ID.',
         '/checkmate overlayph on|off  shows or hides the PH note.',

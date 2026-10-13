@@ -235,6 +235,9 @@ local TIPS = {
     overlay_checked = 'Keeps unchecked monsters hidden until your /check reply arrives. With Keep readings when switching targets on, '
         .. 'checked monsters show again when you target them. With it off, changing targets hides them until you /check again. '
         .. 'Settings previews still use sample data.',
+    overlay_escape = 'Escape hides the overlay until your next manual /check reply arrives. It starts off and works with '
+        .. 'Any targeted monster or Only after checking. This does not clear saved readings. Settings gets Escape first, '
+        .. 'and Escape still works in the game as usual.',
     overlay_lock  = 'Hold Shift and drag the overlay to move it, or drag its bottom right corner to change its width. '
         .. 'This stops both, so neither happens by accident. Without Shift, or with this on, clicks go through the '
         .. 'overlay to the game.',
@@ -2723,6 +2726,7 @@ local function draw_overlay_section(settings)
         o.on = overlay_mode.id ~= 'off';
         if (o.on) then o.only_checked = overlay_mode.id == 'checked'; end
     end
+    checkbox('Escape closes overlay', o, 'escape_closes', TIPS.overlay_escape);
     checkbox('Lock it in place', o, 'locked', TIPS.overlay_lock);
     checkbox('Keep readings when switching targets', o, 'remember', TIPS.overlay_remember);
     checkbox('Follow the cursor while you pick a target', o, 'follow_cursor', TIPS.overlay_cursor);
@@ -2917,7 +2921,7 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
         Printout = { 'show_name', 'name_label', 'show_level', 'show_range', 'range_word', 'show_id', 'id_word',
             'show_ph', 'ph_word', 'parts', 'extras', 'header', 'divider', 'custom', 'label_divider', 'custom_label',
             'number_style', 'replace', 'sample', 'icons', 'icons_only' },
-        Overlay = { 'overlay', 'overlay_on', 'overlay_checked', 'overlay_lock', 'overlay_remember', 'overlay_cursor', 'overlay_spot',
+        Overlay = { 'overlay', 'overlay_on', 'overlay_checked', 'overlay_escape', 'overlay_lock', 'overlay_remember', 'overlay_cursor', 'overlay_spot',
             'overlay_parts', 'overlay_show_level', 'overlay_show_range', 'overlay_show_id', 'overlay_show_ph',
             'overlay_lines', 'overlay_short', 'overlay_divider', 'overlay_custom', 'overlay_font', 'overlay_font_size',
             'overlay_opacity', 'overlay_border', 'overlay_wrap', 'overlay_events', 'overlay_ui', 'overlay_map',
@@ -2960,7 +2964,7 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
         Printout = 'Show the name Label Show level Show its level range too Range word Show its ID ID word '
             .. 'Show if it is a PH PH word Defense first Put the extras on their own line '
             .. '[checkmate] at the start of each line Element icons',
-        Overlay = 'Show overlay Off Any targeted monster Only after checking Keep readings when switching targets Only show after /check Lock it in place Background Divider In cutscenes and NPC talk While the map is open '
+        Overlay = 'Show overlay Off Any targeted monster Only after checking Escape closes overlay Keep readings when switching targets Only show after /check Lock it in place Background Divider In cutscenes and NPC talk While the map is open '
             .. 'While the game interface is hidden Wrap lines wider than',
         Appearance = 'Color by difficulty Color by grade Color by threat Print a sample Corner roundness Spacing Reset to skin Compact tab navigation selector',
         Combat = 'Show current distance Show it outside the sweet spot too pDIF display '

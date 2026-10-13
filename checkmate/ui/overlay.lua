@@ -376,6 +376,7 @@ local redo         = true;   -- A setting changed, so the lines are made again.
 local laid_out     = nil;    -- The lines as drawn, or nil when they need laying out again.
 local laid         = { face = nil, size = 0, wrap = 0 };   -- The font, size and wrap they were laid out with.
 local ashita_font  = nil;    -- Ashita's own font, kept the first time the overlay draws.
+local dismissed, escape_busy = false, false;
 
 -- True while you can move it or drag its corner this frame.
 local held = false;
@@ -954,8 +955,21 @@ function overlay.draw(s, window_open, sample)
             imgui.SetNextFrameWantCaptureMouse(false);
         end
     end
+    if (o.escape_closes == true) then
+        local busy = window_open or imgui.IsAnyItemActive() or imgui.IsPopupOpen('', ImGuiPopupFlags_AnyPopup);
+        -- A popup can close before drawing. Keep that Escape for it, and let the game handle the key too.
+        if (was_drawn and not busy and not escape_busy and imgui.IsKeyPressed(ImGuiKey_Escape, false)) then
+            dismissed = true;
+        end
+        escape_busy = busy;
+    else
+        dismissed, escape_busy = false, false;
+    end
     target.take_in();
     local index = target.read(o);
+    if (dismissed and not window_open) then
+        return save;
+    end
     if (index == 0 and not window_open) then
         return save;
     end
@@ -986,8 +1000,13 @@ function overlay.draw(s, window_open, sample)
     return save;
 end
 
+-- A new check brings back the overlay without discarding earlier readings.
+function overlay.on_check(...)
+    target.on_check(...);
+    dismissed = false;
+end
+
 -- What came in from the server, passed on to core\target.lua, which notes it for the next frame.
-overlay.on_check    = target.on_check;
 overlay.on_widescan = target.on_widescan;
 overlay.on_death    = target.on_death;
 overlay.on_disappear = target.on_disappear;
@@ -1010,12 +1029,14 @@ function overlay.forget()
     target.forget();
     showing, lines, laid_out, redo, drawn = nil, {}, nil, true, false;
     grabbed, resizing, dragged, passing = false, false, false, false;
+    dismissed, escape_busy = false, false;
     has_icons, has_clocks, made_from, tip_kind, tip_text, tip_more = false, false, nil, nil, nil, nil;
 end
 
 -- A setting changed, the settings were reset or replaced, or a profile loaded. Turning the overlay off forgets
 -- everything.
 function overlay.changed(s)
+    if (s.overlay.escape_closes ~= true) then dismissed, escape_busy = false, false; end
     if (s.overlay.on ~= true) then
         overlay.forget();
         return;

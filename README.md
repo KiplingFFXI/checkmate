@@ -22,6 +22,7 @@ Type `/checkmate` to open settings. Choose a starter preset under **Profiles**, 
 
 - **Preview** shows sample or current-target text before you change your layout. **Print a sample** shows the actual chat output.
 - **Find settings** searches controls and their help. **Appearance** holds skins, colors, fonts and visible tabs.
+- **Escape closes overlay**, under **Display > Overlay options**, hides it until your next `/check`. It starts off and keeps your saved readings.
 - **Target details** keeps the full supported notes and Links and Dangers lists. Search them or copy the details, even from your last manual `/check` with the overlay off.
 - **Undo last change** restores recent settings edits. Save a profile when you have a setup you want to keep.
 

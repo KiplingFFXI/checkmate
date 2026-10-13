@@ -1705,7 +1705,7 @@ check('and so does help with a word that isn\'t a topic', run('/checkmate help m
 -- has one more. Help short lists the words after its commands.
 local TOPICS = { 'printout', 'overlay', 'colors', 'numbers', 'merits', 'aggro', 'magic', 'blue', 'weaknesses', 'pets', 'monster',
     'drops', 'effects', 'short', 'look', 'profiles' };
-local TOPIC_LINES = { printout = 24, overlay = 27, colors = 14, numbers = 10, merits = 2, aggro = 6, magic = 4, blue = 8,
+local TOPIC_LINES = { printout = 24, overlay = 28, colors = 14, numbers = 10, merits = 2, aggro = 6, magic = 4, blue = 8,
     weaknesses = 13, pets = 6, monster = 5, drops = 6, effects = 4, short = 4, look = 14, profiles = 9 };
 local topic_text = {};
 for _, topic in ipairs(TOPICS) do
@@ -1749,7 +1749,7 @@ for _, word in ipairs({ 'show|hide', 'label', 'newline', 'move', 'level', 'level
     'strength', 'th', 'maxitems', 'minchance', 'sort', 'thlabel', 'dropnotes', 'immunity', 'immunitylabel', 'skin', 'font',
     'fontsize', 'rounding', 'spacing', 'windowcolor', 'profile', 'joblink', 'petname', 'petlevel', 'pethitword',
     'petevadeword', 'linkhow', 'ph', 'phword', 'rangedfar', 'overlay', 'overlayshow|overlayhide', 'overlaylevel',
-    'overlayrange', 'overlayid', 'overlayph', 'overlaylines', 'overlaydivider', 'overlayremember', 'overlaycursor',
+    'overlayrange', 'overlayid', 'overlayph', 'overlaylines', 'overlaydivider', 'overlayremember', 'overlayescape', 'overlaycursor',
     'overlaylock', 'overlayspot', 'overlayfont', 'overlayfontsize', 'overlayopacity', 'overlayborder', 'overlaywrap',
     'overlaycutscenes', 'overlayui', 'overlaymap', 'icons', 'iconsonly', 'overlayicons', 'overlayiconsonly',
     'overlayelementlook', 'overlaytips', 'abbreviations', 'overlayabbreviations', 'abbreviation', 'abbreviationreset', 'weakness', 'bluepart', 'immuneword', 'critmerits',

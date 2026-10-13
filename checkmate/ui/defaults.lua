@@ -238,6 +238,7 @@ function defaults.make()
         overlay = T{
             on             = false,              -- While it's off, checkmate never reads your target.
             only_checked   = false,              -- Hides a monster until your /check reply arrives.
+            escape_closes  = false,              -- Escape hides it until your next /check reply.
             locked         = false,              -- Stops you moving it or changing its width with Shift and drag.
             remember       = true,               -- Keeps each monster's last /check until it dies, leaves sight or you zone.
             follow_cursor  = false,              -- Shows the monster under the cursor while you pick a target.

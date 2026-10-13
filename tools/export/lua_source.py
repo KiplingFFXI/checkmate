@@ -53,7 +53,7 @@ HANDLER_START = re.compile(r'^(entity\.\w+|xi\.[\w.]+|g_mixins\.[\w.]+)\s*=\s*fu
 FUNCTION_START = re.compile(r'^function\s+(xi\.[\w.]+)\s*\(([^)]*)\)')
 METHOD_CALL = re.compile(r'(\w+|\))\s*:\s*(setMod|addMod|delMod|addImmunity|delImmunity|setMobMod|addMobMod|setStatRank|setSpellList|'
                          r'setMobLevel|changeJob|setPetStats|recalculateStats|addListener|setAggressive|'
-                         r'setTrueDetection|setLink|setMobSkillAttack|setAutoAttackEnabled)\s*\(')
+                         r'setTrueDetection|setLink|setMobSkillAttack|setAutoAttackEnabled|setCrystalElement)\s*\(')
 HELPER_CALL = re.compile(r'(?<![\w.:])(xi\.[\w.]+)\s*\(\s*(\w+)\s*[,)]')
 MIXIN_REQUIRE = re.compile(r"require\('scripts/mixins/([\w/]+)'\)")
 INTEGER = re.compile(r'^-?\d+$')
@@ -181,7 +181,7 @@ class LuaFile:
         self.read(clean.split('\n'))
 
     def read(self, lines):
-        handler, param, early_return = None, None, False
+        handler, param, early_return, reassigned = None, None, False, False
         for number, line in enumerate(lines, 1):
             start = HANDLER_START.match(line) or FUNCTION_START.match(line)
             if start:
@@ -190,6 +190,7 @@ class LuaFile:
                 param = params[0] if params else ''
                 self.params[handler] = param
                 early_return = False
+                reassigned = False
                 continue
             if re.match(r'^end\b', line):
                 handler, param = None, None
@@ -198,6 +199,8 @@ class LuaFile:
             if handler and indent > 4 and re.search(r'\breturn\b', line):
                 early_return = True
             top = handler is not None and indent == 4 and not early_return
+            if handler and param and re.match(r'^\s*(?:local\s+)?' + re.escape(param) + r'\s*=(?!=)', line):
+                reassigned = True
             for match in METHOD_CALL.finditer(line):
                 receiver, method = match.group(1), match.group(2)
                 args = call_arguments(line, match.end() - 1)
@@ -209,6 +212,12 @@ class LuaFile:
                 # players, pets and other monsters. A drop switch on another monster still counts, because
                 # it is often a twin of this one.
                 if receiver in PLAYER_RECEIVERS:
+                    continue
+                if method == 'setCrystalElement':
+                    # Only the handler's monster gives a fixed value. An unknown alias stays conditional.
+                    own = receiver != ')'
+                    fixed = top and receiver == param and not reassigned and not line[:match.start()].strip()
+                    self.calls.append(Call(handler or '<file>', number, method, args, fixed, own))
                     continue
                 if receiver != param and not receiver.startswith('mob') and method != 'setMobMod':
                     continue
@@ -278,7 +287,7 @@ def call_effect(call, static, immunities, aliases):
     """
     args = call.args
     text = '%s %s(%s)' % (call.where(), call.method, ', '.join(args or ['...']))
-    if call.method in ('setMobMod', 'addListener') or call.method in SWING_METHODS:
+    if call.method in ('setMobMod', 'addListener', 'setCrystalElement') or call.method in SWING_METHODS:
         return None, None
     if args is None:
         return ('unreadable', text) if static else ('runtime', text)

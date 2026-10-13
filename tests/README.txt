@@ -75,6 +75,7 @@ These are the main suite groups. run.py discovers every test_*.lua file, includi
   test_weapons_integration.lua controller commands and cached overlay weapon data
   test_rogues_ring.lua     Steal ranges when base HP or Level Sync leaves the Ring latent uncertain
   test_settings_search.lua visible controls and help lead to the right settings tab
+  test_settings_escape.lua focused closing, combat, text/dropdown cancellation and reset confirmation
   test_profile_io.lua      failed reads, writes and file replacement preserve saved profiles
   test_packets.lua         fixed-field packet bounds and no state changes from truncated packets
   test_current_inputs.lua  gear, buffs and stats refresh while keeping the same target
@@ -84,8 +85,15 @@ These are the main suite groups. run.py discovers every test_*.lua file, includi
   test_target_details.lua  target details clear when the target changes
   test_hover_boundaries.lua text tips stop before the next part of the overlay
   test_effects_packets.lua action packet bounds, variable result blocks, truncation and player helpers
+  test_effects_reaction_packets.lua reversed spikes results, player-target filtering, reused rows and truncation
   test_effects.lua         tracker durations from generated Phoenix data, observed removal, ownership,
                           gear and merits, overwrites, unknown timeouts, Sleep/DoT, zoning and cleanup
+  test_effects_reports.lua Absorb success, inferred secondaries, separate action IDs, confirmed status
+                          priority, failed casts, pet identity, removal and idle client reads
+  test_effects_inference.lua damage gates, action namespaces, confirmed priority, bounds and cleanup
+  test_effects_all_sources.lua player and charmed pets, paired effects, prerequisites, items, Feint and spikes
+  test_inferred_effect_math.lua unconfirmed effects leave combat calculations unchanged
+  test_effects_inferred_display.lua addon-only secondaries, clean names, hover details, timers and confirmation
   test_effects_integration.lua real event handlers, off gates, chat, filtering, countdown slots,
                           target cache, tooltips, error recovery and settings commands
   run.py                  the test runner

@@ -17,7 +17,8 @@ GEAR_MODS = {'requiem': 'requiem_effect', 'elegy': 'elegy_effect', 'threnody': '
              'lullaby': 'lullaby_effect', 'songs': 'all_songs_effect', 'shadowbind': 'shadow_bind_ext'}
 SONGS = {'REQUIEM_EFFECT': 'requiem', 'ELEGY_EFFECT': 'elegy', 'THRENODY_EFFECT': 'threnody',
          'LULLABY_EFFECT': 'lullaby'}
-MERITS = {'dia_iii': ('rdm_group_2', 0), 'bio_iii': ('rdm_group_2', 0), 'angon': ('drg_group_2', 15)}
+MERITS = {'dia_iii': ('rdm_group_2', 0), 'bio_iii': ('rdm_group_2', 0), 'angon': ('drg_group_2', 15),
+          'penance': ('mnk_group_2', 0), 'tomahawk': ('war_group_2', 15)}
 MODULE_TARGET = re.compile(r"['\"]xi\.(?:effects\.|actions\.(?:spells|mobskills|abilities\.pets)\."
                            r'|items\.nadrs\.'
                            r'|spells\.(?:enfeebling|enhancing)\.|job_utils\.(?:ranger\.useShadowbind'
@@ -183,8 +184,10 @@ def sql_rows(tree, table):
     rows = sqlfile.rows(str(path), table)
     fields = {'spell_list': {'spellid', 'name', 'content_tag'},
               'mob_skills': {'mob_skill_id', 'mob_skill_name'},
-              'pet_skills': {'pet_skill_id', 'pet_skill_name'},
-              'item_mods': set(names)}[table]
+              'pet_skills': {'pet_skill_id', 'pet_skill_name', 'mob_skill_id'},
+              'weapon_skills': {'weaponskillid', 'name'},
+              'abilities': {'abilityId', 'name', 'level', 'content_tag'},
+              'item_mods': set(names), 'item_usable': {'itemid', 'name', 'validTargets'}}[table]
     for module, target, statement in tables.module_statements(tree):
         if target != table:
             continue
@@ -280,10 +283,13 @@ def spell_rows(tree, ids, allowed):
 def duration_value(expression, text, seen=()):
     """A literal, a simple local, or a checked top of a random/TP duration. None means unknown."""
     expression = expression.strip()
+    before_resist = re.fullmatch(r'(?:math\.floor\()?\s*(\w+)\s*\*\s*(?:resist|resistRate|resistanceRate)\s*\)?', expression)
+    if before_resist:
+        return duration_value(before_resist[1], text, seen)
     if re.fullmatch(r'\d+(?:\.\d+)?', expression):
         value = float(expression)
         return int(value) if value.is_integer() else value
-    if re.fullmatch(r'\w+', expression) and expression not in seen:
+    if re.fullmatch(r'[\w.]+', expression) and expression not in seen:
         assignments = re.findall(r'(?m)^\s*' + re.escape(expression) + r'\s*=\s*([^\n]+)', text)
         # A later branch may replace or scale a local. Table fields ending in a comma are not assignments.
         if any(value.strip().rstrip(',') != expression and not value.rstrip().endswith(',')
@@ -295,7 +301,7 @@ def duration_value(expression, text, seen=()):
     match = re.fullmatch(r'(?:xi\.mobskills\.)?calculateDuration\([^,]+,\s*(\d+),\s*(\d+)\)', expression)
     if match:
         return int(match[2])
-    match = re.fullmatch(r'math\.(?:random|randomInt)\(\s*(\d+),\s*(\d+)\)', expression)
+    match = re.fullmatch(r'math\.(?:random|randomInt|randomFloat)\(\s*(\d+),\s*(\d+)\)', expression)
     if match:
         return int(match[2])
     # A resist can only shorten this base duration.
@@ -366,7 +372,7 @@ def override_moves(tree, loaded):
     return found
 
 
-def moves(tree, ids, overrides, pet=False):
+def moves(tree, ids, overrides, pet=False, inferred=False):
     table = 'pet_skills' if pet else 'mob_skills'
     folder = 'scripts/actions/abilities/pets/' if pet else 'scripts/actions/mobskills/'
     id_key, name_key = ('pet_skill_id', 'pet_skill_name') if pet else ('mob_skill_id', 'mob_skill_name')
@@ -392,7 +398,13 @@ def moves(tree, ids, overrides, pet=False):
         choices = move_effects(text, ids, where)
         if pet and entry[name_key] == 'nightmare':
             choices = {ids['SLEEP_I']: {'effect': ids['SLEEP_I'], 'seconds': 90, 'deep': True}}
+        if pet or inferred:
+            from . import effect_actions
+            effect_actions.infer_damage(choices, text, ids, entry[name_key], 'pacts' if pet else 'charmed_skills')
+            effect_actions.infer_completion(choices, text, ids, entry[name_key], 'pacts' if pet else 'charmed_skills')
         if not choices:
+            continue
+        if inferred and not any(row.get('infer') for row in choices.values()):
             continue
         returned = re.findall(r'\breturn\s+xi\.effect\.(\w+)', text)
         primary = next((ids[name] for name in reversed(returned) if ids.get(name) in choices), min(choices))
@@ -412,6 +424,8 @@ def merit_rows(tree, roots):
         row = category['merits'][name]
         most = min(row.get('max_upgrades', len(costs[row['upgrade_cost']])), category['max_upgrades'])
         found[name] = {'id': row['id'], 'base': base, 'per_rank': row['value'], 'most': most}
+        if name in {'penance', 'tomahawk'}:
+            found[name].update(job=2 if name == 'penance' else 1, level=75)
     for category, name in [('blm_group_2', 'elemental_debuff_duration'),
                            ('rdm_group_2', 'enfeebling_magic_duration'), ('rdm_group_2', 'enhancing_magic_duration')]:
         if categories[category]['merits'][name].get('max_upgrades') != 0:
@@ -445,6 +459,7 @@ def equipment(tree):
 
 
 def effect_rows(tree, roots):
+    from .danger_effects import HARMFUL
     rows = overlays.load_merged(tree, roots, 'status_effects')['status_effects']
     groups = defaultdict(set)
     for name, row in rows.items():
@@ -462,6 +477,8 @@ def effect_rows(tree, roots):
                 removed.add(rows[value]['id'])
         removed.discard(row['id'])
         found[row['id']] = {'drops': sorted(removed), '_name': name}
+        if name.upper() in HARMFUL or name.upper() in {'TOMAHAWK', 'HYSTERIA', 'INTIMIDATE'}:
+            found[row['id']]['debuff'] = True
     return found
 
 
@@ -474,17 +491,40 @@ def build(tree, roots, allowed):
            overlays.load_merged(tree, roots, 'status_effects')['status_effects'].items()}
     merits = merit_rows(tree, roots)
     spells = spell_rows(tree, ids, allowed)
+    from . import effect_actions
+    extra_spells, weaponskills, extra_abilities, automatons, coverage = effect_actions.build(tree, ids, allowed, loaded)
+    for number, row in extra_spells.items():
+        spells.setdefault(number, row)
+    # The loaded era wrapper sets both Absorb-STAT effects to 90 seconds after success.
+    spell_ids = tables.lua_enum(os.path.join(tree, 'scripts', 'enum', 'magic.lua'), 'xi.magic.spell')
+    for stat in ('STR', 'DEX', 'VIT', 'AGI', 'INT', 'MND', 'CHR'):
+        number = spell_ids['ABSORB_' + stat]
+        spells[number] = {'effect': ids[stat + '_DOWN'], 'seconds': 90, '_name': 'absorb_' + stat.lower()}
     overrides = override_moves(tree, loaded)
     skills, pacts = moves(tree, ids, overrides), moves(tree, ids, overrides, pet=True)
+    charmed_skills = moves(tree, ids, overrides, inferred=True)
     abilities = {57: {'effect': ids['BIND'], 'seconds': 30, 'gear': 'shadowbind', '_name': 'Shadowbind'},
                  170: {'effect': ids['DEFENSE_DOWN'], 'merit': 'angon', '_name': 'Angon'},
                  131: {'effect': ids['SLEEP_I'], 'seconds': 90, '_name': 'Light Shot'}}
+    for number, row in extra_abilities.items():
+        abilities.setdefault(number, row)
+    # Angon reports the actual status on success; the allowlist also identifies its completed action.
+    abilities[170].update(infer='success', success_messages=[127])
+    items, reactive, spikes = effect_actions.other_actions(tree, ids, allowed)
+    pet_moves = {}
+    for entry in sql_rows(tree, 'pet_skills'):
+        if entry['mob_skill_id'] > 0:
+            pet_moves[entry['mob_skill_id']] = pacts.get(entry['pet_skill_id'], {'_name': entry['pet_skill_name']})
     gear, procs, proc_effects, proc_usual = equipment(tree)
     effects = effect_rows(tree, roots)
+    effects[ids['HYSTERIA']].update(name='Hysteria', description='Prevents the monster from using TP moves.', icon=False)
+    effects[ids['TOMAHAWK']].update(name='Tomahawk', description="Changes the monster's physical and elemental damage resistances.", icon=False)
     durations = defaultdict(list)
     pictured = set(proc_effects.values())
-    for section in (spells, abilities, skills, pacts):
+    for section in (spells, abilities, weaponskills, skills, pacts, automatons, pet_moves, items, reactive, spikes):
         for row in section.values():
+            if 'effect' not in row:
+                continue
             for info in row.get('by_effect', {row['effect']: row}).values():
                 effect = info['effect']
                 pictured.add(effect)
@@ -492,7 +532,9 @@ def build(tree, roots, allowed):
                 if 'merit' in info:
                     merit = merits[info['merit']]
                     seconds = merit['base'] + merit['per_rank'] * merit['most']
-                durations[effect].append(seconds)
+                # An assumed TP value belongs to its own action, not another move's usual timer.
+                if 'default_tp' not in info:
+                    durations[effect].append(seconds)
     for effect, seconds in proc_usual.items():
         durations[effect].append(seconds)
     for effect, values in durations.items():
@@ -502,5 +544,9 @@ def build(tree, roots, allowed):
         if usual is not None:
             effects[effect]['usual'] = usual
     return {'effects': effects, 'spells': spells, 'abilities': abilities, 'skills': skills, 'pacts': pacts,
+            'weaponskills': weaponskills, 'automatons': automatons, 'pet_moves': pet_moves,
+            'charmed_skills': charmed_skills, '_coverage': coverage,
+            'items': items, 'reactive': reactive, 'spikes': spikes,
             'gear': gear, 'procs': procs, 'proc_effects': proc_effects, 'proc_usual': proc_usual,
-            'merits': merits, 'pictured': sorted(pictured - {0, 19, 193}), 'troubadour': ids['TROUBADOUR']}
+            'merits': merits, 'pictured': sorted(pictured - {0, 19, 193, ids['HYSTERIA'], ids['TOMAHAWK']}),
+            'troubadour': ids['TROUBADOUR']}

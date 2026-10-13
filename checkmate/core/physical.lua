@@ -357,7 +357,7 @@ local function confidence(out, me, mob, enemy)
     end
     if (enemy.evade ~= nil) then
         for _, effect in ipairs(mob.effects or {}) do
-            if (effect.effect == modifiers.buffs.flash and out.evade ~= nil) then out.evade.high = 80; end
+            if (not effect.inferred and effect.effect == modifiers.buffs.flash and out.evade ~= nil) then out.evade.high = 80; end
         end
     end
 end
@@ -496,7 +496,7 @@ function physical.pet_readout(pet, mob)
     uncertain(out.hit, enemy.hit);
     uncertain(out.evade, enemy.evade);
     for _, effect in ipairs(mob.effects or {}) do
-        if (effect.effect == modifiers.buffs.flash and out.evade ~= nil) then out.evade.high = 80; end
+        if (not effect.inferred and effect.effect == modifiers.buffs.flash and out.evade ~= nil) then out.evade.high = 80; end
     end
     return out;
 end

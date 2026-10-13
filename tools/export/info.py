@@ -58,7 +58,7 @@ def loaded_digest(tree):
     files = []
     for rel in sorted(aggro.lua_files_loaded(tree)):
         text = lua_source.strip_comments((Path(tree) / rel).read_text(encoding='utf8'))
-        if re.search(r'onMob\w+|CHARMABLE|HP_SCALE|MP_BASE|exp_penalt|xi\.mobMod\.(?:GIL|EXP|NO_DROPS)', text):
+        if re.search(r'onMob\w+|CHARMABLE|HP_SCALE|MP_BASE|exp_penalt|setCrystalElement|xi\.mobMod\.(?:GIL|EXP|NO_DROPS)', text):
             files.append(rel + ':' + fingerprint(text))
     return fingerprint('\n'.join(files))
 
@@ -153,13 +153,13 @@ class Reader:
         key = (kind.zone_dir, kind.script, tuple(kind.group_mixins))
         if key in self.cache:
             return self.cache[key]
-        result = {'init': [], 'spawn': [], 'dynamic': set()}
+        result = {'init': [], 'spawn': [], 'dynamic': set(), 'crystal_init': [], 'crystal_spawn': []}
         source = self.scripts.lua(self.scripts.mob_script_path(kind.zone_dir, kind.script))
         def walk(file, handler, phase, depth=0):
             if file is None:
                 return
             if depth > 4:
-                result['dynamic'].update(('vitals', 'traits', 'movement', 'charm', 'rewards', 'gil'))
+                result['dynamic'].update(('vitals', 'traits', 'movement', 'charm', 'rewards', 'gil', 'crystal'))
                 return
             events = [(call.line_no, 'call', call) for call in file.calls if call.handler == handler]
             events += [(line, 'helper', (name, top)) for own, line, name, top in file.helpers if own == handler]
@@ -168,11 +168,26 @@ class Reader:
                     name, top = call
                     path = self.scripts.helpers.get(name)
                     if path:
-                        walk(self.scripts.lua(path), name, phase if top else None, depth + 1)
+                        helper = self.scripts.lua(path)
+                        if name in self.module_text and ('setCrystalElement' in self.module_text or
+                                helper and 'setCrystalElement' in helper.text):
+                            result['dynamic'].add('crystal')
+                        walk(helper, name, phase if top else None, depth + 1)
                     else:
                         result['dynamic'].add('gil')
                     continue
                 if not call.own:
+                    continue
+                if call.method == 'setCrystalElement':
+                    value = None
+                    if call.top and call.args and len(call.args) == 1:
+                        match = re.fullmatch(r'xi\.element\.(NONE|FIRE|ICE|WIND|EARTH|THUNDER|WATER|LIGHT|DARK)', call.args[0])
+                        if match:
+                            value = match[1].lower()
+                    if phase:
+                        result['crystal_' + phase].append(value)
+                    else:
+                        result['dynamic'].add('crystal')
                     continue
                 if call.method in lua_source.RESTAT_METHODS:
                     result['dynamic'].update(('vitals', 'traits'))
@@ -196,6 +211,8 @@ class Reader:
                     result['dynamic'].add(category(name, mob))
                     if mob and name in GIL_MODS:
                         result['dynamic'].add('gil')
+                    if mob and name == 'no_drops':
+                        result['dynamic'].add('drop_gate')
             # These methods are outside the existing numeric exporter parser.
             for method in EXTRA_METHODS.findall(file.text):
                 if method in {'speed', 'setBaseSpeed', 'setAnimationSpeed'}:
@@ -219,6 +236,8 @@ class Reader:
         token = 'xi.zones.%s.mobs.%s.' % (kind.zone_dir, kind.script)
         if token in self.module_text:
             result['dynamic'].update(('vitals', 'movement', 'charm', 'traits', 'rewards', 'gil'))
+            if result['crystal_init'] or result['crystal_spawn'] or 'setCrystalElement' in self.module_text:
+                result['dynamic'].add('crystal')
         self.cache[key] = result
         return result
 
@@ -354,10 +373,17 @@ class Reader:
             'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.',
             'Scripted detection changes can change pursuit.' if changing else '')
         element = str(raw.get('element', 'none'))
+        for phase in ('crystal_init', 'crystal_spawn'):
+            for value in analysis[phase]:
+                element = value
+        if 'crystal' in dynamic:
+            element = None
         blocked_rewards = bool(mob.get('no_drops') or mob.get('exp_bonus', 0) <= -100 or
             'battlefield' in kind.types or kind.zone_dir.startswith('Dynamis') or kind.zone_dir in LUMORIA)
-        crystal_value = 'Crystal reward disabled' if blocked_rewards else title(element) + ' crystal (conditional)' if element != 'none' else 'No base crystal element'
+        crystal_value = ('Crystal reward disabled' if blocked_rewards else 'Crystal element unknown' if element is None
+                         else title(element) + ' crystal (conditional)' if element != 'none' else 'No base crystal element')
         info['crystal'] = section(crystal_value,
+            'A script or loaded override can change the crystal element.' if element is None else
             'Source crystal element: %s.' % title(element),
             'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.',
             'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.',
@@ -373,8 +399,13 @@ class Reader:
             reward_notes.append('With Abyssea disabled, levels below 50 can give Beastmen\'s Seals; level 50+ can also give Kindred\'s Seals.')
         reward_bits = []
         if mob.get('no_drops') or kind.effects.drops_off:
-            reward_bits.append('Ordinary item drops disabled')
-            reward_notes.append('This does not describe separate scripted or encounter completion rewards.')
+            conditions = [note for note in getattr(kind, 'loot_conditions', []) if isinstance(note, str) and note]
+            if conditions or 'drop_gate' in dynamic:
+                reward_bits.append('Conditional item drops')
+                reward_notes.extend(conditions or ['Scripts can enable or disable ordinary item drops.'])
+            else:
+                reward_bits.append('Ordinary item drops disabled')
+                reward_notes.append('This does not describe separate scripted or encounter completion rewards.')
         if mob.get('exp_bonus'):
             reward_bits.append('EXP modifier %+d%%' % mob['exp_bonus'])
         elif 'battlefield' in kind.types:

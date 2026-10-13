@@ -487,15 +487,22 @@ class SharedDangers(SharedValues):
 
 
 def write_effects(path, data, stamp):
-    lines = ['-- Effects seen in action messages, with Phoenix durations before resists.',
-             '-- An absent duration stays untimed. by_effect names each status of a move with several.']
+    lines = ['-- Action effects, with Phoenix durations before resists.',
+             '-- An absent duration stays untimed. by_effect names each status of a move with several.',
+             '-- infer marks a possible effect, not a confirmed application. default_tp is an assumed TP value.']
     lines += stamp_lines(stamp)
     lines += ['return {', '    built   = %s,' % quote(stamp.built),
               '    content = %s,' % quote(stamp.content)]
     sections = [('effects', 'What an effect removes, and its usual duration.'),
                 ('spells', 'Spell IDs, filtered by enabled content.'),
-                ('abilities', 'Player ability IDs.'), ('skills', 'Monster skill IDs.'),
-                ('pacts', 'Pet skill IDs from the action packet, including Ready and automaton moves.'),
+                ('abilities', 'Player ability IDs.'), ('weaponskills', 'Player weapon-skill IDs.'),
+                ('skills', 'Monster skill IDs.'), ('automatons', 'Automaton actions by monster-skill ID.'),
+                ('pacts', 'Pet skill IDs from the action packet.'),
+                ('pet_moves', 'Pet actions sent with an explicit monster-skill ID.'),
+                ('charmed_skills', 'Ordinary monster callbacks used by a proven player-owned monster or jug pet.'),
+                ('items', 'Monster-target items, gated by their completed action message.'),
+                ('reactive', 'Observed abilities that arm a later ordinary attack.'),
+                ('spikes', 'Possible effects from a matching retaliation reaction.'),
                 ('procs', 'Item IDs and their added-effect durations.'),
                 ('proc_effects', 'The status each added-effect item applies.'),
                 ('proc_usual', 'The most common item duration for each added effect; longer wins a tie.'),

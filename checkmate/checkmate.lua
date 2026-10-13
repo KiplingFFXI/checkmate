@@ -1,6 +1,6 @@
 addon.name    = 'checkmate';
 addon.author  = 'Kipling';
-addon.version = '1.14.5';
+addon.version = '1.14.6';
 addon.desc    = 'Monster details, combat estimates and your pet on /check for Phoenix.';
 addon.link    = 'https://github.com/KiplingFFXI/checkmate';
 
@@ -2919,6 +2919,7 @@ end
 
 -- Read ranks even with autofill off. They are the baseline for manual skill and stat changes.
 local function fill_merits(e)
+    effects.observe_merits(e);
     local changed, observed_changed = merits.on_packet(e);
     for key, count in pairs(changed) do
         -- A server refresh leaves the last settings undo in place.

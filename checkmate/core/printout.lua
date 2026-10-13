@@ -1060,7 +1060,7 @@ local function effects_value(s, result, sep)
         end
         local text = paint(s, each.debuff and 'effects_name' or 'effects_buff',
             marked(s, 'effect', each.effect, effect_name(s, each)));
-        local color = each.mine and 'effects_time' or 'effects_guess';
+        local color = each.mine and not each.inferred and 'effects_time' or 'effects_guess';
         local estimate = s.effects.estimate_mark == true and '~' or '';
         if (times and ps.clocks == true and (each.ends ~= nil or each.left ~= nil)) then
             text = text .. paint(s, color, ' ' .. estimate .. MARK:format('clock', index) .. MARK:format('end', 'text'));

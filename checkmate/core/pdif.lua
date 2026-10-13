@@ -162,7 +162,7 @@ function pdif.readout(own, mob, kind, reason)
     local seen = {};
     for _, effect in ipairs(mob.effects or {}) do
         local name = (constants.defense_effects or {})[effect.effect];
-        if (name ~= nil and not seen[name]) then
+        if (not effect.inferred and name ~= nil and not seen[name]) then
             seen[name] = true;
             note(out, name .. ' was seen. Its defense change and exact end are unknown.');
         end

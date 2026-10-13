@@ -1,5 +1,6 @@
--- Effects seen in action messages, with Phoenix durations before resists.
+-- Action effects, with Phoenix durations before resists.
 -- An absent duration stays untimed. by_effect names each status of a move with several.
+-- infer marks a possible effect, not a confirmed application. default_tp is an assumed TP value.
 -- Built by tools\export_data.py from phoenix/live 071c401048.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
@@ -8,34 +9,34 @@ return {
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- What an effect removes, and its usual duration.
     effects = {
-        [0] = { drops = {  } },  -- ko
-        [1] = { drops = {  }, usual = 90 },  -- weakness
-        [2] = { drops = { 19, 193 }, usual = 60 },  -- sleep_i
-        [3] = { drops = {  }, usual = 60 },  -- poison
-        [4] = { drops = {  }, usual = 60 },  -- paralysis
-        [5] = { drops = {  }, usual = 120 },  -- blindness
-        [6] = { drops = {  }, usual = 60 },  -- silence
-        [7] = { drops = { 18, 28 }, usual = 60 },  -- petrification
-        [8] = { drops = { 31 }, usual = 720 },  -- disease
-        [9] = { drops = { 20 }, usual = 60 },  -- curse_i
-        [10] = { drops = {  }, usual = 4 },  -- stun
-        [11] = { drops = {  }, usual = 60 },  -- bind
-        [12] = { drops = { 32 }, usual = 60 },  -- weight
-        [13] = { drops = { 33 }, usual = 120 },  -- slow
-        [14] = { drops = {  }, usual = 60 },  -- charm_i
-        [15] = { drops = {  }, usual = 35 },  -- doom
-        [16] = { drops = {  }, usual = 60 },  -- amnesia
-        [17] = { drops = {  } },  -- charm_ii
+        [0] = { drops = {  }, debuff = true },  -- ko
+        [1] = { drops = {  }, debuff = true, usual = 300 },  -- weakness
+        [2] = { drops = { 19, 193 }, debuff = true, usual = 60 },  -- sleep_i
+        [3] = { drops = {  }, debuff = true, usual = 60 },  -- poison
+        [4] = { drops = {  }, debuff = true, usual = 60 },  -- paralysis
+        [5] = { drops = {  }, debuff = true, usual = 120 },  -- blindness
+        [6] = { drops = {  }, debuff = true, usual = 60 },  -- silence
+        [7] = { drops = { 18, 28 }, debuff = true, usual = 60 },  -- petrification
+        [8] = { drops = { 31 }, debuff = true, usual = 720 },  -- disease
+        [9] = { drops = { 20 }, debuff = true, usual = 60 },  -- curse_i
+        [10] = { drops = {  }, debuff = true, usual = 4 },  -- stun
+        [11] = { drops = {  }, debuff = true, usual = 60 },  -- bind
+        [12] = { drops = { 32 }, debuff = true, usual = 60 },  -- weight
+        [13] = { drops = { 33 }, debuff = true, usual = 120 },  -- slow
+        [14] = { drops = {  }, debuff = true, usual = 60 },  -- charm_i
+        [15] = { drops = {  }, debuff = true, usual = 35 },  -- doom
+        [16] = { drops = {  }, debuff = true, usual = 60 },  -- amnesia
+        [17] = { drops = {  }, debuff = true },  -- charm_ii
         [18] = { drops = { 7, 28 } },  -- gradual_petrification
-        [19] = { drops = { 2, 193 } },  -- sleep_ii
-        [20] = { drops = { 9 }, usual = 30 },  -- curse_ii
-        [21] = { drops = {  } },  -- addle
-        [22] = { drops = {  } },  -- intimidate
-        [23] = { drops = { 228 } },  -- kaustra
-        [28] = { drops = { 7, 18 }, usual = 30 },  -- terror
-        [29] = { drops = { 6 }, usual = 60 },  -- mute
-        [30] = { drops = { 9 }, usual = 600 },  -- bane
-        [31] = { drops = { 8 }, usual = 60 },  -- plague
+        [19] = { drops = { 2, 193 }, debuff = true },  -- sleep_ii
+        [20] = { drops = { 9 }, debuff = true, usual = 30 },  -- curse_ii
+        [21] = { drops = {  }, debuff = true },  -- addle
+        [22] = { drops = {  }, debuff = true, usual = 32 },  -- intimidate
+        [23] = { drops = { 228 }, debuff = true },  -- kaustra
+        [28] = { drops = { 7, 18 }, debuff = true, usual = 30 },  -- terror
+        [29] = { drops = { 6 }, debuff = true, usual = 60 },  -- mute
+        [30] = { drops = { 9 }, debuff = true, usual = 600 },  -- bane
+        [31] = { drops = { 8 }, debuff = true, usual = 60 },  -- plague
         [32] = { drops = { 12 } },  -- flee
         [33] = { drops = { 13 }, usual = 180 },  -- haste
         [34] = { drops = { 35, 38, 153, 173, 403, 573, 605, 606, 607 }, usual = 180 },  -- blaze_spikes
@@ -46,7 +47,7 @@ return {
         [39] = { drops = {  }, usual = 600 },  -- aquaveil
         [40] = { drops = {  }, usual = 1800 },  -- protect
         [41] = { drops = {  }, usual = 1800 },  -- shell
-        [42] = { drops = {  }, usual = 300 },  -- regen
+        [42] = { drops = {  }, usual = 180 },  -- regen
         [43] = { drops = {  }, usual = 198 },  -- refresh
         [44] = { drops = {  }, usual = 45 },  -- mighty_strikes
         [45] = { drops = {  }, usual = 180 },  -- boost
@@ -62,30 +63,30 @@ return {
         [52] = { drops = {  }, usual = 180 },  -- soul_voice
         [53] = { drops = {  } },  -- eagle_eye_shot
         [54] = { drops = {  }, usual = 30 },  -- meikyo_shisui
-        [55] = { drops = {  } },  -- astral_flow
+        [55] = { drops = {  }, usual = 180 },  -- astral_flow
         [56] = { drops = {  }, usual = 120 },  -- berserk
         [57] = { drops = {  } },  -- defender
         [58] = { drops = {  } },  -- aggressor
-        [59] = { drops = {  } },  -- focus
-        [60] = { drops = {  } },  -- dodge
+        [59] = { drops = {  }, usual = 120 },  -- focus
+        [60] = { drops = {  }, usual = 120 },  -- dodge
         [61] = { drops = {  }, usual = 300 },  -- counterstance
         [62] = { drops = {  } },  -- sentinel
         [63] = { drops = {  } },  -- souleater
-        [64] = { drops = {  } },  -- last_resort
-        [65] = { drops = {  } },  -- sneak_attack
+        [64] = { drops = {  }, usual = 30 },  -- last_resort
+        [65] = { drops = {  }, usual = 60 },  -- sneak_attack
         [66] = { drops = { 36 }, usual = 300 },  -- copy_image
-        [67] = { drops = {  } },  -- third_eye
+        [67] = { drops = {  }, usual = 30 },  -- third_eye
         [68] = { drops = { 460 }, usual = 180 },  -- warcry
         [69] = { drops = {  }, usual = 300 },  -- invisible
         [70] = { drops = {  }, usual = 300 },  -- deodorize
         [71] = { drops = {  }, usual = 300 },  -- sneak
-        [72] = { drops = {  } },  -- sharpshot
+        [72] = { drops = {  }, usual = 60 },  -- sharpshot
         [73] = { drops = { 115, 352 }, usual = 60 },  -- barrage
         [74] = { drops = {  } },  -- holy_circle
         [75] = { drops = {  } },  -- arcane_circle
         [76] = { drops = {  } },  -- hide
         [77] = { drops = {  } },  -- camouflage
-        [78] = { drops = {  } },  -- divine_seal
+        [78] = { drops = {  }, usual = 60 },  -- divine_seal
         [79] = { drops = {  }, usual = 60 },  -- elemental_seal
         [80] = { drops = { 136 }, usual = 180 },  -- str_boost
         [81] = { drops = { 137 }, usual = 180 },  -- dex_boost
@@ -94,7 +95,7 @@ return {
         [84] = { drops = { 140 }, usual = 180 },  -- int_boost
         [85] = { drops = { 141 }, usual = 180 },  -- mnd_boost
         [86] = { drops = { 142 }, usual = 180 },  -- chr_boost
-        [87] = { drops = {  } },  -- trick_attack
+        [87] = { drops = {  }, usual = 60 },  -- trick_attack
         [88] = { drops = { 144 } },  -- max_hp_boost
         [89] = { drops = { 145 } },  -- max_mp_boost
         [90] = { drops = { 146 }, usual = 60 },  -- accuracy_boost
@@ -151,37 +152,37 @@ return {
         [123] = { drops = {  } },  -- int_boost_ii
         [124] = { drops = {  } },  -- mnd_boost_ii
         [125] = { drops = {  } },  -- chr_boost_ii
-        [126] = { drops = {  } },  -- spirit_surge
+        [126] = { drops = {  }, usual = 60 },  -- spirit_surge
         [127] = { drops = {  }, usual = 60 },  -- costume
-        [128] = { drops = { 129 }, usual = 60 },  -- burn
-        [129] = { drops = { 130 }, usual = 180 },  -- frost
-        [130] = { drops = { 131 }, usual = 60 },  -- choke
-        [131] = { drops = { 132 }, usual = 90 },  -- rasp
-        [132] = { drops = { 133 }, usual = 90 },  -- shock
-        [133] = { drops = { 128 }, usual = 60 },  -- drown
-        [134] = { drops = {  }, usual = 60 },  -- dia
-        [135] = { drops = { 134 }, usual = 120 },  -- bio
-        [136] = { drops = { 80 }, usual = 180 },  -- str_down
-        [137] = { drops = { 81 }, usual = 180 },  -- dex_down
-        [138] = { drops = { 82 }, usual = 120 },  -- vit_down
-        [139] = { drops = { 83 }, usual = 60 },  -- agi_down
-        [140] = { drops = { 84 }, usual = 120 },  -- int_down
-        [141] = { drops = { 85 }, usual = 180 },  -- mnd_down
-        [142] = { drops = { 86 }, usual = 60 },  -- chr_down
+        [128] = { drops = { 129 }, debuff = true, usual = 60 },  -- burn
+        [129] = { drops = { 130 }, debuff = true, usual = 180 },  -- frost
+        [130] = { drops = { 131 }, debuff = true, usual = 60 },  -- choke
+        [131] = { drops = { 132 }, debuff = true, usual = 90 },  -- rasp
+        [132] = { drops = { 133 }, debuff = true, usual = 90 },  -- shock
+        [133] = { drops = { 128 }, debuff = true, usual = 60 },  -- drown
+        [134] = { drops = {  }, debuff = true, usual = 180 },  -- dia
+        [135] = { drops = { 134 }, debuff = true, usual = 120 },  -- bio
+        [136] = { drops = { 80 }, debuff = true, usual = 180 },  -- str_down
+        [137] = { drops = { 81 }, debuff = true, usual = 180 },  -- dex_down
+        [138] = { drops = { 82 }, debuff = true, usual = 120 },  -- vit_down
+        [139] = { drops = { 83 }, debuff = true, usual = 90 },  -- agi_down
+        [140] = { drops = { 84 }, debuff = true, usual = 120 },  -- int_down
+        [141] = { drops = { 85 }, debuff = true, usual = 180 },  -- mnd_down
+        [142] = { drops = { 86 }, debuff = true, usual = 90 },  -- chr_down
         [143] = { drops = {  } },  -- level_restriction
-        [144] = { drops = { 88 }, usual = 120 },  -- max_hp_down
-        [145] = { drops = { 89 }, usual = 60 },  -- max_mp_down
-        [146] = { drops = { 90 }, usual = 60 },  -- accuracy_down
-        [147] = { drops = { 91 }, usual = 120 },  -- attack_down
-        [148] = { drops = { 92 }, usual = 180 },  -- evasion_down
-        [149] = { drops = { 93 }, usual = 60 },  -- defense_down
+        [144] = { drops = { 88 }, debuff = true, usual = 120 },  -- max_hp_down
+        [145] = { drops = { 89 }, debuff = true, usual = 60 },  -- max_mp_down
+        [146] = { drops = { 90 }, debuff = true, usual = 60 },  -- accuracy_down
+        [147] = { drops = { 91 }, debuff = true, usual = 120 },  -- attack_down
+        [148] = { drops = { 92 }, debuff = true, usual = 180 },  -- evasion_down
+        [149] = { drops = { 93 }, debuff = true, usual = 120 },  -- defense_down
         [150] = { drops = {  }, usual = 60 },  -- physical_shield
         [151] = { drops = {  }, usual = 60 },  -- arrow_shield
         [152] = { drops = {  }, usual = 60 },  -- magic_shield
         [153] = { drops = { 34, 35, 38, 173, 403, 573, 605, 606, 607 }, usual = 30 },  -- damage_spikes
         [154] = { drops = {  }, usual = 180 },  -- shining_ruby
         [155] = { drops = {  }, usual = 12 },  -- medicine
-        [156] = { drops = {  }, usual = 15 },  -- flash
+        [156] = { drops = {  }, debuff = true, usual = 15 },  -- flash
         [157] = { drops = {  } },  -- sj_restriction
         [158] = { drops = {  } },  -- provoke
         [159] = { drops = {  } },  -- penalty
@@ -189,20 +190,20 @@ return {
         [161] = { drops = {  } },  -- sprint
         [162] = { drops = {  } },  -- enchantment
         [163] = { drops = {  }, usual = 45 },  -- azure_lore
-        [164] = { drops = {  } },  -- chain_affinity
-        [165] = { drops = {  } },  -- burst_affinity
+        [164] = { drops = {  }, usual = 30 },  -- chain_affinity
+        [165] = { drops = {  }, usual = 30 },  -- burst_affinity
         [166] = { drops = {  } },  -- overdrive
-        [167] = { drops = {  }, usual = 60 },  -- magic_def_down
-        [168] = { drops = {  } },  -- inhibit_tp
+        [167] = { drops = {  }, debuff = true, usual = 60 },  -- magic_def_down
+        [168] = { drops = {  }, debuff = true, usual = 60 },  -- inhibit_tp
         [169] = { drops = {  } },  -- potency
         [170] = { drops = {  }, usual = 60 },  -- regain
         [171] = { drops = {  } },  -- pax
         [172] = { drops = {  } },  -- intension
         [173] = { drops = { 34, 35, 38, 153, 403, 573, 605, 606, 607 }, usual = 60 },  -- dread_spikes
-        [174] = { drops = {  }, usual = 150 },  -- magic_acc_down
-        [175] = { drops = {  } },  -- magic_atk_down
+        [174] = { drops = {  }, debuff = true, usual = 150 },  -- magic_acc_down
+        [175] = { drops = {  }, debuff = true },  -- magic_atk_down
         [176] = { drops = {  } },  -- quickening
-        [177] = { drops = {  }, usual = 45 },  -- encumbrance_ii
+        [177] = { drops = {  }, debuff = true, usual = 45 },  -- encumbrance_ii
         [178] = { drops = {  }, usual = 180 },  -- firestorm
         [179] = { drops = {  }, usual = 180 },  -- hailstorm
         [180] = { drops = {  }, usual = 180 },  -- windstorm
@@ -211,15 +212,15 @@ return {
         [183] = { drops = {  }, usual = 180 },  -- rainstorm
         [184] = { drops = {  }, usual = 180 },  -- aurorastorm
         [185] = { drops = {  }, usual = 180 },  -- voidstorm
-        [186] = { drops = {  }, usual = 30 },  -- helix
+        [186] = { drops = {  }, debuff = true, usual = 30 },  -- helix
         [187] = { drops = {  } },  -- sublimation_activated
         [188] = { drops = {  } },  -- sublimation_complete
-        [189] = { drops = {  }, usual = 60 },  -- max_tp_down
+        [189] = { drops = {  }, debuff = true, usual = 60 },  -- max_tp_down
         [190] = { drops = {  }, usual = 180 },  -- magic_atk_boost
         [191] = { drops = {  }, usual = 180 },  -- magic_def_boost
-        [192] = { drops = {  }, usual = 144 },  -- requiem
-        [193] = { drops = { 2, 19 } },  -- lullaby
-        [194] = { drops = {  }, usual = 180 },  -- elegy
+        [192] = { drops = {  }, debuff = true, usual = 144 },  -- requiem
+        [193] = { drops = { 2, 19 }, debuff = true },  -- lullaby
+        [194] = { drops = {  }, debuff = true, usual = 180 },  -- elegy
         [195] = { drops = {  }, usual = 120 },  -- paeon
         [196] = { drops = {  }, usual = 120 },  -- ballad
         [197] = { drops = {  }, usual = 120 },  -- minne
@@ -242,7 +243,7 @@ return {
         [214] = { drops = {  }, usual = 120 },  -- march
         [215] = { drops = {  }, usual = 120 },  -- etude
         [216] = { drops = {  }, usual = 120 },  -- carol
-        [217] = { drops = {  }, usual = 60 },  -- threnody
+        [217] = { drops = {  }, debuff = true, usual = 60 },  -- threnody
         [218] = { drops = {  }, usual = 120 },  -- hymnus
         [219] = { drops = {  }, usual = 120 },  -- mazurka
         [220] = { drops = {  }, usual = 120 },  -- sirvente
@@ -293,7 +294,7 @@ return {
         [256] = { drops = {  } },  -- sanction
         [257] = { drops = {  } },  -- besieged
         [258] = { drops = {  } },  -- illusion
-        [259] = { drops = {  }, usual = 60 },  -- encumbrance_i
+        [259] = { drops = {  }, debuff = true, usual = 60 },  -- encumbrance_i
         [260] = { drops = {  } },  -- obliviscence
         [261] = { drops = {  } },  -- impairment
         [262] = { drops = {  } },  -- omerta
@@ -350,7 +351,7 @@ return {
         [295] = { drops = {  } },  -- negate_amnesia
         [296] = { drops = {  } },  -- negate_doom
         [297] = { drops = {  } },  -- negate_poison
-        [298] = { drops = {  }, usual = 60 },  -- crit_hit_evasion_down
+        [298] = { drops = {  }, debuff = true, usual = 60 },  -- crit_hit_evasion_down
         [299] = { drops = {  } },  -- overload
         [300] = { drops = {  } },  -- fire_maneuver
         [301] = { drops = {  } },  -- ice_maneuver
@@ -360,7 +361,7 @@ return {
         [305] = { drops = {  } },  -- water_maneuver
         [306] = { drops = {  } },  -- light_maneuver
         [307] = { drops = {  } },  -- dark_maneuver
-        [308] = { drops = {  } },  -- double_up_chance
+        [308] = { drops = {  }, usual = 45 },  -- double_up_chance
         [309] = { drops = {  } },  -- bust
         [310] = { drops = {  } },  -- fighters_roll
         [311] = { drops = {  } },  -- monks_roll
@@ -392,24 +393,24 @@ return {
         [337] = { drops = {  } },  -- companions_roll
         [338] = { drops = {  } },  -- avengers_roll
         [339] = { drops = {  } },  -- naturalists_roll
-        [340] = { drops = {  } },  -- warriors_charge
+        [340] = { drops = {  }, usual = 60 },  -- warriors_charge
         [341] = { drops = {  } },  -- formless_strikes
-        [342] = { drops = {  } },  -- assassins_charge
-        [343] = { drops = {  } },  -- feint
+        [342] = { drops = {  }, usual = 60 },  -- assassins_charge
+        [343] = { drops = {  }, usual = 60 },  -- feint
         [344] = { drops = {  } },  -- fealty
-        [345] = { drops = {  } },  -- dark_seal
-        [346] = { drops = {  } },  -- diabolic_eye
-        [347] = { drops = {  } },  -- nightingale
-        [348] = { drops = {  } },  -- troubadour
-        [349] = { drops = {  } },  -- killer_instinct
+        [345] = { drops = {  }, usual = 60 },  -- dark_seal
+        [346] = { drops = {  }, usual = 180 },  -- diabolic_eye
+        [347] = { drops = {  }, usual = 60 },  -- nightingale
+        [348] = { drops = {  }, usual = 60 },  -- troubadour
+        [349] = { drops = {  }, usual = 60 },  -- killer_instinct
         [350] = { drops = {  } },  -- stealth_shot
         [351] = { drops = {  } },  -- flashy_shot
-        [352] = { drops = { 73, 115 } },  -- sange
-        [353] = { drops = { 354 } },  -- hasso
-        [354] = { drops = { 353 } },  -- seigan
-        [355] = { drops = {  } },  -- convergence
-        [356] = { drops = {  } },  -- diffusion
-        [357] = { drops = {  } },  -- snake_eye
+        [352] = { drops = { 73, 115 }, usual = 60 },  -- sange
+        [353] = { drops = { 354 }, usual = 300 },  -- hasso
+        [354] = { drops = { 353 }, usual = 300 },  -- seigan
+        [355] = { drops = {  }, usual = 60 },  -- convergence
+        [356] = { drops = {  }, usual = 60 },  -- diffusion
+        [357] = { drops = {  }, usual = 60 },  -- snake_eye
         [358] = { drops = {  } },  -- light_arts
         [359] = { drops = {  } },  -- dark_arts
         [360] = { drops = {  } },  -- penury
@@ -453,7 +454,7 @@ return {
         [401] = { drops = {  } },  -- addendum_white
         [402] = { drops = {  } },  -- addendum_black
         [403] = { drops = { 34, 35, 38, 153, 173, 573, 605, 606, 607 } },  -- reprisal
-        [404] = { drops = {  }, usual = 300 },  -- magic_evasion_down
+        [404] = { drops = {  }, debuff = true, usual = 60 },  -- magic_evasion_down
         [405] = { drops = {  } },  -- retaliation
         [406] = { drops = {  } },  -- footwork
         [407] = { drops = {  } },  -- klimaform
@@ -710,7 +711,7 @@ return {
         [790] = { drops = {  } },  -- mark_of_seed
         [791] = { drops = {  } },  -- all_miss
         [792] = { drops = {  }, usual = 30 },  -- super_buff
-        [793] = { drops = {  } },  -- ninjutsu_ele_debuff
+        [793] = { drops = {  }, debuff = true, usual = 10 },  -- ninjutsu_ele_debuff
         [794] = { drops = {  } },  -- healing
         [795] = { drops = {  } },  -- leavegame
         [796] = { drops = {  } },  -- haste_samba_haste
@@ -719,10 +720,24 @@ return {
         [799] = { drops = {  } },  -- skillchain
         [800] = { drops = {  } },  -- dynamis
         [801] = { drops = {  }, usual = 15 },  -- meditate
-        [802] = { drops = {  }, usual = 60 },  -- elementalres_down
+        [802] = { drops = {  }, debuff = true, usual = 60 },  -- elementalres_down
         [803] = { drops = {  } },  -- full_speed_ahead
-        [804] = { drops = {  } },  -- hysteria
-        [805] = { drops = {  } },  -- tomahawk
+        [804] = { -- hysteria
+            drops = {  },
+            debuff = true,
+            name = 'Hysteria',
+            description = 'Prevents the monster from using TP moves.',
+            icon = false,
+            usual = 32,
+        },
+        [805] = { -- tomahawk
+            drops = {  },
+            debuff = true,
+            name = 'Tomahawk',
+            description = 'Changes the monster\'s physical and elemental damage resistances.',
+            icon = false,
+            usual = 60,
+        },
         [806] = { drops = {  } },  -- nuke_wall
         [807] = { drops = {  } },  -- trust_aura_chr
         [808] = { drops = {  } },  -- trust_aura_haste
@@ -734,10 +749,21 @@ return {
     },
     -- Spell IDs, filtered by enabled content.
     spells = {
+        [1] = { effect = 37, seconds = 25 },  -- cure
+        [2] = { effect = 37, seconds = 25 },  -- cure_ii
+        [3] = { effect = 37, seconds = 25 },  -- cure_iii
+        [4] = { effect = 37, seconds = 25 },  -- cure_iv
+        [5] = { effect = 37, seconds = 25 },  -- cure_v
         [23] = { effect = 134, tier = 1, seconds = 60 },  -- dia
         [24] = { effect = 134, tier = 3, seconds = 120 },  -- dia_ii
         [25] = { effect = 134, tier = 5, merit = 'dia_iii' },  -- dia_iii
+        [26] = { effect = 134, seconds = 180 },  -- dia_iv
+        [27] = { effect = 134, seconds = 180 },  -- dia_v
         [33] = { effect = 134, tier = 1, seconds = 60 },  -- diaga
+        [34] = { effect = 134, seconds = 120 },  -- diaga_ii
+        [35] = { effect = 134, seconds = 180 },  -- diaga_iii
+        [36] = { effect = 134, seconds = 180 },  -- diaga_iv
+        [37] = { effect = 134, seconds = 180 },  -- diaga_v
         [43] = { effect = 40, seconds = 1800, tier = 1 },  -- protect
         [44] = { effect = 40, seconds = 1800, tier = 2 },  -- protect_ii
         [45] = { effect = 40, seconds = 1800, tier = 3 },  -- protect_iii
@@ -812,9 +838,24 @@ return {
         [132] = { effect = 41, seconds = 1800, tier = 3 },  -- shellra_iii
         [133] = { effect = 41, seconds = 1800, tier = 4 },  -- shellra_iv
         [134] = { effect = 41, seconds = 1800, tier = 5 },  -- shellra_v
+        [135] = { effect = 113, seconds = 3600 },  -- reraise
         [136] = { effect = 69, seconds = 30, tier = 1, top = 300 },  -- invisible
         [137] = { effect = 71, seconds = 30, tier = 1, top = 300 },  -- sneak
         [138] = { effect = 70, seconds = 30, tier = 1, top = 300 },  -- deodorize
+        [141] = { effect = 113, seconds = 3600 },  -- reraise_ii
+        [142] = { effect = 113, seconds = 3600 },  -- reraise_iii
+        [204] = { effect = 793, seconds = 10 },  -- flare
+        [205] = { effect = 793, seconds = 10 },  -- flare_ii
+        [206] = { effect = 793, seconds = 10 },  -- freeze
+        [207] = { effect = 793, seconds = 10 },  -- freeze_ii
+        [208] = { effect = 793, seconds = 10 },  -- tornado
+        [209] = { effect = 793, seconds = 10 },  -- tornado_ii
+        [210] = { effect = 793, seconds = 10 },  -- quake
+        [211] = { effect = 793, seconds = 10 },  -- quake_ii
+        [212] = { effect = 793, seconds = 10 },  -- burst
+        [213] = { effect = 793, seconds = 10 },  -- burst_ii
+        [214] = { effect = 793, seconds = 10 },  -- flood
+        [215] = { effect = 793, seconds = 10 },  -- flood_ii
         [216] = { effect = 12, seconds = 120, tier = 1 },  -- gravity
         [220] = { effect = 3, seconds = 30, tier = 1 },  -- poison
         [221] = { effect = 3, seconds = 120, tier = 2 },  -- poison_ii
@@ -825,6 +866,8 @@ return {
         [230] = { effect = 135, tier = 2, seconds = 60 },  -- bio
         [231] = { effect = 135, tier = 4, seconds = 120 },  -- bio_ii
         [232] = { effect = 135, tier = 6, merit = 'bio_iii' },  -- bio_iii
+        [233] = { effect = 135, seconds = 180 },  -- bio_iv
+        [234] = { effect = 135, seconds = 180 },  -- bio_v
         [235] = { effect = 128, seconds = 90, tier = 1 },  -- burn
         [236] = { effect = 129, seconds = 90, tier = 1 },  -- frost
         [237] = { effect = 130, seconds = 90, tier = 1 },  -- choke
@@ -841,6 +884,13 @@ return {
         [257] = { effect = 9, seconds = 300, tier = 1 },  -- curse
         [258] = { effect = 11, seconds = 13, tier = 1, top = 60 },  -- bind
         [259] = { effect = 2, seconds = 90, tier = 2 },  -- sleep_ii
+        [266] = { effect = 136, seconds = 90 },  -- absorb_str
+        [267] = { effect = 137, seconds = 90 },  -- absorb_dex
+        [268] = { effect = 138, seconds = 90 },  -- absorb_vit
+        [269] = { effect = 139, seconds = 90 },  -- absorb_agi
+        [270] = { effect = 140, seconds = 90 },  -- absorb_int
+        [271] = { effect = 141, seconds = 90 },  -- absorb_mnd
+        [272] = { effect = 142, seconds = 90 },  -- absorb_chr
         [273] = { effect = 2, seconds = 60, tier = 1 },  -- sleepga
         [274] = { effect = 2, seconds = 90, tier = 2 },  -- sleepga_ii
         [276] = { effect = 5, seconds = 80, tier = 3, top = 300 },  -- blind_ii
@@ -853,6 +903,24 @@ return {
         [283] = { effect = 186, seconds = 30, tier = 1 },  -- ionohelix
         [284] = { effect = 186, seconds = 30, tier = 1 },  -- noctohelix
         [285] = { effect = 186, seconds = 30, tier = 1 },  -- luminohelix
+        [320] = { effect = 793 },  -- katon_ichi
+        [321] = { effect = 793 },  -- katon_ni
+        [322] = { effect = 793 },  -- katon_san
+        [323] = { effect = 793 },  -- hyoton_ichi
+        [324] = { effect = 793 },  -- hyoton_ni
+        [325] = { effect = 793 },  -- hyoton_san
+        [326] = { effect = 793 },  -- huton_ichi
+        [327] = { effect = 793 },  -- huton_ni
+        [328] = { effect = 793 },  -- huton_san
+        [329] = { effect = 793 },  -- doton_ichi
+        [330] = { effect = 793 },  -- doton_ni
+        [331] = { effect = 793 },  -- doton_san
+        [332] = { effect = 793 },  -- raiton_ichi
+        [333] = { effect = 793 },  -- raiton_ni
+        [334] = { effect = 793 },  -- raiton_san
+        [335] = { effect = 793 },  -- suiton_ichi
+        [336] = { effect = 793 },  -- suiton_ni
+        [337] = { effect = 793 },  -- suiton_san
         [341] = { effect = 4, seconds = 180, tier = 1 },  -- jubaku_ichi
         [342] = { effect = 4, seconds = 300, tier = 2 },  -- jubaku_ni
         [343] = { effect = 4, seconds = 420, tier = 3 },  -- jubaku_san
@@ -950,6 +1018,122 @@ return {
         [467] = { effect = 219, seconds = 120, tier = 1 },  -- raptor_mazurka
         [468] = { effect = 220, seconds = 120, tier = 1 },  -- foe_sirvente
         [469] = { effect = 221, seconds = 120, tier = 1 },  -- adventurers_dirge
+        [513] = { effect = 3, seconds = 60 },  -- venom_shell
+        [515] = { effect = 136, seconds = 60, infer = 'damage' },  -- maelstrom
+        [517] = { effect = 37 },  -- metallic_body
+        [524] = { effect = 146, seconds = 60, infer = 'damage' },  -- sandspin
+        [530] = { effect = 33 },  -- refueling
+        [531] = { effect = 11, seconds = 30, infer = 'damage' },  -- ice_break
+        [532] = { effect = 10, seconds = 5, infer = 'damage' },  -- blitzstrahl
+        [533] = { effect = 1, seconds = 300 },  -- self-destruct
+        [534] = { effect = 12, seconds = 60, infer = 'damage' },  -- mysterious_light
+        [536] = { effect = 3, seconds = 60, infer = 'damage' },  -- poison_breath
+        [537] = { effect = 138, seconds = 60 },  -- stinking_gas
+        [538] = { effect = 190 },  -- memento_mori
+        [539] = { effect = 147, seconds = 60, infer = 'damage' },  -- terror_touch
+        [547] = { effect = 93 },  -- cocoon
+        [548] = { effect = 13, seconds = 90 },  -- filamented_hold
+        [555] = { effect = 12, seconds = 60, infer = 'damage' },  -- magnetite_cloud
+        [561] = { effect = 149, seconds = 180 },  -- frightful_roar
+        [563] = { effect = 5, seconds = 60, infer = 'damage' },  -- hecatomb_wave
+        [565] = { -- radiant_breath
+            effect = 6,
+            seconds = 60,
+            infer = 'damage',
+            by_effect = {
+                [6] = { effect = 6, seconds = 60, infer = 'damage' },
+                [13] = { effect = 13, seconds = 60, infer = 'damage' },
+            },
+        },
+        [572] = { effect = 140, seconds = 30 },  -- sound_blast
+        [574] = { effect = 92 },  -- feather_barrier
+        [575] = { effect = 28, seconds = 5 },  -- jettatura
+        [576] = { effect = 2, seconds = 90 },  -- yawn
+        [582] = { effect = 6, seconds = 120 },  -- chaotic_eye
+        [584] = { effect = 2, seconds = 60 },  -- sheep_song
+        [588] = { effect = 31, seconds = 60 },  -- lowing
+        [596] = { effect = 2, infer = 'damage' },  -- pinecone_bomb
+        [597] = { effect = 13, infer = 'damage' },  -- sprout_smack
+        [598] = { effect = 2, seconds = 90 },  -- soporific
+        [599] = { effect = 3, infer = 'damage' },  -- queasyshroom
+        [603] = { effect = 138, infer = 'damage' },  -- wild_oats
+        [604] = { -- bad_breath
+            effect = 3,
+            seconds = 60,
+            infer = 'damage',
+            by_effect = {
+                [3] = { effect = 3, seconds = 60, infer = 'damage' },
+                [4] = { effect = 4, seconds = 60, infer = 'damage' },
+                [5] = { effect = 5, seconds = 60, infer = 'damage' },
+                [6] = { effect = 6, seconds = 60, infer = 'damage' },
+                [11] = { effect = 11, seconds = 60, infer = 'damage' },
+                [12] = { effect = 12, seconds = 60, infer = 'damage' },
+                [13] = { effect = 13, seconds = 60, infer = 'damage' },
+            },
+        },
+        [606] = { effect = 136, seconds = 30 },  -- awful_eye
+        [608] = { effect = 4, seconds = 60, infer = 'damage' },  -- frost_breath
+        [610] = { effect = 148, seconds = 60 },  -- infrasonics
+        [611] = { effect = 3, seconds = 180, infer = 'damage' },  -- disseverment
+        [612] = { effect = 156, seconds = 16 },  -- actinic_burst
+        [613] = { effect = 35, by_effect = { [93] = { effect = 93 }, [35] = { effect = 35 } } },  -- reactor_cool
+        [614] = { effect = 191 },  -- saline_coat
+        [615] = { effect = 38 },  -- plasma_charge
+        [616] = { effect = 10, seconds = 5 },  -- temporal_shift
+        [618] = { effect = 11, seconds = 30, infer = 'damage' },  -- blastbomb
+        [620] = { effect = 137, infer = 'damage' },  -- battle_dance
+        [621] = { effect = 5, seconds = 120 },  -- sandspray
+        [623] = { effect = 10, seconds = 8, top = 8, infer = 'damage' },  -- head_butt
+        [628] = { effect = 10, seconds = 5, infer = 'damage' },  -- frypan
+        [632] = { effect = 37 },  -- diamondhide
+        [633] = { -- enervation
+            effect = 149,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 236 },
+            condition = 'The spell reported one effect. Its other effect may have resisted.',
+            by_effect = {
+                [149] = { effect = 149, seconds = 30, infer = 'success', success_messages = { 236 }, condition = 'The spell reported one effect. Its other effect may have resisted.' },
+                [167] = { effect = 167, seconds = 30, infer = 'success', success_messages = { 236 }, condition = 'The spell reported one effect. Its other effect may have resisted.' },
+            },
+        },
+        [634] = { -- light_of_penance
+            effect = 5,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 236 },
+            condition = 'The spell reported one effect. Its other effect may have resisted.',
+            by_effect = {
+                [5] = { effect = 5, seconds = 30, infer = 'success', success_messages = { 236 }, condition = 'The spell reported one effect. Its other effect may have resisted.' },
+                [11] = { effect = 11, seconds = 30, infer = 'success', success_messages = { 236 }, condition = 'The spell reported one effect. Its other effect may have resisted.' },
+            },
+        },
+        [636] = { effect = 90, by_effect = { [90] = { effect = 90 }, [92] = { effect = 92 } } },  -- warm-up
+        [638] = { effect = 3, infer = 'damage' },  -- feather_storm
+        [640] = { effect = 10, seconds = 5, infer = 'damage' },  -- tail_slap
+        [642] = { -- amplification
+            effect = 190,
+            by_effect = {
+                [190] = { effect = 190 },
+                [191] = { effect = 191 },
+            },
+        },
+        [644] = { effect = 4, seconds = 90, infer = 'damage' },  -- mind_blast
+        [647] = { effect = 36 },  -- zephyr_mantle
+        [648] = { effect = 11, seconds = 30, infer = 'damage' },  -- regurgitation
+        [650] = { effect = 149, seconds = 120, infer = 'damage' },  -- seedspray
+        [651] = { -- corrosive_ooze
+            effect = 147,
+            seconds = 90,
+            infer = 'damage',
+            by_effect = {
+                [147] = { effect = 147, seconds = 90, infer = 'damage' },
+                [149] = { effect = 149, seconds = 90, infer = 'damage' },
+            },
+        },
+        [652] = { effect = 146, seconds = 60, infer = 'damage' },  -- spiral_spin
+        [654] = { effect = 4, seconds = 180, infer = 'damage' },  -- sub-zero_smash
+        [655] = { effect = 91 },  -- triumphant_roar
         [885] = { effect = 186, seconds = 30, tier = 2 },  -- geohelix_ii
         [886] = { effect = 186, seconds = 30, tier = 2 },  -- hydrohelix_ii
         [887] = { effect = 186, seconds = 30, tier = 2 },  -- anemohelix_ii
@@ -961,9 +1145,315 @@ return {
     },
     -- Player ability IDs.
     abilities = {
+        [16] = { effect = 44, seconds = 45 },  -- mighty_strikes
+        [17] = { effect = 46 },  -- hundred_fists
+        [19] = { effect = 47, seconds = 60 },  -- manafont
+        [20] = { effect = 48, seconds = 60 },  -- chainspell
+        [21] = { effect = 49 },  -- perfect_dodge
+        [22] = { effect = 50, seconds = 30 },  -- invincible
+        [23] = { effect = 51 },  -- blood_weapon
+        [25] = { effect = 52, seconds = 180 },  -- soul_voice
+        [27] = { effect = 54, seconds = 30 },  -- meikyo_shisui
+        [29] = { effect = 126, seconds = 60 },  -- spirit_surge
+        [30] = { effect = 55, seconds = 180 },  -- astral_flow
+        [31] = { effect = 56 },  -- berserk
+        [32] = { effect = 68 },  -- warcry
+        [33] = { effect = 57 },  -- defender
+        [34] = { effect = 58 },  -- aggressor
+        [36] = { effect = 59, seconds = 120 },  -- focus
+        [37] = { effect = 60, seconds = 120 },  -- dodge
+        [38] = { effect = 42 },  -- chakra
+        [39] = { effect = 45, seconds = 180 },  -- boost
+        [40] = { effect = 61 },  -- counterstance
+        [42] = { effect = 32 },  -- flee
+        [43] = { effect = 76 },  -- hide
+        [44] = { effect = 65, seconds = 60 },  -- sneak_attack
+        [46] = { effect = 10, infer = 'success', success_messages = { 110 }, seconds = 8, top = 8 },  -- shield_bash
+        [47] = { effect = 74 },  -- holy_circle
+        [48] = { effect = 62 },  -- sentinel
+        [49] = { effect = 63 },  -- souleater
+        [50] = { effect = 75 },  -- arcane_circle
+        [51] = { effect = 64, seconds = 30 },  -- last_resort
+        [52] = { effect = 11, seconds = 5 },  -- charm
         [57] = { effect = 11, seconds = 30, gear = 'shadowbind' },  -- Shadowbind
+        [58] = { effect = 77 },  -- camouflage
+        [59] = { effect = 72, seconds = 60 },  -- sharpshot
+        [60] = { effect = 73, seconds = 60 },  -- barrage
+        [62] = { effect = 67, seconds = 30 },  -- third_eye
+        [63] = { effect = 801 },  -- meditate
+        [64] = { effect = 117 },  -- warding_circle
+        [65] = { effect = 118 },  -- ancient_circle
+        [66] = { -- jump
+            effect = 149,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 317 },
+            requires_effect = 126,
+            condition = 'Jump needs Spirit Surge and a landed hit.',
+        },
+        [73] = { effect = 794 },  -- stay
+        [74] = { effect = 78, seconds = 60 },  -- divine_seal
+        [75] = { effect = 79, seconds = 60 },  -- elemental_seal
+        [76] = { effect = 87, seconds = 60 },  -- trick_attack
+        [77] = { effect = 10, infer = 'success', success_messages = { 110 }, seconds = 8, top = 8 },  -- weapon_bash
+        [78] = { effect = 42, seconds = 180 },  -- reward
+        [79] = { effect = 114 },  -- cover
+        [82] = { -- chi_blast
+            effect = 168,
+            infer = 'success',
+            success_messages = { 110 },
+            requires_merit = 'penance',
+            merit = 'penance',
+            condition = 'Chi Blast needs Penance merits.',
+        },
+        [92] = { effect = 623 },  -- rampart
+        [93] = { effect = 163, seconds = 30 },  -- azure_lore
+        [94] = { effect = 164, seconds = 30 },  -- chain_affinity
+        [95] = { effect = 165, seconds = 30 },  -- burst_affinity
+        [98] = { -- fighters_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [99] = { -- monks_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [100] = { -- healers_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [101] = { -- wizards_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [102] = { -- warlocks_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [103] = { -- rogues_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [104] = { -- gallants_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [105] = { -- chaos_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [106] = { -- beast_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [107] = { -- choral_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [108] = { -- hunters_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [109] = { -- samurai_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [110] = { -- ninja_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [111] = { -- drachen_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [112] = { -- evokers_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [113] = { -- maguss_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [114] = { -- corsairs_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [115] = { -- puppet_roll
+            effect = 308,
+            seconds = 45,
+            by_effect = {
+                [308] = { effect = 308, seconds = 45 },
+                [309] = { effect = 309 },
+            },
+        },
+        [123] = { effect = 309 },  -- double-up
         [131] = { effect = 2, seconds = 90 },  -- Light Shot
-        [170] = { effect = 149, merit = 'angon' },  -- Angon
+        [135] = { effect = 166 },  -- overdrive
+        [137] = { effect = 42 },  -- repair
+        [149] = { effect = 340, seconds = 60 },  -- warriors_charge
+        [150] = { effect = 805, infer = 'success', success_messages = { 100 }, merit = 'tomahawk' },  -- tomahawk
+        [151] = { effect = 88 },  -- mantra
+        [152] = { effect = 341 },  -- formless_strikes
+        [155] = { effect = 342, seconds = 60 },  -- assassins_charge
+        [156] = { effect = 343, seconds = 60 },  -- feint
+        [157] = { effect = 344 },  -- fealty
+        [159] = { effect = 345, seconds = 60 },  -- dark_seal
+        [160] = { effect = 346, seconds = 180 },  -- diabolic_eye
+        [161] = { effect = 28, seconds = 10 },  -- feral_howl
+        [162] = { effect = 349, seconds = 60 },  -- killer_instinct
+        [163] = { effect = 347, seconds = 60 },  -- nightingale
+        [164] = { effect = 348, seconds = 60 },  -- troubadour
+        [168] = { -- blade_bash
+            effect = 10,
+            seconds = 6,
+            infer = 'success',
+            success_messages = { 110 },
+            by_effect = {
+                [10] = { effect = 10, seconds = 6, infer = 'success', success_messages = { 110 } },
+                [31] = { effect = 31, seconds = 15, infer = 'success', success_messages = { 110 } },
+            },
+        },
+        [169] = { effect = 190, seconds = 180 },  -- deep_breathing
+        [170] = { effect = 149, merit = 'angon', infer = 'success', success_messages = { 127 } },  -- Angon
+        [171] = { effect = 352, seconds = 60 },  -- sange
+        [173] = { effect = 353, seconds = 300 },  -- hasso
+        [174] = { effect = 354, seconds = 300 },  -- seigan
+        [175] = { effect = 355, seconds = 60 },  -- convergence
+        [176] = { effect = 356, seconds = 60 },  -- diffusion
+        [177] = { effect = 357, seconds = 60 },  -- snake_eye
+    },
+    -- Player weapon-skill IDs.
+    weaponskills = {
+        [2] = { effect = 10, seconds = 4, infer = 'damage' },  -- shoulder_tackle
+        [15] = { effect = 31, infer = 'damage' },  -- shijin_spiral
+        [16] = { effect = 3, infer = 'damage' },  -- wasp_sting
+        [17] = { effect = 3, infer = 'damage' },  -- viper_bite
+        [18] = { effect = 11, infer = 'damage' },  -- shadowstitch
+        [28] = { effect = 12, seconds = 60, infer = 'damage' },  -- mordant_rime
+        [29] = { effect = 148, infer = 'damage' },  -- pyrrhic_kleos
+        [31] = { effect = 12, seconds = 60, infer = 'damage' },  -- rudras_storm
+        [35] = { effect = 10, seconds = 4, infer = 'damage' },  -- flat_blade
+        [44] = { effect = 404, seconds = 60, infer = 'damage' },  -- death_blossom
+        [52] = { effect = 2, infer = 'damage' },  -- shockwave
+        [58] = { effect = 4, infer = 'damage' },  -- herculean_slash
+        [65] = { effect = 10, seconds = 4, infer = 'damage' },  -- smash_axe
+        [66] = { effect = 130, seconds = 90, infer = 'damage' },  -- gale_axe
+        [73] = { effect = 146, seconds = 120, infer = 'damage' },  -- onslaught
+        [75] = { effect = 11, infer = 'damage' },  -- bora_axe
+        [80] = { effect = 148, infer = 'damage', seconds = 180, default_tp = 1000 },  -- shield_break
+        [83] = { effect = 149, infer = 'damage', seconds = 180, default_tp = 1000 },  -- armor_break
+        [85] = { effect = 147, infer = 'damage', seconds = 180, default_tp = 1000 },  -- weapon_break
+        [87] = { -- full_break
+            effect = 146,
+            infer = 'damage',
+            seconds = 180,
+            default_tp = 1000,
+            by_effect = {
+                [146] = { effect = 146, infer = 'damage', seconds = 180, default_tp = 1000 },
+                [147] = { effect = 147, infer = 'damage', seconds = 180, default_tp = 1000 },
+                [148] = { effect = 148, infer = 'damage', seconds = 180, default_tp = 1000 },
+                [149] = { effect = 149, infer = 'damage', seconds = 180, default_tp = 1000 },
+            },
+        },
+        [89] = { effect = 149, seconds = 120, infer = 'damage' },  -- metatron_torment
+        [92] = { effect = 13, infer = 'damage' },  -- ukkos_fury
+        [99] = { effect = 5, infer = 'damage' },  -- nightmare_scythe
+        [102] = { effect = 6, infer = 'damage' },  -- guillotine
+        [107] = { effect = 147, infer = 'damage' },  -- infernal_scythe
+        [115] = { effect = 10, seconds = 4, infer = 'damage' },  -- leg_sweep
+        [125] = { effect = 298, infer = 'damage' },  -- stardiver
+        [129] = { effect = 4, infer = 'damage' },  -- blade_retsu
+        [137] = { effect = 4, seconds = 60, infer = 'damage' },  -- blade_metsu
+        [138] = { effect = 146, infer = 'damage' },  -- blade_kamu
+        [139] = { effect = 3, infer = 'damage' },  -- blade_yu
+        [145] = { effect = 10, seconds = 4, infer = 'damage' },  -- tachi_hobaku
+        [150] = { effect = 5, seconds = 60, infer = 'damage' },  -- tachi_yukikaze
+        [151] = { effect = 6, seconds = 60, infer = 'damage' },  -- tachi_gekko
+        [152] = { effect = 4, seconds = 60, infer = 'damage' },  -- tachi_kasha
+        [155] = { effect = 149, infer = 'damage' },  -- tachi_ageha
+        [162] = { effect = 10, seconds = 4, infer = 'damage' },  -- brainshaker
+        [165] = { effect = 140, seconds = 140, infer = 'damage' },  -- skullbreaker
+        [170] = { effect = 148, seconds = 120, infer = 'damage' },  -- randgrith
+        [181] = { effect = 149, infer = 'damage' },  -- shell_crusher
+        [185] = { effect = 147, seconds = 120, infer = 'damage' },  -- gate_of_tartarus
+        [186] = { effect = 167, infer = 'damage' },  -- vidohunir
+        [187] = { effect = 149, infer = 'damage' },  -- garland_of_bliss
+        [188] = { effect = 175, infer = 'damage' },  -- omniscience
+        [191] = { effect = 167, infer = 'damage' },  -- shattersoul
+        [194] = { effect = 140, seconds = 140, infer = 'damage' },  -- dulling_arrow
+        [210] = { effect = 140, seconds = 140, infer = 'damage' },  -- sniper_shot
+        [219] = { effect = 4, infer = 'damage' },  -- numbing_shot
+        [224] = { effect = 146, infer = 'damage' },  -- exenterator
+        [238] = { effect = 156, infer = 'damage' },  -- uriel_blade
+        [239] = { effect = 10, infer = 'damage' },  -- glory_slash
     },
     -- Monster skill IDs.
     skills = {
@@ -2835,24 +3325,81 @@ return {
         [4258] = { effect = 190, seconds = 60 },  -- mix_elemental_power
         [4259] = { effect = 191, seconds = 60 },  -- mix_dragon_shield
     },
-    -- Pet skill IDs from the action packet, including Ready and automaton moves.
+    -- Automaton actions by monster-skill ID.
+    automatons = {
+        [272] = {  },  -- ranged_attack
+        [1940] = {  },  -- chimera_ripper
+        [1941] = {  },  -- string_clipper
+        [1942] = {  },  -- arcuballista
+        [1943] = {  },  -- slapstick
+        [1944] = { -- shield_bash
+            effect = 10,
+            seconds = 6,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [10] = { effect = 10, seconds = 6, infer = 'success', success_messages = { 185, 264 } },
+                [13] = { effect = 13, infer = 'success', success_messages = { 185, 264 }, condition = 'Slow needs Hammermill and at least one Earth Maneuver.', requires_owner_effect = 303 },
+            },
+        },
+        [1945] = {  },  -- provoke
+        [1946] = { effect = 37, seconds = 180 },  -- shock_absorber
+        [1947] = { effect = 156, seconds = 12 },  -- flashbulb
+        [1948] = { effect = 43, seconds = 30 },  -- mana_converter
+        [1949] = {  },  -- ranged_attack
+        [2021] = {  },  -- eraser
+        [2031] = { effect = 34, seconds = 60 },  -- reactive_shield
+        [2065] = {  },  -- cannibal_blade
+        [2066] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- daze
+        [2067] = { effect = 148, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- knockout
+        [2068] = {  },  -- economizer
+        [2132] = { effect = 36, seconds = 300 },  -- replicator
+        [2299] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- bone_crusher
+        [2300] = {  },  -- armor_piercer
+        [2301] = {  },  -- magic_mortar
+        [2743] = {  },  -- string_shredder
+        [2744] = { effect = 149, infer = 'success', success_messages = { 185, 264 } },  -- armor_shatterer
+        [2745] = {  },  -- heat_capacitor
+        [2746] = {  },  -- barrage_turbine
+        [2747] = {  },  -- disruptor
+        [2939] = { effect = 44, seconds = 45 },  -- mighty_strikes_automaton
+        [2940] = { effect = 50, seconds = 30 },  -- invincible_automaton
+        [2941] = {  },  -- eagle_eye_shot_automaton
+        [2942] = { effect = 48, seconds = 60 },  -- chainspell_automaton
+        [2943] = {  },  -- benediction_automaton
+        [2944] = { effect = 47, seconds = 60 },  -- manafont_automaton
+        [3485] = {  },  -- regulator
+    },
+    -- Pet skill IDs from the action packet.
     pacts = {
-        [513] = { effect = 3, seconds = 90 },  -- poison_nails
+        [513] = { effect = 3, seconds = 90, infer = 'success', success_messages = { 264, 317 } },  -- poison_nails
         [514] = { effect = 154, seconds = 180 },  -- shining_ruby
         [522] = { effect = 2, seconds = 30 },  -- mewing_lullaby
         [523] = { -- eerie_eye
             effect = 6,
             seconds = 30,
+            infer = 'success',
+            success_messages = { 127 },
+            condition = 'Eerie Eye reported one effect. Its other effect may have resisted.',
             by_effect = {
-                [6] = { effect = 6, seconds = 30 },
-                [16] = { effect = 16, seconds = 15 },
+                [6] = { effect = 6, seconds = 30, infer = 'success', success_messages = { 127 }, condition = 'Eerie Eye reported one effect. Its other effect may have resisted.' },
+                [16] = { effect = 16, seconds = 15, infer = 'success', success_messages = { 127 }, condition = 'Eerie Eye reported one effect. Its other effect may have resisted.' },
             },
         },
         [526] = { effect = 113, seconds = 3600 },  -- reraise_ii
         [527] = { effect = 113 },  -- altana_s_favor
-        [528] = { effect = 5, seconds = 60 },  -- moonlit_charge
-        [529] = { effect = 4, seconds = 60 },  -- crescent_fang
-        [530] = { effect = 146, by_effect = { [146] = { effect = 146 }, [148] = { effect = 148 } } },  -- lunar_cry
+        [528] = { effect = 5, seconds = 60, infer = 'success', success_messages = { 264, 317 } },  -- moonlit_charge
+        [529] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 264, 317 } },  -- crescent_fang
+        [530] = { -- lunar_cry
+            effect = 146,
+            infer = 'success',
+            success_messages = { 144 },
+            condition = 'Lunar Cry attempts both effects. Either can resist.',
+            by_effect = {
+                [146] = { effect = 146, infer = 'success', success_messages = { 144 }, condition = 'Lunar Cry attempts both effects. Either can resist.' },
+                [148] = { effect = 148, infer = 'success', success_messages = { 144 }, condition = 'Lunar Cry attempts both effects. Either can resist.' },
+            },
+        },
         [532] = { -- ecliptic_growl
             effect = 80,
             seconds = 180,
@@ -2875,12 +3422,17 @@ return {
             },
         },
         [548] = { effect = 68 },  -- crimson_howl
-        [560] = { effect = 13, seconds = 120 },  -- rock_throw
-        [562] = { effect = 11, seconds = 120 },  -- rock_buster
-        [563] = { effect = 13, seconds = 120 },  -- megalith_throw
+        [560] = { effect = 13, seconds = 120, infer = 'success', success_messages = { 264, 317 } },  -- rock_throw
+        [562] = { effect = 11, seconds = 120, infer = 'success', success_messages = { 264, 317 } },  -- rock_buster
+        [563] = { -- megalith_throw
+            effect = 13,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 264, 317 },
+        },
         [564] = { effect = 37, seconds = 900 },  -- earthen_ward
-        [567] = { effect = 10, seconds = 4 },  -- geocrush
-        [578] = { effect = 12, seconds = 120 },  -- tail_whip
+        [567] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 264, 317, 379 } },  -- geocrush
+        [578] = { effect = 12, seconds = 120, infer = 'success', success_messages = { 264, 317 } },  -- tail_whip
         [580] = { effect = 13 },  -- slowga
         [585] = { effect = 147 },  -- tidal_roar
         [586] = { effect = 586, seconds = 180 },  -- soothing_current
@@ -2888,12 +3440,27 @@ return {
         [596] = { effect = 36, seconds = 900 },  -- aerial_armor
         [610] = { effect = 35 },  -- frost_armor
         [611] = { effect = 2, seconds = 90 },  -- sleepga
-        [624] = { effect = 10, seconds = 12 },  -- shock_strike
+        [624] = { effect = 10, seconds = 12, infer = 'success', success_messages = { 264, 317 } },  -- shock_strike
         [626] = { effect = 98 },  -- rolling_thunder
-        [627] = { effect = 4, seconds = 60 },  -- thunderspark
+        [627] = { -- thunderspark
+            effect = 4,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 264, 317, 379 },
+        },
         [628] = { effect = 38 },  -- lightning_armor
-        [630] = { effect = 10, seconds = 12 },  -- chaotic_strike
-        [657] = { effect = 12, seconds = 120 },  -- somnolence
+        [630] = { -- chaotic_strike
+            effect = 10,
+            seconds = 12,
+            infer = 'success',
+            success_messages = { 264, 317 },
+        },
+        [657] = { -- somnolence
+            effect = 12,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 264, 317, 379 },
+        },
         [658] = { effect = 2, seconds = 90, deep = true },  -- nightmare
         [660] = { effect = 116, seconds = 180 },  -- noctoshield
         [661] = { -- dream_shroud
@@ -2905,32 +3472,52 @@ return {
             },
         },
         [671] = { effect = 283 },  -- perfect_defense
-        [673] = { effect = 5, seconds = 120 },  -- dust_cloud
+        [673] = { -- dust_cloud
+            effect = 5,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
         [676] = { effect = 2, seconds = 60 },  -- dream_flower
-        [677] = { effect = 138, seconds = 120 },  -- wild_oats
-        [678] = { effect = 3, seconds = 180 },  -- leaf_dagger
+        [677] = { effect = 138, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- wild_oats
+        [678] = { effect = 3, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- leaf_dagger
         [679] = { effect = 141, seconds = 180 },  -- scream
         [680] = { effect = 4, seconds = 120 },  -- roar
-        [683] = { effect = 10, seconds = 4 },  -- tail_blow
-        [686] = { effect = 6, seconds = 30 },  -- brain_crush
+        [683] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- tail_blow
+        [686] = { effect = 6, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- brain_crush
         [687] = { effect = 148, seconds = 180 },  -- infrasonics
         [688] = { effect = 92, seconds = 60 },  -- secretion
         [690] = { effect = 56, seconds = 120 },  -- rage
         [692] = { effect = 2, seconds = 45 },  -- sheep_song
-        [693] = { effect = 136, seconds = 180 },  -- bubble_shower
+        [693] = { -- bubble_shower
+            effect = 136,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
         [694] = { effect = 41, seconds = 180 },  -- bubble_curtain
         [696] = { effect = 93, seconds = 60 },  -- scissor_guard
         [697] = { effect = 37, seconds = 300 },  -- metallic_body
         [701] = { effect = 4, seconds = 180 },  -- spore
-        [702] = { effect = 3, seconds = 120 },  -- queasyshroom
-        [703] = { effect = 4, seconds = 180 },  -- numbshroom
-        [704] = { effect = 8, seconds = 720 },  -- shakeshroom
-        [705] = { effect = 6, seconds = 60 },  -- silence_gas
-        [706] = { effect = 5, seconds = 90 },  -- dark_spore
+        [702] = { effect = 3, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- queasyshroom
+        [703] = { effect = 4, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- numbshroom
+        [704] = { effect = 8, seconds = 720, infer = 'success', success_messages = { 185, 264 } },  -- shakeshroom
+        [705] = { -- silence_gas
+            effect = 6,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [706] = { -- dark_spore
+            effect = 5,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
         [708] = { effect = 148, seconds = 180 },  -- hi-freq_field
         [710] = { effect = 92, seconds = 540 },  -- rhino_guard
         [711] = { effect = 136, seconds = 540 },  -- spoil
-        [713] = { effect = 3, seconds = 60 },  -- venom
+        [713] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },  -- venom
         [714] = { effect = 5, seconds = 90 },  -- sandblast
         [715] = { effect = 11, seconds = 60 },  -- sandpit
         [716] = { effect = 3 },  -- venom_spray
@@ -2941,33 +3528,52 @@ return {
         [725] = { effect = 3, seconds = 180 },  -- toxic_spit
         [729] = { effect = 13, seconds = 120 },  -- filamented_hold
         [731] = { effect = 4, seconds = 60 },  -- blaster
-        [732] = { effect = 10, seconds = 4 },  -- suction
-        [734] = { effect = 4, seconds = 120 },  -- snow_cloud
-        [736] = { effect = 10, seconds = 4 },  -- sudden_lunge
-        [737] = { effect = 146, seconds = 60 },  -- spiral_spin
+        [732] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- suction
+        [734] = { -- snow_cloud
+            effect = 4,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [736] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- sudden_lunge
+        [737] = { effect = 146, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- spiral_spin
         [738] = { effect = 147, seconds = 120 },  -- noisome_powder
-        [740] = { effect = 147, seconds = 120 },  -- acid_mist
-        [743] = { effect = 10, seconds = 4 },  -- scythe_tail
-        [745] = { effect = 13, seconds = 180 },  -- chomp_rush
+        [740] = { -- acid_mist
+            effect = 147,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [743] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- scythe_tail
+        [745] = { effect = 13, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- chomp_rush
         [747] = { -- purulent_ooze
             effect = 135,
             seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
             by_effect = {
-                [135] = { effect = 135, seconds = 120 },
-                [144] = { effect = 144, seconds = 120 },
+                [135] = { effect = 135, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [144] = { effect = 144, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
             },
         },
         [748] = { -- corrosive_ooze
             effect = 147,
             seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
             by_effect = {
-                [147] = { effect = 147, seconds = 120 },
-                [149] = { effect = 149, seconds = 120 },
+                [147] = { effect = 147, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [149] = { effect = 149, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
             },
         },
-        [753] = { effect = 149, seconds = 180 },  -- tortoise_stomp
+        [753] = { -- tortoise_stomp
+            effect = 149,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
         [754] = { effect = 93, seconds = 180 },  -- harden_shell
-        [756] = { effect = 10, seconds = 4 },  -- wing_slap
+        [756] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- wing_slap
         [760] = { effect = 93, seconds = 90 },  -- water_wall
         [790] = { effect = 91, seconds = 120 },  -- frenzied_rage
         [960] = { -- clarsach_call
@@ -2981,6 +3587,2627 @@ return {
                 [191] = { effect = 191, seconds = 180 },
                 [611] = { effect = 611, seconds = 180 },
             },
+        },
+    },
+    -- Pet actions sent with an explicit monster-skill ID.
+    pet_moves = {
+        [3045] = {  },  -- concentric_pulse
+        [3051] = {  },  -- mending_halation
+        [3052] = {  },  -- radial_arcana
+        [3840] = {  },  -- foot_kick
+        [3841] = { -- dust_cloud
+            effect = 5,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [3842] = {  },  -- whirl_claws
+        [3843] = {  },  -- head_butt
+        [3844] = { effect = 2, seconds = 60 },  -- dream_flower
+        [3845] = { effect = 138, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- wild_oats
+        [3846] = { effect = 3, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- leaf_dagger
+        [3847] = { effect = 141, seconds = 180 },  -- scream
+        [3848] = { effect = 4, seconds = 120 },  -- roar
+        [3849] = {  },  -- razor_fang
+        [3850] = {  },  -- claw_cyclone
+        [3851] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- tail_blow
+        [3852] = {  },  -- fireball
+        [3853] = {  },  -- blockhead
+        [3854] = { effect = 6, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- brain_crush
+        [3855] = { effect = 148, seconds = 180 },  -- infrasonics
+        [3856] = { effect = 92, seconds = 60 },  -- secretion
+        [3857] = {  },  -- lamb_chop
+        [3858] = { effect = 56, seconds = 120 },  -- rage
+        [3859] = {  },  -- sheep_charge
+        [3860] = { effect = 2, seconds = 45 },  -- sheep_song
+        [3861] = { -- bubble_shower
+            effect = 136,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [3862] = { effect = 41, seconds = 180 },  -- bubble_curtain
+        [3863] = {  },  -- big_scissors
+        [3864] = { effect = 93, seconds = 60 },  -- scissor_guard
+        [3865] = { effect = 37, seconds = 300 },  -- metallic_body
+        [3866] = {  },  -- needleshot
+        [3867] = {  },  -- random_needles
+        [3868] = {  },  -- frogkick
+        [3869] = { effect = 4, seconds = 180 },  -- spore
+        [3870] = { effect = 3, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- queasyshroom
+        [3871] = { effect = 4, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- numbshroom
+        [3872] = { effect = 8, seconds = 720, infer = 'success', success_messages = { 185, 264 } },  -- shakeshroom
+        [3873] = { -- silence_gas
+            effect = 6,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [3874] = { -- dark_spore
+            effect = 5,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [3875] = {  },  -- power_attack
+        [3876] = { effect = 148, seconds = 180 },  -- hi-freq_field
+        [3877] = {  },  -- rhino_attack
+        [3878] = { effect = 92, seconds = 540 },  -- rhino_guard
+        [3879] = { effect = 136, seconds = 540 },  -- spoil
+        [3880] = {  },  -- cursed_sphere
+        [3881] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },  -- venom
+        [3882] = { effect = 5, seconds = 90 },  -- sandblast
+        [3883] = { effect = 11, seconds = 60 },  -- sandpit
+        [3884] = { effect = 3 },  -- venom_spray
+        [3885] = {  },  -- mandibular_bite
+        [3886] = { effect = 2, seconds = 30 },  -- soporific
+        [3887] = { effect = 13, seconds = 180 },  -- gloeosuccus
+        [3888] = { effect = 4, seconds = 60 },  -- palsy_pollen
+        [3889] = {  },  -- geist_wall
+        [3890] = { effect = 10, seconds = 10 },  -- numbing_noise
+        [3891] = {  },  -- nimble_snap
+        [3892] = {  },  -- cyclotail
+        [3893] = { effect = 3, seconds = 180 },  -- toxic_spit
+        [3894] = {  },  -- double_claw
+        [3895] = {  },  -- grapple
+        [3896] = { effect = 13, seconds = 120 },  -- filamented_hold
+        [3897] = {  },  -- spinning_top
+        [3898] = {  },  -- chaotic_eye
+        [3899] = { effect = 4, seconds = 60 },  -- blaster
+        [3900] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- suction
+        [3901] = {  },  -- drainkiss
+        [3902] = { -- snow_cloud
+            effect = 4,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [3903] = {  },  -- wild_carrot
+        [3904] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- sudden_lunge
+        [3905] = { effect = 146, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- spiral_spin
+        [3906] = { effect = 147, seconds = 120 },  -- noisome_powder
+        [3907] = { -- acid_mist
+            effect = 147,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [3908] = {  },  -- tp_drainkiss
+        [3909] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- scythe_tail
+        [3910] = {  },  -- ripper_fang
+        [3911] = { effect = 13, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- chomp_rush
+        [3912] = {  },  -- charged_whisker
+        [3913] = { -- purulent_ooze
+            effect = 135,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [135] = { effect = 135, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [144] = { effect = 144, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [3914] = { -- corrosive_ooze
+            effect = 147,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [147] = { effect = 147, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [149] = { effect = 149, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [3915] = {  },  -- back_heel
+        [3916] = {  },  -- jettatura
+        [3917] = {  },  -- choke_breath
+        [3918] = {  },  -- fantod
+        [3919] = { -- tortoise_stomp
+            effect = 149,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3920] = { effect = 93, seconds = 180 },  -- harden_shell
+        [3921] = {  },  -- aqua_breath
+        [3922] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- wing_slap
+        [3923] = {  },  -- beak_lunge
+        [3924] = {  },  -- intimidate
+        [3925] = {  },  -- recoil_dive
+        [3926] = { effect = 93, seconds = 90 },  -- water_wall
+        [3927] = {  },  -- sensilla_blades
+        [3928] = {  },  -- tegmina_buffet
+        [3929] = {  },  -- molting_plumage
+        [3930] = {  },  -- swooping_frenzy
+        [3931] = {  },  -- sweeping_gouge
+        [3932] = {  },  -- zealous_snort
+        [3933] = {  },  -- pentapeck
+        [3934] = {  },  -- tickling_tendrils
+        [3935] = {  },  -- stink_bomb
+        [3936] = {  },  -- nectarous_deluge
+        [3937] = {  },  -- nepenthic_plunge
+        [3938] = {  },  -- somersault
+        [3939] = {  },  -- foul_waters
+        [3940] = {  },  -- pestilent_plume
+        [3941] = {  },  -- pecking_flurry
+        [3942] = {  },  -- sickle_slash
+        [3943] = {  },  -- acid_spray
+        [3944] = {  },  -- spider_web
+        [3945] = {  },  -- infected_leech
+        [3946] = {  },  -- gloom_spray
+        [3950] = {  },  -- disembowel
+        [3951] = {  },  -- extirpating_salvo
+        [3952] = {  },  -- venom_shower
+        [3953] = {  },  -- mega_scissors
+        [3954] = { effect = 91, seconds = 120 },  -- frenzied_rage
+        [3955] = {  },  -- rhinowrecker
+        [3956] = {  },  -- fluid_toss
+        [3957] = {  },  -- fluid_spread
+        [3958] = {  },  -- digest
+        [3959] = {  },  -- crossthrash
+        [3960] = {  },  -- predatory_glare
+        [3961] = {  },  -- hoof_volley
+        [3962] = {  },  -- nihility_song
+    },
+    -- Ordinary monster callbacks used by a proven player-owned monster or jug pet.
+    charmed_skills = {
+        [2] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- shoulder_tackle
+        [15] = { effect = 31, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- shijin_spiral
+        [16] = { effect = 3, infer = 'success', success_messages = { 185, 264 } },  -- wasp_sting
+        [17] = { effect = 3, infer = 'success', success_messages = { 185, 264 } },  -- viper_bite
+        [18] = { effect = 11, infer = 'success', success_messages = { 185, 264 } },  -- shadowstitch
+        [28] = { effect = 12, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- mordant_rime
+        [29] = { effect = 148, infer = 'success', success_messages = { 185, 264 } },  -- pyrrhic_kleos
+        [31] = { effect = 12, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- rudras_storm
+        [35] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- flat_blade
+        [44] = { effect = 404, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- death_blossom
+        [52] = { effect = 2, seconds = 300, infer = 'success', success_messages = { 185, 264 } },  -- shockwave
+        [58] = { -- herculean_slash
+            effect = 4,
+            seconds = 300,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [65] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- smash_axe
+        [66] = { effect = 130, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- gale_axe
+        [73] = { effect = 146, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- onslaught
+        [75] = { effect = 11, seconds = 20, infer = 'success', success_messages = { 185, 264 } },  -- bora_axe
+        [80] = { effect = 148, infer = 'success', success_messages = { 185, 264 } },  -- shield_break
+        [83] = { effect = 149, infer = 'success', success_messages = { 185, 264 } },  -- armor_break
+        [85] = { effect = 147, infer = 'success', success_messages = { 185, 264 } },  -- weapon_break
+        [87] = { -- full_break
+            effect = 146,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [146] = { effect = 146, infer = 'success', success_messages = { 185, 264 } },
+                [147] = { effect = 147, infer = 'success', success_messages = { 185, 264 } },
+                [148] = { effect = 148, infer = 'success', success_messages = { 185, 264 } },
+                [149] = { effect = 149, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [89] = { -- metatron_torment
+            effect = 149,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [92] = { effect = 13, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- ukkos_fury
+        [99] = { effect = 5, infer = 'success', success_messages = { 185, 264 } },  -- nightmare_scythe
+        [102] = { effect = 6, infer = 'success', success_messages = { 185, 264 } },  -- guillotine
+        [107] = { effect = 147, infer = 'success', success_messages = { 185, 264, 379 } },  -- infernal_scythe
+        [115] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- leg_sweep
+        [125] = { effect = 298, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- stardiver
+        [129] = { effect = 4, seconds = 210, infer = 'success', success_messages = { 185, 264 } },  -- blade_retsu
+        [137] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- blade_metsu
+        [138] = { effect = 146, infer = 'success', success_messages = { 185, 264 } },  -- blade_kamu
+        [139] = { effect = 3, infer = 'success', success_messages = { 185, 264, 379 } },  -- blade_yu
+        [145] = { effect = 10, seconds = 3, infer = 'success', success_messages = { 185, 264 } },  -- tachi_hobaku
+        [150] = { effect = 5, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- tachi_yukikaze
+        [151] = { effect = 6, seconds = 45, infer = 'success', success_messages = { 185, 264 } },  -- tachi_gekko
+        [152] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- tachi_kasha
+        [155] = { effect = 149, infer = 'success', success_messages = { 185, 264 } },  -- tachi_ageha
+        [162] = { effect = 10, seconds = 3, infer = 'success', success_messages = { 185, 264 } },  -- brainshaker
+        [165] = { -- skullbreaker
+            effect = 140,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [170] = { effect = 148, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- randgrith
+        [172] = { -- flash_nova
+            effect = 156,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [181] = { effect = 149, infer = 'success', success_messages = { 185, 264 } },  -- shell_crusher
+        [185] = { -- gate_of_tartarus
+            effect = 147,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [186] = { effect = 167, infer = 'success', success_messages = { 185, 264, 379 } },  -- vidohunir
+        [187] = { effect = 149, infer = 'success', success_messages = { 185, 264, 379 } },  -- garland_of_bliss
+        [188] = { effect = 175, infer = 'success', success_messages = { 185, 264, 379 } },  -- omniscience
+        [191] = { effect = 167, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- shattersoul
+        [194] = { -- dulling_arrow
+            effect = 140,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [210] = { effect = 140, seconds = 140, infer = 'success', success_messages = { 185, 264 } },  -- sniper_shot
+        [219] = { effect = 4, seconds = 300, infer = 'success', success_messages = { 185, 264 } },  -- numbing_shot
+        [224] = { effect = 146, infer = 'success', success_messages = { 185, 264 } },  -- exenterator
+        [238] = { effect = 156, seconds = 15, infer = 'success', success_messages = { 185, 264 } },  -- uriel_blade
+        [239] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- glory_slash
+        [241] = { effect = 11, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- netherspikes
+        [245] = { -- barbed_crescent
+            effect = 146,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [247] = { effect = 10, seconds = 15, infer = 'success', success_messages = { 185, 264 } },  -- foxfire
+        [249] = { effect = 11, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- netherspikes
+        [253] = { -- barbed_crescent
+            effect = 146,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [254] = { -- vulcan_shot
+            effect = 149,
+            seconds = 80,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [258] = { -- dust_cloud
+            effect = 5,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [289] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- stone_throw
+        [291] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- claw_storm
+        [294] = { effect = 5, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- eye_scratch
+        [299] = { -- entangle_drain
+            effect = 11,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [302] = { effect = 138, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- wild_oats
+        [305] = { effect = 3, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- leaf_dagger
+        [310] = { effect = 3, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- queasyshroom
+        [311] = { effect = 4, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- numbshroom
+        [312] = { effect = 8, seconds = 720, infer = 'success', success_messages = { 185, 264 } },  -- shakeshroom
+        [314] = { -- silence_gas
+            effect = 6,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [315] = { -- dark_spore
+            effect = 5,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [319] = { -- bad_breath
+            effect = 3,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+            by_effect = {
+                [3] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264, 747 } },
+                [4] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 185, 264, 747 } },
+                [5] = { effect = 5, seconds = 60, infer = 'success', success_messages = { 185, 264, 747 } },
+                [6] = { effect = 6, seconds = 60, infer = 'success', success_messages = { 185, 264, 747 } },
+                [11] = { effect = 11, seconds = 60, infer = 'success', success_messages = { 185, 264, 747 } },
+                [12] = { effect = 12, seconds = 60, infer = 'success', success_messages = { 185, 264, 747 } },
+                [13] = { effect = 13, seconds = 60, infer = 'success', success_messages = { 185, 264, 747 } },
+            },
+        },
+        [320] = { -- sweet_breath
+            effect = 2,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [328] = { effect = 5, seconds = 45, infer = 'success', success_messages = { 185, 264 } },  -- drill_branch
+        [329] = { effect = 2, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- pinecone_bomb
+        [345] = { -- poison_breath_crawler
+            effect = 3,
+            seconds = 300,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [348] = { -- numbing_breath
+            effect = 4,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [349] = { -- cold_breath
+            effect = 11,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [351] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- poison_sting
+        [354] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- wild_rage
+        [355] = { -- earth_pounder
+            effect = 137,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [361] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- earth_shock
+        [366] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- tail_blow
+        [369] = { effect = 6, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- brain_crush
+        [371] = { -- plague_breath
+            effect = 3,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [376] = { -- foul_breath
+            effect = 8,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [377] = { -- frost_breath
+            effect = 4,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [378] = { -- thunderbolt_raptor
+            effect = 10,
+            seconds = 7,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [379] = { effect = 13, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- chomp_rush
+        [380] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- scythe_tail
+        [385] = { effect = 31, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- bone_crunch
+        [399] = { effect = 5, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- blind_vortex
+        [401] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- dread_dive
+        [407] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- poison_pick
+        [414] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- suction
+        [415] = { -- acid_mist
+            effect = 147,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [416] = { -- sand_breath
+            effect = 5,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [423] = { -- brain_drain
+            effect = 140,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [425] = { -- gastric_bomb
+            effect = 147,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [426] = { -- sandspin
+            effect = 146,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [427] = { -- tremors
+            effect = 137,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [442] = { -- bubble_shower
+            effect = 136,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [450] = { -- aqua_ball
+            effect = 136,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [457] = { -- gravity_wheel
+            effect = 12,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [458] = { effect = 5, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },  -- ink_jet
+        [462] = { -- maelstrom
+            effect = 136,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [463] = { -- whirlwind
+            effect = 138,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [466] = { -- poison_breath_hound
+            effect = 3,
+            seconds = 300,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [469] = { effect = 5, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- shadow_claw
+        [475] = { effect = 147, seconds = 90, infer = 'success', success_messages = { 185, 264 } },  -- terror_touch
+        [477] = { -- dark_sphere
+            effect = 5,
+            seconds = 300,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [484] = { -- black_cloud
+            effect = 5,
+            seconds = 480,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [486] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- whip_tongue
+        [488] = { -- acid_breath
+            effect = 136,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [490] = { -- undead_mold
+            effect = 8,
+            seconds = 660,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [492] = { -- abyss_blast
+            effect = 5,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [493] = { effect = 4, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- rampant_gnaw
+        [498] = { effect = 137, seconds = 90, infer = 'success', success_messages = { 185, 264 } },  -- triclip
+        [500] = { effect = 3, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- mow
+        [506] = { effect = 4, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- palsynyxis
+        [514] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- whirl_of_rage
+        [523] = { -- mysterious_light
+            effect = 12,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [532] = { effect = 9, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- envoutement
+        [534] = { -- kartstrahl
+            effect = 2,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [535] = { -- blitzstrahl
+            effect = 10,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [540] = { -- tremorous_tread
+            effect = 10,
+            seconds = 3,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [545] = { -- somnolence
+            effect = 12,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [548] = { effect = 5, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- blindeye
+        [560] = { -- hecatomb_wave
+            effect = 5,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [570] = { -- circle_of_flames
+            effect = 12,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [579] = { -- choke_breath
+            effect = 4,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [4] = { effect = 4, seconds = 30, infer = 'success', success_messages = { 185, 264 } },
+                [6] = { effect = 6, seconds = 30, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [581] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- blow
+        [583] = { effect = 11, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- beatdown
+        [605] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- aerial_wheel
+        [607] = { effect = 11, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- slam_dunk
+        [609] = { -- battle_dance
+            effect = 137,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [612] = { -- head_butt_quadav
+            effect = 10,
+            seconds = 10,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [613] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- shell_bash
+        [617] = { effect = 3, seconds = 45, infer = 'success', success_messages = { 185, 264 } },  -- feather_storm
+        [618] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- double_kick
+        [620] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- sweep
+        [629] = { -- thunderbolt_behemoth
+            effect = 10,
+            seconds = 14,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [630] = { effect = 5, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- kick_out
+        [638] = { -- blastbomb
+            effect = 11,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [643] = { -- poison_breath_dragon_1
+            effect = 3,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [646] = { effect = 4, seconds = 960, infer = 'success', success_messages = { 185, 264 } },  -- heavy_stomp
+        [647] = { -- chaos_blade
+            effect = 9,
+            seconds = 420,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [660] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },  -- venom
+        [661] = { -- snow_cloud
+            effect = 4,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [676] = { -- ice_break
+            effect = 11,
+            seconds = 240,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [677] = { -- thunder_break
+            effect = 10,
+            seconds = 20,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [687] = { effect = 13, seconds = 90, infer = 'success', success_messages = { 185, 264 } },  -- sprout_smack
+        [720] = { effect = 3, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- venom_sting
+        [721] = { effect = 4, seconds = 20, infer = 'success', success_messages = { 185, 264 } },  -- stasis
+        [723] = { -- earthbreaker
+            effect = 10,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [727] = { -- bad_breath
+            effect = 3,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+            by_effect = {
+                [3] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264, 747 } },
+                [4] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 185, 264, 747 } },
+                [5] = { effect = 5, seconds = 60, infer = 'success', success_messages = { 185, 264, 747 } },
+                [6] = { effect = 6, seconds = 60, infer = 'success', success_messages = { 185, 264, 747 } },
+                [11] = { effect = 11, seconds = 60, infer = 'success', success_messages = { 185, 264, 747 } },
+                [12] = { effect = 12, seconds = 60, infer = 'success', success_messages = { 185, 264, 747 } },
+                [13] = { effect = 13, seconds = 60, infer = 'success', success_messages = { 185, 264, 747 } },
+            },
+        },
+        [728] = { -- sweet_breath
+            effect = 2,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [771] = { -- hydro_ball
+            effect = 136,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [780] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- spinning_fin
+        [786] = { -- lateral_slash
+            effect = 149,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [787] = { -- vertical_slash
+            effect = 146,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [789] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- spikeball
+        [791] = { -- magnetite_cloud
+            effect = 12,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [795] = { effect = 7, seconds = 15, infer = 'success', success_messages = { 185, 264 } },  -- sand_trap
+        [798] = { effect = 11, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- tail_swing
+        [799] = { effect = 11, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- tail_smash
+        [802] = { -- great_sandstorm
+            effect = 5,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [803] = { -- great_whirlwind
+            effect = 130,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [805] = { -- head_butt_turtle
+            effect = 146,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [806] = { -- tortoise_stomp
+            effect = 149,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [811] = { -- acid_spray
+            effect = 3,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [818] = { effect = 3, infer = 'success', success_messages = { 185, 264 } },  -- tail_crush
+        [821] = { -- radiant_breath
+            effect = 6,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+            by_effect = {
+                [6] = { effect = 6, seconds = 120, infer = 'success', success_messages = { 185, 264, 747 } },
+                [13] = { effect = 13, seconds = 120, infer = 'success', success_messages = { 185, 264, 747 } },
+            },
+        },
+        [831] = { -- moonlit_charge
+            effect = 5,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [832] = { effect = 4, seconds = 90, infer = 'success', success_messages = { 185, 264 } },  -- crescent_fang
+        [849] = { effect = 13, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- rock_throw
+        [852] = { -- megalith_throw
+            effect = 13,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [855] = { -- mountain_buster
+            effect = 11,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [856] = { effect = 10, seconds = 6, infer = 'success', success_messages = { 185, 264, 379 } },  -- geocrush
+        [860] = { effect = 12, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- tail_whip
+        [885] = { effect = 10, seconds = 12, infer = 'success', success_messages = { 185, 264 } },  -- shock_strike
+        [888] = { -- thunderspark
+            effect = 4,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [891] = { -- chaotic_strike
+            effect = 10,
+            seconds = 10,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [907] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- poison_nails
+        [922] = { effect = 5, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- blind_vortex
+        [924] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- dread_dive
+        [927] = { -- drill_branch_nm
+            effect = 5,
+            seconds = 45,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [930] = { -- entangle_poison
+            effect = 3,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [3] = { effect = 3, seconds = 180, infer = 'success', success_messages = { 185, 264 } },
+                [11] = { effect = 11, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [931] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- cross_reaver
+        [932] = { effect = 2, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- havoc_spiral
+        [933] = { effect = 6, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- dominion_slash
+        [934] = { effect = 10, seconds = 6, infer = 'success', success_messages = { 185, 264 } },  -- shield_strike
+        [935] = { -- amon_drive
+            effect = 3,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [3] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [4] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [7] = { effect = 7, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [937] = { effect = 11, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- dragonfall
+        [945] = { effect = 6, infer = 'success', success_messages = { 185, 264 } },  -- guillotine
+        [946] = { effect = 5, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- tachi_yukikaze
+        [947] = { effect = 6, seconds = 45, infer = 'success', success_messages = { 185, 264 } },  -- tachi_gekko
+        [948] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- tachi_kasha
+        [951] = { -- hurricane_wing
+            effect = 5,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [956] = { -- hurricane_wing_flying
+            effect = 5,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [960] = { -- acid_spray
+            effect = 3,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [969] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- flat_blade
+        [971] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- royal_bash
+        [983] = { -- abyssal_strike
+            effect = 10,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [985] = { -- stellar_burst
+            effect = 6,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [986] = { -- vortex
+            effect = 11,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [11] = { effect = 11, seconds = 30, infer = 'success', success_messages = { 185, 264 } },
+                [28] = { effect = 28, seconds = 9, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [987] = { effect = 2, seconds = 300, infer = 'success', success_messages = { 185, 264 } },  -- shockwave
+        [991] = { -- uranos_cascade_eta
+            effect = 11,
+            seconds = 10,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [995] = { -- uranos_cascade_theta
+            effect = 11,
+            seconds = 10,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [997] = { effect = 10, seconds = 15, infer = 'success', success_messages = { 185, 264 } },  -- phase_shift_2
+        [999] = { -- uranos_cascade_lambda
+            effect = 11,
+            seconds = 10,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1001] = { -- phase_shift_3
+            effect = 10,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [10] = { effect = 10, seconds = 15, infer = 'success', success_messages = { 185, 264 } },
+                [11] = { effect = 11, seconds = 30, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [1006] = { effect = 7, seconds = 45, infer = 'success', success_messages = { 185, 264 } },  -- omega_javelin
+        [1026] = { effect = 12, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- arbor_storm
+        [1028] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- tackle
+        [1036] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- maats_bash
+        [1039] = { -- hurricane_wing
+            effect = 5,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1057] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- aerial_wheel
+        [1059] = { effect = 11, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- slam_dunk
+        [1061] = { -- battle_dance
+            effect = 137,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1068] = { effect = 3, seconds = 45, infer = 'success', success_messages = { 185, 264 } },  -- feather_storm
+        [1069] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- double_kick
+        [1071] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- sweep
+        [1074] = { -- the_wrath_of_gudha
+            effect = 12,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1076] = { -- head_butt_quadav
+            effect = 10,
+            seconds = 10,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1077] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- shell_bash
+        [1080] = { -- the_wrath_of_gudha
+            effect = 12,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1081] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- frypan
+        [1092] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- frypan
+        [1100] = { effect = 12, seconds = 90, infer = 'success', success_messages = { 185, 264 } },  -- dice_gravity
+        [1102] = { effect = 10, seconds = 15, infer = 'success', success_messages = { 185, 264 } },  -- dice_stun
+        [1110] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- seismostomp
+        [1112] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- seismostomp
+        [1114] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- seismostomp
+        [1116] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- seismostomp
+        [1127] = { -- dynamic_implosion
+            effect = 28,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1131] = { -- violent_rupture
+            effect = 136,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1132] = { -- oblivion_smash
+            effect = 5,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [5] = { effect = 5, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+                [6] = { effect = 6, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+                [11] = { effect = 11, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+                [12] = { effect = 12, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [1133] = { -- oblivion_smash_2
+            effect = 5,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [5] = { effect = 5, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+                [6] = { effect = 6, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+                [11] = { effect = 11, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+                [12] = { effect = 12, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [1136] = { effect = 5, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- blindeye
+        [1146] = { -- hecatomb_wave
+            effect = 5,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1148] = { effect = 10, seconds = 15, infer = 'success', success_messages = { 185, 264 } },  -- condemnation
+        [1152] = { -- hecatomb_wave_ra
+            effect = 5,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1159] = { -- broadside_barrage
+            effect = 136,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [136] = { effect = 136, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+                [138] = { effect = 138, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [1160] = { -- blind_side_barrage
+            effect = 140,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [140] = { effect = 140, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+                [141] = { effect = 141, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [1161] = { -- damnation_dive
+            effect = 10,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1172] = { effect = 4, seconds = 960, infer = 'success', success_messages = { 185, 264 } },  -- heavy_stomp
+        [1173] = { -- chaos_blade
+            effect = 9,
+            seconds = 420,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1179] = { -- poison_breath_dragon_2
+            effect = 3,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1192] = { effect = 146, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- onslaught
+        [1193] = { -- metatron_torment
+            effect = 149,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1196] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- blade_metsu
+        [1198] = { effect = 148, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- randgrith
+        [1199] = { -- gate_of_tartarus
+            effect = 147,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1218] = { -- vacuous_osculation
+            effect = 3,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [3] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [31] = { effect = 31, seconds = 30, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [1229] = { effect = 4, seconds = 90, infer = 'success', success_messages = { 185, 264 } },  -- brain_spike
+        [1231] = { -- promyvion_brume
+            effect = 3,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1235] = { effect = 11, seconds = 15, infer = 'success', success_messages = { 185, 264 } },  -- pile_pitch
+        [1237] = { -- hyper_pulse
+            effect = 11,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [11] = { effect = 11, seconds = 15, infer = 'success', success_messages = { 185, 264, 379 } },
+                [12] = { effect = 12, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [1243] = { -- negative_whirl
+            effect = 13,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1253] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- vanity_strike
+        [1258] = { -- lamentation
+            effect = 134,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1262] = { -- flame_thrower
+            effect = 31,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1263] = { -- cryo_jet
+            effect = 4,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1264] = { effect = 6, seconds = 30, infer = 'success', success_messages = { 185, 264, 747 } },  -- turbofan
+        [1265] = { -- smoke_discharger
+            effect = 7,
+            seconds = 45,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1266] = { -- high-tension_discharger
+            effect = 10,
+            seconds = 4,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1267] = { -- hydro_cannon
+            effect = 3,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1276] = { -- promyvion_brume
+            effect = 3,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1279] = { -- tebbad_wing
+            effect = 31,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1284] = { -- tebbad_wing_air
+            effect = 31,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1289] = { -- gregale_wing
+            effect = 4,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1294] = { -- gregale_wing_air
+            effect = 4,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1299] = { -- typhoon_wing
+            effect = 5,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1304] = { -- bai_wing
+            effect = 13,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1309] = { -- cyclone_wing
+            effect = 2,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1326] = { -- final_retribution
+            effect = 10,
+            seconds = 4,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1328] = { effect = 5, seconds = 120, infer = 'damage' },  -- ink_jet_fee
+        [1335] = { -- toxic_pick
+            effect = 3,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [3] = { effect = 3, seconds = 180, infer = 'success', success_messages = { 185, 264 } },
+                [12] = { effect = 12, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+                [31] = { effect = 31, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [1338] = { -- infernal_pestilence
+            effect = 31,
+            seconds = 780,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1347] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- dual_strike
+        [1349] = { -- mantle_pierce
+            effect = 12,
+            seconds = 45,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1353] = { -- aerial_collision
+            effect = 149,
+            seconds = 75,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1355] = { effect = 31, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- spine_lash
+        [1356] = { -- voiceless_storm
+            effect = 6,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1357] = { -- tidal_dive
+            effect = 11,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [11] = { effect = 11, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [12] = { effect = 12, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [1365] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- tail_thrust
+        [1370] = { -- vitriolic_barrage
+            effect = 3,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1371] = { effect = 11, seconds = 90, infer = 'success', success_messages = { 185, 264 } },  -- primal_drill
+        [1372] = { -- concussive_oscillation
+            effect = 12,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1373] = { -- ion_shower
+            effect = 10,
+            seconds = 5,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1378] = { effect = 13, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- wing_thrust
+        [1379] = { -- auroral_wind
+            effect = 6,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1380] = { -- impact_stream
+            effect = 10,
+            seconds = 10,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [10] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264, 379 } },
+                [149] = { effect = 149, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [1383] = { -- glacier_splitter
+            effect = 4,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1384] = { effect = 3, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- disseverment
+        [1385] = { -- biotic_boomerang
+            effect = 31,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1386] = { -- medusa_javelin
+            effect = 7,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1392] = { -- amatsu_yukiarashi
+            effect = 5,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1393] = { -- amatsu_tsukioboro
+            effect = 6,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1394] = { -- amatsu_hanaikusa
+            effect = 4,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1406] = { -- typhoon_wing
+            effect = 5,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1411] = { -- bai_wing
+            effect = 13,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1431] = { effect = 10, seconds = 7, infer = 'success', success_messages = { 185, 264 } },  -- shield_bash_1
+        [1432] = { effect = 10, seconds = 7, infer = 'success', success_messages = { 185, 264 } },  -- weapon_bash
+        [1445] = { -- damnation_dive
+            effect = 10,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1449] = { -- stupor_spores
+            effect = 2,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1465] = { -- optic_induration
+            effect = 7,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1466] = { -- static_filament
+            effect = 10,
+            seconds = 4,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1467] = { -- decayed_filament
+            effect = 3,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1468] = { -- reactor_overheat
+            effect = 31,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1469] = { -- reactor_overload
+            effect = 6,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1496] = { -- malevolent_blessing
+            effect = 9,
+            seconds = 45,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1497] = { -- pestilent_penance
+            effect = 31,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1499] = { -- infernal_deliverance
+            effect = 10,
+            seconds = 10,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1500] = { -- malevolent_blessing
+            effect = 9,
+            seconds = 45,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1501] = { -- pestilent_penance
+            effect = 31,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1503] = { -- infernal_deliverance
+            effect = 10,
+            seconds = 10,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1508] = { -- luminous_lance
+            effect = 28,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1521] = { -- armor_buster
+            effect = 12,
+            seconds = 45,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1527] = { -- laser_shower
+            effect = 149,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1528] = { -- floodlight
+            effect = 6,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [6] = { effect = 6, seconds = 90, infer = 'success', success_messages = { 185, 264, 379 } },
+                [156] = { effect = 156, seconds = 15, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [1529] = { -- hyper_pulse
+            effect = 11,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [11] = { effect = 11, seconds = 15, infer = 'success', success_messages = { 185, 264, 379 } },
+                [12] = { effect = 12, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [1530] = { -- stun_cannon
+            effect = 4,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1533] = { effect = 11, seconds = 15, infer = 'success', success_messages = { 185, 264 } },  -- pile_pitch
+        [1535] = { -- hyper_pulse
+            effect = 11,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [11] = { effect = 11, seconds = 15, infer = 'success', success_messages = { 185, 264, 379 } },
+                [12] = { effect = 12, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [1542] = { effect = 11, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- trample
+        [1543] = { -- tempest_wing
+            effect = 5,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1547] = { -- impulsion
+            effect = 5,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [5] = { effect = 5, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [7] = { effect = 7, seconds = 15, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [1562] = { -- stomping_dynamis
+            effect = 10,
+            seconds = 10,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1568] = { -- dust_cloud_dynamis
+            effect = 5,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1573] = { effect = 4, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- palsynyxis
+        [1578] = { -- broadside_barrage_dynamis
+            effect = 136,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [136] = { effect = 136, seconds = 90, infer = 'success', success_messages = { 185, 264 } },
+                [138] = { effect = 138, seconds = 90, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [1579] = { -- blind_side_barrage_dynamis
+            effect = 140,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [140] = { effect = 140, seconds = 90, infer = 'success', success_messages = { 185, 264 } },
+                [141] = { effect = 141, seconds = 90, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [1580] = { -- damnation_dive_nm
+            effect = 10,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1586] = { -- wild_oats_dynamis
+            effect = 138,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1587] = { effect = 3, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- leaf_dagger
+        [1589] = { -- bubble_shower_dynamis
+            effect = 136,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1604] = { effect = 3, seconds = 60, infer = 'damage' },  -- miasmic_breath
+        [1605] = { effect = 3, seconds = 60, infer = 'damage' },  -- miasmic_breath
+        [1613] = { -- gloeosuccus_dynamis
+            effect = 13,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1615] = { -- soporific_dynamis
+            effect = 2,
+            seconds = 45,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1616] = { -- palsy_pollen_dynamis
+            effect = 4,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1617] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- blow
+        [1620] = { effect = 3, seconds = 180, infer = 'damage' },  -- mephitic_spore
+        [1623] = { -- venom_dynamis
+            effect = 3,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1630] = { -- great_sandstorm
+            effect = 5,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1631] = { -- great_whirlwind_dynamis
+            effect = 130,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1632] = { -- choke_breath
+            effect = 4,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [4] = { effect = 4, seconds = 30, infer = 'success', success_messages = { 185, 264 } },
+                [6] = { effect = 6, seconds = 30, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [1638] = { -- lightning_roar_dynamis
+            effect = 10,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1639] = { -- impact_roar_dynamis
+            effect = 12,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1642] = { -- whirl_of_rage_dynamis
+            effect = 6,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [6] = { effect = 6, seconds = 90, infer = 'success', success_messages = { 185, 264 } },
+                [12] = { effect = 12, seconds = 30, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [1650] = { -- ice_break
+            effect = 11,
+            seconds = 240,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1651] = { -- thunder_break
+            effect = 10,
+            seconds = 20,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1653] = { -- crystal_weapon_fire_dynamis
+            effect = 31,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1654] = { -- crystal_weapon_stone_dynamis
+            effect = 7,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1655] = { -- crystal_weapon_water_dynamis
+            effect = 3,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1656] = { -- crystal_weapon_wind_dynamis
+            effect = 12,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1657] = { -- blind_vortex_dynamis
+            effect = 5,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1659] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- dread_dive
+        [1671] = { -- ink_jet_dynamis
+            effect = 5,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1675] = { -- maelstrom_dynamis
+            effect = 136,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1676] = { -- whirlwind_dynamis
+            effect = 138,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1684] = { -- foul_breath_dynamis
+            effect = 8,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1685] = { -- frost_breath_dynamis
+            effect = 4,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1686] = { -- thunderbolt_dynamis
+            effect = 10,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1687] = { effect = 13, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- chomp_rush
+        [1688] = { -- scythe_tail_dynamis
+            effect = 10,
+            seconds = 5,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1697] = { -- seaspray
+            effect = 13,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1714] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- wing_slap
+        [1743] = { effect = 7, seconds = 45, infer = 'success', success_messages = { 185, 264 } },  -- rock_smash
+        [1758] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- tail_slap
+        [1771] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- tail_slap
+        [1780] = { -- leaping_cleave
+            effect = 10,
+            seconds = 45,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1790] = { -- gates_of_hades
+            effect = 128,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1800] = { -- miasma
+            effect = 3,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [3] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [13] = { effect = 13, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [31] = { effect = 31, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [1802] = { effect = 7, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- sledgehammer
+        [1804] = { effect = 16, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- haymaker
+        [1807] = { -- pleiades_ray
+            effect = 3,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [3] = { effect = 3, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [4] = { effect = 4, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [5] = { effect = 5, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [6] = { effect = 6, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [11] = { effect = 11, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [13] = { effect = 13, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [31] = { effect = 31, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [1810] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- tail_slap
+        [1812] = { effect = 11, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- pinning_shot
+        [1813] = { -- calcifying_deluge
+            effect = 7,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [1816] = { -- vitriolic_spray
+            effect = 128,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1817] = { -- thermal_pulse
+            effect = 5,
+            seconds = 150,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1820] = { -- vitriolic_shower
+            effect = 128,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1828] = { -- pyric_blast
+            effect = 31,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1830] = { -- polar_blast
+            effect = 4,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [1832] = { -- barofield
+            effect = 12,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1836] = { -- nerve_gas
+            effect = 3,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [3] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [9] = { effect = 9, seconds = 420, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [1856] = { effect = 7, seconds = 45, infer = 'success', success_messages = { 185, 264 } },  -- omega_javelin
+        [1896] = { effect = 7, seconds = 45, infer = 'success', success_messages = { 185, 264 } },  -- rock_smash
+        [1904] = { -- somnolence
+            effect = 12,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1936] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- shibaraku
+        [1944] = { effect = 10, seconds = 7, infer = 'success', success_messages = { 185, 264 } },  -- shield_bash
+        [1954] = { -- erosion_dust
+            effect = 134,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1959] = { -- water_bomb
+            effect = 6,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1963] = { -- mind_blast
+            effect = 4,
+            seconds = 75,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [1998] = { effect = 3, seconds = 45, infer = 'success', success_messages = { 185, 264 } },  -- hane_fubuki
+        [1999] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- hiden_sokyaku
+        [2001] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- happobarai
+        [2003] = { -- grating_tantara
+            effect = 16,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [2004] = { -- stifling_tantara
+            effect = 6,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [2023] = { -- thunderstrike
+            effect = 10,
+            seconds = 10,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2024] = { -- tourbillion
+            effect = 149,
+            seconds = 100,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [2025] = { -- dreadstorm
+            effect = 28,
+            seconds = 10,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2027] = { -- plague_swipe
+            effect = 31,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [31] = { effect = 31, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [135] = { effect = 135, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [2028] = { -- fulmination
+            effect = 4,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [4] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [10] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [2032] = { effect = 11, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- roller_chain
+        [2038] = { -- artificial_gravity
+            effect = 12,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2043] = { -- artificial_gravity_3
+            effect = 12,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2046] = { -- artificial_gravity_2
+            effect = 12,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2049] = { -- artificial_gravity_1
+            effect = 12,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2055] = { -- inertia_stream
+            effect = 11,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2056] = { -- discharge
+            effect = 4,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2066] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- daze
+        [2067] = { effect = 148, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- knockout
+        [2083] = { effect = 11, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- drop_hammer
+        [2104] = { -- crippling_slam
+            effect = 4,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [2110] = { -- wings_of_gehenna
+            effect = 10,
+            seconds = 4,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2114] = { effect = 12, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- hellclap
+        [2117] = { effect = 9, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- necropurge
+        [2118] = { -- bilgestorm
+            effect = 146,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [146] = { effect = 146, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [147] = { effect = 147, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [149] = { effect = 149, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [2119] = { -- thundris_shriek
+            effect = 28,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2128] = { effect = 11, seconds = 240, infer = 'damage' },  -- ice_break_2128
+        [2129] = { effect = 10, seconds = 4, infer = 'damage' },  -- thunder_break_2129
+        [2141] = { -- radiant_sacrament
+            effect = 167,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [2153] = { -- regurgitation
+            effect = 11,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2154] = { effect = 31, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- delta_thrust
+        [2163] = { effect = 149, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- seedspray
+        [2170] = { -- fevered_pitch
+            effect = 10,
+            seconds = 4,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [10] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },
+                [149] = { effect = 149, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [2178] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- sudden_lunge
+        [2181] = { effect = 146, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- spiral_spin
+        [2184] = { -- purulent_ooze
+            effect = 135,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [135] = { effect = 135, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [144] = { effect = 144, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [2185] = { -- corrosive_ooze
+            effect = 147,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [147] = { effect = 147, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [149] = { effect = 149, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [2188] = { -- slaverous_gale
+            effect = 13,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [13] = { effect = 13, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [31] = { effect = 31, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [2189] = { -- aeolian_void
+            effect = 5,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [5] = { effect = 5, seconds = 180, infer = 'success', success_messages = { 185, 264, 379 } },
+                [6] = { effect = 6, seconds = 180, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [2193] = { -- zephyr_arrow
+            effect = 11,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [2194] = { -- lethe_arrows
+            effect = 11,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [11] = { effect = 11, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+                [16] = { effect = 16, seconds = 120, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [2200] = { -- cyclonic_torrent
+            effect = 29,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2329] = { effect = 11, seconds = 15, infer = 'damage' },  -- di_horn_attack
+        [2330] = { effect = 12, seconds = 15, infer = 'damage' },  -- di_bite_attack
+        [2334] = { -- wrath_of_zeus
+            effect = 6,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2335] = { -- lightning_spear
+            effect = 16,
+            seconds = 210,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2338] = { -- rampant_stance
+            effect = 10,
+            seconds = 5,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [2360] = { -- wind_shear_znm
+            effect = 12,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2410] = { effect = 1, seconds = 90, infer = 'damage' },  -- demonic_flower
+        [2411] = { -- phantasmal_dance
+            effect = 11,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [2413] = { -- feather_maelstrom
+            effect = 16,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [16] = { effect = 16, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [135] = { effect = 135, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [2422] = { -- dark_mist
+            effect = 12,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2426] = { -- shadow_burst
+            effect = 9,
+            seconds = 300,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2427] = { effect = 16, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- tail_lash
+        [2430] = { -- warped_wail
+            effect = 144,
+            seconds = 300,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [144] = { effect = 144, seconds = 300, infer = 'success', success_messages = { 185, 264, 379 } },
+                [145] = { effect = 145, seconds = 300, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [2432] = { -- storm_wing
+            effect = 6,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2435] = { -- severing_fang
+            effect = 149,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [2436] = { -- sub-zero_smash
+            effect = 4,
+            seconds = 100,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [2438] = { -- frozen_mist
+            effect = 28,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [28] = { effect = 28, seconds = 30, infer = 'success', success_messages = { 185, 264, 379 } },
+                [37] = { effect = 37, seconds = 180 },
+            },
+        },
+        [2549] = { effect = 3, infer = 'success', success_messages = { 185, 264 } },  -- fluid_toss_claret
+        [2562] = { -- acrid_stream
+            effect = 167,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2563] = { -- rime_spray
+            effect = 129,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [129] = { effect = 129, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [136] = { effect = 136, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [137] = { effect = 137, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [138] = { effect = 138, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [139] = { effect = 139, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [140] = { effect = 140, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [141] = { effect = 141, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [142] = { effect = 142, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [2564] = { -- blazing_bound
+            effect = 128,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2578] = { -- colossal_slam
+            effect = 20,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [2629] = { -- benthic_typhoon
+            effect = 149,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [149] = { effect = 149, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [167] = { effect = 167, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [2891] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- grapeshot
+        [2892] = { -- pirate_pummel
+            effect = 128,
+            seconds = 20,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [2893] = { -- powder_keg
+            effect = 149,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [149] = { effect = 149, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [167] = { effect = 167, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [2894] = { -- walk_the_plank
+            effect = 11,
+            seconds = 20,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [2922] = { -- soulshattering_roar
+            effect = 28,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [2923] = { -- calcifying_claw
+            effect = 7,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [2924] = { -- divesting_stampede
+            effect = 149,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [149] = { effect = 149, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [167] = { effect = 167, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [2925] = { -- bonebreaking_barrage
+            effect = 12,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [12] = { effect = 12, seconds = 30, infer = 'success', success_messages = { 185, 264 } },
+                [144] = { effect = 144, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [2953] = { -- smouldering_swarm
+            effect = 128,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [3189] = { -- king_cobra_clamp
+            effect = 10,
+            seconds = 4,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3193] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- royal_bash
+        [3196] = { -- abyssal_strike
+            effect = 10,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3198] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- grapeshot
+        [3199] = { -- pirate_pummel
+            effect = 128,
+            seconds = 20,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3200] = { -- powder_keg
+            effect = 149,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [149] = { effect = 149, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [167] = { effect = 167, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [3201] = { -- walk_the_plank
+            effect = 11,
+            seconds = 20,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3202] = { effect = 156, seconds = 15, infer = 'success', success_messages = { 185, 264 } },  -- uriel_blade
+        [3215] = { -- peacebreaker
+            effect = 167,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3243] = { -- imperial_authority
+            effect = 10,
+            seconds = 10,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3245] = { -- shield_subverter
+            effect = 6,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3256] = { effect = 3, seconds = 45, infer = 'success', success_messages = { 185, 264 } },  -- hane_fubuki
+        [3257] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- shibaraku
+        [3259] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- happobarai
+        [3351] = { effect = 138, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- wild_oats
+        [3355] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- blow
+        [3420] = { -- amatsu_yukiarashi
+            effect = 5,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3421] = { -- amatsu_tsukioboro
+            effect = 6,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3422] = { -- amatsu_hanaikusa
+            effect = 4,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3423] = { effect = 3, infer = 'success', success_messages = { 185, 264 } },  -- wasp_sting
+        [3437] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- tachi_kasha
+        [3439] = { -- hurricane_wing
+            effect = 5,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [3466] = { -- paralyzing_microtube
+            effect = 4,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [3467] = { -- silencing_microtube
+            effect = 6,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [3468] = { -- binding_microtube
+            effect = 11,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [3472] = { -- vortex
+            effect = 11,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [11] = { effect = 11, seconds = 30, infer = 'success', success_messages = { 185, 264 } },
+                [28] = { effect = 28, seconds = 9, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [3473] = { -- stellar_burst
+            effect = 6,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [3491] = { effect = 10, seconds = 10, infer = 'success', success_messages = { 185, 264 } },  -- grapeshot
+        [3492] = { -- pirate_pummel
+            effect = 128,
+            seconds = 20,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3493] = { -- powder_keg
+            effect = 149,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [149] = { effect = 149, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [167] = { effect = 167, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [3494] = { -- walk_the_plank
+            effect = 11,
+            seconds = 20,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3506] = { -- hellfire_arrow
+            effect = 128,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [3621] = { -- luminous_lance
+            effect = 28,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3626] = { effect = 9, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- envoutement
+        [3653] = { effect = 16, infer = 'success', success_messages = { 185, 264, 379 } },  -- tartaric_sigil
+        [3655] = { effect = 156, infer = 'success', success_messages = { 185, 264 } },  -- alabaster_burst
+        [3657] = { effect = 10, infer = 'success', success_messages = { 185, 264, 379 } },  -- fulminous_fury
+        [3706] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- cross_reaver
+        [3712] = { -- dominion_slash
+            effect = 6,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3714] = { effect = 10, seconds = 6, infer = 'success', success_messages = { 185, 264 } },  -- shield_strike
+        [3717] = { effect = 2, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- havoc_spiral
+        [3720] = { -- amon_drive
+            effect = 3,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [3] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [4] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [7] = { effect = 7, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [3721] = { effect = 6, infer = 'success', success_messages = { 185, 264 } },  -- guillotine
+        [3722] = { -- tachi_yukikaze
+            effect = 5,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3723] = { effect = 6, seconds = 45, infer = 'success', success_messages = { 185, 264 } },  -- tachi_gekko
+        [3724] = { effect = 11, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- dragonfall
+        [3725] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- tachi_kasha
+        [3841] = { -- dust_cloud
+            effect = 5,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [3845] = { effect = 138, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- wild_oats
+        [3846] = { effect = 3, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- leaf_dagger
+        [3851] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- tail_blow
+        [3854] = { effect = 6, seconds = 30, infer = 'success', success_messages = { 185, 264 } },  -- brain_crush
+        [3861] = { -- bubble_shower
+            effect = 136,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [3870] = { effect = 3, seconds = 120, infer = 'success', success_messages = { 185, 264 } },  -- queasyshroom
+        [3871] = { effect = 4, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- numbshroom
+        [3872] = { effect = 8, seconds = 720, infer = 'success', success_messages = { 185, 264 } },  -- shakeshroom
+        [3873] = { -- silence_gas
+            effect = 6,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [3874] = { -- dark_spore
+            effect = 5,
+            seconds = 90,
+            infer = 'success',
+            success_messages = { 185, 264, 747 },
+        },
+        [3881] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },  -- venom
+        [3900] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- suction
+        [3902] = { -- snow_cloud
+            effect = 4,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [3904] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- sudden_lunge
+        [3905] = { effect = 146, seconds = 60, infer = 'success', success_messages = { 185, 264 } },  -- spiral_spin
+        [3907] = { -- acid_mist
+            effect = 147,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [3909] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- scythe_tail
+        [3911] = { effect = 13, seconds = 180, infer = 'success', success_messages = { 185, 264 } },  -- chomp_rush
+        [3913] = { -- purulent_ooze
+            effect = 135,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [135] = { effect = 135, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [144] = { effect = 144, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [3914] = { -- corrosive_ooze
+            effect = 147,
+            seconds = 120,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [147] = { effect = 147, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+                [149] = { effect = 149, seconds = 120, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [3917] = { -- choke_breath
+            effect = 4,
+            seconds = 30,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [4] = { effect = 4, seconds = 30, infer = 'success', success_messages = { 185, 264 } },
+                [6] = { effect = 6, seconds = 30, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+        [3919] = { -- tortoise_stomp
+            effect = 149,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3922] = { effect = 10, seconds = 4, infer = 'success', success_messages = { 185, 264 } },  -- wing_slap
+        [3943] = { -- acid_spray
+            effect = 3,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+        },
+        [3955] = { -- rhinowrecker
+            effect = 149,
+            seconds = 180,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3968] = { -- fire_meeble_warble
+            effect = 31,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [31] = { effect = 31, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [128] = { effect = 128, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [3969] = { -- blizzard_meeble_warble
+            effect = 4,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [4] = { effect = 4, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [129] = { effect = 129, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [3970] = { -- thunder_meeble_warble
+            effect = 10,
+            seconds = 15,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [10] = { effect = 10, seconds = 15, infer = 'success', success_messages = { 185, 264, 379 } },
+                [132] = { effect = 132, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [3971] = { -- stone_meeble_warble
+            effect = 7,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [7] = { effect = 7, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [131] = { effect = 131, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [3972] = { -- water_meeble_warble
+            effect = 3,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [3] = { effect = 3, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [133] = { effect = 133, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [3973] = { -- aero_meeble_warble
+            effect = 6,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264, 379 },
+            by_effect = {
+                [6] = { effect = 6, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+                [130] = { effect = 130, seconds = 60, infer = 'success', success_messages = { 185, 264, 379 } },
+            },
+        },
+        [3974] = { -- thrashing_assault
+            effect = 149,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+        },
+        [3975] = { -- drill_claw
+            effect = 144,
+            seconds = 60,
+            infer = 'success',
+            success_messages = { 185, 264 },
+            by_effect = {
+                [144] = { effect = 144, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+                [189] = { effect = 189, seconds = 60, infer = 'success', success_messages = { 185, 264 } },
+            },
+        },
+    },
+    -- Monster-target items, gated by their completed action message.
+    items = {
+        [5261] = { -- bottle_of_psychoanima
+            effect = 22,
+            seconds = 32,
+            infer = 'success',
+            success_messages = { 0 },
+            top = 32,
+        },
+        [5262] = { -- bottle_of_hysteroanima
+            effect = 804,
+            seconds = 32,
+            infer = 'success',
+            success_messages = { 0 },
+            top = 32,
+        },
+        [5268] = { effect = 16, seconds = 60, infer = 'success', success_messages = { 0 } },  -- ccb_polymer_pump
+    },
+    -- Observed abilities that arm a later ordinary attack.
+    reactive = {
+        [343] = {
+            effect = 148,
+            seconds = 30,
+            arm_seconds = 60,
+            arm_ability = 156,
+            arm_messages = { 100 },
+            infer = 'melee',
+            consume = true,
+            condition = 'Feint is used by the next landed ordinary attack. The effect can resist.',
+        },
+    },
+    -- Possible effects from a matching retaliation reaction.
+    spikes = {
+        [2] = {
+            effect = 4,
+            seconds = 30,
+            infer = 'reaction',
+            condition = 'Ice Spikes may apply this effect when it retaliates.',
+        },
+        [4] = {
+            effect = 9,
+            seconds = 180,
+            infer = 'reaction',
+            condition = 'Curse Spikes may apply this effect when it retaliates.',
+        },
+        [5] = {
+            effect = 10,
+            seconds = 3,
+            infer = 'reaction',
+            condition = 'Shock Spikes may apply this effect when it retaliates.',
         },
     },
     -- Item IDs and their added-effect durations.
@@ -3300,15 +6527,19 @@ return {
         angon = { id = 2882, base = 15, per_rank = 15, most = 3 },
         bio_iii = { id = 2312, base = 0, per_rank = 30, most = 3 },
         dia_iii = { id = 2304, base = 0, per_rank = 30, most = 3 },
+        penance = { id = 2118, base = 0, per_rank = 20, most = 3, job = 2, level = 75 },
+        tomahawk = { id = 2050, base = 15, per_rank = 15, most = 3, job = 1, level = 75 },
     },
     -- Unique icon IDs. Sleep II and Lullaby share Sleep.
-    pictured = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 20, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38,
-                 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 54, 56, 61, 66, 68, 69, 70, 71, 73, 79, 80,
-                 81, 82, 83, 84, 85, 86, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106,
-                 107, 108, 109, 110, 111, 112, 113, 116, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138,
-                 139, 140, 141, 142, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 163, 167, 170,
-                 173, 174, 175, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 189, 190, 191, 192, 194, 195, 196,
-                 197, 198, 199, 200, 201, 202, 203, 205, 206, 207, 209, 210, 214, 215, 216, 217, 218, 219, 220, 221,
-                 251, 259, 283, 298, 404, 478, 484, 586, 611, 626, 792, 797, 801, 802 },
+    pictured = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 20, 22, 28, 29, 30, 31, 32, 33, 34, 35, 36,
+                 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 54, 55, 56, 57, 58, 59, 60, 61, 62,
+                 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87,
+                 88, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110,
+                 111, 112, 113, 114, 116, 117, 118, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138,
+                 139, 140, 141, 142, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 163, 164, 165,
+                 166, 167, 168, 170, 173, 174, 175, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 189, 190, 191,
+                 192, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 205, 206, 207, 209, 210, 214, 215, 216, 217,
+                 218, 219, 220, 221, 251, 259, 283, 298, 308, 309, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349,
+                 352, 353, 354, 355, 356, 357, 404, 478, 484, 586, 611, 623, 626, 792, 793, 794, 797, 801, 802 },
     troubadour = 348,
 }

@@ -37,6 +37,7 @@ local EFFECT_PICTURES = { [19] = 2, [193] = 2 };
 
 -- The status picture to draw for an effect.
 function icons.effect_picture(id)
+    if (not require('core.effects').has_icon(id)) then return nil; end
     return EFFECT_PICTURES[id] or id;
 end
 

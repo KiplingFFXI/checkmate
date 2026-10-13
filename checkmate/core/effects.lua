@@ -1,5 +1,6 @@
 --[[
-    Tracks effects seen landing on nearby monsters. The client gets no complete monster buff list.
+    Tracks effects seen landing on nearby monsters, and estimates from supported actions.
+    The client gets no complete monster buff list.
     Timers use Phoenix durations and, for your own effects, the gear and merits we can read.
     Other players' gear, resists and hidden powers can change the actual duration.
 
@@ -29,7 +30,8 @@ local WANTED = { [MELEE] = true, [RANGED] = true, [SKILL] = true, [SPELL] = true
 
 -- Which table in data\effects.lua says how long an action's effect lasts, by its category. A SKILL action is a
 -- weapon skill, a physical job ability or a pet's move, and its message says which (ABILITY_MESSAGES).
-local SOURCES = { [SPELL] = 'spells', [ABILITY] = 'abilities', [MOB_SKILL] = 'skills', [PET_SKILL] = 'pacts' };
+local SOURCES = { [SPELL] = 'spells', [5] = 'items', [ABILITY] = 'abilities', [MOB_SKILL] = 'skills',
+    [PET_SKILL] = 'pacts' };
 
 --[[
     Result messages that say an effect landed, with the effect's id in the result's number, and what it is. The
@@ -38,10 +40,11 @@ local SOURCES = { [SPELL] = 'spells', [ABILITY] = 'abilities', [MOB_SKILL] = 'sk
 ]]
 local LANDED = { [127] = 'on', [186] = 'buff', [230] = 'buff', [236] = 'on', [237] = 'on', [242] = 'on',
     [243] = 'on', [266] = 'buff', [267] = 'on', [268] = 'on', [271] = 'on', [277] = 'on', [278] = 'on',
-    [319] = 'buff', [320] = 'on' };
+    [319] = 'buff', [320] = 'on', [329] = 'on', [330] = 'on', [331] = 'on', [332] = 'on',
+    [333] = 'on', [334] = 'on', [335] = 'on', [375] = 'on' };
 
 -- The landed messages only a job ability gives. A SKILL action whose first result has one is an ability.
-local ABILITY_MESSAGES = { [127] = true, [277] = true, [319] = true, [320] = true };
+local ABILITY_MESSAGES = { [110] = true, [127] = true, [277] = true, [317] = true, [319] = true, [320] = true };
 
 -- "<monster> uses <two-hour>." On itself, its number is the effect, when the move puts one on at all.
 local USES = 101;
@@ -52,14 +55,15 @@ local PROC_LANDED = { [160] = true, [164] = true };
 -- Messages that say an effect was taken off, with its id in the number: -na spells and the like, Dispel and
 -- Finale, a TP move or added effect that dispels, Dark Shot, and an item.
 local TAKEN_OFF = { [83] = true, [123] = true, [159] = true, [168] = true, [321] = true, [341] = true,
-    [343] = true, [378] = true };
+    [343] = true, [378] = true, [453] = true };
 
 -- Damage from a hit, a spell, an ability, a TP move, a shot or an added effect. Any of it over 0 wakes a monster,
 -- most likely breaks its Bind and gets through its Stoneskin.
-local DAMAGE = { [1] = true, [2] = true, [67] = true, [110] = true, [163] = true, [185] = true, [229] = true,
-    [252] = true, [264] = true, [317] = true, [352] = true, [353] = true, [576] = true, [577] = true };
+local DAMAGE = { [1] = true, [2] = true, [67] = true, [110] = true, [161] = true, [163] = true, [185] = true,
+    [187] = true, [227] = true, [229] = true, [252] = true, [264] = true, [274] = true, [281] = true,
+    [317] = true, [352] = true, [353] = true, [379] = true, [576] = true, [577] = true, [747] = true };
 
--- 0x029: your own effect wearing off a monster, and a monster dying.
+-- 0x029 also carries your effect wearing off a monster and a monster dying.
 local WEARS_OFF = { [204] = true, [206] = true };
 local DIED      = { [6] = true, [20] = true };
 
@@ -113,10 +117,107 @@ local versions = 0;            -- Counts every change, so each one gets a number
 local names    = {};           -- The game's own names, by effect id, once read.
 local about    = {};           -- The game's own descriptions, by effect id, once read.
 local keep_duration;
+local pet_owners, owner_count = {}, 0;
+local pet_flags, flag_count = {}, 0;
+local observed_merits = {};
+local armed, armed_count = {}, 0;
+local PREREQUISITE_MERITS = {
+    penance = { id = 0x0846, job = 2, level = 75, most = 3 },
+    tomahawk = { id = 0x0802, job = 1, level = 75, most = 3 },
+};
 
 local function load_data()
     data = data or require('data.effects');
     return data;
+end
+
+-- Every visible player carries their pet's target index, including players outside your party.
+local function pet_owner(actor, index)
+    local me = GetPlayerEntity();
+    if (me ~= nil and me.PetTargetIndex == index) then return me.ServerId; end
+    if (pet_flags[actor] ~= nil) then return pet_flags[actor] and true or nil; end
+    local held = pet_owners[actor];
+    if (held ~= nil) then
+        local owner = GetEntity(held.index);
+        if (owner ~= nil and owner.ServerId == held.id and owner.PetTargetIndex == index) then return held.id; end
+        pet_owners[actor], owner_count = nil, owner_count - 1;
+    end
+    for at = 0x400, 0x6FF do
+        local owner = GetEntity(at);
+        if (owner ~= nil and owner.ServerId > 0 and owner.ServerId < FIRST_MONSTER_ID
+            and owner.PetTargetIndex == index) then
+            if (owner_count >= MAX_MONSTERS) then pet_owners, owner_count = {}, 0; end
+            pet_owners[actor], owner_count = { index = at, id = owner.ServerId }, owner_count + 1;
+            return owner.ServerId;
+        end
+    end
+    return nil;
+end
+
+-- Dynamic monsters share the pet ID range. Ownership must be checked before choosing a pet handler.
+local function action_source(category, actor, action, message)
+    if (category == SKILL and actor < FIRST_MONSTER_ID) then
+        return ABILITY_MESSAGES[message] and 'abilities' or 'weaponskills';
+    end
+    if (category == SKILL or category == MOB_SKILL) then
+        local index = bit.band(actor, 0xFFF);
+        local dynamic = index >= 0x800;
+        if (dynamic) then index = index - 0x100; end
+        local entity = actor >= FIRST_MONSTER_ID and GetEntity(index) or nil;
+        if (entity ~= nil and entity.ServerId == actor and pet_owner(actor, index) ~= nil) then
+            local d = load_data();
+            if (dynamic and d.automatons and d.automatons[action]) then return 'automatons'; end
+            if (dynamic and d.pet_moves and d.pet_moves[action]) then return 'pet_moves'; end
+            if (d.charmed_skills and d.charmed_skills[action]) then return 'charmed_skills'; end
+            return 'skills';
+        end
+        if (dynamic) then
+            return entity ~= nil and entity.ServerId == actor and bit.band(entity.SpawnFlags or 0, 0x10) ~= 0
+                and 'skills' or nil;
+        end
+        return 'skills';
+    end
+    return SOURCES[category];
+end
+
+local function own_buff(effect)
+    if (GetPlayerEntity() == nil) then return nil; end
+    local buffs = AshitaCore:GetMemoryManager():GetPlayer():GetBuffs();
+    if (buffs == nil) then return nil; end
+    for index = 0, 32 do if (buffs[index] == effect) then return true; end end
+    return false;
+end
+
+local function actual_merit(key)
+    local rule = PREREQUISITE_MERITS[key];
+    if (rule == nil or GetPlayerEntity() == nil) then return nil; end
+    local stats = AshitaCore:GetMemoryManager():GetPlayer();
+    local job, level = stats:GetMainJob(), stats:GetMainJobLevel();
+    if (type(job) ~= 'number' or job <= 0 or type(level) ~= 'number' or level <= 0) then return nil; end
+    if (job ~= rule.job or level < rule.level) then return 0; end
+    return observed_merits[key];
+end
+
+local function allowed_estimate(info, mine, actor)
+    if (mine and info.requires_effect ~= nil and own_buff(info.requires_effect) == false) then return false; end
+    if (mine and info.requires_merit ~= nil and actual_merit(info.requires_merit) == 0) then return false; end
+    if (info.requires_owner_effect ~= nil and actor >= FIRST_MONSTER_ID) then
+        local me = GetPlayerEntity();
+        local pet = me ~= nil and me.PetTargetIndex ~= nil and me.PetTargetIndex > 0
+            and GetEntity(me.PetTargetIndex) or nil;
+        if (pet ~= nil and pet.ServerId == actor and own_buff(info.requires_owner_effect) == false) then return false; end
+    end
+    return true;
+end
+
+local function estimate_result(info, row)
+    if (info.infer == 'damage') then return DAMAGE[row.message] and row.param > 0; end
+    if (info.infer == 'success') then
+        for _, message in ipairs(info.success_messages or NONE) do
+            if (row.message == message) then return true; end
+        end
+    end
+    return false;
 end
 
 -- Notes one thing for the next frame, in a reused row. A full queue is taken in first.
@@ -130,61 +231,175 @@ local function note(kind, target, effect, actor, mine, source, action, at)
     row.kind, row.target, row.effect, row.actor, row.mine = kind, target, effect, actor, mine;
     row.source, row.action, row.at = source, action, at;
     row.duration_kept = false;
+    row.reported = false;
     if (mine) then keep_duration(row); end
+    return row;
 end
 
---[[
-    An action packet. A monster's round on a player, the most common one in a fight, stops after two reads, and so
-    does every start. Results on players are stepped over without reading them. `me` is your server id.
-]]
+local function arm(actor, effect, seconds, now)
+    if (armed[actor] == nil) then
+        if (armed_count >= MAX_MONSTERS) then
+            local oldest, first = nil, math.huge;
+            for id, held in pairs(armed) do
+                if (held.ends < first) then oldest, first = id, held.ends; end
+            end
+            armed[oldest], armed_count = nil, armed_count - 1;
+        end
+        armed_count = armed_count + 1;
+    end
+    armed[actor] = { effect = effect, ends = now + seconds, consumed = false };
+end
+
+local function melee_reactive(d, actor, mine, now)
+    local held = armed[actor];
+    if (mine) then
+        for effect, info in pairs(d.reactive or NONE) do
+            local present = own_buff(effect);
+            if (present == false and held ~= nil and held.effect == effect
+                and not (held.grace and held.ends > now)) then
+                armed[actor], armed_count, held = nil, armed_count - 1, nil;
+            elseif (present == true and held == nil) then
+                arm(actor, effect, info.arm_seconds, now);
+                held = armed[actor];
+            end
+        end
+    end
+    if (held == nil or held.consumed or held.ends <= now) then return nil; end
+    return held, d.reactive and d.reactive[held.effect];
+end
+
+-- Action starts carry no results. Completed attacks can also carry a reaction against the attacker.
 function effects.on_action(e, me)
     local category = packets.action_category(e);
     if (not WANTED[category]) then
         return;
     end
-    if ((category == MELEE or category == RANGED) and packets.action_target(e) < FIRST_MONSTER_ID) then
-        return;
-    end
     local actor, action = packets.action_head(e);
-    local n = packets.action_results(e, rows, FIRST_MONSTER_ID);
+    local n = packets.action_results(e, rows, category == ABILITY and 0 or FIRST_MONSTER_ID, true);
     if (n == 0) then
         return;
     end
     local now, mine = os.clock(), actor == me;
-    local source = SOURCES[category];
-    if (category == SKILL) then
-        source = ABILITY_MESSAGES[rows[1].message] and 'abilities' or 'skills';
-    end
+    local source = action_source(category, actor, action, rows[1].message);
+    local d = data;
     for i = 1, n do
         local row = rows[i];
         local target, message, param = row.target, row.message, row.param;
-        local landed = LANDED[message];
-        if (landed ~= nil and param > 0 and param <= LAST_EFFECT_ID) then
-            -- An avatar's Nightmare puts Sleep on with a "gains" message, so a debuff word wins.
-            if (landed == 'buff' and effects.WORDS[param] ~= nil) then
-                landed = 'on';
-            end
-            note(landed, target, param, actor, mine, source, action, now);
-        elseif (message == USES and category == MOB_SKILL and target == actor and param > 0 and param <= LAST_EFFECT_ID) then
-            note('uses', target, param, actor, mine, source, action, now);
-        elseif (TAKEN_OFF[message]) then
-            note('off', target, param, actor, mine, nil, nil, now);
-        elseif (DAMAGE[message] and (category == SPELL or (param > 0 and (breaks[target] or queued > 0)))) then
-            note('hit', target, param, actor, mine, source, action, now);
+        if (category == ABILITY and actor < FIRST_MONSTER_ID and target == actor and LANDED[message]) then
+            d = d or load_data();
+            local reactive = d.reactive and d.reactive[param];
+            if (reactive ~= nil and reactive.arm_seconds ~= nil) then arm(actor, param, reactive.arm_seconds, now); end
         end
-        local added, value = row.added, row.added_param;
-        if (PROC_LANDED[added] and value > 0 and value <= LAST_EFFECT_ID) then
-            note('on', target, value, actor, mine, 'procs', category, now);
-        elseif (TAKEN_OFF[added]) then
-            note('off', target, value, actor, mine, nil, nil, now);
-        elseif (DAMAGE[added] and value > 0 and (breaks[target] or queued > 0)) then
-            note('hit', target, value, actor, mine, nil, nil, now);
+        if (category == ABILITY and actor < FIRST_MONSTER_ID and target == actor) then
+            d = d or load_data();
+            for effect, info in pairs(d.reactive or NONE) do
+                if (info.arm_ability == action) then
+                    for _, success in ipairs(info.arm_messages or NONE) do
+                        if (message == success) then arm(actor, effect, info.arm_seconds, now); break; end
+                    end
+                end
+            end
+        end
+        if (actor >= FIRST_MONSTER_ID and (row.reaction == 44 or row.reaction == 132)
+            and row.reaction_param > 0 and (breaks[actor] or queued > 0)) then
+            note('hit', actor, row.reaction_param, target, target == me, nil, nil, now);
+        end
+        if (target >= FIRST_MONSTER_ID) then
+            local landed = LANDED[message];
+            if (landed ~= nil and param > 0 and param <= LAST_EFFECT_ID) then
+                -- An avatar's Nightmare puts Sleep on with a "gains" message, so a debuff word wins.
+                if (landed == 'buff' and effects.WORDS[param] ~= nil) then
+                    landed = 'on';
+                end
+                note(landed, target, param, actor, mine, source, action, now);
+            elseif (message == USES and category == MOB_SKILL and target == actor and param > 0 and param <= LAST_EFFECT_ID) then
+                note('uses', target, param, actor, mine, source, action, now);
+            elseif (TAKEN_OFF[message]) then
+                note('off', target, param, actor, mine, nil, nil, now);
+            elseif (DAMAGE[message] and (category == SPELL or (param > 0 and (breaks[target] or queued > 0)))) then
+                note('hit', target, param, actor, mine, source, action, now);
+            end
+            local added, value = row.added, row.added_param;
+            if (PROC_LANDED[added] and value > 0 and value <= LAST_EFFECT_ID) then
+                note('on', target, value, actor, mine, 'procs', category, now);
+            elseif (TAKEN_OFF[added]) then
+                note('off', target, value, actor, mine, nil, nil, now);
+            elseif (DAMAGE[added] and value > 0 and (breaks[target] or queued > 0)) then
+                note('hit', target, value, actor, mine, nil, nil, now);
+            end
+        end
+    end
+    -- Reactions and armed melee effects apply to their own recipients after explicit results.
+    for i = 1, n do
+        local row = rows[i];
+        if (actor >= FIRST_MONSTER_ID and (row.reaction == 44 or row.reaction == 132
+            or row.reaction == 383 or row.reaction == 374)) then
+            d = d or load_data();
+            local info = d.spikes and d.spikes[row.reaction_kind];
+            if (info ~= nil and info.infer == 'reaction'
+                and (row.reaction ~= 374 or row.reaction_param == info.effect)) then
+                note('estimate', actor, info.effect, row.target, row.target == me, 'spikes', row.reaction_kind, now);
+            end
+        end
+    end
+    if (category == MELEE and actor < FIRST_MONSTER_ID) then
+        d = d or load_data();
+        local held, info = melee_reactive(d, actor, mine, now);
+        if (info ~= nil and info.infer == 'melee') then
+            for i = 1, n do
+                local row = rows[i];
+                if (row.target >= FIRST_MONSTER_ID and (row.message == 1 or row.message == 67
+                    or row.message == 352 or row.message == 353)) then
+                    note('estimate', row.target, info.effect, actor, mine, 'reactive', held.effect, now);
+                    if (info.consume) then held.consumed = true; break; end
+                end
+            end
+        end
+    end
+    local list = source and (d or load_data())[source];
+    local action_info = list and list[action];
+    if (action_info == nil) then return; end
+    -- Queue estimates last, so an explicit result from this action always wins.
+    for i = 1, n do
+        local row = rows[i];
+        if (row.target >= FIRST_MONSTER_ID) then
+            if (action_info.by_effect ~= nil) then
+                for effect, info in pairs(action_info.by_effect) do
+                    if (estimate_result(info, row) and allowed_estimate(info, mine, actor)) then
+                        note('estimate', row.target, effect, actor, mine, source, action, now);
+                    end
+                end
+            elseif (action_info.effect ~= nil and estimate_result(action_info, row)
+                and allowed_estimate(action_info, mine, actor)) then
+                note('estimate', row.target, action_info.effect, actor, mine, source, action, now);
+            end
         end
     end
 end
 
--- A battle message checkmate already read. Your own effect wore off a monster, or a monster died.
+-- Standalone status reports, your own wear-off messages, and monster deaths.
 function effects.on_message(actor, target, param, message, me)
+    local held = armed[target];
+    if (target < FIRST_MONSTER_ID and WEARS_OFF[message] and param == 343) then
+        local d = load_data();
+        if (d.reactive and d.reactive[param] and not (held and held.consumed)) then
+            -- Feint wears off before the server sends the swing that consumed it.
+            arm(target, param, 0.5, os.clock());
+            armed[target].grace = true;
+        end
+    elseif (held ~= nil and (DIED[message] or (WEARS_OFF[message] and param == held.effect))) then
+        armed[target], armed_count = nil, armed_count - 1;
+    end
+    if (message == 203 and target >= FIRST_MONSTER_ID and param > 0 and param <= LAST_EFFECT_ID) then
+        local d = load_data();
+        local info = d.effects[param];
+        local kind = ((info and info.debuff) or effects.WORDS[param]) and 'on' or 'buff';
+        local now = os.clock();
+        local row = note(kind, target, param, actor, actor == me, nil, nil, now);
+        row.seconds, row.random, row.basis = nil, false, 'unknown';
+        row.duration_kept, row.reported = true, true;
+        return;
+    end
     if (target < FIRST_MONSTER_ID or (mobs[target] == nil and queued == 0)) then
         return;
     end
@@ -198,13 +413,25 @@ end
 --[[
     An entity update. A monster or pet with something on it that left your sight, by dying and fading, going more
     than 50 yalms from you or despawning, forgets it all, so one that comes back with the same server id after it
-    respawns starts clean. With nothing on any monster it reads nothing.
+    respawns starts clean. The same updates identify pets owned by other players.
 ]]
 function effects.on_entity(e)
+    local actor, owned = packets.player_pet(e);
+    if (actor ~= nil) then
+        if (pet_flags[actor] == nil) then
+            if (flag_count >= 256) then pet_flags, flag_count = {}, 0; end
+            flag_count = flag_count + 1;
+        end
+        pet_flags[actor] = owned;
+    end
+    local id = packets.despawned(e);
+    if (id ~= nil) then
+        if (pet_flags[id] ~= nil) then pet_flags[id], flag_count = nil, flag_count - 1; end
+        if (pet_owners[id] ~= nil) then pet_owners[id], owner_count = nil, owner_count - 1; end
+    end
     if (count == 0 and queued == 0) then
         return;
     end
-    local id = packets.despawned(e);
     if (id ~= nil and id >= FIRST_MONSTER_ID and (mobs[id] ~= nil or queued > 0)) then
         note('died', id, nil, nil, false, nil, nil, os.clock());
     end
@@ -212,11 +439,21 @@ end
 
 -- You zoned. Everything before it goes, in order with whatever came in before it.
 function effects.on_zone()
+    pet_owners, owner_count, observed_merits, armed, armed_count = {}, 0, {}, {}, 0;
+    pet_flags, flag_count = {}, 0;
     if (count > 0 or queued > 0) then note('zone', 0, nil, nil, false, nil, nil, os.clock()); end
 end
 
 -- Merit packets do not need the duration data.
+function effects.observe_merits(e)
+    for key, rule in pairs(PREREQUISITE_MERITS) do
+        local rank = packets.merit_count(e, rule.id);
+        if (rank ~= nil and rank >= 0 and rank <= rule.most) then observed_merits[key] = rank; end
+    end
+end
+
 function effects.on_merits(e)
+    effects.observe_merits(e);
     return merits.on_packet(e);
 end
 
@@ -269,9 +506,9 @@ local function wake_on_tick(mob, at)
     local sleep = find(mob, SLEEP);
     if (sleep == nil or sleep.deep or sleep.ends <= at) then return; end
     local skin = find(mob, STONESKIN);
-    if (skin ~= nil and skin.ends > at) then return; end
+    if (skin ~= nil and not skin.inferred and skin.ends > at) then return; end
     for _, entry in ipairs(mob.list) do
-        if (TICKS[entry.effect] and entry.ends > at) then
+        if (TICKS[entry.effect] and not entry.inferred and entry.ends > at) then
             sleep.ends = math.min(sleep.ends, at + TICK_SECONDS);
             next_end = math.min(next_end, sleep.ends);
             return;
@@ -325,11 +562,7 @@ local function usual(d, effect)
     return info and info.usual;
 end
 
---[[
-    The row in data\effects.lua for the action that put this effect on, or nil when there's none naming that
-    effect. A pet's move can come in under a pet skill id rather than a TP move id, so a TP move row that doesn't
-    fit is tried as a pet's.
-]]
+-- The source row must name this effect, including a child of a multi-effect action.
 local function matching(info, effect)
     if (info == nil) then return nil; end
     local row = info.by_effect and info.by_effect[effect];
@@ -341,9 +574,6 @@ end
 local function source_row(d, row)
     local list = row.source and d[row.source];
     local info = matching(list and list[row.action], row.effect);
-    if (info == nil and row.source == 'skills') then
-        info = matching(d.pacts[row.action], row.effect);
-    end
     return info;
 end
 
@@ -362,10 +592,14 @@ local function seconds_for(d, row, info)
             item and 'equipment' or 'usual';
     end
     if (info == nil or (info.seconds == nil and info.top == nil and info.merit == nil)) then
-        return usual(d, row.effect), false, 'usual';
+        return nil, false, 'unknown';
     end
     local seconds = info.top or info.seconds;
-    local rank = row.mine and info.merit and merits.selected(info.merit) or nil;
+    local rank;
+    if (row.mine and info.merit ~= nil) then
+        if (PREREQUISITE_MERITS[info.merit] ~= nil) then rank = actual_merit(info.merit);
+        else rank = merits.selected(info.merit); end
+    end
     if (info.merit ~= nil) then
         local merit = d.merits[info.merit];
         seconds = merit.base + merit.per_rank * (rank or merit.most);
@@ -380,7 +614,7 @@ local function seconds_for(d, row, info)
     if (row.mine and info.gear ~= nil) then
         seconds = seconds + gear_bonus(d.gear[info.gear], player.ALL_SLOTS);
     end
-    local basis = info.top ~= nil and 'random_maximum' or 'source_duration';
+    local basis = info.default_tp ~= nil and 'tp_default' or info.top ~= nil and 'random_maximum' or 'source_duration';
     if (info.merit ~= nil and rank == nil) then
         basis = 'merit_unknown';
     elseif (row.mine and (info.song ~= nil or info.gear ~= nil)) then
@@ -392,7 +626,7 @@ end
 -- Gear and buffs may change before the next frame. Keep only the duration, not another gear table.
 keep_duration = function (row)
     local kind = row.kind;
-    if (kind ~= 'on' and kind ~= 'buff' and kind ~= 'uses'
+    if (kind ~= 'on' and kind ~= 'buff' and kind ~= 'uses' and kind ~= 'estimate'
         and not (kind == 'hit' and row.source == 'spells')) then return; end
     local d = load_data();
     local info;
@@ -413,10 +647,30 @@ end;
 ]]
 local function land(d, row, info, tier)
     local id, effect = row.target, SLEEPS[row.effect] and SLEEP or row.effect;
-    local mob = monster(id, row.at);
     local about_it = d.effects[effect];
+    local mob = mobs[id];
+    local inferred = row.kind == 'estimate';
+    if (inferred and mob == nil and count >= MAX_MONSTERS) then
+        -- Reuse an empty slot without displacing any active observation.
+        for other, held in pairs(mobs) do
+            if (#held.list == 0) then
+                mobs[other], breaks[other], count = nil, nil, count - 1;
+                break;
+            end
+        end
+        if (count >= MAX_MONSTERS) then return; end
+    end
+    if (inferred and mob ~= nil) then
+        -- A possible application cannot refresh or displace an existing observation.
+        if (find(mob, effect) ~= nil) then return; end
+        if (#mob.list >= MAX_EFFECTS) then return; end
+        for _, other in ipairs(about_it and about_it.drops or NONE) do
+            if (find(mob, SLEEPS[other] and SLEEP or other) ~= nil) then return; end
+        end
+    end
+    mob = monster(id, row.at);
     for _, other in ipairs(about_it and about_it.drops or NONE) do
-        remove(id, mob, other, row.at);
+        if (not (SLEEPS[effect] and SLEEPS[other])) then remove(id, mob, other, row.at); end
     end
     local entry = find(mob, effect);
     if (entry == nil) then
@@ -436,8 +690,17 @@ local function land(d, row, info, tier)
     else
         seconds, random, basis = seconds_for(d, row, info);
     end
+    -- A following status message keeps the confirmed action's Sleep or Dia/Bio rules.
+    local same_action = row.reported and not entry.inferred and entry.from == row.actor and entry.action_at ~= nil
+        and row.at - entry.action_at <= 0.5;
+    local deep = same_action and entry.deep or (info ~= nil and info.deep == true);
+    tier = tier or (same_action and entry.tier or nil);
     entry.mine, entry.from, entry.tier, entry.landed = row.mine, row.actor, tier, row.at;
-    entry.debuff, entry.deep = row.kind == 'on', info ~= nil and info.deep == true;
+    entry.debuff = row.kind == 'on' or inferred or (about_it ~= nil and about_it.debuff == true);
+    entry.deep, entry.inferred = deep, inferred;
+    entry.default_tp = info and info.default_tp or nil;
+    entry.condition = inferred and info and info.condition or nil;
+    entry.action_at = same_action and entry.action_at or (not row.reported and row.source ~= nil and row.at or nil);
     entry.timed, entry.random = seconds ~= nil, random;
     entry.basis = seconds ~= nil and basis or 'unknown';
     entry.ends = row.at + (seconds or UNTIMED_SECONDS);
@@ -455,7 +718,7 @@ local function dia_bio(d, row)
     end
     local mob = mobs[row.target];
     local held = mob and (find(mob, DIA) or find(mob, BIO));
-    if (held ~= nil and (held.tier or 0) >= spell.tier) then
+    if (held ~= nil and not held.inferred and (held.tier or 0) >= spell.tier) then
         return;
     end
     if (mob ~= nil) then
@@ -475,7 +738,7 @@ local function take(d, row)
         if (mob ~= nil) then
             mobs[id], breaks[id], count = nil, nil, count - 1;
         end
-    elseif (kind == 'on' or kind == 'buff') then
+    elseif (kind == 'on' or kind == 'buff' or kind == 'estimate') then
         land(d, row, source_row(d, row));
     elseif (kind == 'uses') then
         -- A two-hour on itself only lands when its move is known to put that effect on.
@@ -535,7 +798,7 @@ function effects.take_in(now)
         for i = 1, n do
             local row = queue[i];
             if (row.at >= next_end) then sweep(row.at); end
-            if (row.kind == 'on' or row.kind == 'buff' or row.kind == 'uses'
+            if (row.kind == 'on' or row.kind == 'buff' or row.kind == 'uses' or row.kind == 'estimate'
                 or (row.kind == 'hit' and row.source == 'spells')) then
                 d = d or load_data();
             end
@@ -561,12 +824,19 @@ end
 -- The game's own name for an effect checkmate has no word for, with each word capitalized, or "Effect 999".
 function effects.game_name(id)
     if (names[id] == nil) then
+        local info = load_data().effects[id];
+        if (info ~= nil and info.name ~= nil) then names[id] = info.name; return info.name; end
         local ok, text = pcall(function () return AshitaCore:GetResourceManager():GetString('buffs.names', id); end);
         local name = require('core.printout').clean_text(ok and text or ''):match('^%s*(.-)%s*$');
         name = name:gsub('^%l', string.upper):gsub(' %l', string.upper);
         names[id] = (name ~= '') and name or ('Effect %d'):format(id);
     end
     return names[id];
+end
+
+function effects.has_icon(id)
+    local info = load_data().effects[id];
+    return info == nil or info.icon ~= false;
 end
 
 -- What's on one monster, for effects.readout below, which runs it inside its guard.
@@ -583,6 +853,7 @@ local function read_out(id, show, now, still)
             local each = { effect = entry.effect, word = word, name = (word == nil) and effects.game_name(entry.effect)
                 or nil, ends = entry.timed and entry.ends or nil, mine = entry.mine, from = entry.from,
                 debuff = entry.debuff, random = entry.random, own = entry.from == id, basis = entry.basis,
+                inferred = entry.inferred, default_tp = entry.default_tp, condition = entry.condition,
                 sort_end = entry.timed and entry.ends or math.huge };
             if (still and each.ends ~= nil) then
                 each.left = math.ceil(each.ends - now);
@@ -641,6 +912,8 @@ end
 -- The game's own description of an effect, once read, or nil. Only a tip asks.
 function effects.description(id)
     if (about[id] == nil) then
+        local info = load_data().effects[id];
+        if (info ~= nil and info.description ~= nil) then about[id] = info.description; return info.description; end
         local ok, text = pcall(function ()
             local entry = AshitaCore:GetResourceManager():GetStatusIconByIndex(id);
             return entry and entry.Description and entry.Description[1];
@@ -650,9 +923,11 @@ function effects.description(id)
     return (about[id] ~= '') and about[id] or nil;
 end
 
--- Forget tracked effects when the part turns off or after an error. Merit choices stay separate.
-function effects.forget()
+-- Turning a display off keeps actual merits; a new character or zone clears them.
+function effects.forget(clear_merits)
     data = nil;
+    if (clear_merits) then observed_merits = {}; end
+    pet_owners, owner_count, pet_flags, flag_count, armed, armed_count = {}, 0, {}, 0, {}, 0;
     mobs, breaks, queue, queued, count, next_end = {}, {}, {}, 0, 0, math.huge;
 end
 

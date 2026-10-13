@@ -174,14 +174,15 @@ local TIPS = {
         .. 'or both. This applies to all three pDIF rows. Hover keeps both explanations and any known curve cap. '
         .. 'These are estimates from your saved Attack reply and stored monster Defense, not a damage prediction. '
         .. 'Use /check to refresh Attack, including when only an overlay pDIF row is on.',
-    effects       = 'Options for the Effects part, in chat and in the overlay.',
+    effects       = 'Options for the Effects part, in chat and in the overlay. Hover a secondary effect to see '
+        .. 'whether it was confirmed or estimated from an action.',
     effects_show  = 'Which effects the part lists. Debuffs and buffs lists what you and others put on the '
         .. 'monster, then the buffs it gave itself, like Protect or Mighty Strikes. Only debuffs or Only buffs '
         .. 'leaves the other kind out.',
-    effects_times = 'Shows estimated time left, like Paralyze 1:20. Your timers count the gear and merits '
-        .. 'checkmate can read. Other timers use the usual duration from Phoenix. A resist or removal can end '
-        .. 'an effect sooner, and hidden bonuses can make it last longer. These are estimates, not the server\'s '
-        .. 'remaining times.',
+    effects_times = 'Shows estimated time left, like Paralyze 1:20. Timers use the supported duration for that '
+        .. 'action. Effects with no supported duration show without a countdown. Your timers count the gear '
+        .. 'and merits checkmate can read. Resists, removals and hidden bonuses can change the duration. '
+        .. 'These are estimates, not the server\'s remaining times.',
     show_name     = 'Shows the monster\'s name. Turn it off to leave the name, level, ID and PH note out while the '
         .. 'other parts still print.',
     name_label    = 'A word before the name, empty at first. The label divider follows it.',
@@ -886,7 +887,7 @@ end
 
 local open = { false };
 local result = { save = false, sample = false, edited = false };
-local reset_owner = nil;
+local reset_owner, escape_busy = nil, false;
 settings_window.display_page = 'Rows';
 local look = nil;         -- Your window look this frame.
 local scale = 1;          -- The font size this frame over BASE_FONT_SIZE.
@@ -921,6 +922,7 @@ end
 -- Opening the window reads profiles.json again, since another character can change it.
 function settings_window.set_open(value)
     open[1] = value;
+    escape_busy = false;
     if (not value) then reset_owner = nil; end
     if (value) then
         profiles.refresh();
@@ -1960,7 +1962,7 @@ local EFFECT_SHOWS = { { id = 'both', name = 'Debuffs and buffs' }, { id = 'debu
     { id = 'buffs', name = 'Only buffs' } };
 
 -- What the Effects section says under its controls.
-local EFFECTS_NOTE = 'The times are estimates. A wear-off message clears your timer early.';
+local EFFECTS_NOTE = 'Secondary effects and timers can be estimates. Hover for details.';
 
 settings_window.draw_effects_tab = function (settings)
     local e = settings.effects;
@@ -3285,6 +3287,17 @@ function settings_window.draw(settings, version, sample_provider)
 
     place_window(settings.window);
     if (imgui.Begin('checkmate##settings', open, WINDOW_FLAGS)) then
+        -- ImGui can close a popup before this frame. Keep that Escape for the popup.
+        if (not escape_busy and not imgui.IsAnyItemActive()
+            and not imgui.IsPopupOpen('', ImGuiPopupFlags_AnyPopup)
+            and imgui.IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)
+            and imgui.IsKeyPressed(ImGuiKey_Escape, false)) then
+            if (reset_owner ~= nil) then
+                reset_owner = nil;
+            else
+                settings_window.set_open(false);
+            end
+        end
         remember_window(settings.window);
         window_width = imgui.GetWindowSize();
         stacked = window_width < 2 * math.max(COLUMN_WIDTH, px(COLUMN_WIDTH)) + COLUMN_GAP + WINDOW_EDGES;
@@ -3314,11 +3327,12 @@ function settings_window.draw(settings, version, sample_provider)
             end
         end
     end
+    escape_busy = imgui.IsAnyItemActive() or imgui.IsPopupOpen('', ImGuiPopupFlags_AnyPopup);
     imgui.End();
     imgui.PopFont();
     imgui.PopStyleVar(sizes);
     imgui.PopStyleColor(colors);
-    if (not open[1]) then reset_owner, result.reset_all = nil, false; end
+    if (not open[1]) then reset_owner, result.reset_all, escape_busy = nil, false, false; end
     if (result.edited) then
         settings_window.preview_cache = nil;
         settings_window.details_dirty = true;

@@ -145,6 +145,14 @@ function packets.despawned(e)
     return struct.unpack('L', e.data, 0x05), struct.unpack('H', e.data, 0x09);
 end
 
+-- Only general updates carry the flag for a monster or pet owned by a player.
+function packets.player_pet(e)
+    if (byte_count(e) < 0x28) then return nil; end
+    local mask = e.data:byte(0x0B);
+    if (bit.band(mask, 0x04) == 0 or bit.band(mask, 0x20) ~= 0) then return nil; end
+    return struct.unpack('L', e.data, 0x05), bit.band(e.data:byte(0x28), 0x08) ~= 0;
+end
+
 -- The fixed 0x028 header, then 36 bits per target and up to eight variable-length results.
 local ACTOR_BIT, COUNT_BIT, CATEGORY_BIT, ACTION_BIT, TARGET_BIT = 40, 72, 82, 86, 150;
 local RESULT_BITS, ADDED_BITS, REACTION_BITS = 85, 37, 34;
@@ -173,9 +181,10 @@ function packets.action_target(e)
     return unpack_bits(e.data_raw, 0, TARGET_BIT, 32);
 end
 
--- Fills reused rows for targets at or above `from`. A malformed packet returns no results at all.
+-- Fills reused rows for targets at or above `from`. Spikes can also affect the actor.
+-- A malformed packet returns no results at all.
 -- The extra-effect and reaction flags are checked before reading or skipping either block.
-function packets.action_results(e, out, from)
+function packets.action_results(e, out, from, include_reactions)
     if (not action_bytes(e, TARGET_BIT)) then return 0; end
     local raw, total = e.data_raw, byte_count(e) * 8;
     local targets = unpack_bits(raw, 0, COUNT_BIT, 6);
@@ -197,9 +206,10 @@ function packets.action_results(e, out, from)
             if (added) then at = at + ADDED_BITS; end
             if (at + 1 > total) then return 0; end
             local reaction = unpack_bits(raw, 0, at, 1) == 1;
-            at = at + 1 + (reaction and REACTION_BITS or 0);
+            local reaction_at = at + 1;
+            at = reaction_at + (reaction and REACTION_BITS or 0);
             if (at > total) then return 0; end
-            if (target >= from) then
+            if (target >= from or (include_reactions and reaction)) then
                 n = n + 1;
                 local row = out[n] or {};
                 out[n] = row;
@@ -208,6 +218,9 @@ function packets.action_results(e, out, from)
                 row.message = unpack_bits(raw, 0, start + 44, 10);
                 row.added = added and unpack_bits(raw, 0, added_at + 27, 10) or 0;
                 row.added_param = added and unpack_bits(raw, 0, added_at + 10, 17) or 0;
+                row.reaction = reaction and unpack_bits(raw, 0, reaction_at + 24, 10) or 0;
+                row.reaction_param = reaction and unpack_bits(raw, 0, reaction_at + 10, 14) or 0;
+                row.reaction_kind = reaction and unpack_bits(raw, 0, reaction_at, 6) or 0;
             end
         end
     end

@@ -123,15 +123,17 @@ end
 function modifiers.enemy(mob)
     local out = { notes = {} };
     for _, entry in ipairs(mob.effects or NONE) do
-        local effect = data.effects[entry.effect];
-        if (entry.effect == data.buffs.mighty_strikes) then out.mighty_strikes = true; end
-        if (effect ~= nil) then
-            for _, key in ipairs({ 'hit', 'evade', 'crit', 'crittaken', 'magic' }) do
-                if (effect[key]) then
-                    out[key] = out[key] or {};
-                    local note = effect.name .. ' was seen. It may change this number, but its power and exact end are unknown.';
-                    append(out[key], note);
-                    append(out.notes, note);
+        if (not entry.inferred) then
+            local effect = data.effects[entry.effect];
+            if (entry.effect == data.buffs.mighty_strikes) then out.mighty_strikes = true; end
+            if (effect ~= nil) then
+                for _, key in ipairs({ 'hit', 'evade', 'crit', 'crittaken', 'magic' }) do
+                    if (effect[key]) then
+                        out[key] = out[key] or {};
+                        local note = effect.name .. ' was seen. It may change this number, but its power and exact end are unknown.';
+                        append(out[key], note);
+                        append(out.notes, note);
+                    end
                 end
             end
         end

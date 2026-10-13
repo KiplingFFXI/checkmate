@@ -31,6 +31,8 @@ For an update, replace the old `addons\checkmate` folder with the new one, then 
 
 Type `/checkmate` to open settings. **Find settings** searches controls and their help. **Previous match** and **Next match** step through results on the current tab. The tabs and search stay at the top while the page scrolls. Resize the panel to fit your screen; controls wrap as the width changes.
 
+Escape closes settings while the panel has focus, including during combat. A text field, dropdown or reset confirmation gets the first press; press Escape again to close the panel. Cancelling a reset leaves your settings as they are. You can also close settings with the X or `/checkmate`.
+
 - **Display** has **Rows**, **Chat format** and **Overlay options** views. Rows puts chat and overlay choices in one table, with shared labels, order and line breaks. Use **Enabled only** to shorten the list. At smaller widths, **+** opens a row's layout controls and **-** closes them. They stay open while you search; clearing **Find settings** restores your previous selection. **Options** goes straight to that row's controls. **Back to Display** returns to the rows.
 - **Combat** groups combat settings into compact Offense and Defense tables. Grade cutoffs are under Advanced.
 - **Merits** keeps supported merit ranks in collapsible categories. **Use my merits when I zone** is at the top; turn it off to keep your manual choices. **From game** shows the last rank received from the server. Rows say whether the selected rank changes estimates or is for reference only. **Manual** marks a rank that differs from the game. **Restore game ranks** replaces choices with known ranks, leaves unread choices alone, and supports Undo.
@@ -83,7 +85,7 @@ On Merits, the menu says **Reset autofill option** because it only turns zone au
 | Shield block and Parry | Separate chances for eligible normal attacks, using your jobs, current skills and equipped gear. |
 | Aggro and Links | Detection methods, source conditions and monsters that can link. Full link lists remain in Target details. |
 | Weaknesses | One row for elements, weapon damage types, immunities and Charm. Select its components separately for chat and overlay. |
-| Effects | Buffs and debuffs seen in action messages, with estimated time left where a duration is supported. |
+| Effects | Buffs and debuffs reported to your client or estimated from supported actions, with time left where a duration is supported. |
 | Monster facts | Separate rows for Family, HP and MP, Movement, Pursuit, Spawn, Claim shield, Dangers, Blue Magic, Fight rules, Traits, Crystal and Rewards. |
 | Drops and Steal | Source drop chances, Treasure Hunter options, possible Steal items and a conditional Steal chance where supported. |
 | Pet | Your pet's level range, hit rate and evade rate when enough information is available. |
@@ -166,7 +168,15 @@ The finder uses enabled content and supported spawn or encounter routes in the b
 
 ## Read Effects and pet estimates
 
-Effects tracks what your client sees land or get removed. Its timers are estimates based on supported source durations and available inputs. Resists, unknown potency and early removals can change them. No observed effects means there are no matching observations, not that the monster has no effects.
+Effects tracks buffs and debuffs from spells, weapon skills, job abilities, pet moves, items, weapon and ammunition added effects, and spikes. This includes nearby players and their avatars, jug pets, automatons and charmed monsters. It reads applications and removals reported to your client, including DRK Absorb spells, and estimates supported effects that the action does not report separately.
+
+Timers use Phoenix's duration for that action. A resist, missing input or early removal can change the estimate. An effect with no supported duration shows without a countdown and clears after three minutes, or sooner if a removal is reported.
+
+Tracking works entirely in the addon. Hover shows whether the game confirmed the effect or checkmate estimated it from an action, including any required merits, buffs or attachments. Effect names have no question marks. An estimated effect may not be active; it does not change combat calculations or replace a confirmed effect. Break timers use Phoenix's duration at 1,000 TP, before resists; the TP actually used is unknown.
+
+Moves with more than one effect keep them separate, such as Lunar Cry's Accuracy Down and Evasion Down. Feint is tracked from its use through the next landed ordinary attack. Your Penance and Tomahawk estimates use merit ranks read from the game when you zone; manual merit choices cannot enable those effects. Other players' hidden ranks and conditions stay explained in hover help.
+
+Effects can only use what your client sees. Actions before tracking began or outside its range, unreported removals and hidden results can leave the list incomplete. No observed effects means there are no matching observations, not that the monster has no effects.
 
 Pet estimates depend on pet type, level and available parameters. A pet's overlay row reuses a valid reading for that pet and target. A manual `/check` can refresh its stats; the passive overlay never requests parameters. Changing pets or losing the observed target invalidates the old reading.
 

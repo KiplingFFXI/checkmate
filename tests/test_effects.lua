@@ -47,7 +47,7 @@ expect('action start reads only the category', MOCK.bit_reads - before, 1);
 expect('action start loads no duration data', package.loaded['data.effects'], nil);
 before = MOCK.bit_reads;
 send(1, 0, 40, 1, mob, me);
-expect('monster swing on player stops after the target', MOCK.bit_reads - before, 2);
+expect('monster swing on player checks for a reaction without reading its result', MOCK.bit_reads - before, 8);
 effects.on_entity(MOCK.entity_packet(mob, 0x30));
 expect('untracked despawn loads no data', package.loaded['data.effects'], nil);
 effects.on_message(other, mob, 0, 6, me);

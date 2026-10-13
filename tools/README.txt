@@ -639,27 +639,53 @@ Effects
 -------
 
 effects.lua holds durations and removal rules for effects seen in action messages. It reads merged
-status_effects.yaml and merits.yaml, core spell tables, item_mods.sql with loaded SQL updates, and the mob and
-pet skill scripts with loaded era/Phoenix overrides. Spell rows follow the SQL content tags. The current
+status_effects.yaml and merits.yaml, spell and ability scripts, item_mods.sql with loaded SQL updates, and
+weapon skill, monster, pet and automaton scripts with loaded era/Phoenix overrides. Spell rows follow the
+SQL content tags. The current
 reader requires Phoenix's rotz/cop/toau content settings; a different era needs its own duration audit.
 
-It writes effects, spells, abilities, skills, pacts, procs, proc_effects, proc_usual, gear, merits, pictured and
-troubadour. pacts uses the pet_skill_id sent in the action packet, not the linked monster skill ID. A move
-with several statuses also has by_effect, so each received effect uses its own duration. proc_effects keeps
+It writes effects, spells, abilities, weaponskills, skills, pacts, pet_moves, automatons, charmed_skills,
+items, reactive, spikes, procs, proc_effects, proc_usual, gear, merits, pictured and troubadour.
+Player weapon skills, job abilities and automaton moves
+keep separate ID maps. pacts uses pet_skill_id; pet_moves maps the linked monster skill IDs used by the
+native pet action path. charmed_skills is used only for an actor identified as a player's pet or charmed
+monster. Entity updates supply the ownership flag; existing visible pets can also be matched to their owner.
+A move with several statuses also has by_effect, so each received effect uses its
+own duration. proc_effects keeps
 a main-hand item from supplying an unrelated off-hand added effect's duration. A time the reader cannot
-resolve stays absent and uses the effect's usual duration when one is known.
+resolve stays absent. An unknown action duration does not borrow another action's timer.
 
 Random spell times keep their low and high values. Move times use a literal base or a readable random/TP
-maximum. Usual times take the most common known duration, choosing the longer on a tie. The three duration
+maximum. Usual times take the most common known duration, choosing the longer on a tie. Duration
 merits use the merged cost-list cap: Phoenix currently permits three ranks, not five. Sleep II and Lullaby
-share Sleep's icon. Nightmare keeps its sleep row; its hidden Bio companion is not a separate packet row.
+share Sleep's icon. A status without a supported message or inference rule stays unknown.
 
 The checked duration helpers and loaded overrides have hashes of their comment-free source. A changed or
 new override stops the export until the reader is updated. The guards also cover player-only hooks whose current code does not alter tracked monster durations. No arbitrary Lua is run.
 
+Reviewed damage-linked secondaries carry infer = 'damage' on each supported status. infer = 'success'
+uses an action-specific success_messages list, including zero-damage hits only where the source permits
+them. Neither flag proves that a debuff landed. requires_effect, requires_owner_effect and requires_merit
+name conditions on the actor or pet owner; a known false local condition suppresses the estimate. Unknown
+conditions stay in the hover text. Observed Penance and Tomahawk ranks stay separate from manual settings.
+
+items covers reviewed silent item completions. reactive arms Feint until its next landed ordinary attack;
+its wear-off can arrive just before that hit, so a short grace period preserves the estimate. spikes maps
+reaction kinds back to the attacker, including zero or absorbed damage. The native Curse Spikes status
+message is still an estimate because the server sends it without checking whether the status was added.
+Reported applications from other actions, weapon/ammo procs and named removals use the generic packet path.
+
+All of this works without a server module or extra packets. default_tp marks a duration evaluated at
+1,000 TP before resists. It does not claim the TP actually used was observed. Server-only status IDs use
+explicit names and descriptions and omit unrelated client icons.
+Unconfirmed effects have inferred = true in the readout, explained in hover text. They do not replace or
+refresh a confirmed effect, remove its opposing status, or change combat calculations. Ordinary status
+and removal messages still take priority. Missing messages and unreported removals remain unknown.
+
 Run the focused exporter checks with the same Python setup used above:
 
   python -m unittest discover -s tools/tests -p test_effects.py
+  python -m unittest discover -s tools/tests -p test_effect_actions.py
 
 To also check the actual extracted Phoenix tree, set CHECKMATE_EFFECTS_TREE to that tree's absolute path.
 The full export also loads effects.lua in LuaJIT. These are source and offline checks;
@@ -783,8 +809,10 @@ callbacks receive uncertainty notes. Encounter scaling and deployed settings can
 
 Movement and attack traits are stored baselines, not a safe kiting rule or a TP timer. Scent tracking is
 separate from initial detection and is not an immediate deaggro promise. Crystals and seals have their
-own eligibility conditions. No-drops, EXP suppression and excluded encounters are shown. Mug's native
-spawn reset can replace an initialize-time purse; the remaining purse and personal payout are unknown.
+own eligibility conditions. Crystal elements include supported initialize and spawn script overrides;
+conditional or unreadable changes stay uncertain. No-drops, EXP suppression and excluded encounters are
+shown. A scripted drop gate uses its known condition when available. Mug's native spawn reset can replace
+an initialize-time purse; the remaining purse and personal payout are unknown.
 
 Gil details require the effective CanDropGil gate after native setup and parsed spawn changes.
 A negative GIL_MAX blocks amounts, bonus and Mug notes. No-drops and EXP gates do not block ordinary

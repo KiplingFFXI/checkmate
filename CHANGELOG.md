@@ -2,6 +2,17 @@
 
 Older entries describe that release. Later entries may change its behavior.
 
+## 1.14.6
+
+- Escape closes settings during combat too. Text fields, dropdowns and reset confirmation get the first Escape before the window closes.
+- Expanded Effects tracking for spells, weapon skills and job abilities, plus avatars, jug pets, automatons and charmed monsters. Other players and their pets are included.
+- Added tracking for supported weapon and ammunition effects, spikes and status items, along with missing paired and conditional effects such as Lunar Cry, Feint, Penance and Tomahawk.
+- Fixed successful DRK Absorb spells not appearing in Effects and kept player, pet and monster action timers separate.
+- Effect names have no question marks. Hover explains estimates and any required merits, buffs or attachments. Tracking works entirely in the addon, and reported effects take priority over estimates.
+- Break timers use Phoenix's duration at 1,000 TP as an estimate. Effects without a supported duration have no countdown. Unconfirmed effects do not change combat calculations.
+- Fixed Rock Lizards in North and South Gustaberg showing Fire Crystals instead of Earth Crystals.
+- The Rewards row now explains that only the surviving Jailer of Prudence drops items.
+
 ## 1.14.5
 
 - Refreshed Phoenix data to `071c401048`, including drops, ferry monsters, lottery spawn rules, Silence and Nadrs Poison duration.

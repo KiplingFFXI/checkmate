@@ -18,7 +18,7 @@ Updates replace the `addons\checkmate` folder. Leave `config\addons\checkmate\` 
 
 ## Start here
 
-Type `/checkmate` to open settings. Choose a starter preset under **Profiles**, or use **Display** to select chat and overlay rows independently. Presets enable the overlay; you can turn it off with `/checkmate overlay off`.
+Type `/checkmate` to open settings. Choose a starter preset under **Profiles**, or use **Display** to select chat and overlay rows independently. Presets enable the overlay; you can turn it off with `/checkmate overlay off`. Escape closes settings, including during combat. If you are editing a field or using a dropdown, the first press cancels that instead.
 
 - **Preview** shows sample or current-target text before you change your layout. **Print a sample** shows the actual chat output.
 - **Find settings** searches controls and their help. **Appearance** holds skins, colors, fonts and visible tabs.
@@ -30,11 +30,11 @@ Type `/checkmate` to open settings. Choose a starter preset under **Profiles**, 
 - Levels, aggro, family-grouped links, spawn conditions and monster facts.
 - Hit, evade and critical chances; normal-attack pDIF; shield block and parry estimates.
 - Magic chances, elemental and weapon weaknesses, immunities and Charm eligibility.
-- Dangers with supported move details, and observed buffs and debuffs.
+- Dangers with supported move details, plus buffs and debuffs from spells, weapon skills, abilities, pets, items, added effects and spikes.
 - Possible learnable BLU spells, learning chance, spellbook status, optional observed move use and a spell finder.
 - Conditional drops, Steal, rewards and supported pet estimates.
 
-These are source-based estimates, not a live server lookup. Ranges, `~`, `?` and unknown values keep missing or changing information visible. Hover a result for its inputs and conditions. If checked inputs change, retained estimates say **Check again**; another manual `/check` refreshes them. [Read the conditions and limits](docs/GUIDE.md#understand-estimates-and-refresh-readings).
+These are source-based estimates, not a live server lookup. Ranges, `~`, `?` and unknown values keep missing or changing information visible. Effects names have no question marks; hover explains confirmed and estimated effects. Hover other results for their inputs and conditions. If checked inputs change, retained estimates say **Check again**; another manual `/check` refreshes them. [Read the conditions and limits](docs/GUIDE.md#understand-estimates-and-refresh-readings).
 
 Passive displays send no requests. A manual `/check` can trigger a shared `/checkparam <me>` or a supported pet request for enabled calculations. Settings stay local. [What checkmate reads and sends](docs/GUIDE.md#what-checkmate-reads-sends-and-saves).
 

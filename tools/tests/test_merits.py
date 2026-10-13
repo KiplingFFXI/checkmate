@@ -2,6 +2,7 @@
 import copy
 import os
 from pathlib import Path
+import re
 import sys
 import tempfile
 from types import SimpleNamespace
@@ -9,7 +10,7 @@ import unittest
 from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from export import crit, effects, merits, modifiers, overlays, pets
+from export import crit, effects, lua_source, merits, modifiers, overlays, pets
 
 
 def fixture():
@@ -143,13 +144,38 @@ class MeritSourceTests(unittest.TestCase):
         self.assertEqual(self.data['level_caps'], caps)
         rows = dict(crit_rows)
         rows.update(modifiers.merit_rows(self.tree, self.roots))
-        rows.update(effects.merit_rows(self.tree, self.roots))
+        effect_rows = effects.merit_rows(self.tree, self.roots)
+        # These two durations use observed ranks, not editable merit choices.
+        observed_only = {'penance', 'tomahawk'}
+        self.assertTrue(observed_only <= effect_rows.keys())
+        rows.update({key: row for key, row in effect_rows.items() if key not in observed_only})
         rows['beast_affinity'] = pets.beast_affinity(self.tree, self.roots)
         self.assertEqual(len(rows), 14)
+        self.assertEqual(set(rows), {key for key, row in entries.items() if row['kind'] == 'direct'})
         for key, row in rows.items():
             self.assertEqual(entries[key]['id'], row['id'], key)
             self.assertEqual(entries[key]['most'], row['most'], key)
             self.assertEqual(entries[key]['per_rank'], row.get('per_rank', row.get('per_merit')), key)
+
+    def test_observed_effect_merits_match_source_and_runtime_without_settings(self):
+        from lupa import luajit21
+        expected = {
+            'penance': {'id': 2118, 'job': 2, 'level': 75, 'most': 3, 'base': 0, 'per_rank': 20},
+            'tomahawk': {'id': 2050, 'job': 1, 'level': 75, 'most': 3, 'base': 15, 'per_rank': 15},
+        }
+        source = effects.merit_rows(self.tree, self.roots)
+        path = Path(__file__).resolve().parents[2] / 'checkmate/core/effects.lua'
+        text = path.read_text(encoding='utf8')
+        start = re.search(r'\blocal\s+PREREQUISITE_MERITS\s*=\s*(?=\{)', text)
+        self.assertIsNotNone(start, 'Effects must declare its observed merit rules')
+        body = lua_source.block(text, start.end(), 'observed merits')
+        rules = luajit21.LuaRuntime().execute('return {' + body + '}')
+        self.assertEqual(set(rules.keys()), set(expected))
+        for key, row in expected.items():
+            with self.subTest(merit=key):
+                self.assertNotIn(key, self.data['entries'])
+                self.assertEqual(source[key], row)
+                self.assertEqual(dict(rules[key]), {field: row[field] for field in ('id', 'job', 'level', 'most')})
 
     def test_bundled_catalogue_is_exactly_the_pinned_build(self):
         from lupa import luajit21

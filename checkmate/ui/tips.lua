@@ -333,7 +333,12 @@ local function effect_text(_, result, id)
         return nil;
     end
     local name = each.word and wording.BY_KEY[each.word].full or printout.clean_text(each.name);
-    local text = ('%s, %s.'):format(name, source_text(each));
+    local text = ('%s%s, %s.'):format(each.inferred and 'Possible ' or '', name, source_text(each));
+    if (each.inferred) then
+        text = text .. ' The action was seen, but the game did not confirm the debuff. It may not be active.'
+            .. ' It does not change combat calculations.';
+        if (each.condition ~= nil) then text = text .. ' ' .. each.condition; end
+    end
     local said = effects.description(n);
     if (said ~= nil) then
         text = text .. ' ' .. said .. (said:find('[%.!?]$') and '' or '.');
@@ -347,19 +352,22 @@ local function effect_text(_, result, id)
         text = text .. ' The game never says when Threnody wears off, even to the bard who sang it.';
     end
     if (each.own) then
-        text = text .. ' Nothing tells checkmate when it ends, so the time is how long it usually lasts.';
-    elseif (not each.mine) then
-        text = text .. ' Nothing tells checkmate when someone else\'s effect ends, so the time is how long it '
-            .. 'usually lasts.';
+        text = text .. ' The monster applied this to itself.';
+    elseif (not each.mine and not each.inferred) then
+        text = text .. ' Someone else applied this effect. Its removal may not be reported to your client.';
     elseif (each.random) then
         text = text .. ' Its length is random on Phoenix, so the time is the most it can last.';
     end
     local basis = {
         equipment = ' Your gear and known merits are included in this estimate.',
-        merit_unknown = ' Your merit rank is unknown. This estimate uses the highest rank Phoenix allows.',
+        merit_unknown = (each.mine and ' Your' or ' Their')
+            .. ' merit rank is unknown. This estimate uses the highest rank Phoenix allows.',
         usual = ' Its exact duration is unknown, so this uses its usual length.',
         source_duration = ' This starts from the duration in Phoenix\'s code. A resist can make it shorter.',
         random_maximum = ' This uses the longest random duration. It may end sooner.',
+        tp_default = ' This uses Phoenix\'s duration at 1,000 TP, before resists. The TP actually used is unknown.',
+        unknown = each.inferred and ' Its duration is unknown. The estimate clears after three minutes unless removed sooner.'
+            or ' The effect was observed, but its duration is unknown.',
     };
     text = text .. (basis[each.basis] or '');
     return text;
@@ -384,9 +392,10 @@ local function effect_more(_, result, id)
     if (left == 0) then
         return 'It should wear off any moment.';
     end
-    local cache = each.mine and MINE_LEFT or GUESS_LEFT;
+    local own_timer = each.mine and not each.inferred;
+    local cache = own_timer and MINE_LEFT or GUESS_LEFT;
     if (cache[left] == nil) then
-        cache[left] = (each.mine and 'About %s left.' or 'About %s left, a guess.'):format(printout.clock_text(left));
+        cache[left] = (own_timer and 'About %s left.' or 'About %s left, a guess.'):format(printout.clock_text(left));
     end
     return cache[left];
 end

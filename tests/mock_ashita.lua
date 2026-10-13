@@ -1291,7 +1291,7 @@ function MOCK.pack_bits(b, at, length, value)
     return at + length;
 end
 
--- An action with targets { id, results = { { message, param, added = { message, param }, reaction } } }.
+-- Each result can include added or reaction fields with a message and parameter.
 function MOCK.action_packet_multi(actor, category, action, targets)
     local b, at = bytes(512), 40;
     at = MOCK.pack_bits(b, at, 32, actor);
@@ -1316,7 +1316,13 @@ function MOCK.action_packet_multi(actor, category, action, targets)
                 at = MOCK.pack_bits(b, at, 10, r.added.message or 0);
             end
             at = MOCK.pack_bits(b, at, 1, r.reaction and 1 or 0);
-            if (r.reaction) then at = MOCK.pack_bits(b, at, 34, 0); end
+            if (r.reaction) then
+                local reaction = type(r.reaction) == 'table' and r.reaction or {};
+                at = MOCK.pack_bits(b, at, 6, reaction.kind or 0);
+                at = MOCK.pack_bits(b, at, 4, 0);
+                at = MOCK.pack_bits(b, at, 14, reaction.param or 0);
+                at = MOCK.pack_bits(b, at, 10, reaction.message or 0);
+            end
         end
     end
     local size = math.ceil(at / 32) * 4;
@@ -1332,8 +1338,9 @@ function MOCK.action_packet(actor, category, action, target, results)
 end
 
 -- An entity update. Mask 0x30 means it left your sight.
-function MOCK.entity_packet(id, mask, index)
-    local b = bytes(0x20);
+function MOCK.entity_packet(id, mask, index, player_pet)
+    local size = player_pet ~= nil and 0x30 or 0x20;
+    local b = bytes(size);
     put(b, 0x04, id, 4);
     if (index == nil) then
         index = bit.band(id, 0xFFF);
@@ -1341,7 +1348,8 @@ function MOCK.entity_packet(id, mask, index)
     end
     put(b, 0x08, index, 2);
     b[0x0A] = mask;
-    return packet(0x00E, b, 0x20);
+    if (player_pet ~= nil) then b[0x27] = player_pet and 0x08 or 0; end
+    return packet(0x00E, b, size);
 end
 
 -- The server id of the monster at `index` in `zone`.

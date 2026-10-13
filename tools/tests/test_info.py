@@ -6,9 +6,10 @@ import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from export import info, lua_source, mobscripts, species
+from export import drops, info, lua_source, mobscripts, species
 
 
 class InfoTests(unittest.TestCase):
@@ -115,6 +116,139 @@ class InfoTests(unittest.TestCase):
         self.assertIn('not part of the normal Treasure Hunter loot table', ' '.join(out['crystal']['notes']))
         self.assertIn('does not guarantee', ' '.join(out['pursuit']['notes']))
 
+    def test_crystal_initialization_replaces_inherited_element(self):
+        reader = self.reader('entity.onMobInitialize = function(mob)\n'
+                             '    mob:setCrystalElement(xi.element.EARTH)\nend')
+        out = reader.read(self.kind(element='fire'))[0]['crystal']
+        self.assertEqual(out['value'], 'Earth crystal (conditional)')
+        self.assertIn('Source crystal element: Earth.', out['notes'])
+
+    def test_crystal_calls_keep_phase_and_source_order(self):
+        reader = self.reader('entity.onMobSpawn = function(mob)\n'
+                             '    mob:setCrystalElement(xi.element.WATER)\n'
+                             '    mob:setCrystalElement(xi.element.WIND)\nend\n'
+                             'entity.onMobInitialize = function(mob)\n'
+                             '    mob:setCrystalElement(xi.element.EARTH)\nend')
+        self.assertEqual(reader.read(self.kind(element='fire'))[0]['crystal']['value'],
+                         'Wind crystal (conditional)')
+
+    def test_crystal_none_is_a_known_override(self):
+        reader = self.reader('entity.onMobInitialize = function(mob)\n'
+                             '    mob:setCrystalElement(xi.element.NONE)\nend')
+        out = reader.read(self.kind(element='fire'))[0]['crystal']
+        self.assertEqual(out['value'], 'No base crystal element')
+        self.assertIn('Source crystal element: None.', out['notes'])
+        self.assertEqual(self.reader().read(self.kind())[0]['crystal']['value'], 'No base crystal element')
+
+    def test_crystal_unknown_setup_does_not_keep_inherited_certainty(self):
+        cases = [
+            '    if condition then\n        mob:setCrystalElement(xi.element.EARTH)\n    end',
+            '    if condition then mob:setCrystalElement(xi.element.EARTH) end',
+            '    mob:setCrystalElement(chosenElement)',
+            '    mob:setCrystalElement(\n        xi.element.EARTH\n    )',
+            '    mob:setCrystalElement(xi.element.UNKNOWN)',
+            '    alias:setCrystalElement(xi.element.EARTH)',
+            '    mob = GetMobByID(otherId)\n    mob:setCrystalElement(xi.element.EARTH)',
+            '    if condition then\n        return\n    end\n    mob:setCrystalElement(xi.element.EARTH)',
+        ]
+        for body in cases:
+            with self.subTest(body=body):
+                reader = self.reader('entity.onMobInitialize = function(mob)\n' + body + '\nend')
+                out = reader.read(self.kind(element='fire'))[0]['crystal']
+                self.assertEqual(out['value'], 'Crystal element unknown')
+                self.assertNotIn('Source crystal element: Fire.', out['notes'])
+
+    def test_crystal_last_unconditional_setup_can_replace_unknown(self):
+        for between in ('', 'end\nentity.onMobSpawn = function(mob)\n'):
+            reader = self.reader('entity.onMobInitialize = function(mob)\n'
+                                 '    mob:setCrystalElement(chosenElement)\n' + between +
+                                 '    mob:setCrystalElement(xi.element.EARTH)\nend')
+            self.assertEqual(reader.read(self.kind(element='fire'))[0]['crystal']['value'],
+                             'Earth crystal (conditional)')
+        reader = self.reader('entity.onMobInitialize = function(mob)\n'
+                             '    mob:setCrystalElement(xi.element.EARTH)\nend\n'
+                             'entity.onMobSpawn = function(mob)\n'
+                             '    mob:setCrystalElement(chosenElement)\nend')
+        self.assertEqual(reader.read(self.kind(element='fire'))[0]['crystal']['value'], 'Crystal element unknown')
+
+    def test_crystal_runtime_and_mixins_remain_unknown(self):
+        for handler in ('onMobFight', 'onMobDeath', 'onMobDespawn'):
+            reader = self.reader('entity.' + handler + ' = function(mob)\n'
+                                 '    mob:setCrystalElement(xi.element.EARTH)\nend')
+            self.assertEqual(reader.read(self.kind(element='fire'))[0]['crystal']['value'], 'Crystal element unknown')
+        reader, kind = self.reader(), self.kind(element='fire')
+        path = reader.tree / 'scripts/mixins/crystal.lua'
+        path.parent.mkdir(parents=True)
+        path.write_text('g_mixins.crystal = function(mob)\n'
+                        '    mob:setCrystalElement(xi.element.EARTH)\nend', encoding='utf8')
+        kind.group_mixins = ['crystal']
+        self.assertEqual(reader.read(kind)[0]['crystal']['value'], 'Crystal element unknown')
+
+    def test_crystal_other_explicit_entity_does_not_change_own_element(self):
+        reader = self.reader('entity.onMobDeath = function(mob, player)\n'
+                             '    player:setCrystalElement(xi.element.EARTH)\n'
+                             '    GetMobByID(otherId):setCrystalElement(xi.element.EARTH)\nend')
+        self.assertEqual(reader.read(self.kind(element='fire'))[0]['crystal']['value'], 'Fire crystal (conditional)')
+
+    def test_crystal_helpers_apply_at_the_call_site_and_overrides_stay_unknown(self):
+        reader = self.reader('entity.onMobInitialize = function(mob)\n'
+                             '    mob:setCrystalElement(xi.element.FIRE)\n'
+                             '    xi.test.crystal(mob)\nend')
+        path = reader.tree / 'scripts/globals/crystal.lua'
+        path.parent.mkdir(parents=True)
+        path.write_text('xi.test.crystal = function(mob)\n'
+                        '    mob:setCrystalElement(xi.element.EARTH)\nend', encoding='utf8')
+        reader.scripts.helpers['xi.test.crystal'] = str(path)
+        self.assertEqual(reader.read(self.kind(element='fire'))[0]['crystal']['value'], 'Earth crystal (conditional)')
+        reader.cache.clear()
+        reader.module_text = 'm:addOverride("xi.test.crystal", function(mob) end)'
+        self.assertEqual(reader.read(self.kind(element='fire'))[0]['crystal']['value'], 'Crystal element unknown')
+
+    def test_crystal_loaded_callbacks_do_not_inherit_replaced_setters(self):
+        reader = self.reader('entity.onMobInitialize = function(mob)\n'
+                             '    mob:setCrystalElement(xi.element.EARTH)\nend')
+        reader.module_text = 'm:addOverride("xi.zones.Test.mobs.Mob.onMobInitialize", function(mob) end)'
+        self.assertEqual(reader.read(self.kind(element='fire'))[0]['crystal']['value'], 'Crystal element unknown')
+        reader = self.reader()
+        reader.module_text = 'm:addOverride("xi.zones.Test.mobs.Mob.onMobSpawn", function(mob)\n' \
+                             '    mob:setCrystalElement(xi.element.EARTH)\nend)'
+        self.assertEqual(reader.read(self.kind(element='fire'))[0]['crystal']['value'], 'Crystal element unknown')
+        reader = self.reader()
+        reader.module_text = 'xi.zones.Test.mobs.Mob.onMobSpawn'
+        self.assertEqual(reader.read(self.kind(element='fire'))[0]['crystal']['value'], 'Fire crystal (conditional)')
+
+    def test_crystal_parser_does_not_change_numeric_or_aggro_readers(self):
+        file = lua_source.LuaFile('crystal.lua', 'entity.onMobInitialize = function(mob)\n'
+                                  '    mob:setCrystalElement(\n        xi.element.EARTH\n    )\nend')
+        self.assertEqual(len(file.calls), 1)
+        call = file.calls[0]
+        self.assertEqual(lua_source.call_effect(call, True, {}, {}), (None, None))
+        self.assertEqual(lua_source.aggro_effect(call, True), (None, None, None))
+        self.assertFalse(lua_source.changes_elements(call, {}))
+        self.assertFalse(lua_source.changes_weapons(call, {}))
+
+    def test_crystal_helper_module_change_is_guarded(self):
+        reader = self.reader()
+        path = reader.tree / 'crystal_override.lua'
+        path.write_text('return module', encoding='utf8')
+        with mock.patch.object(info.aggro, 'lua_files_loaded', return_value=['crystal_override.lua']):
+            original = info.loaded_digest(reader.tree)
+            path.write_text('m:addOverride("xi.test.crystal", function(mob)\n'
+                            '    mob:setCrystalElement(xi.element.EARTH)\nend)', encoding='utf8')
+            with mock.patch.object(info, 'GUARDS', {}), mock.patch.object(info, 'MODULE_GUARD', original):
+                with self.assertRaisesRegex(RuntimeError, 'Loaded monster or reward modules changed'):
+                    info.check_source(reader.tree)
+
+    @unittest.skipUnless(os.environ.get('CHECKMATE_SOURCE_TREE'), 'needs pinned source tree')
+    def test_actual_gustaberg_lizards_override_species_fire(self):
+        tree = Path(os.environ['CHECKMATE_SOURCE_TREE'])
+        for zone in ('North_Gustaberg', 'South_Gustaberg'):
+            with self.subTest(zone=zone):
+                text = (tree / 'scripts/zones' / zone / 'mobs/Rock_Lizard.lua').read_text(encoding='utf8')
+                out = self.reader(text).read(self.kind(element='fire'))[0]
+                self.assertEqual(out['crystal']['value'], 'Earth crystal (conditional)')
+                self.assertIn('Source crystal element: Earth.', out['crystal']['notes'])
+
     def test_unknown_mod_is_not_silently_exact(self):
         reader = self.reader('entity.onMobFight = function(mob)\n    mob:setMod(bonusMod, amount)\nend')
         self.assertTrue(reader.read(self.kind())[0]['vitals']['uncertain'])
@@ -214,6 +348,47 @@ class InfoTests(unittest.TestCase):
         self.assertIn('Drops gil', reader.read(kind)[0]['rewards']['value'])
         reader.settings['MOB_GIL_MULTIPLIER'] = 0
         self.assert_no_gil(reader.read(kind)[0]['rewards'])
+
+    def test_conditional_no_drops_is_not_a_permanent_disabled_claim(self):
+        reader = self.reader('entity.onMobInitialize = function(mob)\n'
+                             '    mob:setMobMod(xi.mobMod.NO_DROPS, 1)\nend\n'
+                             'entity.onMobFight = function(mob)\n'
+                             '    if condition then\n'
+                             '        mob:setMobMod(xi.mobMod.NO_DROPS, 0)\n    end\nend')
+        reward = reader.read(self.kind())[0]['rewards']
+        self.assertIn('Conditional item drops', reward['value'])
+        self.assertNotIn('Ordinary item drops disabled', reward['value'])
+        self.assertIn('Scripts can enable or disable ordinary item drops.', reward['notes'])
+
+    def test_fixed_no_drops_survives_unrelated_reward_and_listener_changes(self):
+        reader = self.reader('entity.onMobFight = function(mob)\n'
+                             '    mob:setMobMod(xi.mobMod.GIL_BONUS, gilBonus)\n'
+                             '    mob:setMobMod(xi.mobMod.EXP_BONUS, expBonus)\nend')
+        kind = self.kind(mob_mods={'no_drops': 1})
+        kind.flags.add('scripted_drops')
+        kind.effects.scripted_drops = ['Mob.lua adds an ITEM_DROPS listener']
+        self.assertIn('Ordinary item drops disabled', reader.read(kind)[0]['rewards']['value'])
+
+    @unittest.skipUnless(os.environ.get('CHECKMATE_SOURCE_TREE'), 'needs pinned source tree')
+    def test_prudence_reuses_guarded_survivor_loot_condition(self):
+        tree = Path(os.environ['CHECKMATE_SOURCE_TREE'])
+        text = (tree / 'scripts/zones/AlTaieu/mobs/Jailer_of_Prudence.lua').read_text(encoding='utf8')
+        reader, kind = self.reader(text), self.kind()
+        kind.loot_conditions = drops.conditions(str(tree), 'AlTaieu', 'Jailer_of_Prudence')
+        reward = reader.read(kind)[0]['rewards']
+        self.assertIn('Conditional item drops', reward['value'])
+        self.assertNotIn('Ordinary item drops disabled', reward['value'])
+        self.assertIn('Only the surviving Jailer drops these items after the other one is defeated.', reward['notes'])
+
+    @unittest.skipUnless(os.environ.get('CHECKMATE_SOURCE_TREE'), 'needs pinned source tree')
+    def test_angler_orobon_keeps_fixed_no_drops_despite_loot_mixin(self):
+        tree = Path(os.environ['CHECKMATE_SOURCE_TREE'])
+        text = (tree / 'scripts/zones/Talacca_Cove/mobs/Angler_Orobon.lua').read_text(encoding='utf8')
+        reader, kind = self.reader(text), self.kind()
+        kind.flags.add('scripted_drops')
+        kind.effects.scripted_drops = ['Angler_Orobon.lua uses mixin families/orobon']
+        reward = reader.read(kind)[0]['rewards']
+        self.assertIn('Ordinary item drops disabled', reward['value'])
 
     def test_conditional_gil_change_is_not_a_confirmed_drop(self):
         reader = self.reader('entity.onMobFight = function(mob)\n'

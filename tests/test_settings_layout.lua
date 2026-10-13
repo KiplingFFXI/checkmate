@@ -59,7 +59,7 @@ check('clearing restores the abbreviation fold and its tab', nav.current() == 'A
     and MOCK.gui.paths['Abbreviations/con_tough/##short'] == nil);
 s.window.tabs.Effects = false;
 local feature = s.effects.show;
-MOCK.typing['Find settings'] = 'usual duration';
+MOCK.typing['Find settings'] = 'supported duration';
 frame();
 check('hidden matching tabs offer an explicit reveal', s.window.tabs.Effects == false
     and MOCK.gui.paths['Show hidden matches (1)##reveal_tabs'] == 'Button');

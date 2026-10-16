@@ -198,6 +198,7 @@ function defaults.make()
         blue = T{
             only_unlearned = false,          -- Keep unreadable spellbook entries visible too.
             requirements = true,             -- Learning requirements in hover and target details.
+            skill_status = false,            -- Skill met or the shortfall beside each spell in the overlay.
             seen = false,                    -- Whether this monster's move use was observed.
         },
         dangers = T{

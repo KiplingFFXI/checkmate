@@ -1705,7 +1705,7 @@ check('and so does help with a word that isn\'t a topic', run('/checkmate help m
 -- has one more. Help short lists the words after its commands.
 local TOPICS = { 'printout', 'overlay', 'colors', 'numbers', 'merits', 'aggro', 'magic', 'blue', 'weaknesses', 'pets', 'monster',
     'drops', 'effects', 'short', 'look', 'profiles' };
-local TOPIC_LINES = { printout = 24, overlay = 28, colors = 14, numbers = 10, merits = 2, aggro = 6, magic = 4, blue = 8,
+local TOPIC_LINES = { printout = 24, overlay = 28, colors = 14, numbers = 10, merits = 2, aggro = 6, magic = 4, blue = 9,
     weaknesses = 13, pets = 6, monster = 5, drops = 6, effects = 4, short = 4, look = 14, profiles = 9 };
 local topic_text = {};
 for _, topic in ipairs(TOPICS) do

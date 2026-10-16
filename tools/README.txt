@@ -856,6 +856,10 @@ comes from the native skill cap at that spell level, less 31, floored at zero. T
 minimum learning level. The addon can filter confirmed learned spells and show the client inputs read
 with the result, but does not decide full eligibility or predict a learning roll. An incomplete flag
 keeps filtered lists from claiming all learnable spells are known.
+The optional overlay skill status compares each minimum with the actual Blue Magic skill read from
+the client and refreshes as that skill changes. Manual merit choices do not change the comparison.
+Missing skill or requirement stays unknown. This only checks skill; the other learning conditions
+and the learning roll still apply. Chat and saved manual details keep their captured inputs.
 Each spell also keeps its monster move IDs. The optional observer reads completed action packets,
 including misses and resists, without requesting actions. Native function and category guards check
 the packet mapping and interruption rules. It clears observations for dead or missing identities,

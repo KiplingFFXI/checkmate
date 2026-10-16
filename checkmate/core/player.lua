@@ -423,18 +423,29 @@ function player.knows_spell(id)
     return known;
 end
 
+local function blue_skill()
+    local blue = memory:GetPlayer():GetCombatSkill(43);
+    return blue and blue:GetSkill();
+end
+
+function player.blue_skill()
+    if (not player.in_world()) then return nil; end
+    local ok, skill = pcall(blue_skill);
+    if (ok and type(skill) == 'number' and skill >= 0 and skill < math.huge) then return skill; end
+    return nil;
+end
+
 -- Reads what the client knows now. The server checks learning conditions when the monster dies.
 function player.blue_learning(index)
     local out = {};
     if (not player.in_world()) then return out; end
     local ok, job, skill, hp = pcall(function ()
         local you = memory:GetPlayer();
-        local blue = you:GetCombatSkill(43);
-        return you:GetMainJob(), blue and blue:GetSkill(), memory:GetParty():GetMemberHP(0);
+        return you:GetMainJob(), blue_skill(), memory:GetParty():GetMemberHP(0);
     end);
     if (ok) then
         out.job = type(job) == 'number' and job > 0 and job or nil;
-        out.skill = type(skill) == 'number' and skill >= 0 and skill or nil;
+        out.skill = type(skill) == 'number' and skill >= 0 and skill < math.huge and skill or nil;
         if (type(hp) == 'number' and hp >= 0) then out.alive = hp > 0; end
     end
     if (type(index) == 'number' and index > 0) then

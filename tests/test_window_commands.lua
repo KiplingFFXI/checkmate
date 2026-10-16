@@ -513,6 +513,8 @@ PAIRS[#PAIRS + 1] = { 'Show only unlearned spells', click('Blue Magic/Show only 
     function (s) return s.blue.only_unlearned; end };
 PAIRS[#PAIRS + 1] = { 'Show learning requirements', click('Blue Magic/Show learning requirements'), '/checkmate bluerequirements off',
     function (s) return s.blue.requirements; end };
+PAIRS[#PAIRS + 1] = { 'Show skill status in overlay', click('Blue Magic/Show skill status in overlay'), '/checkmate blueskill on',
+    function (s) return s.blue.skill_status; end };
 PAIRS[#PAIRS + 1] = { 'Show observed move use', click('Blue Magic/Show observed move use'), '/checkmate blueseen on',
     function (s) return s.blue.seen; end };
 for _, category in ipairs(require('core.dangers').CATEGORIES) do
@@ -567,7 +569,7 @@ for _, pair in ipairs(PAIRS) do
         ('before %s, window %s saved %s, command %s saved %s%s'):format(show(before), show(window_value),
         show(window_saved), show(command_value), show(command_saved), used and '' or ', an input found no control'));
 end
-check('every pair ran', #PAIRS == 231, #PAIRS);
+check('every pair ran', #PAIRS == 232, #PAIRS);
 
 -- Print a sample on each tab with one prints the same lines as /checkmate sample.
 reset();

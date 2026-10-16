@@ -2,6 +2,12 @@
 
 Older entries describe that release. Later entries may change its behavior.
 
+## 1.14.8
+
+- Added Show skill status in overlay under Blue Magic. It is off by default.
+- Each BLU spell can show Skill met, Skill too low with your current and required skill, or Skill unknown. It updates as your actual Blue Magic skill changes.
+- Enable it in the menu or use `/checkmate blueskill on`. Meeting the skill requirement does not guarantee learning; the other conditions still apply.
+
 ## 1.14.7
 
 - Added Escape closes overlay under Display > Overlay options. It is off by default.

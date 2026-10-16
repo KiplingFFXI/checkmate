@@ -1,6 +1,6 @@
 addon.name    = 'checkmate';
 addon.author  = 'Kipling';
-addon.version = '1.14.7';
+addon.version = '1.14.8';
 addon.desc    = 'Monster details, combat estimates and your pet on /check for Phoenix.';
 addon.link    = 'https://github.com/KiplingFFXI/checkmate';
 
@@ -1906,6 +1906,11 @@ local SWITCHES = {
         on = 'Blue Magic hover help and Target details now include learning requirements.',
         off = 'Blue Magic hover help and Target details no longer include learning requirements.',
     },
+    blueskill = {
+        section = 'blue', key = 'skill_status',
+        on = 'The overlay now shows whether your Blue Magic skill meets each spell\'s requirement.',
+        off = 'The overlay no longer shows skill status beside BLU spells.',
+    },
     knownmagic = {
         section = 'magic', key = 'known_inputs',
         on = 'Magic now includes known gear and merits. Extra accuracy is only the remaining bonus.',
@@ -2574,6 +2579,7 @@ local HELP_TOPICS = {
         '/checkmate blueseen on|off  shows observed move use. Not observed does not mean the monster has not used it.',
         '/checkmate blueunlearned on|off  hides spells your client says you already know. Unknown spellbook entries stay visible.',
         '/checkmate bluerequirements on|off  shows learning requirements in hover help and Target details.',
+        '/checkmate blueskill on|off  shows skill status beside each BLU spell in the overlay.',
         '/checkmate bluepart <spells|chance> <chat|overlay> on|off  selects what appears in Blue Magic.',
         '/checkmate show|hide blue  shows or hides the Blue Magic row in chat. Use overlayshow|overlayhide for the overlay.',
         '/checkmate infosection blue on|off  turns possible spells on or off inside the Blue Magic row.',

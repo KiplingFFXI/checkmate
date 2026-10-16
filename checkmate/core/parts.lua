@@ -127,6 +127,7 @@ function parts.migrate(s)
     local info, weakness, blue = table_at(s, 'info'), table_at(s, 'weaknesses'), table_at(s, 'blue');
     if (type(blue.only_unlearned) ~= 'boolean') then blue.only_unlearned = false; end
     if (type(blue.requirements) ~= 'boolean') then blue.requirements = true; end
+    if (type(blue.skill_status) ~= 'boolean') then blue.skill_status = false; end
     if (type(blue.seen) ~= 'boolean') then blue.seen = false; end
     local old = s.layout_version ~= parts.VERSION;
     local magic = type(s.magic) == 'table' and s.magic or {};

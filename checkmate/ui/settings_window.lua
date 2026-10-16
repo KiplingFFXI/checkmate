@@ -1873,6 +1873,9 @@ function settings_window.draw_blue_tab(settings)
     checkbox('Show learning requirements', settings.blue, 'requirements',
         'Shows the required Blue Magic skill and the job, skill, HP and distance read with the result. '
         .. 'Find them in hover help and Target details. Conditions are checked again on defeat.');
+    checkbox('Show skill status in overlay', settings.blue, 'skill_status',
+        'Adds Skill met, Skill too low with your current and required skill, or Skill unknown beside each BLU spell. '
+        .. 'Updates as your actual skill changes. Other learning conditions still apply.');
     checkbox('Show observed move use', settings.blue, 'seen',
         'Marks a move when checkmate sees this monster finish using it. Not observed means it may have happened out of view. '
         .. 'The marker clears when the monster disappears. It does not confirm learning eligibility.');
@@ -2971,7 +2974,7 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
             .. 'In chat In overlay Multiplier range Attack/Defense ratio Both',
         Aggro = 'Most entries shown Group names by family Show how it finds you Show how each one links Show the names it links with Pursuit In chat In overlay',
         Magic = 'Healing Include known gear and merits',
-        ['Blue Magic'] = 'Show Blue row Row hidden Component Chat Overlay Learnable spells Unresisted spell chance Learning chance Learning requirements Stand-in spell Show only unlearned spells Show learning requirements eligibility '
+        ['Blue Magic'] = 'Show Blue row Row hidden Component Chat Overlay Learnable spells Unresisted spell chance Learning chance Learning requirements Stand-in spell Show only unlearned spells Show learning requirements Show skill status in overlay Skill met Skill too low Skill unknown eligibility '
             .. 'Find a BLU spell Find only unlearned spells Monsters in this zone Find a monster or zone Copy places Clear',
         Weaknesses = 'In chat In overlay Component Chat Overlay Elements Weapons Immunities Charm Immune word Resists word Weak word Show how strong each one is Show script warning',
         Pets = 'In chat In overlay Show its name Show its level Hit word Evade word',

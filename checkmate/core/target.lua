@@ -487,6 +487,7 @@ function target.readout(s)
     local defenses_on = parts.block == true or parts.parry == true;
     local parameters_on = parts.hit == true or parts.offhand == true or parts.ranged == true or parts.evade == true;
     local parameter_inputs, attack_inputs, defensive_inputs;
+    local blue_skill_on = s.blue.skill_status == true and display_parts.blue_enabled(s, 'lessons', 'overlay');
     if (shown_id ~= nil and effects_seen ~= effects.version(shown_id)
         and (parts.effects or parts.crit or parts.crittaken or magic_on or parts.pet or pdif_on or parameters_on)) then
         stale = true;
@@ -521,8 +522,16 @@ function target.readout(s)
         end
     end
     if (shown ~= 0 and now >= next_inputs and (parts.crit or parts.crittaken or magic_on
-        or parts.steal or parts.pet or pdif_on or defenses_on or parameters_on)) then
+        or parts.steal or parts.pet or pdif_on or defenses_on or parameters_on or blue_skill_on)) then
         next_inputs = now + 0.25;
+        if (blue_skill_on and readout ~= nil and readout.info ~= nil) then
+            for _, section in ipairs(readout.info.sections) do
+                if (section.id == 'blue' and section.observation ~= nil and #section.observation.spells > 0) then
+                    if (player.blue_skill() ~= section.observation.skill) then stale = true; end
+                    break;
+                end
+            end
+        end
         if ((parts.crit or parts.crittaken or magic_on or parts.steal) and player.inputs_changed()) then
             my_level, stale = player.main_level(), true;
         end

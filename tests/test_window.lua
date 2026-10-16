@@ -146,7 +146,7 @@ check('and every (?) shows a tip in plain text that ends a sentence', #bad_tips 
 
 -- How many (?) marks each tab has with the default settings.
 local TIP_COUNTS = { Display = 43, Appearance = 186, Combat = 19, Merits = 2, Aggro = 8, Magic = 11,
-    ['Blue Magic'] = 12, Weaknesses = 36, Pets = 7, Monster = 40, Drops = 6, Effects = 5, Abbreviations = 162, Profiles = 14 };
+    ['Blue Magic'] = 13, Weaknesses = 36, Pets = 7, Monster = 40, Drops = 6, Effects = 5, Abbreviations = 162, Profiles = 14 };
 
 for tab, want in pairs(TIP_COUNTS) do
     local count = 0;

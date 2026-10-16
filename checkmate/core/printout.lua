@@ -9,6 +9,7 @@
 
 local wording = require('core.wording');
 local layout = require('core.parts');
+local monster_info = require('core.info');
 
 local printout = {};
 
@@ -1206,7 +1207,11 @@ end
 local function info_value(s, result, id, label_sep, inner_label)
     for _, section in ipairs((result.info or {}).sections or {}) do
         if (section.id == id) then
-            local text = paint(s, 'info_value', printout.clean_text(section.value));
+            local value = section.value;
+            if (id == 'blue' and s.printout.display == 'overlay' and (s.blue or {}).skill_status == true) then
+                value = monster_info.blue_skill_value(section);
+            end
+            local text = paint(s, 'info_value', printout.clean_text(value));
             if (inner_label) then
                 local key = 'info_' .. id;
                 local label = s.printout.short_words and wording.BY_KEY[key] and word(s, key) or layout.LABELS[id];

@@ -111,10 +111,17 @@ local function blue(entry, notes, options, index)
             local known = player.knows_spell(spell.id);
             local state = known == nil and 'spellbook unknown' or (known and 'known' or 'not learned');
             if (options.only_unlearned ~= true or known ~= true) then
-                values[#values + 1] = { name = spell.name, state = state, skill_ids = spell.skill_ids };
-                if (options.requirements == true) then
-                    inputs = inputs or player.blue_learning(index);
-                    blue_requirements(spell, inputs, notes);
+                values[#values + 1] = { name = spell.name, state = state, skill_ids = spell.skill_ids, min_skill = spell.min_skill };
+                if (options.requirements == true or options.skill_status == true) then
+                    if (inputs == nil) then
+                        if (options.requirements == true) then
+                            inputs = player.blue_learning(index);
+                            if (options.skill_status == true and inputs.skill == nil) then inputs.skill = player.blue_skill(); end
+                        else
+                            inputs = { skill = player.blue_skill() };
+                        end
+                    end
+                    if (options.requirements == true) then blue_requirements(spell, inputs, notes); end
                 end
             end
             unknown = unknown or known == nil;
@@ -124,7 +131,7 @@ local function blue(entry, notes, options, index)
     if (options.seen == true) then
         notes[#notes + 1] = OBSERVATION_NOTE;
     end
-    if (inputs ~= nil) then
+    if (inputs ~= nil and options.requirements == true) then
         local job = inputs.job == nil and 'main job unknown' or (inputs.job == 16 and 'main-job BLU' or 'main job is not BLU');
         local alive = inputs.alive == nil and 'HP unknown' or (inputs.alive and 'alive' or 'KO');
         local distance = inputs.distance == nil and 'distance unknown'
@@ -144,7 +151,25 @@ local function blue(entry, notes, options, index)
     local seen = options.seen == true;
     local value, moves = lesson_value(values, index, seen, fallback);
     return value, { spells = values, move_states = moves, fallback = fallback, seen = seen,
-        version = seen and lessons.version(index) or 0 };
+        version = seen and lessons.version(index) or 0, skill = inputs and inputs.skill };
+end
+
+-- The overlay adds skill status without changing the saved spellbook text or its notes.
+function info.blue_skill_value(section)
+    local observed = section.observation;
+    if (observed == nil or #observed.spells == 0) then return section.value; end
+    local values, skill = {}, observed.skill;
+    for index, spell in ipairs(observed.spells) do
+        local status = 'Skill unknown';
+        if (finite(skill) and skill >= 0 and finite(spell.min_skill) and spell.min_skill >= 0) then
+            status = skill >= spell.min_skill and 'Skill met'
+                or ('Skill too low: %d/%d'):format(skill, spell.min_skill);
+        end
+        local state = spell.state .. ', ' .. status;
+        if (observed.seen) then state = state .. ', ' .. observed.move_states[index]; end
+        values[#values + 1] = spell.name .. ' (' .. state .. ')';
+    end
+    return table.concat(values, ', ');
 end
 
 -- Saved checks only refresh observed moves. Their spellbook and stat readings stay as they were.
@@ -156,7 +181,8 @@ function info.refresh_observation(section, seen)
     local out = {};
     for key, value in pairs(section) do out[key] = value; end
     local value, moves = lesson_value(previous.spells, section.index, seen, previous.fallback);
-    out.observation = { spells = previous.spells, move_states = moves, fallback = previous.fallback, seen = seen, version = version };
+    out.observation = { spells = previous.spells, move_states = moves, fallback = previous.fallback, seen = seen, version = version,
+        skill = previous.skill };
     out.value = value;
     out.notes = {};
     for _, line in ipairs(section.notes) do

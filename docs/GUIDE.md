@@ -156,6 +156,17 @@ The Blue Magic row combines **Learnable spells** with an optional **Unresisted s
 
 Possible learnable spells come from the monster's supported source move list. Your client's spellbook supplies **known**, **not learned** or **spellbook unknown**. **Show only unlearned spells** hides confirmed known spells from the readout; unreadable entries stay visible. A resolved list with no learnable spells says so. Incomplete lists keep their known candidates and explain the gap.
 
+**Show skill status in overlay** adds **Skill met**, **Skill too low: 15/20** or **Skill unknown** beside each spell. It is off by default. To enable it through the menu:
+
+1. Type `/checkmate` and open **Blue Magic**.
+2. Enable **Show Blue row** in the **Overlay** column.
+3. Enable **Learnable spells** in the **Overlay** column.
+4. Turn on **Show skill status in overlay**.
+
+If the overlay itself is off, enable it under **Display > Overlay options**. You can also use `/checkmate blueskill on|off` for the skill option.
+
+The comparison uses your actual Blue Magic skill from the game and updates as it changes; manual merit choices do not change it. **Skill unknown** means the current skill or the spell's requirement could not be read. **Skill met** means you meet that spell's skill requirement. It does not guarantee learning; the other conditions still apply. **Not learned** only means the spell is missing from your spellbook.
+
 **Show learning requirements** adds minimum Blue Magic skill and the inputs read with the result to hover help and Target details. These are a snapshot. The monster must use the move, the server checks the other conditions on defeat, and learning still has a chance to fail. A spell's casting level is not a minimum learning level.
 
 **Learning chance**, in the Blue Magic tab, shows the base 33% chance plus supported learning gear you currently have equipped. At their required levels, Magus Bazubands add 10 percentage points and Magus Bazubands +1 add 11. The percentage and gear stay visible while the section is open. The nested **Learning requirements** starts closed; open it for the conditions. This is the chance for an eligible attempt, not a guarantee that this monster will teach you a spell. You must be alive on main-job Blue Mage, meet the actual skill requirement, be within 100 yalms, and receive kill credit with your party or alliance. The monster must have used an unlearned move, and Call for Help prevents learning. There is at most one attempt per defeat. Blue Magic skill merits can help meet the skill requirement; they do not increase Learning chance directly. Manual merit choices do not change the actual skill shown in learning requirements.
@@ -203,6 +214,7 @@ Use commands for quick changes or to open a settings view. `/checkmate preset <n
 | `/checkmate overlayshow <part>` / `overlayhide <part>` | Enable or disable an overlay row. |
 | `/checkmate overlay on\|off` | Show or hide the target overlay. |
 | `/checkmate overlayescape on\|off` | Let Escape hide the overlay until your next manual `/check`. |
+| `/checkmate blueskill on\|off` | Show or hide the skill status beside each BLU spell in the overlay. |
 | `/checkmate label <part> <text>` | Change a row label. Use `""` for no label. |
 | `/checkmate newline <part> on\|off` | Set a row's chat line break. |
 | `/checkmate move <part> up\|down` | Change row order. |

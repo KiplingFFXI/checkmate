@@ -49,6 +49,7 @@ These are the main suite groups. run.py discovers every test_*.lua file, includi
   test_info.lua            source sections, level ranges, per-spawn overrides and learned BLU spells
   test_blue_learning.lua   unlearned filtering, minimum skill and readable learning inputs
   test_blue_controls.lua   Blue commands, saved profiles, display filtering and spellbook updates
+  test_blue_skill_overlay.lua per-spell overlay skill status, automatic refresh and hidden-row read limits
   test_blue_finder.lua     learnable spell lookup, spellbook caching, level gaps, filters and copied places
   test_blue_learning_rate.lua actual learning gear, level gates, unknown inputs and no requests
   test_blue_learning_ui.lua visible learning summary, folded requirements and separate row controls

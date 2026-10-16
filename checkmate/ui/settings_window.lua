@@ -1874,7 +1874,7 @@ function settings_window.draw_blue_tab(settings)
         'Shows the required Blue Magic skill and the job, skill, HP and distance read with the result. '
         .. 'Find them in hover help and Target details. Conditions are checked again on defeat.');
     checkbox('Show skill status in overlay', settings.blue, 'skill_status',
-        'Adds Skill met, Skill too low with your current and required skill, or Skill unknown beside each BLU spell. '
+        'Adds Skill met or Skill too low with your current and required skill, or Skill unknown beside each BLU spell. '
         .. 'Updates as your actual skill changes. Other learning conditions still apply.');
     checkbox('Show observed move use', settings.blue, 'seen',
         'Marks a move when checkmate sees this monster finish using it. Not observed means it may have happened out of view. '

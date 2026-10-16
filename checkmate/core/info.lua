@@ -162,8 +162,7 @@ function info.blue_skill_value(section)
     for index, spell in ipairs(observed.spells) do
         local status = 'Skill unknown';
         if (finite(skill) and skill >= 0 and finite(spell.min_skill) and spell.min_skill >= 0) then
-            status = skill >= spell.min_skill and 'Skill met'
-                or ('Skill too low: %d/%d'):format(skill, spell.min_skill);
+            status = ('%s: %d/%d'):format(skill >= spell.min_skill and 'Skill met' or 'Skill too low', skill, spell.min_skill);
         end
         local state = spell.state .. ', ' .. status;
         if (observed.seen) then state = state .. ', ' .. observed.move_states[index]; end

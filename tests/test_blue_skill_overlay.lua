@@ -58,7 +58,7 @@ expect('the command saves the overlay choice', MOCK.last_save.blue.skill_status,
 result = target.readout(s);
 local first = blue(result);
 expect('the base section keeps its existing value', first.value, plain_value);
-local expected = 'Foot Kick (known, Skill met), Helldive (not learned, Skill too low: 15/20), '
+local expected = 'Foot Kick (known, Skill met: 15/0), Helldive (not learned, Skill too low: 15/20), '
     .. 'Missing Requirement (not learned, Skill unknown)';
 expect('each displayed spell gets its own skill result', info.blue_skill_value(first), expected);
 check('the overlay displays the shortfall', has(text(result, true), 'Helldive (not learned, Skill too low: 15/20)'));
@@ -80,9 +80,16 @@ check('quiet skill polling stays limited to four reads a second', reads > before
 MOCK.player.skills[43] = 20;
 MOCK.now = MOCK.now + 0.3;
 result = target.readout(s);
-check('a skill-up refreshes a BLU-only overlay', has(text(result, true), 'Helldive (not learned, Skill met)'));
+check('a skill-up refreshes a BLU-only overlay', has(text(result, true), 'Helldive (not learned, Skill met: 20/20)'));
 check('the earlier reading keeps its own skill', has(info.blue_skill_value(first), 'Skill too low: 15/20'));
 expect('refreshing the overlay does not rewrite its base value', blue(result).value, plain_value);
+MOCK.player.skills[43] = 25;
+MOCK.now = MOCK.now + 0.3;
+result = target.readout(s);
+check('skill above the minimum keeps both values', has(text(result, true), 'Helldive (not learned, Skill met: 25/20)'));
+MOCK.player.skills[43] = 20;
+MOCK.now = MOCK.now + 0.3;
+target.readout(s);
 player.read, player.inputs_changed = read_player, changed_player;
 
 command('profile save SkillLabels');
@@ -96,7 +103,7 @@ MOCK.player.spell_data = false;
 MOCK.packet({ id = 0x0AA, size = 132, data = string.rep('\0', 132) });
 result = target.readout(s);
 check('an unknown spellbook keeps skill and spellbook status separate',
-    has(text(result, true), 'Helldive (spellbook unknown, Skill met)'));
+    has(text(result, true), 'Helldive (spellbook unknown, Skill met: 20/20)'));
 MOCK.player.spell_data = true;
 MOCK.packet({ id = 0x0AA, size = 132, data = string.rep('\0', 132) });
 command('blueunlearned off');
@@ -106,7 +113,7 @@ lessons.spell_seen = function () return true; end;
 command('blueseen on');
 result = target.readout(s);
 check('move observations appear after the skill label',
-    has(text(result, true), 'Helldive (not learned, Skill met, move seen)'));
+    has(text(result, true), 'Helldive (not learned, Skill met: 20/20, move seen)'));
 check('observed moves still leave chat free of skill labels', not has(text(result, false), 'Skill '));
 lessons.spell_seen = observed;
 command('blueseen off');
@@ -127,19 +134,19 @@ local skill_only = info.readout({ info = row.info }, 39, 39, { blue_options = {
     requirements = false, skill_status = true,
 } }, 1).sections[1];
 check('labels without requirement notes read only the current skill',
-    has(info.blue_skill_value(skill_only), 'Helldive (not learned, Skill met)'));
+    has(info.blue_skill_value(skill_only), 'Helldive (not learned, Skill met: 20/20)'));
 player.blue_learning = function () return {}; end;
 local partial = info.readout({ info = row.info }, 39, 39, { blue_options = {
     requirements = true, skill_status = true,
 } }, 1).sections[1];
 check('unreadable learning details do not hide readable skill',
-    has(info.blue_skill_value(partial), 'Helldive (not learned, Skill met)'));
+    has(info.blue_skill_value(partial), 'Helldive (not learned, Skill met: 20/20)'));
 player.blue_learning = learning;
 
 MOCK.player.skills[43] = 0;
 MOCK.now = MOCK.now + 0.3;
 result = target.readout(s);
-check('zero current skill meets a zero requirement', has(text(result, true), 'Foot Kick (known, Skill met)'));
+check('zero current skill meets a zero requirement', has(text(result, true), 'Foot Kick (known, Skill met: 0/0)'));
 check('zero current skill does not meet a higher requirement', has(text(result, true), 'Helldive (not learned, Skill too low: 0/20)'));
 MOCK.player.skills[43] = -1;
 MOCK.now = MOCK.now + 0.3;
@@ -148,7 +155,7 @@ check('an invalid client skill refreshes to unknown', has(text(result, true), 'H
 MOCK.player.skills[43] = 20;
 MOCK.now = MOCK.now + 0.3;
 result = target.readout(s);
-check('a readable client skill restores the answer', has(text(result, true), 'Helldive (not learned, Skill met)'));
+check('a readable client skill restores the answer', has(text(result, true), 'Helldive (not learned, Skill met: 20/20)'));
 
 command('blueskill off');
 result = target.readout(s);

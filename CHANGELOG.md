@@ -2,6 +2,10 @@
 
 Older entries describe that release. Later entries may change its behavior.
 
+## 1.14.9
+
+- BLU spells now show your current and required skill even when the overlay says Skill met, like Skill met: 25/20. Your current skill comes first; the minimum comes second.
+
 ## 1.14.8
 
 - Added Show skill status in overlay under Blue Magic. It is off by default.

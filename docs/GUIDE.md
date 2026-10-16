@@ -156,7 +156,7 @@ The Blue Magic row combines **Learnable spells** with an optional **Unresisted s
 
 Possible learnable spells come from the monster's supported source move list. Your client's spellbook supplies **known**, **not learned** or **spellbook unknown**. **Show only unlearned spells** hides confirmed known spells from the readout; unreadable entries stay visible. A resolved list with no learnable spells says so. Incomplete lists keep their known candidates and explain the gap.
 
-**Show skill status in overlay** adds **Skill met**, **Skill too low: 15/20** or **Skill unknown** beside each spell. It is off by default. To enable it through the menu:
+**Show skill status in overlay** adds **Skill met: 25/20**, **Skill too low: 15/20** or **Skill unknown** beside each spell. The first number is your current skill; the second is the minimum required. It is off by default. To enable it through the menu:
 
 1. Type `/checkmate` and open **Blue Magic**.
 2. Enable **Show Blue row** in the **Overlay** column.

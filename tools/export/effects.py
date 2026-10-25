@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 
 from . import aggro, lua_source, overlays, sqlfile, tables
+from . import tree as source_tree
 
 GEAR_MODS = {'requiem': 'requiem_effect', 'elegy': 'elegy_effect', 'threnody': 'threnody_effect',
              'lullaby': 'lullaby_effect', 'songs': 'all_songs_effect', 'shadowbind': 'shadow_bind_ext'}
@@ -375,16 +376,31 @@ def override_moves(tree, loaded):
     return found
 
 
+def move_script_exists(tree, path, paths):
+    if not Path(tree, path).is_file():
+        return False
+    recorded = paths.get(path.casefold())
+    if recorded is not None:
+        return recorded == path
+    parent = Path(tree)
+    for part in path.split('/'):
+        if not any(child.name == part for child in parent.iterdir()):
+            return False
+        parent /= part
+    return True
+
+
 def moves(tree, ids, overrides, pet=False, inferred=False):
     table = 'pet_skills' if pet else 'mob_skills'
     folder = 'scripts/actions/abilities/pets/' if pet else 'scripts/actions/mobskills/'
     id_key, name_key = ('pet_skill_id', 'pet_skill_name') if pet else ('mob_skill_id', 'mob_skill_name')
+    paths = source_tree.source_paths(tree)
     found = {}
     for entry in sql_rows(tree, table):
         path = folder + entry[name_key] + '.lua'
-        if not Path(tree, path).is_file():
+        if not move_script_exists(tree, path, paths):
             # Automaton scripts live below a subfolder and use the same packet pet-skill ID.
-            if pet and Path(tree, folder + 'automaton/' + entry[name_key] + '.lua').is_file():
+            if pet and move_script_exists(tree, folder + 'automaton/' + entry[name_key] + '.lua', paths):
                 path = folder + 'automaton/' + entry[name_key] + '.lua'
             else:
                 continue

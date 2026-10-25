@@ -255,4 +255,4 @@ def write(path, data, built, content):
     body = dict(data, built=built, content=content)
     Path(path).write_text('-- Direct equipped bonuses only. Stats and skills are already in client totals.\n'
                           '-- Conditional bonuses are named, never assumed active.\nreturn ' + lua(body) + ';\n',
-                          encoding='ascii')
+                          encoding='ascii', newline='\n')

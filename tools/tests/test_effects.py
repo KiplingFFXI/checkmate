@@ -1,4 +1,5 @@
 """Effects reader checks. Set CHECKMATE_EFFECTS_TREE for the pinned-source integration cases."""
+import json
 import os
 from pathlib import Path
 import sys
@@ -53,6 +54,30 @@ xi.combat.action.executeMobskillStatusEffect(pet, target, skill, effectTable)'''
         text = 'skill:setMsg(xi.mobskills.mobGazeMove(mob, target, xi.effect.SILENCE, 1, 0, 60))'
         self.assertEqual(effects.move_effects(text, {'SILENCE': 6, 'NONE': 0}, 'gaze.lua'),
                          {6: {'effect': 6, 'seconds': 60}})
+
+    def test_sql_move_names_need_the_exact_script_case(self):
+        for archived in (False, True):
+            with self.subTest(archived=archived), tempfile.TemporaryDirectory() as folder:
+                root = Path(folder)
+                script = root / 'scripts/actions/mobskills/Example.lua'
+                script.parent.mkdir(parents=True)
+                script.write_text('xi.mobskills.mobStatusEffectMove(mob, target, xi.effect.SLOW, 1, 0, 45)')
+                if archived:
+                    relative = script.relative_to(root).as_posix()
+                    (root / effects.source_tree.SOURCE_PATHS).write_text(json.dumps({relative.casefold(): relative}))
+                rows = [{'mob_skill_id': 1, 'mob_skill_name': 'example'},
+                        {'mob_skill_id': 2, 'mob_skill_name': 'Example'}]
+                is_file = Path.is_file
+
+                def insensitive_file(path):
+                    if path.parent == script.parent and path.name.casefold() == script.name.casefold():
+                        return True
+                    return is_file(path)
+
+                with mock.patch.object(effects, 'sql_rows', return_value=rows), \
+                     mock.patch.object(Path, 'is_file', insensitive_file):
+                    result = effects.moves(root, {'SLOW': 13, 'NONE': 0}, {})
+                self.assertEqual(result, {2: {'effect': 13, 'seconds': 45, '_name': 'Example'}})
 
     def test_pet_forwarding_uses_the_selected_era_callback(self):
         with tempfile.TemporaryDirectory() as folder:

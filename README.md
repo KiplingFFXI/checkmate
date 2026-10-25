@@ -28,7 +28,7 @@ Type `/checkmate` to open settings. Choose a starter preset under **Profiles**, 
 
 ## What it can show
 
-- Levels, aggro, family-grouped links, spawn conditions and monster facts.
+- Levels, aggro, family-grouped links, PH lottery rules, spawn conditions and monster facts.
 - Hit, evade and critical chances; normal-attack pDIF; shield block and parry estimates.
 - Magic chances, elemental and weapon weaknesses, immunities and Charm eligibility.
 - Dangers with supported move details, plus buffs and debuffs from spells, weapon skills, abilities, pets, items, added effects and spikes.
@@ -41,4 +41,4 @@ Passive displays send no requests. A manual `/check` can trigger a shared `/chec
 
 ## Source and license
 
-Data and calculations follow [Phoenix's source](https://github.com/phoenixffxi/Phoenix). checkmate uses [GNU GPL v3.0](LICENSE). Bundled weapon icons have separate [source and license notes](checkmate/assets/weapons/SOURCES.txt); other item and status pictures come from your client.
+Data and calculations follow [Phoenix's source](https://github.com/phoenixffxi/Phoenix). The bundled monster data comes from revision [`9a4494d505`](https://github.com/phoenixffxi/Phoenix/commit/9a4494d5056429d0e75922dc9fa47d419142cf68). checkmate uses [GNU GPL v3.0](LICENSE). Bundled weapon icons have separate [source and license notes](checkmate/assets/weapons/SOURCES.txt); other item and status pictures come from your client.

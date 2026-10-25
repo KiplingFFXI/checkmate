@@ -1,7 +1,7 @@
 --[[
     The spell that stands in for each magic school, and the tables the magic math needs.
 
-    Values match Phoenix server source at 071c401048 (phoenix/live). The element is the spell's
+    Values match Phoenix server source at 9a4494d505 (phoenix/live). The element is the spell's
     element in sql/spell_list.sql. The stat and the bonus magic accuracy come from the spell's
     helper table. The rank, immunity, resist trait, effect evasion and resist state come from the
     effect's row in scripts/data/status_effect_tables.lua.

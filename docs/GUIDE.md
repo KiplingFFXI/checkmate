@@ -100,9 +100,10 @@ Under **Display > Overlay options**, **Show overlay** lets you choose **Off**, *
 
 ## Understand estimates and refresh readings
 
-The bundled data comes from Phoenix's source code at a particular revision. It describes that source, not hidden fight state or a live server lookup. Later server changes can make it stale. `/checkmate info` shows the addon version, source revision and content settings. It checks the shared data files and current zone for missing or mixed revisions and content settings. It cannot verify the running server's deployed revision.
+The bundled monster data comes from Phoenix revision [`9a4494d505`](https://github.com/phoenixffxi/Phoenix/commit/9a4494d5056429d0e75922dc9fa47d419142cf68). It describes that source, not hidden fight state or a live server lookup. Later server changes can make it stale. `/checkmate info` shows the addon version, source revision and content settings. It checks the shared data files and current zone for missing or mixed revisions and content settings. It cannot verify the running server's deployed revision.
 
 - **Exact level, range or unknown:** a `/check` or widescan can supply a level. Otherwise a source range may be available. A monster's level is forgotten when its observed identity dies, leaves sight or the zone changes.
+- **Monsters without an entry:** combat estimates use typical ranges for that level from the bundled Phoenix data. These are fallback ranges, not known stats for that individual monster.
 - **Ranges and `~`:** a range reflects missing or varying inputs. `~` can mark a midpoint or an estimate affected by a known uncertainty. Hover the number for its reason.
 - **The `?` on Weaknesses:** those stored values can change during the fight. You can hide the Elements marker without removing its explanation from hover help.
 - **Unknown:** the source or client does not establish the answer. It does not mean no, safe, immune or unavailable.
@@ -138,7 +139,9 @@ These are chances when the attack reaches an eligible block or parry roll. Both 
 
 Weapon percentages describe the target's damage-type multiplier, not your final damage. General melee and ranged damage changes, absorption and nullification have separate entries. Attack, defense, shields and other effects still matter. Magical, hybrid and formless attacks can follow different rules.
 
-Spawn notes include supported time, weather and ferry deck conditions. PH details show the supported lottery chance, conditions and cooldown after the NM despawns. Some scripted lotteries also use server chance and cooldown settings. These notes do not establish an open spawn window or a live countdown.
+Spawn notes include supported time, weather and ferry deck conditions. PH details show the supported lottery chance, conditions and cooldown. For native lottery slots, a kill permits the next roll once the slot is empty and eligible. The NM's cooldown starts after its defeat; a natural despawn alone does not open another roll.
+
+A native slot can share several PHs or NMs. Any listed PH can roll any eligible NM in that slot, with only one member up at a time. Time, weather and other spawn checks still apply. Scripted lotteries can have their own cooldown and server-setting rules. These notes do not show an open spawn window or a live countdown.
 
 Drops retain script and EXP conditions. Steal also depends on an item being available and your ability to receive it.
 
@@ -183,7 +186,7 @@ The finder uses enabled content and supported spawn or encounter routes in the b
 
 Effects tracks buffs and debuffs from spells, weapon skills, job abilities, pet moves, items, weapon and ammunition added effects, and spikes. This includes nearby players and their avatars, jug pets, automatons and charmed monsters. It reads applications and removals reported to your client, including DRK Absorb spells, and estimates supported effects that the action does not report separately.
 
-Timers use Phoenix's duration for that action. A resist, missing input or early removal can change the estimate. An effect with no supported duration shows without a countdown and clears after three minutes, or sooner if a removal is reported.
+Timers use Phoenix's duration for that action, including pet and gaze moves. Pet and monster versions of the same move can have different durations. A resist, missing input or early removal can change the estimate. An effect with no supported duration shows without a countdown and clears after three minutes, or sooner if a removal is reported.
 
 Tracking works entirely in the addon. Hover shows whether the game confirmed the effect or checkmate estimated it from an action, including any required merits, buffs or attachments. Effect names have no question marks. An estimated effect may not be active; it does not change combat calculations or replace a confirmed effect. Break timers use Phoenix's duration at 1,000 TP, before resists; the TP actually used is unknown.
 

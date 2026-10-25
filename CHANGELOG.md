@@ -4,16 +4,12 @@ Older entries describe that release. Later entries may change its behavior.
 
 ## 1.14.10
 
-Monster data rebuilt from phoenix/live 9a4494d505 (2026-10-18).
-
-- Birdtrap in Carpenters Landing changed its PH lottery rules.
-- Orctrap in Carpenters Landing changed its info.
-- Eft in Bibiki Bay changed its PH lottery rules.
-- Hobgoblin Alastor in Bibiki Bay changed its levels.
-- 624 more monsters changed too.
-- The level bands for monsters with no data changed.
-- The effect durations, removal rules, gear or merits changed.
-- The Blue Magic source catalogue changed.
+- Refreshed Phoenix monster data to `9a4494d505`.
+- Updated NM lottery chances, shared placeholders, cooldowns and spawn conditions. Native lottery notes now distinguish defeats from natural despawns.
+- Updated monster skill values used by Shield estimates and the fallback combat ranges for monsters without an entry.
+- Updated Dangers move and spell lists, added missing gaze effects, and corrected pet-move timers to Phoenix's durations.
+- Refreshed BLU spell finder locations and their spawn notes.
+- Restored weekly data updates and fixed differences between Windows and Linux data builds.
 
 ## 1.14.9
 

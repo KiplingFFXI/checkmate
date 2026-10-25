@@ -47,6 +47,7 @@ checks keep native defeat-based cooldowns separate from the remaining Lua helper
 test_exists_sql.py keeps skill-list IDs separate from move IDs when checking SQL for spawning moves.
 test_outside.py checks player-only job changes without allowing unreadable monster job changes.
 The critical-move tests also check native module load order against reversed file enumeration.
+Archive checks cover exact path casing, added files and conflicting filenames.
 See ../tools/README.txt for the source-backed run and fresh-extraction comparison.
 
 

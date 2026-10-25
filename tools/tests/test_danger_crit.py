@@ -1,4 +1,5 @@
 """Critical capability follows the effective helper gate, not physical damage alone."""
+import json
 import os
 from pathlib import Path
 import sys
@@ -7,7 +8,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from export import aggro, danger_crit, danger_effects
+from export import aggro, danger_crit, danger_effects, tree as source_tree
 
 
 def callback(body, helper='mobPhysicalMove', parameter='params'):
@@ -233,6 +234,40 @@ class LuaModuleOrderTests(unittest.TestCase):
         self.assertNotEqual(danger_crit.module_digest(self.tree, list(reversed(loaded))), fingerprint)
         self.write('modules/bundle/z.lua', (self.tree / 'modules/bundle/z.lua').read_text().replace('canCrit=false', 'canCrit=true'))
         self.assertNotEqual(danger_crit.module_digest(self.tree, loaded), fingerprint)
+
+    def write_manifest(self, paths):
+        self.write(source_tree.SOURCE_PATHS, json.dumps({rel.casefold(): rel for rel in paths}))
+
+    def test_manifest_restores_archive_case_without_hiding_added_files(self):
+        self.write('modules/init.txt', 'bundle\n')
+        self.write('modules/bundle/Quests/upper.lua')
+        self.write('modules/bundle/Quests/lower.lua')
+        self.write_manifest(['modules/bundle/Quests/upper.lua', 'modules/bundle/quests/lower.lua'])
+        self.assertEqual(aggro.lua_files_loaded(self.tree), [
+            'modules/bundle/Quests/upper.lua', 'modules/bundle/quests/lower.lua',
+        ])
+        self.write('modules/bundle/Quests/new.lua')
+        self.assertEqual(aggro.lua_files_loaded(self.tree), [
+            'modules/bundle/Quests/new.lua', 'modules/bundle/Quests/upper.lua',
+            'modules/bundle/quests/lower.lua',
+        ])
+
+    def test_manifest_keeps_explicit_directory_and_file_case(self):
+        self.write('modules/init.txt', 'bundle/Quests\nbundle/quests\n'
+                   'bundle/Quests/lower.lua\nbundle/quests/lower.lua\n')
+        self.write('modules/bundle/Quests/upper.lua')
+        self.write('modules/bundle/Quests/lower.lua')
+        self.write_manifest(['modules/bundle/Quests/upper.lua', 'modules/bundle/quests/lower.lua'])
+        original_dir, original_file, original_glob = Path.is_dir, Path.is_file, Path.rglob
+        def coalesced(path):
+            return Path(path.as_posix().replace('/bundle/quests', '/bundle/Quests'))
+        with patch.object(Path, 'is_dir', lambda path: original_dir(coalesced(path))), \
+                patch.object(Path, 'is_file', lambda path: original_file(coalesced(path))), \
+                patch.object(Path, 'rglob', lambda path, pattern: original_glob(coalesced(path), pattern)):
+            self.assertEqual(aggro.lua_files_loaded(self.tree), [
+                'modules/bundle/quests/lower.lua', 'modules/bundle/Quests/upper.lua',
+                'modules/bundle/quests/lower.lua',
+            ])
 
 
 class EffectiveSourceTests(unittest.TestCase):

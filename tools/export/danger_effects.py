@@ -347,7 +347,7 @@ def analyze(text, ids, script_name='', hostile=True):
 
 
 # Every source file in this census is watched, including helper and loaded-module changes.
-SOURCE_GUARD = '96a85f27345e853ed822fb510091b1df5777e9e2b11b56a43429fcde78730357'
+SOURCE_GUARD = '540647b51e502f11399bfc2e23583b0431a0b676de50c8ce4cc469f6179f5088'
 SOURCE_FOLDERS = ('scripts/actions/mobskills', 'scripts/actions/spells', 'scripts/actions/weaponskills',
                   'scripts/globals/spells', 'scripts/combat')
 SOURCE_FILES = ('scripts/globals/mobskills.lua', 'scripts/globals/bluemagic.lua', 'scripts/globals/weaponskills.lua',
@@ -378,7 +378,8 @@ def source_digest(tree, loaded=None):
 def check_source(tree, loaded=None):
     actual, count = source_digest(tree, loaded)
     if actual != SOURCE_GUARD:
-        raise RuntimeError('Danger effect sources changed; review the complete harmful-effect census before exporting.')
+        raise RuntimeError('Danger effect sources changed; review the complete harmful-effect census before exporting. '
+                           'Expected %s, found %s across %d files.' % (SOURCE_GUARD, actual, count))
     return count
 
 

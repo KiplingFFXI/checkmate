@@ -33,6 +33,9 @@ with git archive, reads that copy, and deletes it at the end. Nothing is reused 
 Lua modules follow Phoenix's load order: direct file entries first, then each directory's recursive paths
 in case-sensitive component order. Repeated entries still load more than once. The native loader and its
 sorting helper are guarded, so Windows and Linux read the same override chains.
+The extracted tree also keeps each file's exact Git path. This keeps Quests and quests distinct when
+reading modules on Windows. File paths that Windows would overwrite because only their case differs stop
+the extraction instead.
 
 The other scripts here show what changed between two builds of the data and get a new version ready to release.
 A weekly job on GitHub runs them for you and opens a pull request when Phoenix changed a monster.

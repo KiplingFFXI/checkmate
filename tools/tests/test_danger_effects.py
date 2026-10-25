@@ -212,7 +212,7 @@ end''')
 
     def test_guard_rejects_changed_census(self):
         with patch.object(dangers, 'source_digest', return_value=('changed', 1)):
-            with self.assertRaisesRegex(RuntimeError, 'complete harmful-effect census'):
+            with self.assertRaisesRegex(RuntimeError, 'Expected ' + dangers.SOURCE_GUARD + ', found changed across 1 files'):
                 dangers.check_source(self.tree, [])
 
 

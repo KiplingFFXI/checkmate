@@ -10,11 +10,11 @@ The flags come from the species chain, the template and the spawn, then the top-
 battlefield group mob mods and onMobSpawn, in that order. A few mixins change them while the monster lives. Those
 become a note on the row. Every other change that doesn't always run marks the row scripted_aggro.
 """
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import os
 import re
 
-from . import overlays
+from . import overlays, tree as source_tree
 from . import tables as tables_module
 from .lua_source import block
 
@@ -234,13 +234,29 @@ def lua_files_loaded(tree):
     """Module Lua paths in the order LoadLuaModules loads them."""
     tree = Path(tree)
     entries = [tree / 'modules' / entry for entry in overlays.init_entries(str(tree))]
-    expanded = list(entries)
+    paths = source_tree.source_paths(tree)
+    def relative(path):
+        rel = path.relative_to(tree).as_posix()
+        return paths.get(rel.casefold(), rel)
+    expanded = [relative(entry) for entry in entries
+                if entry.is_file() and relative(entry) == entry.relative_to(tree).as_posix()]
     # Direct files load first. Each directory then adds its sorted recursive paths.
     for entry in entries:
         if entry.is_dir():
-            expanded.extend(sorted(entry.rglob('*'), key=lambda path: path.parts))
-    return [path.relative_to(tree).as_posix() for path in expanded
-            if path.is_file() and path.suffix == '.lua' and path.name != 'module_utils.lua']
+            prefix = entry.relative_to(tree).as_posix() + '/'
+            observed, found = {}, []
+            for path in entry.rglob('*'):
+                if path.is_file():
+                    rel = path.relative_to(tree).as_posix()
+                    key = rel.casefold()
+                    if key in observed and observed[key] != rel:
+                        raise RuntimeError('Source files differ only by case: %s and %s' % (observed[key], rel))
+                    observed[key] = rel
+                    canonical = relative(path)
+                    if canonical.startswith(prefix):
+                        found.append(canonical)
+            expanded.extend(sorted(found, key=lambda rel: PurePosixPath(rel).parts))
+    return [rel for rel in expanded if PurePosixPath(rel).suffix == '.lua' and PurePosixPath(rel).name != 'module_utils.lua']
 
 
 def exp_rows(text, where):

@@ -9,7 +9,7 @@ PHYSICAL = 'scripts/combat/physical_utilities.lua'
 ERA = 'modules/era/lua/combat/pdif_caps.lua'
 LEVEL = 'scripts/data/level_correction.lua'
 NATIVE = 'src/map/entities/battle_entity.cpp'
-SOURCE_GUARD = 'a18b055db810fb4eaa271f052146996a247a663466b3255a1f6fc63d94aadb82'
+SOURCE_GUARD = '6f67f63a8e4291da49e6f8b8b571349248610847694e47ee9165a5b865567c24'
 
 
 def source_digest(tree):

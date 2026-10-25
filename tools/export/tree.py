@@ -3,11 +3,15 @@ Copies the Phoenix source at one commit into a fresh temporary folder.
 
 The exporter only reads that copy. It never checks anything out or writes inside the Phoenix repo.
 """
+from functools import lru_cache
+import json
 import shutil
 from pathlib import Path
 import subprocess
 import tarfile
 import tempfile
+
+SOURCE_PATHS = '.checkmate-source-paths.json'
 
 # The parts of the Phoenix source the exporter reads.
 TREE_PATHS = [
@@ -92,6 +96,21 @@ def resolve(repo, ref):
     return full, short
 
 
+@lru_cache(maxsize=4)
+def _read_source_paths(path, mtime_ns, size):
+    return json.loads(path.read_text(encoding='utf8'))
+
+
+def source_paths(folder):
+    """Archive file spellings, kept when Windows merges differently cased directories."""
+    path = Path(folder) / SOURCE_PATHS
+    try:
+        stamp = path.stat()
+    except FileNotFoundError:
+        return {}
+    return _read_source_paths(path, stamp.st_mtime_ns, stamp.st_size)
+
+
 def extract(repo, commit):
     """Unpacks the commit into a new temp folder and returns its path."""
     folder = tempfile.mkdtemp(prefix='checkmate_tree_')
@@ -99,12 +118,20 @@ def extract(repo, commit):
     try:
         proc = subprocess.Popen(['git', '-C', repo, 'archive', '--format=tar', commit] + TREE_PATHS,
                                 stdout=subprocess.PIPE)
+        paths = {}
         with tarfile.open(fileobj=proc.stdout, mode='r|') as archive:
-            archive.extractall(folder, filter='data')
+            for member in archive:
+                if member.isfile() or member.issym() or member.islnk():
+                    key = member.name.casefold()
+                    if key in paths and paths[key] != member.name:
+                        raise RuntimeError('Source files differ only by case: %s and %s' % (paths[key], member.name))
+                    paths[key] = member.name
+                archive.extract(member, folder, filter='data')
         # Drain git's padding so it can finish writing before wait().
         proc.stdout.read()
         if proc.wait() != 0:
             raise RuntimeError('git archive failed for %s' % commit)
+        (Path(folder) / SOURCE_PATHS).write_text(json.dumps(paths, sort_keys=True), encoding='utf8')
         return folder
     except BaseException:
         if proc is not None and proc.poll() is None:

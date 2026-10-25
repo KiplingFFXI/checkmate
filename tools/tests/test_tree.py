@@ -1,5 +1,7 @@
 """A failed source extraction must stop git and remove only its own temporary copy."""
 import io
+import json
+import os
 from pathlib import Path
 import sys
 import tarfile
@@ -34,23 +36,52 @@ class TreeTests(unittest.TestCase):
                 raise
         return result, process
 
-    def archive(self):
+    def archive(self, files=None):
         output = io.BytesIO()
         with tarfile.open(fileobj=output, mode='w') as archive:
-            entry = tarfile.TarInfo('source.txt')
-            entry.size = 4
-            archive.addfile(entry, io.BytesIO(b'test'))
+            for name, data in (files or {'source.txt': b'test'}).items():
+                entry = tarfile.TarInfo(name)
+                entry.size = len(data)
+                archive.addfile(entry, io.BytesIO(data))
         return output.getvalue()
 
     def test_success_is_readable_and_explicit_cleanup_is_scoped(self):
         folder, process = self.run_extract(self.archive())
         try:
             self.assertEqual((Path(folder) / 'source.txt').read_bytes(), b'test')
+            self.assertEqual(tree.source_paths(folder), {'source.txt': 'source.txt'})
             process.kill.assert_not_called()
             self.assertTrue(process.stdout.closed)
         finally:
             tree.remove(folder)
         self.assertFalse(Path(folder).exists())
+
+    def test_archive_keeps_distinct_directory_case_in_the_manifest(self):
+        paths = {'modules/Quests/upper.lua': b'upper', 'modules/quests/lower.lua': b'lower'}
+        folder, _ = self.run_extract(self.archive(paths))
+        try:
+            self.assertEqual(tree.source_paths(folder), {rel.casefold(): rel for rel in paths})
+            for rel, expected in paths.items():
+                self.assertEqual((Path(folder) / rel).read_bytes(), expected)
+        finally:
+            tree.remove(folder)
+
+    def test_case_colliding_files_stop_extraction_and_remove_the_copy(self):
+        paths = {'modules/Example.lua': b'first', 'modules/example.lua': b'second'}
+        with self.assertRaisesRegex(RuntimeError, 'Source files differ only by case'):
+            self.run_extract(self.archive(paths))
+
+    def test_source_path_cache_refreshes_changed_manifests(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / tree.SOURCE_PATHS
+            first = {'modules/upper.lua': 'modules/Upper.lua'}
+            path.write_text(json.dumps(first), encoding='utf8')
+            self.assertEqual(tree.source_paths(folder), first)
+            old_stamp = path.stat()
+            second = {'modules/lower.lua': 'modules/lower.lua'}
+            path.write_text(json.dumps(second), encoding='utf8')
+            os.utime(path, ns=(old_stamp.st_atime_ns, old_stamp.st_mtime_ns + 1_000_000_000))
+            self.assertEqual(tree.source_paths(folder), second)
 
     def test_bad_archive_cleans_up_and_stops_the_writer(self):
         with self.assertRaises(tarfile.ReadError):

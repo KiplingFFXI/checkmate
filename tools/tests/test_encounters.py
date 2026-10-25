@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from export import aggro, content, encounters, lua_source, mobscripts, overlays
+from export import aggro, content, encounters, lua_source, mobscripts, overlays, tree as source_tree
 
 
 def kind(zone='Test', mob='Fixture', **values):
@@ -379,6 +379,30 @@ class EncounterSourceTests(unittest.TestCase):
         cls.reader = encounters.Reader(cls.tree, None, mobscripts.ScriptIndex(cls.tree, {}, {}),
                                       overlays.data_roots(cls.tree), content.Content(True, ['rotz', 'cop', 'toau']))
 
+    def data_kind(self, zone, mob, data_zone, **values):
+        rel = 'data/zones/%s/mobs.yaml' % data_zone
+        paths = source_tree.source_paths(self.tree)
+        if paths:
+            self.assertEqual(paths.get(rel.casefold()), rel, 'The fixture must use the archive path exactly.')
+        else:
+            path = Path(self.tree)
+            for part in rel.split('/'):
+                self.assertIn(part, {entry.name for entry in path.iterdir()},
+                              'The fixture must use the source path exactly.')
+                path /= part
+        self.assertTrue((Path(self.tree) / rel).is_file())
+        return kind(zone, mob, data_zone=data_zone, **values)
+
+    def test_real_data_fixtures_reject_wrong_case_even_on_windows(self):
+        for paths in (source_tree.source_paths(self.tree), {}):
+            with patch.object(source_tree, 'source_paths', return_value=paths):
+                for zone, mob in [('Konschtat_Highlands', 'Forger'), ('Aydeewa_Subterrane', 'Great_Ameretat'),
+                                  ('Arrapago_Reef', 'Bloody_Bones')]:
+                    with self.subTest(mob=mob, manifest=bool(paths)):
+                        self.data_kind(zone, mob, data_zone=zone.lower())
+                        with self.assertRaises(AssertionError):
+                            self.data_kind(zone, mob, data_zone=zone)
+
     def test_actual_claimshield_list_and_trade_pop(self):
         self.assertEqual(len(self.reader.claims), 312)
         self.assertNotIn(('Beaucedine_Glacier', 'Nue'), self.reader.claims)
@@ -431,10 +455,10 @@ class EncounterSourceTests(unittest.TestCase):
         self.assertEqual(self.reader.skill_lists[739], {3866, 3867})
 
     def test_real_scripted_mobs_keep_their_possible_blue_lessons(self):
-        for zone, mob, expected in [('Aydeewa_Subterrane', 'Great_Ameretat', 'Bad Breath'),
-                                    ('Arrapago_Reef', 'Bloody_Bones', 'Blood Saber')]:
+        for zone, data_zone, mob, expected in [('Aydeewa_Subterrane', 'aydeewa_subterrane', 'Great_Ameretat', 'Bad Breath'),
+                                               ('Arrapago_Reef', 'arrapago_reef', 'Bloody_Bones', 'Blood Saber')]:
             with self.subTest(mob=mob):
-                fixture = kind(zone, mob, data_zone=zone, levels=[75])
+                fixture = self.data_kind(zone, mob, data_zone=data_zone, levels=[75])
                 info, _ = self.reader.read(fixture)
                 self.assertEqual(info['blue']['value'], expected)
                 self.assertEqual([spell['name'] for spell in info['blue']['spells']], [expected])
@@ -484,7 +508,8 @@ class EncounterSourceTests(unittest.TestCase):
                     encounters.check_source(self.tree, self.reader.loaded)
 
     def test_forger_replaces_bomb_pool_and_cannot_offer_self_destruct(self):
-        info, _ = self.reader.read(kind('Konschtat_Highlands', 'Forger', data_zone='Konschtat_Highlands'))
+        fixture = self.data_kind('Konschtat_Highlands', 'Forger', data_zone='konschtat_highlands')
+        info, _ = self.reader.read(fixture)
         self.assertEqual(info['blue']['value'], 'No learnable BLU spells')
         self.assertNotIn('spells', info['blue'])
         self.assertEqual(info['dangers']['value'], 'No listed threats')

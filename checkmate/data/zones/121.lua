@@ -1,5 +1,5 @@
 -- The Sanctuary of ZiTah (zone 121).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -277,7 +277,7 @@ danger[270] = { danger[56], danger[106], danger[263], danger[264], danger[137], 
 danger[271] = { 'Bomb Toss: fire damage. Fire damage that ignores shadows. This entry is the thrown bomb, not the separate suicide move. Source targeting: area around the target.', 'These are possible moves from the source. They do not predict the next move.', 'Effects can miss, be resisted or be blocked by immunity. Range, targets, TP, recasts and skill checks still apply.', 'A move choice in the script could not be read.' };
 danger[272] = { value = 'Bomb Toss: fire damage', notes = danger[271], entries = danger[57], coverage = 'partial', incomplete = true, reasons = { 'A move choice in the script could not be read.' }, general_notes = danger[18] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -1017,7 +1017,7 @@ return {
             ph_for = { [145] = { 146 } },
             ph_rules = {
                 [145] = {
-                    [146] = { chance = 10, cooldown_min = 7200, cooldown_max = 7200, conditions = { 'A successful roll uses the PH respawn delay.' } },
+                    [146] = { chance = 15, cooldown_min = 7200, cooldown_max = 7200, conditions = { 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.' } },
                 },
             },
             ranks  = { fire = -2, dark = -2, dark_sleep = -2, blind = -2 },
@@ -1216,7 +1216,7 @@ return {
                 crystal = { value = 'Water crystal (conditional)', notes = { 'Source crystal element: Water.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.' } },
                 traits = { value = 'Double Attack 10', notes = { 'Base attack delay 320 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
-                spawn = { value = 'Lottery', notes = { 'Lottery spawn; see a listed placeholder for its chance and cooldown rules.', 'Source rules only; no remaining time or open spawn window is known.' } },
+                spawn = { value = 'Lottery', notes = { 'Native slot chance: 15% on an eligible reroll.', 'The member cooldown is 7200 seconds after its defeat; it does not reveal the current spawn window.', 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.', 'The NM\'s actual respawn is controlled by its script or spawn rules; the base delay is not a live window.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 claim = { value = 'Claimshield 5 seconds', notes = { 'This Phoenix list entry is unclaimable and unkillable for 5 seconds after spawning. Call for Help is blocked during the shield.', 'When the shield ends, Phoenix selects claim from eligible entries on its enmity list. Remaining shield time and the winner are not known.' } },
                 dangers = danger[130],
                 blue = { value = 'Uppercut', notes = { 'Possible spells from moves this monster can use. It must actually use the move before defeat; learning is not guaranteed.' }, spells = { { id = 594, name = 'Uppercut', level = 38, min_skill = 86, skill_ids = { 584 } } }, requirements = { 'You need Blue Mage as your main job and enough current Blue Magic skill. When the monster dies, you must be alive and within 100 yalms in the same zone. You cannot learn a spell you already know, or learn from a Call for Help kill.', 'Equipment skill bonuses count. The spell\'s casting level is not a minimum learning level.', 'You or your party or alliance must get credit for the kill. Only one spell that meets the requirements gets a learning roll each time the monster dies.' }, incomplete = false },

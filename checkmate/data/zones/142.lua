@@ -1,5 +1,5 @@
 -- Yughott Grotto (zone 142).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -48,7 +48,7 @@ danger[41] = { 'Base casting range: 20 yalms. Normal selection adds both hitboxe
 danger[42] = { notes = danger[41], unknown = {  }, activation_range = 20.0, shape = 'single target', shadows = { { mode = 'absorb', count = 1, per_hit = false } }, removals = danger[9] };
 danger[43] = { kind = 'spell', id = 258, name = 'Bind', summary = 'Bind: bind', notes = { 'Possible effects: Bind.' }, categories = { 'debuff' }, effects = { 'Bind' }, details = danger[42], level_ranges = { { 7, 255 } } };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -97,7 +97,7 @@ return {
             ph_for = { [80] = { 84 } },
             ph_rules = {
                 [80] = {
-                    [84] = { chance = 5, cooldown_min = 3600, cooldown_max = 3600, conditions = { 'A successful roll uses the PH respawn delay.' } },
+                    [84] = { chance = 15, cooldown_min = 3600, cooldown_max = 3600, conditions = { 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.' } },
                 },
             },
             ranks  = { wind = -2, earth = -2, thunder = -2, water = -3, light = -2, dark = -2, silence = -2,
@@ -148,7 +148,7 @@ return {
             ph_for = { [81] = { 84 } },
             ph_rules = {
                 [81] = {
-                    [84] = { chance = 5, cooldown_min = 3600, cooldown_max = 3600, conditions = { 'A successful roll uses the PH respawn delay.' } },
+                    [84] = { chance = 15, cooldown_min = 3600, cooldown_max = 3600, conditions = { 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.' } },
                 },
             },
             ranks  = { wind = -2, earth = -2, thunder = -2, water = -3, light = -2, dark = -2, silence = -2,
@@ -364,7 +364,7 @@ return {
                 crystal = { value = 'Fire crystal (conditional)', notes = { 'Source crystal element: Fire.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Drops gil; Mug purse set at spawn', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.', 'Gil can drop when the kill meets the reward rules and Call for Help was not used. Server settings can stop it from dropping. Party size and player bonuses affect the amount.', 'The source gil multiplier is 100% before party distribution.', 'Mug uses the unknown remaining purse; your modifiers can change the payout. This is not a guaranteed amount.' } },
                 traits = { value = 'Base delay 240', notes = { 'Base attack delay 240 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
-                spawn = { value = 'Lottery', notes = { 'Lottery spawn; see a listed placeholder for its chance and cooldown rules.', 'Source rules only; no remaining time or open spawn window is known.' } },
+                spawn = { value = 'Lottery', notes = { 'Native slot chance: 15% on an eligible reroll.', 'The member cooldown is 3600 seconds after its defeat; it does not reveal the current spawn window.', 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.', 'The NM\'s actual respawn is controlled by its script or spawn rules; the base delay is not a live window.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 claim = { value = 'Claimshield 5 seconds', notes = { 'This Phoenix list entry is unclaimable and unkillable for 5 seconds after spawning. Call for Help is blocked during the shield.', 'When the shield ends, Phoenix selects claim from eligible entries on its enmity list. Remaining shield time and the winner are not known.' } },
                 dangers = { value = 'Aerial Wheel: Stun; Slam Dunk: Bind; Battle Dance: DEX down; Poison: Poison; Rasp: Rasp; Shock: Shock; Drain: HP drain; Blind: Blindness; Bind: bind', notes = { 'Aerial Wheel: Stun. Random effects may not all happen on the same use. Source targeting: single target.', 'Slam Dunk: Bind. Random effects may not all happen on the same use. Source targeting: single target.', 'Battle Dance: DEX down. Source targeting: area around the monster.', 'Poison: Poison.', 'Rasp: Rasp.', 'Shock: Shock.', 'Drain: HP drain.', 'Blind: Blindness.', 'Bind: bind. Possible effects: Bind.', 'These are possible moves from the source. They do not predict the next move.', 'Effects can miss, be resisted or be blocked by immunity. Range, targets, TP, recasts and skill checks still apply.', 'Listed spells can depend on the monster\'s level; explicit scripted casts have separate conditions.', 'A move choice in the script could not be read.' }, entries = { danger[6], danger[11], danger[16], { kind = 'spell', id = 220, name = 'Poison', summary = 'Poison: Poison', notes = {  }, categories = { 'debuff' }, effects = { 'Poison' }, details = danger[21], level_ranges = { { 3, 17 } } }, danger[31], danger[36], danger[37], danger[40], danger[43] }, coverage = 'partial', incomplete = true, reasons = { 'A move choice in the script could not be read.' }, general_notes = danger[24] },
                 blue = { value = 'Battle Dance', notes = { 'Possible spells from moves this monster can use. It must actually use the move before defeat; learning is not guaranteed.', 'Other spells may be missing because some move choices could not be read.', 'A move choice in the script could not be read.' }, spells = { { id = 620, name = 'Battle Dance', level = 12, min_skill = 8, skill_ids = { 609 } } }, requirements = { 'You need Blue Mage as your main job and enough current Blue Magic skill. When the monster dies, you must be alive and within 100 yalms in the same zone. You cannot learn a spell you already know, or learn from a Call for Help kill.', 'Equipment skill bonuses count. The spell\'s casting level is not a minimum learning level.', 'You or your party or alliance must get credit for the kill. Only one spell that meets the requirements gets a learning roll each time the monster dies.' }, incomplete = true },

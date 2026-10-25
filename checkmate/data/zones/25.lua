@@ -1,5 +1,5 @@
 -- Misareaux Coast (zone 25).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -260,7 +260,7 @@ danger[253] = { 'These are possible moves from the source. They do not predict t
 danger[254] = { 'Scripts disable ordinary TP moves; only explicit scripted moves are listed.' };
 danger[255] = { value = 'Move list unresolved', notes = danger[253], entries = {  }, coverage = 'unresolved', incomplete = true, reasons = danger[254], general_notes = danger[12] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -1614,19 +1614,19 @@ return {
         {
             name   = 'Gigas Catapulter',
             ids    = { 112, 125, 138, 155, 168, 220 },
-            job    = 'rng/war',
+            job    = 'rng/rng',
             levels = {
-                [41] = { acc = 172, eva = 142, agi = 50, int = 33, mnd = 40, chr = 42, dex = 49, def = 160,
+                [41] = { acc = 171, eva = 130, agi = 52, int = 34, mnd = 42, chr = 42, dex = 47, def = 150,
                          attack_skill = 121 },
-                [42] = { acc = 175, eva = 144, agi = 50, int = 33, mnd = 40, chr = 42, dex = 49, def = 162,
+                [42] = { acc = 174, eva = 132, agi = 52, int = 34, mnd = 42, chr = 42, dex = 47, def = 152,
                          attack_skill = 123 },
-                [43] = { acc = 178, eva = 147, agi = 51, int = 33, mnd = 40, chr = 42, dex = 49, def = 165,
+                [43] = { acc = 177, eva = 136, agi = 54, int = 34, mnd = 42, chr = 42, dex = 47, def = 155,
                          attack_skill = 126 },
-                [44] = { acc = 182, eva = 150, agi = 51, int = 33, mnd = 42, chr = 43, dex = 51, def = 169,
+                [44] = { acc = 182, eva = 138, agi = 54, int = 34, mnd = 45, chr = 43, dex = 50, def = 159,
                          attack_skill = 129 },
             },
             ranks  = { earth = -2, thunder = 4, slow = -2, stun = 4 },
-            resist = { poison = 15, virus = 15 },
+            resist = { poison = 15 },
             drops  = {
                 { rate = 150, item = 497 },  -- gigas socks
                 { rate = 100, item = 12290 },  -- maple shield
@@ -1639,12 +1639,12 @@ return {
             info = {
                 family = { value = 'Gigas / Beastmen', notes = { 'Source species: Gigas (ID 121); family ID 57.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Not charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
-                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [41] = 1585, [42] = 1664, [43] = 1743, [44] = 1822 }, mp = { [41] = 0, [42] = 0, [43] = 0, [44] = 0 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
+                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [41] = 1537, [42] = 1614, [43] = 1691, [44] = 1769 }, mp = { [41] = 0, [42] = 0, [43] = 0, [44] = 0 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
                 movement = { value = 'Base speed 40', notes = { 'Source base speed is 40; the ordinary monster default is 40. Animation speed is 40.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'Ice crystal (conditional)', notes = { 'Source crystal element: Ice.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Drops gil; Mug purse set at spawn', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Seals need a supported zone, a kill that awards EXP, and drops to be enabled. The party reward cooldown must also be over.', 'With Abyssea disabled, levels below 50 can give Beastmen\'s Seals; level 50+ can also give Kindred\'s Seals.', 'Gil can drop when the kill meets the reward rules and Call for Help was not used. Server settings can stop it from dropping. Party size and player bonuses affect the amount.', 'The source gil multiplier is 180% before party distribution.', 'Mug uses the unknown remaining purse; your modifiers can change the payout. This is not a guaranteed amount.' } },
-                traits = { value = 'Double Attack 10', notes = { 'Base attack delay 240 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
+                traits = { value = 'Base delay 240', notes = { 'Base attack delay 240 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
                 spawn = { value = 'Respawn 5 minutes', notes = { 'Base respawn delay: 5 minutes after despawn. Spawn waves can shift this time; other conditions can delay the next appearance.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 dangers = danger[226],
                 blue = { value = 'Grand Slam', notes = { 'Possible spells from moves this monster can use. It must actually use the move before defeat; learning is not guaranteed.' }, spells = { { id = 622, name = 'Grand Slam', level = 30, min_skill = 62, skill_ids = { 665 } } }, requirements = { 'You need Blue Mage as your main job and enough current Blue Magic skill. When the monster dies, you must be alive and within 100 yalms in the same zone. You cannot learn a spell you already know, or learn from a Call for Help kill.', 'Equipment skill bonuses count. The spell\'s casting level is not a minimum learning level.', 'You or your party or alliance must get credit for the kill. Only one spell that meets the requirements gets a learning roll each time the monster dies.' }, incomplete = false },

@@ -1,5 +1,5 @@
 -- Ranguemont Pass (zone 166).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -154,7 +154,7 @@ danger[147] = { kind = 'spell', id = 273, name = 'Sleepga', summary = 'Sleepga: 
 danger[148] = { danger[128], danger[132], danger[138], danger[141], danger[144], danger[79], danger[87], danger[147] };
 danger[149] = { value = 'Blindeye: Blindness; Hypnosis: Sleep; Mind Break: Max MP down; Binding Wave: Bind; Level 5 Petrify: Petrification; Drain: HP drain; Bind: bind; Sleepga: area sleep', notes = danger[125], entries = danger[148], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[43] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -645,8 +645,9 @@ return {
                 [33] = { acc = 119, eva = 112, agi = 36, int = 26, mnd = 26, chr = 29, dex = 34, def = 127,
                          attack_skill = 97 },
             },
-            spawn_levels = { [58] = { 31, 33 }, [59] = { 31, 33 }, [60] = { 30, 32 }, [82] = { 32, 32 },
-                             [83] = { 31, 31 }, [89] = { 31, 31 }, [90] = { 32, 32 } },
+            spawn_levels = { [58] = { 31, 33 }, [59] = { 31, 33 }, [60] = { 30, 32 }, [71] = { 31, 33 },
+                             [72] = { 31, 33 }, [82] = { 32, 32 }, [83] = { 31, 31 }, [89] = { 31, 31 },
+                             [90] = { 32, 32 } },
             ranks  = { fire = -2, ice = -1, wind = -3, earth = -2, thunder = -2, water = -2, light = -3, dark = 6,
                        paralyze = -1, bind = -1, silence = -3, slow = -2, poison = -2, light_sleep = -3,
                        dark_sleep = 6, blind = 6, stun = -2, gravity = -3 },

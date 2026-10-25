@@ -1,5 +1,5 @@
 -- Promyvion-Holla (zone 16).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -44,7 +44,7 @@ danger[37] = { kind = 'skill', id = 1250, name = 'Binary Tap', summary = 'Binary
 danger[38] = { danger[21], danger[25], danger[28], danger[31], danger[32], danger[33], danger[36], danger[37] };
 danger[39] = { value = 'Empty Cutter Thinker: can crit; Negative Whirl: Slow; Stygian Vapor: Plague; Spirit Absorption Thinker: HP drain; Binary Absorption: HP drain; Trinary Absorption: HP drain; Spirit Tap: Buff theft; Binary Tap: Buff theft', notes = danger[18], entries = danger[38], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[2] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

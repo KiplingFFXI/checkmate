@@ -1,5 +1,5 @@
 -- Temenos (zone 37).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -55,7 +55,7 @@ danger[48] = { kind = 'attack', id = 0, name = 'Normal attacks', summary = 'Norm
 danger[49] = { danger[48] };
 danger[50] = { value = 'Normal attacks: Poison', notes = danger[45], entries = danger[49], coverage = 'partial', incomplete = true, reasons = danger[11], general_notes = danger[3] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -1310,7 +1310,7 @@ return {
             job    = 'blm/rdm',
             levels = {
                 [72] = { acc = 297, eva = 274, agi = 71, int = 83, mnd = 67, chr = 67, dex = 72, def = 284,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
             },
             ranks  = { fire = 11, ice = 11, water = -3, paralyze = 11, bind = 11, poison = -3 },
             weapon_dmg = { slashing = -75, piercing = -75, blunt = -75, hand_to_hand = -75 },

@@ -1,5 +1,5 @@
 -- Mamool Ja Training Grounds (zone 66).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -9,7 +9,7 @@ danger[2] = { 'The fight can replace this monster\'s TP-move list. That replacem
 danger[3] = { 'These are possible moves from the source. They do not predict the next move.', 'Effects can miss, be resisted or be blocked by immunity. Range, targets, TP, recasts and skill checks still apply.' };
 danger[4] = { value = 'Move list unresolved', notes = danger[1], entries = {  }, coverage = 'unresolved', incomplete = true, reasons = danger[2], general_notes = danger[3] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -46,7 +46,7 @@ return {
                 [71] = { acc = 287, eva = 254, agi = 68, int = 63, mnd = 87, chr = 75, dex = 63, def = 283,
                          attack_skill = 237 },
                 [72] = { acc = 292, eva = 259, agi = 68, int = 63, mnd = 87, chr = 75, dex = 63, def = 288,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 299, eva = 263, agi = 68, int = 64, mnd = 89, chr = 76, dex = 66, def = 295,
                          attack_skill = 246 },
                 [75] = { acc = 309, eva = 273, agi = 70, int = 65, mnd = 91, chr = 77, dex = 67, def = 305,
@@ -102,7 +102,7 @@ return {
                 [71] = { acc = 297, eva = 272, agi = 60, int = 63, mnd = 63, chr = 87, dex = 83, def = 283,
                          attack_skill = 237, resist = { slow = 20 } },
                 [72] = { acc = 302, eva = 277, agi = 60, int = 63, mnd = 63, chr = 87, dex = 83, def = 288,
-                         attack_skill = 241, resist = { slow = 20 } },
+                         attack_skill = 242, resist = { slow = 20 } },
                 [73] = { acc = 308, eva = 283, agi = 62, int = 64, mnd = 64, chr = 89, dex = 84, def = 295,
                          attack_skill = 246, resist = { slow = 20 } },
                 [75] = { acc = 319, eva = 293, agi = 63, int = 65, mnd = 65, chr = 91, dex = 86, def = 305,
@@ -159,7 +159,7 @@ return {
                 [71] = { acc = 296, eva = 279, agi = 75, int = 55, mnd = 55, chr = 63, dex = 80, def = 292,
                          attack_skill = 237 },
                 [72] = { acc = 301, eva = 284, agi = 75, int = 55, mnd = 55, chr = 63, dex = 80, def = 297,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
             },
             ranks  = { ice = -3, wind = -3, water = -2, light = -2, dark = -2, paralyze = -3, bind = -3,
                        silence = -3, poison = -2, light_sleep = -2, dark_sleep = -2, blind = -2, gravity = -3 },
@@ -204,7 +204,7 @@ return {
                 [71] = { acc = 299, eva = 300, agi = 84, int = 67, mnd = 51, chr = 55, dex = 87, def = 287,
                          attack_skill = 237, resist = { bind = 25 } },
                 [72] = { acc = 304, eva = 305, agi = 84, int = 67, mnd = 51, chr = 55, dex = 87, def = 292,
-                         attack_skill = 241, resist = { bind = 25 } },
+                         attack_skill = 242, resist = { bind = 25 } },
                 [73] = { acc = 311, eva = 311, agi = 86, int = 70, mnd = 52, chr = 58, dex = 90, def = 298,
                          attack_skill = 246, resist = { bind = 25 } },
                 [75] = { acc = 322, eva = 322, agi = 88, int = 70, mnd = 52, chr = 58, dex = 92, def = 308,

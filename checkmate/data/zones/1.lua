@@ -1,5 +1,5 @@
 -- Phanauet Channel (zone 1).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -72,7 +72,7 @@ danger[65] = { effect = 'DEX down', options = { 'Erase (one random eligible time
 danger[66] = { danger[65] };
 danger[67] = { 'Random effects may not all happen on the same use. Source targeting: single target.' };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     link_lists = {},
     monsters = {

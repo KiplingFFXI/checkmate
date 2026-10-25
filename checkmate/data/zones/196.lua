@@ -1,5 +1,5 @@
 -- Gusgen Mines (zone 196).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -194,7 +194,7 @@ danger[187] = { value = 'Slow: slow; Rasp: Rasp', notes = danger[181], entries =
 danger[188] = { { effect = 'Stun', options = { 'Erase (one random eligible timed ailment)' } } };
 danger[189] = { 'Additional effects require a connecting normal attack. Proc checks, resistance and immunity can prevent them. An active enspell can take priority over the scripted additional effect. The current proc rate is not calculated.' };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -1068,12 +1068,7 @@ return {
                          attack_skill = 94 },
                 [33] = { acc = 120, eva = 101, agi = 34, int = 41, mnd = 27, chr = 32, dex = 36, def = 115,
                          attack_skill = 97 },
-                [34] = { acc = 124, eva = 104, agi = 36, int = 42, mnd = 27, chr = 32, dex = 39, def = 118,
-                         attack_skill = 100 },
             },
-            spawn_levels = { [98] = { 29, 33 }, [99] = { 29, 33 }, [106] = { 29, 33 }, [118] = { 30, 34 },
-                             [119] = { 30, 34 }, [130] = { 30, 34 }, [134] = { 30, 34 }, [135] = { 30, 34 },
-                             [150] = { 30, 34 }, [151] = { 30, 34 }, [153] = { 30, 34 }, [154] = { 30, 34 } },
             ranks  = { fire = -3, wind = -2, earth = -2, thunder = -2, water = -2, light = -3, dark = 4,
                        silence = -2, slow = -2, poison = -2, light_sleep = -3, dark_sleep = 11, blind = 4,
                        stun = -2, gravity = -2 },
@@ -1093,7 +1088,7 @@ return {
             info = {
                 family = { value = 'Skeleton / Undead', notes = { 'Source species: Skeleton (ID 419); family ID 178.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Not charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
-                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [29] = 602, [30] = 636, [31] = 717, [32] = 792, [33] = 865, [34] = 940 }, mp = { [29] = 768, [30] = 797, [31] = 826, [32] = 855, [33] = 884, [34] = 914 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
+                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [29] = 602, [30] = 636, [31] = 717, [32] = 792, [33] = 865 }, mp = { [29] = 768, [30] = 797, [31] = 826, [32] = 855, [33] = 884 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
                 movement = { value = 'Base speed 40', notes = { 'Source base speed is 40; the ordinary monster default is 40. Animation speed is 40.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'Earth crystal (conditional)', notes = { 'Source crystal element: Earth.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },

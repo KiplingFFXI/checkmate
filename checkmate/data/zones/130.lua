@@ -1,5 +1,5 @@
 -- RuAun Gardens (zone 130).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -97,7 +97,7 @@ danger[90] = { 'Only effects allowed by the move\'s dispel checks can be removed
 danger[91] = { 'Normal activation range: 15 yalms. This is the move selection limit, not its affected area.', 'Area: 15 yalms radius, area around the monster.', 'These source distances do not establish a safe place to stand.', 'The damage step removes Utsusemi and Blink without letting them absorb it.', 'Area and cone damage removes Blink. Physical and ranged area checks can consume fewer Utsusemi images through mitigation.', 'The damage shadow rule does not establish whether every additional effect is blocked.' };
 danger[92] = { notes = danger[91], unknown = {  }, activation_range = 15.0, shape = 'area around the monster', effect_radius = 15.0, shadows = { { mode = 'wipe', per_hit = false } } };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     link_lists = {},
     monsters = {
@@ -161,7 +161,7 @@ return {
                        234, 235, 237, 238 },
             levels = {
                 [72] = { acc = 298, eva = 287, agi = 80, int = 55, mnd = 55, chr = 63, dex = 75, def = 297,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 304, eva = 292, agi = 80, int = 58, mnd = 58, chr = 64, dex = 76, def = 303,
                          attack_skill = 246 },
                 [74] = { acc = 309, eva = 298, agi = 82, int = 58, mnd = 58, chr = 64, dex = 77, def = 308,

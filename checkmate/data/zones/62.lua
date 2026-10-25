@@ -1,5 +1,5 @@
 -- Halvung (zone 62).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -218,7 +218,7 @@ danger[211] = { danger[207], danger[210] };
 danger[212] = { value = 'Proboscis: Buff removal, MP drain; Erosion Dust: Dia', notes = danger[203], entries = danger[211], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[11] };
 danger[213] = { 'This move can crit. Its current critical chance is not known. Source targeting: single target.' };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -268,7 +268,7 @@ return {
             job    = 'rng/rng',
             levels = {
                 [72] = { acc = 346, eva = 271, agi = 92, int = 60, mnd = 67, chr = 63, dex = 75, def = 287,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 353, eva = 275, agi = 93, int = 60, mnd = 70, chr = 64, dex = 78, def = 293,
                          attack_skill = 246 },
             },
@@ -307,7 +307,7 @@ return {
             job    = 'thf/thf',
             levels = {
                 [72] = { acc = 308, eva = 353, agi = 84, int = 72, mnd = 51, chr = 51, dex = 95, def = 287,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 314, eva = 359, agi = 86, int = 72, mnd = 52, chr = 52, dex = 97, def = 293,
                          attack_skill = 246 },
             },
@@ -387,7 +387,7 @@ return {
                 [71] = { acc = 293, eva = 282, agi = 80, int = 55, mnd = 55, chr = 63, dex = 75, def = 292,
                          attack_skill = 237 },
                 [72] = { acc = 298, eva = 287, agi = 80, int = 55, mnd = 55, chr = 63, dex = 75, def = 297,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
             },
             ranks  = { fire = -2, ice = -1, wind = -3, earth = -2, thunder = -2, water = -2, light = -3, dark = 6,
                        paralyze = -1, bind = -1, silence = -3, slow = -2, poison = -2, light_sleep = -3,
@@ -424,7 +424,7 @@ return {
                 [71] = { acc = 290, eva = 266, agi = 48, int = 48, mnd = 80, chr = 75, dex = 68, def = 345,
                          attack_skill = 237, resist = { sleep = 20 } },
                 [72] = { acc = 295, eva = 271, agi = 48, int = 48, mnd = 80, chr = 75, dex = 68, def = 350,
-                         attack_skill = 241, resist = { sleep = 20 } },
+                         attack_skill = 242, resist = { sleep = 20 } },
                 [73] = { acc = 300, eva = 276, agi = 48, int = 48, mnd = 80, chr = 76, dex = 68, def = 356,
                          attack_skill = 246, resist = { sleep = 20 } },
                 [74] = { acc = 305, eva = 281, agi = 48, int = 48, mnd = 82, chr = 77, dex = 69, def = 361,
@@ -467,7 +467,7 @@ return {
                 [71] = { acc = 298, eva = 275, agi = 52, int = 48, mnd = 72, chr = 63, dex = 84, def = 297,
                          attack_skill = 237 },
                 [72] = { acc = 303, eva = 280, agi = 52, int = 48, mnd = 72, chr = 63, dex = 84, def = 302,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 309, eva = 286, agi = 54, int = 48, mnd = 74, chr = 64, dex = 86, def = 308,
                          attack_skill = 246 },
                 [74] = { acc = 314, eva = 291, agi = 54, int = 48, mnd = 75, chr = 64, dex = 87, def = 313,
@@ -508,7 +508,7 @@ return {
                 [71] = { acc = 296, eva = 274, agi = 64, int = 72, mnd = 56, chr = 51, dex = 80, def = 291,
                          attack_skill = 237, resist = { paralyze = 20 } },
                 [72] = { acc = 301, eva = 279, agi = 64, int = 72, mnd = 56, chr = 51, dex = 80, def = 296,
-                         attack_skill = 241, resist = { paralyze = 20 } },
+                         attack_skill = 242, resist = { paralyze = 20 } },
                 [73] = { acc = 306, eva = 285, agi = 66, int = 72, mnd = 56, chr = 52, dex = 80, def = 302,
                          attack_skill = 246, resist = { paralyze = 20 } },
                 [74] = { acc = 312, eva = 290, agi = 66, int = 73, mnd = 57, chr = 52, dex = 82, def = 307,
@@ -550,7 +550,7 @@ return {
                 [71] = { acc = 340, eva = 262, agi = 84, int = 60, mnd = 72, chr = 63, dex = 72, def = 287,
                          attack_skill = 237 },
                 [72] = { acc = 345, eva = 267, agi = 84, int = 60, mnd = 72, chr = 63, dex = 72, def = 292,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 351, eva = 271, agi = 85, int = 60, mnd = 74, chr = 64, dex = 74, def = 299,
                          attack_skill = 246 },
                 [74] = { acc = 356, eva = 276, agi = 85, int = 60, mnd = 75, chr = 64, dex = 75, def = 304,
@@ -592,7 +592,7 @@ return {
                 [71] = { acc = 298, eva = 320, agi = 72, int = 60, mnd = 60, chr = 75, dex = 84, def = 287,
                          attack_skill = 237 },
                 [72] = { acc = 303, eva = 325, agi = 72, int = 60, mnd = 60, chr = 75, dex = 84, def = 292,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 309, eva = 330, agi = 72, int = 60, mnd = 62, chr = 76, dex = 86, def = 299,
                          attack_skill = 246 },
                 [74] = { acc = 314, eva = 335, agi = 73, int = 60, mnd = 63, chr = 77, dex = 87, def = 304,
@@ -639,7 +639,7 @@ return {
                 [71] = { acc = 283, eva = 251, agi = 63, int = 63, mnd = 87, chr = 75, dex = 55, def = 283,
                          attack_skill = 237 },
                 [72] = { acc = 288, eva = 256, agi = 63, int = 63, mnd = 87, chr = 75, dex = 55, def = 288,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 295, eva = 261, agi = 64, int = 64, mnd = 89, chr = 76, dex = 58, def = 295,
                          attack_skill = 246 },
                 [74] = { acc = 300, eva = 266, agi = 64, int = 64, mnd = 89, chr = 77, dex = 58, def = 300,
@@ -678,7 +678,7 @@ return {
                 [71] = { acc = 292, eva = 264, agi = 60, int = 72, mnd = 80, chr = 67, dex = 72, def = 285,
                          attack_skill = 237 },
                 [72] = { acc = 297, eva = 269, agi = 60, int = 72, mnd = 80, chr = 67, dex = 72, def = 290,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 303, eva = 274, agi = 60, int = 72, mnd = 80, chr = 70, dex = 74, def = 296,
                          attack_skill = 246 },
                 [74] = { acc = 308, eva = 278, agi = 60, int = 73, mnd = 82, chr = 70, dex = 75, def = 301,
@@ -720,7 +720,7 @@ return {
                 [71] = { acc = 296, eva = 278, agi = 72, int = 52, mnd = 60, chr = 63, dex = 80, def = 297,
                          attack_skill = 237 },
                 [72] = { acc = 301, eva = 283, agi = 72, int = 52, mnd = 60, chr = 63, dex = 80, def = 302,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 306, eva = 288, agi = 72, int = 54, mnd = 62, chr = 64, dex = 80, def = 309,
                          attack_skill = 246 },
                 [74] = { acc = 312, eva = 293, agi = 73, int = 54, mnd = 63, chr = 64, dex = 82, def = 314,
@@ -795,7 +795,7 @@ return {
             job    = 'blm/blm',
             levels = {
                 [72] = { acc = 298, eva = 262, agi = 75, int = 92, mnd = 60, chr = 72, dex = 75, def = 282,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 304, eva = 267, agi = 76, int = 93, mnd = 60, chr = 74, dex = 76, def = 289,
                          attack_skill = 246 },
                 [74] = { acc = 309, eva = 272, agi = 77, int = 94, mnd = 60, chr = 75, dex = 77, def = 294,
@@ -831,7 +831,7 @@ return {
                        170, 172, 202, 207 },
             levels = {
                 [72] = { acc = 297, eva = 283, agi = 72, int = 52, mnd = 52, chr = 60, dex = 72, def = 305,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 302, eva = 288, agi = 72, int = 54, mnd = 54, chr = 60, dex = 72, def = 311,
                          attack_skill = 246 },
                 [74] = { acc = 307, eva = 293, agi = 73, int = 54, mnd = 54, chr = 60, dex = 73, def = 316,
@@ -872,7 +872,7 @@ return {
                 [71] = { acc = 293, eva = 278, agi = 72, int = 55, mnd = 55, chr = 63, dex = 75, def = 274,
                          attack_skill = 237 },
                 [72] = { acc = 298, eva = 283, agi = 72, int = 55, mnd = 55, chr = 63, dex = 75, def = 279,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 304, eva = 288, agi = 72, int = 58, mnd = 58, chr = 64, dex = 76, def = 284,
                          attack_skill = 246 },
                 [74] = { acc = 309, eva = 293, agi = 73, int = 58, mnd = 58, chr = 64, dex = 77, def = 289,
@@ -999,7 +999,7 @@ return {
             job    = 'war/blm',
             levels = {
                 [72] = { acc = 301, eva = 284, agi = 75, int = 63, mnd = 58, chr = 69, dex = 80, def = 296,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 306, eva = 290, agi = 76, int = 64, mnd = 60, chr = 70, dex = 80, def = 303,
                          attack_skill = 246 },
                 [74] = { acc = 312, eva = 295, agi = 77, int = 64, mnd = 60, chr = 71, dex = 82, def = 308,
@@ -1092,7 +1092,7 @@ return {
             ids    = { 173 },
             levels = {
                 [72] = { acc = 297, eva = 283, agi = 72, int = 52, mnd = 52, chr = 60, dex = 72, def = 305,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 302, eva = 288, agi = 72, int = 54, mnd = 54, chr = 60, dex = 72, def = 311,
                          attack_skill = 246 },
                 [74] = { acc = 307, eva = 293, agi = 73, int = 54, mnd = 54, chr = 60, dex = 73, def = 316,
@@ -1311,7 +1311,7 @@ return {
             job    = 'war/blm',
             levels = {
                 [72] = { acc = 301, eva = 284, agi = 75, int = 63, mnd = 58, chr = 69, dex = 80, def = 296,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 306, eva = 290, agi = 76, int = 64, mnd = 60, chr = 70, dex = 80, def = 303,
                          attack_skill = 246 },
                 [74] = { acc = 312, eva = 295, agi = 77, int = 64, mnd = 60, chr = 71, dex = 82, def = 308,

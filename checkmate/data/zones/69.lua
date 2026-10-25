@@ -1,5 +1,5 @@
 -- Leujaoam Sanctum (zone 69).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -9,7 +9,7 @@ danger[2] = { 'The fight can replace this monster\'s TP-move list. That replacem
 danger[3] = { 'These are possible moves from the source. They do not predict the next move.', 'Effects can miss, be resisted or be blocked by immunity. Range, targets, TP, recasts and skill checks still apply.' };
 danger[4] = { value = 'Move list unresolved', notes = danger[1], entries = {  }, coverage = 'unresolved', incomplete = true, reasons = danger[2], general_notes = danger[3] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -40,7 +40,7 @@ return {
                 [71] = { acc = 293, eva = 257, agi = 75, int = 92, mnd = 63, chr = 64, dex = 75, def = 276,
                          attack_skill = 237 },
                 [72] = { acc = 298, eva = 262, agi = 75, int = 92, mnd = 63, chr = 64, dex = 75, def = 281,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 304, eva = 267, agi = 76, int = 93, mnd = 64, chr = 66, dex = 76, def = 287,
                          attack_skill = 246 },
                 [76] = { acc = 321, eva = 283, agi = 80, int = 97, mnd = 66, chr = 68, dex = 80, def = 301,

@@ -1,5 +1,5 @@
 -- Sacrarium (zone 28).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -322,7 +322,7 @@ danger[315] = { 'Foxfire: Stun. Source targeting: cone.', 'Netherspikes: Bind. S
 danger[316] = { 'A move choice in the script could not be read.', 'The move returned by the script could not be read.' };
 danger[317] = { value = 'Foxfire: Stun; Netherspikes: Bind; Aegis Schism: Defense down; Dancing Chains: Drown; Barbed Crescent: Accuracy down', notes = danger[315], entries = danger[313], coverage = 'partial', incomplete = true, reasons = danger[316], general_notes = danger[42] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

@@ -1,5 +1,5 @@
 -- Periqia (zone 56).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -9,7 +9,7 @@ danger[2] = { 'The fight can replace this monster\'s TP-move list. That replacem
 danger[3] = { 'These are possible moves from the source. They do not predict the next move.', 'Effects can miss, be resisted or be blocked by immunity. Range, targets, TP, recasts and skill checks still apply.' };
 danger[4] = { value = 'Move list unresolved', notes = danger[1], entries = {  }, coverage = 'unresolved', incomplete = true, reasons = danger[2], general_notes = danger[3] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -48,7 +48,7 @@ return {
                 [69] = { acc = 276, eva = 255, agi = 45, int = 48, mnd = 72, chr = 72, dex = 60, def = 320,
                          attack_skill = 229 },
                 [72] = { acc = 292, eva = 271, agi = 48, int = 51, mnd = 75, chr = 75, dex = 63, def = 349,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 298, eva = 276, agi = 48, int = 52, mnd = 76, chr = 76, dex = 64, def = 354,
                          attack_skill = 246 },
                 [74] = { acc = 303, eva = 281, agi = 48, int = 52, mnd = 77, chr = 77, dex = 64, def = 360,
@@ -87,7 +87,7 @@ return {
                 [64] = { acc = 256, eva = 243, agi = 68, int = 50, mnd = 46, chr = 60, dex = 68, def = 260,
                          attack_skill = 210 },
                 [72] = { acc = 298, eva = 284, agi = 75, int = 55, mnd = 52, chr = 68, dex = 75, def = 301,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 304, eva = 290, agi = 76, int = 58, mnd = 54, chr = 68, dex = 76, def = 307,
                          attack_skill = 246 },
                 [74] = { acc = 309, eva = 295, agi = 77, int = 58, mnd = 54, chr = 69, dex = 77, def = 312,
@@ -140,7 +140,7 @@ return {
                 [71] = { acc = 293, eva = 282, agi = 80, int = 55, mnd = 55, chr = 60, dex = 75, def = 293,
                          attack_skill = 237 },
                 [72] = { acc = 298, eva = 287, agi = 80, int = 55, mnd = 55, chr = 60, dex = 75, def = 298,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [75] = { acc = 314, eva = 303, agi = 82, int = 58, mnd = 58, chr = 62, dex = 77, def = 315,
                          attack_skill = 256 },
                 [76] = { acc = 321, eva = 308, agi = 85, int = 59, mnd = 59, chr = 62, dex = 80, def = 320,
@@ -174,7 +174,7 @@ return {
                 [62] = { acc = 245, eva = 232, agi = 66, int = 49, mnd = 46, chr = 59, dex = 66, def = 249,
                          attack_skill = 203 },
                 [72] = { acc = 298, eva = 284, agi = 75, int = 55, mnd = 52, chr = 68, dex = 75, def = 301,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [77] = { acc = 326, eva = 311, agi = 80, int = 60, mnd = 56, chr = 71, dex = 80, def = 327,
                          attack_skill = 266 },
             },
@@ -219,7 +219,7 @@ return {
                 [71] = { acc = 293, eva = 257, agi = 75, int = 92, mnd = 60, chr = 72, dex = 75, def = 277,
                          attack_skill = 237 },
                 [72] = { acc = 298, eva = 262, agi = 75, int = 92, mnd = 60, chr = 72, dex = 75, def = 282,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [75] = { acc = 314, eva = 276, agi = 77, int = 96, mnd = 62, chr = 75, dex = 77, def = 299,
                          attack_skill = 256 },
                 [76] = { acc = 321, eva = 283, agi = 80, int = 97, mnd = 62, chr = 77, dex = 80, def = 303,
@@ -380,7 +380,7 @@ return {
                 [71] = { acc = 341, eva = 263, agi = 87, int = 71, mnd = 75, chr = 71, dex = 75, def = 287,
                          attack_skill = 237 },
                 [72] = { acc = 346, eva = 268, agi = 87, int = 71, mnd = 75, chr = 71, dex = 75, def = 292,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 353, eva = 273, agi = 89, int = 72, mnd = 78, chr = 72, dex = 78, def = 299,
                          attack_skill = 246 },
             },

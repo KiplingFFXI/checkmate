@@ -1,5 +1,5 @@
 -- Eastern Altepa Desert (zone 114).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -220,7 +220,7 @@ danger[213] = { kind = 'spell', id = 210, name = 'Quake', summary = 'Quake: Wind
 danger[214] = { danger[42], danger[43], danger[48], danger[51], danger[55], danger[58], danger[208], danger[209], danger[213], danger[141], danger[85], danger[86], danger[91], danger[96], danger[73], danger[101], danger[106], danger[109], danger[110], danger[144], danger[113], danger[78], danger[145], danger[116] };
 danger[215] = { value = 'Spikeball: Poison; Shoulder Slam: can crit; Magnetite Cloud: Weight; Sandstorm: Blindness; Sand Trap: petrification; Jamming Wave: Silence; Freeze: Fire magic evasion down; Tornado: Ice magic evasion down; Quake: Wind magic evasion down; Poison II: Poison; Poisonga: area poison; Burn: Burn; Frost: Frost; Choke: Choke; Rasp: Rasp; Shock: Shock; Drown: Drown; Drain: HP drain; Aspir: MP drain; Stun: stun; Blind: Blindness; Bind: bind; Sleep II: sleep; Sleepga: area sleep', notes = danger[212], entries = danger[214], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[66] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -583,7 +583,7 @@ return {
             ph_for = { [235] = { 236 } },
             ph_rules = {
                 [235] = {
-                    [236] = { chance = 10, cooldown_min = 3600, cooldown_max = 3600, conditions = { 'A successful roll uses the PH respawn delay.' } },
+                    [236] = { chance = 15, cooldown_min = 3600, cooldown_max = 3600, conditions = { 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.' } },
                 },
             },
             ranks  = { ice = -3, thunder = -1, water = -1, paralyze = -3, bind = -3, poison = -1, stun = -1 },
@@ -833,6 +833,7 @@ return {
             drops  = {
                 { rate = 150, item = 16995 },  -- piece of rotten meat
                 { rate = 100, item = 1121 },  -- antican robe
+                { rate = 50, item = 17320 },  -- iron arrow
                 { rate = 10, item = 640 },  -- chunk of copper ore
                 { rate = 150, item = 16995 },  -- piece of rotten meat
                 { rate = 100, item = 1121 },  -- antican robe
@@ -1303,11 +1304,10 @@ return {
                        dark_sleep = 4, blind = 4, stun = -1, gravity = -3 },
             drops  = {
                 { rate = 150, item = 16995 },  -- piece of rotten meat
-                { rate = 100, item = 1426 },  -- warriors testimony
-                { rate = 50, item = 1118 },  -- antican pauldron
-                { rate = 10, item = 645 },  -- chunk of darksteel ore
+                { rate = 100, item = 1121 },  -- antican robe
+                { rate = 10, item = 643 },  -- chunk of iron ore
             },
-            steal  = { 748 },  -- gold beastcoin
+            steal  = { 749 },  -- mythril beastcoin
             aggro  = true,
             detects = { 'sound' },
             links  = 4,
@@ -1570,7 +1570,7 @@ return {
                 crystal = { value = 'Earth crystal (conditional)', notes = { 'Source crystal element: Earth.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.' } },
                 traits = { value = 'Double Attack 10', notes = { 'Base attack delay 240 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
-                spawn = { value = 'Lottery', notes = { 'Lottery spawn; see a listed placeholder for its chance and cooldown rules.', 'Source rules only; no remaining time or open spawn window is known.' } },
+                spawn = { value = 'Lottery', notes = { 'Native slot chance: 15% on an eligible reroll.', 'The member cooldown is 3600 seconds after its defeat; it does not reveal the current spawn window.', 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.', 'The NM\'s actual respawn is controlled by its script or spawn rules; the base delay is not a live window.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 claim = { value = 'Claimshield 5 seconds', notes = { 'This Phoenix list entry is unclaimable and unkillable for 5 seconds after spawning. Call for Help is blocked during the shield.', 'When the shield ends, Phoenix selects claim from eligible entries on its enmity list. Remaining shield time and the winner are not known.' } },
                 dangers = danger[38],
                 blue = { value = 'Sickle Slash', notes = { 'Possible spells from moves this monster can use. It must actually use the move before defeat; learning is not guaranteed.' }, spells = { { id = 545, name = 'Sickle Slash', level = 48, min_skill = 116, skill_ids = { 810 } } }, requirements = { 'You need Blue Mage as your main job and enough current Blue Magic skill. When the monster dies, you must be alive and within 100 yalms in the same zone. You cannot learn a spell you already know, or learn from a Call for Help kill.', 'Equipment skill bonuses count. The spell\'s casting level is not a minimum learning level.', 'You or your party or alliance must get credit for the kill. Only one spell that meets the requirements gets a learning roll each time the monster dies.' }, incomplete = false },

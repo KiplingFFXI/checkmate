@@ -1,5 +1,5 @@
 -- Qulun Dome (zone 148).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -92,7 +92,7 @@ danger[85] = { kind = 'spell', id = 58, name = 'Paralyze', summary = 'Paralyze: 
 danger[86] = { kind = 'spell', id = 59, name = 'Silence', summary = 'Silence: silence', notes = { 'Possible effects: Silence.' }, categories = { 'debuff' }, effects = { 'Silence' }, details = danger[39], level_ranges = { { 15, 255 } } };
 danger[87] = { kind = 'spell', id = 112, name = 'Flash', summary = 'Flash: Flash', notes = {  }, categories = { 'debuff' }, effects = { 'Flash' }, details = danger[13], level_ranges = { { 45, 255 } } };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -132,7 +132,7 @@ return {
                 [71] = { acc = 297, eva = 279, agi = 75, int = 52, mnd = 55, chr = 63, dex = 83, def = 293,
                          attack_skill = 237, resist = { virus = 25 } },
                 [72] = { acc = 302, eva = 284, agi = 75, int = 52, mnd = 55, chr = 63, dex = 83, def = 298,
-                         attack_skill = 241, resist = { virus = 25 } },
+                         attack_skill = 242, resist = { virus = 25 } },
             },
             ranks  = { ice = -2, wind = -2, earth = -2, thunder = -3, light = -2, dark = -2, paralyze = -2,
                        bind = -2, silence = -2, slow = -2, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -3,
@@ -174,7 +174,7 @@ return {
                 [71] = { acc = 293, eva = 271, agi = 59, int = 49, mnd = 68, chr = 71, dex = 75, def = 338,
                          attack_skill = 237, resist = { sleep = 20, virus = 25 } },
                 [72] = { acc = 298, eva = 276, agi = 59, int = 49, mnd = 68, chr = 71, dex = 75, def = 343,
-                         attack_skill = 241, resist = { sleep = 20, virus = 25 } },
+                         attack_skill = 242, resist = { sleep = 20, virus = 25 } },
             },
             ranks  = { ice = -2, wind = -2, earth = -2, thunder = -3, light = -2, dark = -2, paralyze = -2,
                        bind = -2, silence = -2, slow = -2, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -3,
@@ -213,7 +213,7 @@ return {
                 [71] = { acc = 301, eva = 345, agi = 78, int = 65, mnd = 52, chr = 55, dex = 91, def = 293,
                          attack_skill = 237, resist = { virus = 25, gravity = 20 } },
                 [72] = { acc = 306, eva = 350, agi = 78, int = 65, mnd = 52, chr = 55, dex = 91, def = 298,
-                         attack_skill = 241, resist = { virus = 25, gravity = 20 } },
+                         attack_skill = 242, resist = { virus = 25, gravity = 20 } },
             },
             ranks  = { ice = -2, wind = -2, earth = -2, thunder = -3, light = -2, dark = -2, paralyze = -2,
                        bind = -2, silence = -2, slow = -2, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -3,
@@ -252,7 +252,7 @@ return {
                 [71] = { acc = 297, eva = 279, agi = 75, int = 73, mnd = 60, chr = 66, dex = 83, def = 289,
                          attack_skill = 237, resist = { virus = 25 } },
                 [72] = { acc = 302, eva = 284, agi = 75, int = 73, mnd = 60, chr = 66, dex = 83, def = 294,
-                         attack_skill = 241, resist = { virus = 25 } },
+                         attack_skill = 242, resist = { virus = 25 } },
             },
             ranks  = { ice = -2, wind = -2, earth = -2, thunder = -3, light = -2, dark = -2, paralyze = -2,
                        bind = -2, silence = -2, slow = -2, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -3,
@@ -293,7 +293,7 @@ return {
             job    = 'rdm/war',
             levels = {
                 [72] = { acc = 300, eva = 280, agi = 67, int = 65, mnd = 68, chr = 66, dex = 78, def = 297,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 306, eva = 286, agi = 68, int = 66, mnd = 70, chr = 68, dex = 80, def = 303,
                          attack_skill = 246 },
                 [74] = { acc = 311, eva = 291, agi = 68, int = 67, mnd = 71, chr = 68, dex = 80, def = 308,
@@ -335,7 +335,7 @@ return {
             job    = 'drk/war',
             levels = {
                 [72] = { acc = 302, eva = 282, agi = 70, int = 65, mnd = 52, chr = 55, dex = 83, def = 301,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 308, eva = 288, agi = 72, int = 66, mnd = 54, chr = 56, dex = 84, def = 307,
                          attack_skill = 246 },
                 [74] = { acc = 313, eva = 293, agi = 72, int = 67, mnd = 54, chr = 56, dex = 85, def = 312,
@@ -485,7 +485,7 @@ return {
             job    = 'drk/drk',
             levels = {
                 [72] = { acc = 302, eva = 280, agi = 67, int = 72, mnd = 51, chr = 51, dex = 83, def = 292,
-                         attack_skill = 241, resist = { paralyze = 20 } },
+                         attack_skill = 242, resist = { paralyze = 20 } },
                 [73] = { acc = 308, eva = 287, agi = 70, int = 72, mnd = 52, chr = 52, dex = 84, def = 298,
                          attack_skill = 246, resist = { paralyze = 20 } },
                 [74] = { acc = 313, eva = 292, agi = 70, int = 73, mnd = 52, chr = 52, dex = 85, def = 303,

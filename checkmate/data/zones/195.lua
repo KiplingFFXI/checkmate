@@ -1,5 +1,5 @@
 -- The Eldieme Necropolis (zone 195).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -199,7 +199,7 @@ danger[192] = { kind = 'skill', id = 270, name = 'Roar', summary = 'Roar: paraly
 danger[193] = { danger[192] };
 danger[194] = { value = 'Roar: paralysis', notes = danger[190], entries = danger[193], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[58] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -584,9 +584,10 @@ return {
                 [46] = { acc = 167, eva = 140, agi = 48, int = 55, mnd = 38, chr = 42, dex = 52, def = 157,
                          attack_skill = 135 },
             },
-            spawn_levels = { [12] = { 42, 43 }, [13] = { 42, 43 }, [36] = { 42, 43 }, [37] = { 42, 43 },
-                             [54] = { 45, 46 }, [55] = { 45, 46 }, [71] = { 45, 46 }, [125] = { 42, 43 },
-                             [126] = { 42, 43 }, [157] = { 45, 46 }, [158] = { 45, 46 } },
+            spawn_levels = { [12] = { 42, 43 }, [13] = { 42, 43 }, [22] = { 44, 45 }, [36] = { 42, 43 },
+                             [37] = { 42, 43 }, [54] = { 45, 46 }, [55] = { 45, 46 }, [71] = { 45, 46 },
+                             [125] = { 42, 43 }, [126] = { 42, 43 }, [157] = { 45, 46 }, [158] = { 45, 46 },
+                             [248] = { 45, 46 }, [249] = { 45, 46 }, [305] = { 45, 46 }, [307] = { 45, 46 } },
             ranks  = { fire = -3, wind = -2, earth = -2, thunder = -2, water = -2, light = -3, dark = 4,
                        silence = -2, slow = -2, poison = -2, light_sleep = -3, dark_sleep = 11, blind = 4,
                        stun = -2, gravity = -2 },
@@ -616,14 +617,6 @@ return {
             name   = 'Shade war',
             ids    = { 17, 20, 244, 247, 300, 303 },
             levels = {
-                [42] = { acc = 151, eva = 142, agi = 47, int = 33, mnd = 33, chr = 40, dex = 44, def = 158,
-                         attack_skill = 123 },
-                [43] = { acc = 154, eva = 145, agi = 47, int = 33, mnd = 33, chr = 41, dex = 44, def = 161,
-                         attack_skill = 126 },
-                [44] = { acc = 158, eva = 150, agi = 50, int = 34, mnd = 34, chr = 42, dex = 47, def = 166,
-                         attack_skill = 129 },
-                [45] = { acc = 161, eva = 153, agi = 50, int = 36, mnd = 36, chr = 43, dex = 47, def = 169,
-                         attack_skill = 132 },
                 [46] = { acc = 165, eva = 157, agi = 52, int = 36, mnd = 36, chr = 44, dex = 48, def = 172,
                          attack_skill = 135 },
                 [47] = { acc = 168, eva = 159, agi = 52, int = 37, mnd = 37, chr = 44, dex = 49, def = 175,
@@ -631,8 +624,6 @@ return {
                 [48] = { acc = 172, eva = 162, agi = 53, int = 37, mnd = 37, chr = 45, dex = 50, def = 178,
                          attack_skill = 141 },
             },
-            spawn_levels = { [17] = { 42, 46 }, [20] = { 46, 48 }, [244] = { 46, 48 }, [247] = { 46, 48 },
-                             [300] = { 46, 48 }, [303] = { 46, 48 } },
             ranks  = { fire = -3, ice = 2, light = -3, dark = 2, paralyze = 2, bind = 2, light_sleep = -3,
                        dark_sleep = 2, blind = 2 },
             undead = true,
@@ -649,7 +640,7 @@ return {
             info = {
                 family = { value = 'Shadow / Undead', notes = { 'Source species: Shadow (ID 415); family ID 177.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Not charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
-                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [42] = 1802, [43] = 1885, [44] = 1968, [45] = 2046, [46] = 2129, [47] = 2212, [48] = 2295 }, mp = { [42] = 0, [43] = 0, [44] = 0, [45] = 0, [46] = 0, [47] = 0, [48] = 0 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
+                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [46] = 2129, [47] = 2212, [48] = 2295 }, mp = { [46] = 0, [47] = 0, [48] = 0 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
                 movement = { value = 'Base speed 40', notes = { 'Source base speed is 40; the ordinary monster default is 40. Animation speed is 40.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'Dark crystal (conditional)', notes = { 'Source crystal element: Dark.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
@@ -753,7 +744,7 @@ return {
             ph_for = { [117] = { 118 } },
             ph_rules = {
                 [117] = {
-                    [118] = { chance = 15, cooldown_min = 3600, cooldown_max = 3600, conditions = { 'A successful roll uses the PH respawn delay.' } },
+                    [118] = { chance = 15, cooldown_min = 3600, cooldown_max = 3600, conditions = { 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.' } },
                 },
             },
             ranks  = { fire = -3, ice = 4, wind = -2, thunder = -2, water = -2, light = -3, dark = 4, paralyze = 4,
@@ -1440,7 +1431,7 @@ return {
                 crystal = { value = 'Dark crystal (conditional)', notes = { 'Source crystal element: Dark.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.' } },
                 traits = { value = 'Double Attack 10', notes = { 'Base attack delay 240 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
-                spawn = { value = 'Lottery', notes = { 'Lottery spawn; see a listed placeholder for its chance and cooldown rules.', 'Source rules only; no remaining time or open spawn window is known.' } },
+                spawn = { value = 'Lottery', notes = { 'Native slot chance: 15% on an eligible reroll.', 'The member cooldown is 3600 seconds after its defeat; it does not reveal the current spawn window.', 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.', 'The NM\'s actual respawn is controlled by its script or spawn rules; the base delay is not a live window.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 claim = { value = 'Claimshield 5 seconds', notes = { 'This Phoenix list entry is unclaimable and unkillable for 5 seconds after spawning. Call for Help is blocked during the shield.', 'When the shield ends, Phoenix selects claim from eligible entries on its enmity list. Remaining shield time and the winner are not known.' } },
                 dangers = { value = 'Normal attacks: HP drain; Howling: Paralysis; Poison Breath Hound: Poison; Rot Gas: Disease; Dirty Claw: can crit; Shadow Claw: Blindness; Drain: HP drain; Aspir: MP drain; Curse: Curse; Sleepga II: area sleep; Paralyga: Paralysis; Blindga: Blindness', notes = { 'Normal attacks: HP drain. Normal hits can drain HP while Blood Weapon is active, except against undead targets. This list does not show whether Blood Weapon is active now.', 'Howling: Paralysis. Source targeting: area around the monster.', 'Poison Breath Hound: Poison. Source targeting: cone.', 'Rot Gas: Disease. Source targeting: area around the monster.', 'Dirty Claw: can crit. This move can crit. Its current critical chance is not known. Source targeting: single target.', 'Shadow Claw: Blindness. Source targeting: single target.', 'Drain: HP drain.', 'Aspir: MP drain.', 'Curse: Curse.', 'Sleepga II: area sleep. Possible effects: Sleep.', 'Paralyga: Paralysis.', 'Blindga: Blindness.', 'These are possible moves from the source. They do not predict the next move.', 'Effects can miss, be resisted or be blocked by immunity. Range, targets, TP, recasts and skill checks still apply.', 'Listed spells can depend on the monster\'s level; explicit scripted casts have separate conditions.', 'A move choice in the script could not be read.' }, entries = { { kind = 'attack', id = 0, name = 'Normal attacks', summary = 'Normal attacks: HP drain', notes = { 'Normal hits can drain HP while Blood Weapon is active, except against undead targets. This list does not show whether Blood Weapon is active now.' }, categories = { 'drain' }, effects = { 'HP drain' }, details = { notes = {  }, unknown = {  } } }, danger[63], danger[66], danger[69], danger[70], danger[73], { kind = 'spell', id = 245, name = 'Drain', summary = 'Drain: HP drain', notes = {  }, categories = { 'drain' }, effects = { 'HP drain' }, details = danger[20], level_ranges = { { 1, 255 } } }, { kind = 'spell', id = 247, name = 'Aspir', summary = 'Aspir: MP drain', notes = {  }, categories = { 'drain' }, effects = { 'MP drain' }, details = danger[20], level_ranges = { { 1, 255 } } }, { kind = 'spell', id = 257, name = 'Curse', summary = 'Curse: Curse', notes = {  }, categories = { 'debuff' }, effects = { 'Curse' }, details = { notes = { 'Base casting range: 20 yalms. Normal selection adds both hitboxes; monster casts also have a 28.5-yalm limit.', 'Area: single target.', 'These source distances do not establish a safe place to stand.', 'One Utsusemi image can absorb the spell. Blink absorption can fail.', 'Reviewed removal options: Curse: Cursna, Holy Water.', 'These are selected options, not a complete cure list. The spell or item must be usable; this does not check supplies, recasts or whether you can act.', 'Cursna and Holy Water handle a successful Doom removal before Curse when both are present.' }, unknown = {  }, activation_range = 20.0, shape = 'single target', shadows = { { mode = 'absorb', count = 1, per_hit = false } }, removals = { { effect = 'Curse', options = { 'Cursna', 'Holy Water' } } } }, level_ranges = { { 1, 255 } } }, { kind = 'spell', id = 274, name = 'Sleepga II', summary = 'Sleepga II: area sleep', notes = { 'Possible effects: Sleep.' }, categories = { 'debuff' }, effects = { 'Sleep' }, details = danger[51], level_ranges = { { 1, 255 } } }, { kind = 'spell', id = 356, name = 'Paralyga', summary = 'Paralyga: Paralysis', notes = {  }, categories = { 'debuff' }, effects = { 'Paralysis' }, details = { notes = { 'Base casting range: 20 yalms. Normal selection adds both hitboxes; monster casts also have a 28.5-yalm limit.', 'Area: 16 yalms radius, area around the target.', 'These source distances do not establish a safe place to stand.', 'The area spell removes Utsusemi and Blink before its effect check.', 'Reviewed removal options: Paralysis: Paralyna, Remedy.', 'These are selected options, not a complete cure list. The spell or item must be usable; this does not check supplies, recasts or whether you can act.', 'Paralysis can interrupt Remedy before it cures you.' }, unknown = {  }, activation_range = 20.0, shape = 'area around the target', effect_radius = 16.0, shadows = { { mode = 'wipe' } }, removals = { { effect = 'Paralysis', options = { 'Paralyna', 'Remedy' } } } }, level_ranges = { { 1, 255 } } }, { kind = 'spell', id = 361, name = 'Blindga', summary = 'Blindga: Blindness', notes = {  }, categories = { 'debuff' }, effects = { 'Blindness' }, details = { notes = { 'Base casting range: 20 yalms. Normal selection adds both hitboxes; monster casts also have a 28.5-yalm limit.', 'Area: 16 yalms radius, area around the target.', 'These source distances do not establish a safe place to stand.', 'The area spell removes Utsusemi and Blink before its effect check.', 'Reviewed removal options: Blindness: Blindna, Eye Drops, Remedy.', 'These are selected options, not a complete cure list. The spell or item must be usable; this does not check supplies, recasts or whether you can act.' }, unknown = {  }, activation_range = 20.0, shape = 'area around the target', effect_radius = 16.0, shadows = { { mode = 'wipe' } }, removals = { { effect = 'Blindness', options = { 'Blindna', 'Eye Drops', 'Remedy' } } } }, level_ranges = { { 1, 255 } } } }, coverage = 'partial', incomplete = true, reasons = { 'A move choice in the script could not be read.' }, general_notes = danger[54] },
                 blue = { value = 'Poison Breath', notes = { 'Possible spells from moves this monster can use. It must actually use the move before defeat; learning is not guaranteed.', 'Other spells may be missing because some move choices could not be read.', 'A move choice in the script could not be read.' }, spells = { { id = 536, name = 'Poison Breath', level = 22, min_skill = 38, skill_ids = { 466 } } }, requirements = { 'You need Blue Mage as your main job and enough current Blue Magic skill. When the monster dies, you must be alive and within 100 yalms in the same zone. You cannot learn a spell you already know, or learn from a Call for Help kill.', 'Equipment skill bonuses count. The spell\'s casting level is not a minimum learning level.', 'You or your party or alliance must get credit for the kill. Only one spell that meets the requirements gets a learning roll each time the monster dies.' }, incomplete = true },

@@ -1,10 +1,10 @@
 -- Crit: the Critical Hit Rate and Enemy Critical Hit Rate merits, the main level each count of them
 -- needs, and the gear that changes the crits you take.
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each merit: its id in the merit list the server sends, what one adds to your crit or takes off
     -- the crits you take, in percent, and the most you can have

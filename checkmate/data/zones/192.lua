@@ -1,5 +1,5 @@
 -- Inner Horutoto Ruins (zone 192).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -90,7 +90,7 @@ danger[83] = { notes = danger[82], unknown = {  }, activation_range = 20.0, shap
 danger[84] = { kind = 'spell', id = 254, name = 'Blind', summary = 'Blind: Blindness', notes = {  }, categories = { 'debuff' }, effects = { 'Blindness' }, details = danger[83], level_ranges = { { 4, 255 } } };
 danger[85] = { kind = 'spell', id = 258, name = 'Bind', summary = 'Bind: bind', notes = { 'Possible effects: Bind.' }, categories = { 'debuff' }, effects = { 'Bind' }, details = danger[62], level_ranges = { { 7, 255 } } };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -127,14 +127,7 @@ return {
                         attack_skill = 7 },
                 [3] = { acc = 16, eva = 15, agi = 10, int = 6, mnd = 6, chr = 7, dex = 9, def = 21,
                         attack_skill = 10 },
-                [4] = { acc = 20, eva = 19, agi = 12, int = 7, mnd = 7, chr = 8, dex = 11, def = 25,
-                        attack_skill = 13 },
-                [5] = { acc = 23, eva = 22, agi = 12, int = 8, mnd = 8, chr = 9, dex = 11, def = 28,
-                        attack_skill = 16 },
             },
-            spawn_levels = { [1] = { 1, 3 }, [2] = { 1, 3 }, [3] = { 1, 3 }, [4] = { 1, 3 }, [10] = { 1, 3 },
-                             [11] = { 1, 3 }, [16] = { 1, 3 }, [17] = { 1, 3 }, [155] = { 1, 3 },
-                             [156] = { 1, 3 } },
             ranks  = { fire = -2, ice = -1, wind = -3, earth = -2, thunder = -2, water = -2, light = -3, dark = 6,
                        paralyze = -1, bind = -1, silence = -3, slow = -2, poison = -2, light_sleep = -3,
                        dark_sleep = 6, blind = 6, stun = -2, gravity = -3 },
@@ -146,7 +139,7 @@ return {
             info = {
                 family = { value = 'Flock Bat / Bird', notes = { 'Source species: Flock Bat (ID 181); family ID 81.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
-                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [1] = 33, [2] = 46, [3] = 62, [4] = 79, [5] = 99 }, mp = { [1] = 0, [2] = 0, [3] = 0, [4] = 0, [5] = 0 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
+                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [1] = 33, [2] = 46, [3] = 62 }, mp = { [1] = 0, [2] = 0, [3] = 0 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
                 movement = { value = 'Base speed 40', notes = { 'Source base speed is 40; the ordinary monster default is 40. Animation speed is 40.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'Wind crystal (conditional)', notes = { 'Source crystal element: Wind.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
@@ -211,10 +204,6 @@ return {
             ids    = { 8, 13, 21, 24, 26, 28, 30, 39, 43, 60, 63, 69, 70, 72 },
             job    = 'rdm/rdm',
             levels = {
-                [1] = { acc = 10, eva = 8, agi = 8, int = 9, mnd = 9, chr = 7, dex = 8, def = 16,
-                        attack_skill = 5 },
-                [2] = { acc = 13, eva = 10, agi = 8, int = 9, mnd = 9, chr = 7, dex = 8, def = 18,
-                        attack_skill = 7 },
                 [3] = { acc = 16, eva = 13, agi = 8, int = 9, mnd = 9, chr = 7, dex = 8, def = 21,
                         attack_skill = 10 },
                 [4] = { acc = 20, eva = 16, agi = 9, int = 11, mnd = 11, chr = 9, dex = 10, def = 24,
@@ -223,10 +212,8 @@ return {
                         attack_skill = 16 },
                 [6] = { acc = 26, eva = 22, agi = 11, int = 12, mnd = 12, chr = 9, dex = 11, def = 31,
                         attack_skill = 19 },
-                [7] = { acc = 30, eva = 25, agi = 11, int = 13, mnd = 13, chr = 11, dex = 12, def = 33,
-                        attack_skill = 22 },
             },
-            spawn_levels = { [21] = { 3, 6 }, [24] = { 3, 6 }, [26] = { 3, 4 }, [28] = { 3, 4 }, [30] = { 3, 4 } },
+            spawn_levels = { [26] = { 3, 4 }, [28] = { 3, 4 }, [30] = { 3, 4 } },
             ranks  = { fire = -2, ice = -2, wind = -2, earth = -2, thunder = -2, water = -2, light = -3,
                        paralyze = -2, bind = -2, silence = -2, slow = -2, poison = -2, light_sleep = -3, stun = -2,
                        gravity = -2 },
@@ -247,7 +234,7 @@ return {
             info = {
                 family = { value = 'Goblin / Beastmen', notes = { 'Source species: Goblin (ID 126); family ID 58.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Not charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
-                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [1] = 29, [2] = 40, [3] = 54, [4] = 69, [5] = 87, [6] = 99, [7] = 112 }, mp = { [1] = 28, [2] = 49, [3] = 71, [4] = 94, [5] = 118, [6] = 142, [7] = 167 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
+                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [3] = 54, [4] = 69, [5] = 87, [6] = 99 }, mp = { [3] = 71, [4] = 94, [5] = 118, [6] = 142 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
                 movement = { value = 'Base speed 40', notes = { 'Source base speed is 40; the ordinary monster default is 40. Animation speed is 40.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'Fire crystal (conditional)', notes = { 'Source crystal element: Fire.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },

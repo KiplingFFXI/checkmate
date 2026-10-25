@@ -9,7 +9,7 @@ return {
         trick_attack = 87,
         troubadour = 348,
     },
-    built = 'phoenix/live 071c401048',
+    built = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     effects = {
         [5] = {

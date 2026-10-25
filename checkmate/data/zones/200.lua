@@ -1,5 +1,5 @@
 -- Garlaige Citadel (zone 200).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -189,7 +189,7 @@ danger[182] = { { effect = 'Flash', options = { 'Erase (one random eligible time
 danger[183] = { notes = danger[181], unknown = {  }, activation_range = 20.0, shape = 'single target', shadows = { { mode = 'absorb', count = 1, per_hit = false } }, removals = danger[182] };
 danger[184] = { kind = 'spell', id = 112, name = 'Flash', summary = 'Flash: Flash', notes = {  }, categories = { 'debuff' }, effects = { 'Flash' }, details = danger[183], level_ranges = { { 45, 255 } } };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -1410,8 +1410,6 @@ return {
             name   = 'Fallen Major',
             ids    = { 197, 198, 207, 208, 249, 250, 253, 254 },
             levels = {
-                [59] = { acc = 231, eva = 216, agi = 63, int = 47, mnd = 44, chr = 53, dex = 67, def = 231,
-                         attack_skill = 191 },
                 [60] = { acc = 236, eva = 221, agi = 63, int = 47, mnd = 44, chr = 53, dex = 67, def = 236,
                          attack_skill = 196 },
                 [61] = { acc = 242, eva = 227, agi = 66, int = 49, mnd = 46, chr = 55, dex = 70, def = 242,
@@ -1419,7 +1417,6 @@ return {
                 [62] = { acc = 247, eva = 232, agi = 66, int = 49, mnd = 46, chr = 55, dex = 70, def = 247,
                          attack_skill = 203 },
             },
-            spawn_levels = { [197] = { 60, 62 }, [198] = { 60, 62 }, [207] = { 60, 62 }, [208] = { 60, 62 } },
             ranks  = { fire = -3, wind = -2, earth = -2, thunder = -2, water = -2, light = -3, dark = 4,
                        silence = -2, slow = -2, poison = -2, light_sleep = -3, dark_sleep = 11, blind = 4,
                        stun = -2, gravity = -2 },
@@ -1434,7 +1431,7 @@ return {
             info = {
                 family = { value = 'Skeleton / Undead', notes = { 'Source species: Skeleton (ID 419); family ID 178.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Not charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
-                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [59] = 3273, [60] = 3356, [61] = 3440, [62] = 3523 }, mp = { [59] = 0, [60] = 0, [61] = 0, [62] = 0 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
+                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [60] = 3356, [61] = 3440, [62] = 3523 }, mp = { [60] = 0, [61] = 0, [62] = 0 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
                 movement = { value = 'Base speed 40', notes = { 'Source base speed is 40; the ordinary monster default is 40. Animation speed is 40.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'Earth crystal (conditional)', notes = { 'Source crystal element: Earth.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
@@ -1569,6 +1566,7 @@ return {
                 [64] = { acc = 256, eva = 237, agi = 56, int = 69, mnd = 66, chr = 64, dex = 68, def = 256,
                          attack_skill = 210 },
             },
+            spawn_levels = { [306] = { 63, 64 }, [309] = { 62, 63 } },
             ranks  = { fire = 2, ice = 2, wind = 2, earth = 2, thunder = 2, water = 2, light = 2, dark = 2,
                        paralyze = 2, bind = 2, silence = 2, slow = 2, poison = 2, light_sleep = 2, dark_sleep = 2,
                        blind = 2, stun = 2, gravity = 2 },

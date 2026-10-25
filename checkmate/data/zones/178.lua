@@ -1,5 +1,5 @@
 -- The Shrine of RuAvitau (zone 178).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -146,7 +146,7 @@ danger[139] = { danger[129], danger[132], danger[133], danger[138] };
 danger[140] = { 'Normal activation range: 8 yalms. This is the move selection limit, not its affected area.', 'Area: single target.', 'These source distances do not establish a safe place to stand.', 'Shadow check: 1 image per hit. Too few images do not fully block it.', 'Blink absorption can fail.', 'The damage shadow rule does not establish whether every additional effect is blocked.', 'Reviewed removal options: Bind: Erase (one random eligible timed ailment), Panacea.', 'These are selected options, not a complete cure list. The spell or item must be usable; this does not check supplies, recasts or whether you can act.' };
 danger[141] = { notes = danger[140], unknown = {  }, activation_range = 8.0, shape = 'single target', shadows = { { mode = 'absorb', per_hit = true, count = 1 } }, removals = danger[45] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     link_lists = {},
     monsters = {
@@ -409,7 +409,7 @@ return {
                 [71] = { acc = 296, eva = 286, agi = 88, int = 63, mnd = 52, chr = 68, dex = 80, def = 288,
                          attack_skill = 237 },
                 [72] = { acc = 301, eva = 291, agi = 88, int = 63, mnd = 52, chr = 68, dex = 80, def = 293,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 306, eva = 296, agi = 89, int = 66, mnd = 54, chr = 68, dex = 80, def = 299,
                          attack_skill = 246 },
                 [74] = { acc = 312, eva = 302, agi = 90, int = 66, mnd = 54, chr = 69, dex = 82, def = 304,
@@ -741,7 +741,7 @@ return {
                 [71] = { acc = 292, eva = 269, agi = 71, int = 83, mnd = 67, chr = 67, dex = 72, def = 279,
                          attack_skill = 237 },
                 [72] = { acc = 297, eva = 274, agi = 71, int = 83, mnd = 67, chr = 67, dex = 72, def = 284,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
             },
             ranks  = { ice = -3, wind = 11, earth = 11, paralyze = -3, bind = -3, silence = 11, slow = 11,
                        gravity = 11 },
@@ -776,7 +776,7 @@ return {
                 [71] = { acc = 292, eva = 269, agi = 71, int = 83, mnd = 67, chr = 67, dex = 72, def = 279,
                          attack_skill = 237 },
                 [72] = { acc = 297, eva = 274, agi = 71, int = 83, mnd = 67, chr = 67, dex = 72, def = 284,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
             },
             ranks  = { wind = -3, earth = 11, thunder = 11, silence = -3, slow = 11, stun = 11, gravity = -3 },
             weapon_dmg = { slashing = -75, piercing = -75, blunt = -75, hand_to_hand = -75 },

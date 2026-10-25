@@ -1,5 +1,5 @@
 -- Promyvion-Vahzl (zone 22).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -93,7 +93,7 @@ danger[86] = { kind = 'skill', id = 1258, name = 'Lamentation', summary = 'Lamen
 danger[87] = { danger[54], danger[82], danger[86] };
 danger[88] = { value = 'Vanity Strike: Stun, can crit; Wanion: AGI down, Accuracy down, Addle, Attack down, Bio, Blindness, Burn, CHR down, Choke, DEX down, Defense down, Dia, Drown, Evasion down, Frost, INT down, MND down, Magic accuracy down, Magic attack down, Magic defense down, Paralysis, Poison, Rasp, STR down, Shock, Silence, Slow, VIT down, Weight; Lamentation: Dia', notes = danger[50], entries = danger[87], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[24] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

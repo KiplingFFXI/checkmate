@@ -93,9 +93,9 @@ class SourceParityTests(unittest.TestCase):
                 source_parity.check_guards(self.tree)
 
     def test_real_lottery_examples(self):
-        cases = [('South_Gustaberg/Rock_Lizard', 10, 1, 1),
-                 ('Attohwa_Chasm/Corse', 10, 10800, 21600),
-                 ('Quicksand_Caves/Helm_Beetle', 20, 3600, 3600)]
+        cases = [('Konschtat_Highlands/Tremor_Ram', 10, 1200, 1200),
+                 ('Konschtat_Highlands/Rampaging_Ram', 10, 75600, 75600),
+                 ('RuAun_Gardens/Groundskeeper', 5, 7200, 7200)]
         for name, chance, low, high in cases:
             zone, mob = name.split('/')
             path = Path(self.tree) / 'scripts/zones' / zone / 'mobs' / (mob + '.lua')
@@ -104,34 +104,30 @@ class SourceParityTests(unittest.TestCase):
 
     def test_effective_nm_cooldowns_replace_helper_arguments(self):
         rules = ph_rules.NmRules(self.tree)
-        # The PH passes one second, but the loaded NM despawn override bypasses it.
-        path = Path(self.tree) / 'scripts/zones/South_Gustaberg/mobs/Rock_Lizard.lua'
+        # The PH passes twenty minutes; the loaded era callback sets an hour.
+        path = Path(self.tree) / 'scripts/zones/Konschtat_Highlands/mobs/Tremor_Ram.lua'
         base = ph_rules.read(path.read_text(encoding='utf8'))[0][1]
-        self.assertEqual(base['cooldown_min'], 1)
-        actual = rules.apply('South_Gustaberg', 'Leaping_Lizzy', base)
+        self.assertEqual(base['cooldown_min'], 1200)
+        actual = rules.apply('Konschtat_Highlands', 'Rampaging_Ram', base)
         self.assertEqual((actual['chance'], actual['cooldown_min'], actual['cooldown_max']), (10, 3600, 3600))
-        self.assertEqual(len(rules.cooldowns), 9)
-        self.assertEqual(rules.cooldowns['Castle_Zvahl_Keep', 'Baron_Vapula'], 7200)
-        self.assertEqual(rules.cooldowns['South_Gustaberg', 'Leaping_Lizzy'], 3600)
+        self.assertEqual(rules.cooldowns, {('Konschtat_Highlands', 'Rampaging_Ram'): 3600,
+                                           ('La_Theine_Plateau', 'Lumbering_Lambert'): 3600})
         self.assertTrue(any('ignores' in note for note in actual['conditions']))
-        self.assertEqual(base['cooldown_min'], 1)
+        self.assertEqual(base['cooldown_min'], 1200)
 
-    def test_nm_kill_only_and_persistent_cooldowns(self):
+    def test_native_slot_nms_do_not_inherit_removed_lua_cooldowns(self):
         rules = ph_rules.NmRules(self.tree)
         base = {'chance': 10, 'cooldown_min': 10800, 'cooldown_max': 21600, 'conditions': []}
-        for zone, mob in [('Attohwa_Chasm', 'Citipati'), ('Rolanberry_Fields', 'Black_Triple_Stars')]:
-            actual = rules.apply(zone, mob, base)
-            self.assertTrue(any('natural despawn skips' in note for note in actual['conditions']))
-        actual = rules.apply('The_Boyahda_Tree', 'Leshonki', base)
-        self.assertFalse(any('natural despawn skips' in note for note in actual['conditions']))
-        actual = rules.apply('Jugner_Forest', 'Fradubio', base)
-        self.assertEqual((actual['cooldown_min'], actual['cooldown_max']), (75600, 75600))
-        self.assertTrue(any('saved across' in note for note in actual['conditions']))
+        for zone, mob in [*ph_rules.NM_SCRIPTS, ('Jugner_Forest', 'Fradubio')]:
+            with self.subTest(zone=zone, mob=mob):
+                self.assertEqual(rules.apply(zone, mob, base), base)
+        self.assertEqual(ph_rules.read((Path(self.tree) / 'scripts/zones/South_Gustaberg/mobs/Rock_Lizard.lua')
+                                     .read_text(encoding='utf8')), [])
 
-    def test_changed_nm_override_and_skip_condition_stop_export(self):
+    def test_changed_nm_override_and_reviewed_script_stop_export(self):
         original = Path.read_text
-        for relative, before, after in [(ph_rules.ERA_TIMERS, "'Valkurm_Emperor',   3600", "'Valkurm_Emperor',   3601"),
-                ('scripts/zones/Attohwa_Chasm/mobs/Citipati.lua', "getLocalVar('killed') == 0", "getLocalVar('killed') == 1")]:
+        for relative, before, after in [(ph_rules.ERA_TIMERS, "'Rampaging_Ram',     3600", "'Rampaging_Ram',     3601"),
+                ('scripts/zones/Attohwa_Chasm/mobs/Citipati.lua', 'xi.hunts.checkHunt', 'xi.hunts.changedHunt')]:
             path = Path(self.tree) / relative
             self.assertIn(before, original(path, encoding='utf8'))
 

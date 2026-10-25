@@ -17,6 +17,11 @@ class SpawnRulesTests(unittest.TestCase):
         self.assertEqual((pairs[0][2]['chance'], pairs[0][2]['cooldown_min']), (15, 3600))
         self.assertNotIn(100, facts)
         self.assertIn('restart', ' '.join(facts[101]['notes']))
+        notes = ' '.join(facts[101]['notes'])
+        self.assertIn('3600 seconds after its defeat', notes)
+        self.assertIn('A kill opens the next lottery roll; a despawn alone does not.', notes)
+        self.assertIn('spawn check must also allow', notes)
+        self.assertNotIn('after despawn', notes)
 
     def test_native_slot_does_not_treat_every_alternative_as_a_lottery_ph(self):
         self.assertEqual(spawn_rules.native_slots({'slots': [{'members': {100: {}, 101: {}}}]}, {100, 101}), ([], {}))
@@ -105,6 +110,17 @@ class SpawnSourceTests(unittest.TestCase):
         for (relative, name), expected in encounters.NATIVE_GUARDS.items():
             if relative in ('src/map/spawn_slot.cpp', 'src/map/spawn_handler.cpp'):
                 self.assertEqual(encounters.native_digest((self.tree / relative).read_text(encoding='utf8'), name), expected, name)
+
+    def test_changed_lottery_initial_state_stops_the_export(self):
+        original = Path.read_text
+        relative = 'src/map/spawn_slot.h'
+
+        def changed(path, *args, **kwargs):
+            text = original(path, *args, **kwargs)
+            return text.replace('bool lotteryOpen{ false };', 'bool lotteryOpen{ true };') if path == self.tree / relative else text
+
+        with mock.patch.object(Path, 'read_text', changed), self.assertRaisesRegex(RuntimeError, 'spawn_slot.h changed'):
+            encounters.check_source(self.tree, [])
 
     def test_changed_ferry_helper_fails_before_publishing_routes(self):
         original = Path.read_text

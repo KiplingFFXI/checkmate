@@ -30,22 +30,22 @@ EXTRA_METHODS = re.compile(r'\b(?:mob\w*)\s*:\s*(speed|setBaseSpeed|setAnimation
 
 # Changes here need a review of the stored facts and estimates.
 GUARDS = {
-    'src/map/utils/mobutils.cpp': '2ac10808f4398c224f8ffbe209389c7ef6d1fd3055b1c7db2d96b62317535702',
-    'src/map/entities/battle_entity.cpp': '7116cc8b94b2fc734c59c82309935ae7b6f7d3766e53d5f53b4f664143827904',
-    'src/map/entities/mob_entity.cpp': '8005abbc1398135d1c02ab87cc1f71793dbe104d2bcc5feed37188215c705aa1',
-    'src/map/grades.cpp': 'd5c5bd981b8a3b5a91312eff7f52fe08ae158c728c53e0cc160d9a2c57bd65af',
-    'src/map/instance_loader.cpp': '704f0013a317a0add9cd432469c6f0cae9ffb042876f3e61ac80ff376110fb4a',
-    'src/map/ai/controllers/mob_controller.cpp': 'b7cc20a4d2252e049ffaa0014abb43d5cff6822e0a8064ba8a5b9e90d1aa6c63',
+    'src/map/utils/mobutils.cpp': '6d4169c3035f32946a34264d5cf390dad76cd159cc487bc174f3be603d4b74c2',
+    'src/map/entities/battle_entity.cpp': 'b8831a69882dcd7789976cb64a6ec2dba5e9ce6501fccc28bc160ace240d430e',
+    'src/map/entities/mob_entity.cpp': '44e18c7fc83a00ca5707150a641e6101e4aaae4d37715bb9852215c93a40d6b9',
+    'src/map/grades.cpp': '18040c5ff421067f4442d6563de1ea63e104218a1206d542195de6d375fe05fe',
+    'src/map/instance_loader.cpp': 'ae033eef49d1cf9f1b09bab7a873ce9df51487794a29f0f0827183e9dab12138',
+    'src/map/ai/controllers/mob_controller.cpp': '5119010ee43b7fea6e00769f7b80c31a6a875818e80561a2a1c9a064af091045',
     'src/map/data/shared_types/mob_attributes/dataset.cpp': '8cfd4ed2de15c7ecabb81d0f27f421d23ab25b4191ed1fb0bd9ce168d3e5c3f9',
-    'src/map/lua/lua_base_entity.cpp': '188d9b9b5cb19b7afe7590b4cef1d47a79385f1631bd1c7b9deb3e85a757a1bf',
+    'src/map/lua/lua_base_entity.cpp': 'f0370b4bbd58ccc3d96acd589314feeb6b38581eabb9dce503a61d173bf5d9f7',
     'scripts/globals/job_utils/beastmaster.lua': '94d4ff6800cc8d11d588993f8c0c6d544d64838008e1a42e488d2467ba346846',
     'modules/phoenix/lua/custom/exp_penalties.lua': 'fcc1b93356db22fe94a077e1256e6676769466f3983388baaf239db32d7fca92',
-    'src/map/utils/zoneutils.cpp': '4b4a0c73c84948588bbeada8bca32b81bda9fd7bf7395224a004be3af3d7c399',
-    'src/map/attackround.cpp': '4bf06ac41df75fc7690b3ebda64fe91c93edadf8f6f67f8853ab0829992f8256',
-    'src/map/utils/battleutils.cpp': '9ed0e465ebdd99d7f56b3bfd388b415b19597cd1fc03b21519abb40420db50cb',
+    'src/map/utils/zoneutils.cpp': 'f8d19a59b4c26d8c78dcb4505b0c9204da0d400667be4340c138499cb94310cf',
+    'src/map/attackround.cpp': '9453e82d9d7dcb895a7ef0a9e9c44fe6bd1e3c9e07b746904aa56b8f43853442',
+    'src/map/utils/battleutils.cpp': 'c92323c3f6769ad6164737a484c573b31249c85018cf3cc37c7cc0c65aba3794',
     'scripts/globals/job_utils/thief.lua': '2818aca1ab4b9ca9de8d9de65e931798c0c0ef840fe3aea5a9cbcf338dd50d8a',
 }
-MODULE_GUARD = '9bfea357df0693c0b79a2361c08ab92cfdc2b4446575bd08aaad50af81ca45db'
+MODULE_GUARD = '1622ac66b3b0e25a153fc2be472e2bfb4655716ee3ba95ab17f9a9923fae26f9'
 
 
 def fingerprint(text):

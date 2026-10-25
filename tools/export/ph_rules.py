@@ -8,19 +8,19 @@ from . import aggro, lua_source
 
 CALL = re.compile(r'xi\.mob\.phOnDespawn\s*\(')
 
-# These loaded modules can replace the helper's cooldown from the NM side.
+# Reviewed modules that change NM cooldowns and respawns.
 ERA_TIMERS = 'modules/era/lua/globals/old_nm_respawn_timers.lua'
 PERSISTENCE = 'modules/phoenix/lua/custom/pxi_timed_nm_respawn_persistence.lua'
 NM_MODULES = {
-    ERA_TIMERS: '0ee28751acdca6103e51ee2cb3d5e2b16f8eb18c15593fb60e79293dd26cad98',
-    PERSISTENCE: '5d3036e1f0221ad657fbe56620f1f24d3d88723aa62e9c1622622bdb0d27f5ed',
+    ERA_TIMERS: '0fc1cac8a149adcc7de27f772613abe97aba0e95fb5a306689ca133c65dfce6c',
+    PERSISTENCE: '99e833335da377afaa831c4ac5caa1ea5c92f450476852a58491e0dad3429334',
 }
 NM_SCRIPTS = {
-    ('Attohwa_Chasm', 'Citipati'): '40f5e21066e3e258d56b184ce6a0f4b773879513b39427e4d0cf49bed2b874d4',
-    ('Bostaunieux_Oubliette', 'Manes'): 'e1b372355e0440815cb21fbbde75b244d67b0a69f2656ef82751832c5005e285',
-    ('Bostaunieux_Oubliette', 'Shii'): '263676c036c56998bc48ea917b0479a308d37451b1f6f9129996175446a49d0c',
-    ('Rolanberry_Fields', 'Black_Triple_Stars'): '7f574030563107f74b607c666cb99dccf7b6107a5e7a89e639b5bec6ed2ac6e7',
-    ('The_Boyahda_Tree', 'Leshonki'): '88c0dd578ca39d67d84c71eb64765dfe7353a38fd3dae2cee64e9a8a8b65bc48',
+    ('Attohwa_Chasm', 'Citipati'): '216b4142232194ea310ec282cab218c349e01a07bb8f19513590aa16a990f825',
+    ('Bostaunieux_Oubliette', 'Manes'): 'd45cbbfdf061b2fbc95371d88f97cf8239951228bf581b16f2d9b3a4cab11c1f',
+    ('Bostaunieux_Oubliette', 'Shii'): '11eaf50a920601599a5ae2ec87419430dcf920a76159a998110ab0e558f93020',
+    ('Rolanberry_Fields', 'Black_Triple_Stars'): '990083259f3460f26c2486c2d8618284ad7dfeddb8bb495604511a1c0c5c5804',
+    ('The_Boyahda_Tree', 'Leshonki'): 'ba6f1e634f45160bcebbdf2517cb3a9ae7f023209c81233b8c447c36a77a8001',
 }
 NM_STATE = re.compile(r'''['"]pop['"]|doNotInvokeCooldown|DESPAWN_''')
 
@@ -38,7 +38,7 @@ class NmRules:
 
     def __init__(self, tree):
         self.tree, self.checked = tree, set()
-        self.cooldowns, self.persistent = {}, False
+        self.cooldowns = {}
         for path in aggro.lua_files_loaded(tree):
             text = lua_source.strip_comments((Path(tree) / path).read_text(encoding='utf8'))
             if path in NM_MODULES or NM_STATE.search(text):
@@ -47,9 +47,6 @@ class NmRules:
                 body = re.search(r'local lotteryNMs\s*=\s*\{(.*?)\n\}', text, re.S).group(1)
                 for zone, mob, cooldown in re.findall(r"\{\s*'([^']+)',\s*'([^']+)',\s*(\d+)\s*\}", body):
                     self.cooldowns[zone, mob] = int(cooldown)
-                # Later table.insert calls are WotG-only, outside the enabled row set.
-            if path == PERSISTENCE:
-                self.persistent = True
 
     def apply(self, zone, mob, rule):
         rule = dict(rule, conditions=list(rule['conditions']))
@@ -64,12 +61,6 @@ class NmRules:
         if key in self.cooldowns:
             rule['cooldown_min'] = rule['cooldown_max'] = self.cooldowns[key]
             rule['conditions'].append('This era cooldown ignores the server lottery cooldown multiplier.')
-        if key in NM_SCRIPTS and mob != 'Leshonki':
-            rule['conditions'].append('This cooldown starts only after a kill; a natural despawn skips it.')
-        # Leshonki's source checks NIGHT and MIDNIGHT at once, so its skip never runs.
-        if self.persistent and key == ('Jugner_Forest', 'Fradubio'):
-            rule['cooldown_min'] = rule['cooldown_max'] = 75600
-            rule['conditions'].append('Its cooldown deadline is saved across server restarts.')
         return rule
 
 

@@ -51,6 +51,23 @@ class EncounterTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, 'unreadable'):
             encounters.apply_sql([], [], 'TRUNCATE TABLE mob_skill_lists', 'fixture')
 
+    def test_kit_name_list_replaces_only_selected_pet_moves(self):
+        columns = ['skill_list_name', 'skill_list_id', 'mob_skill_id']
+        rows = [dict(zip(columns, values)) for values in [('Jug_Hare', 733, 10), ('Jug_Crab', 738, 20), ('Ordinary', 1, 30)]]
+        rows = encounters.apply_sql(rows, columns,
+                                    "DELETE FROM mob_skill_lists WHERE skill_list_name IN ('Jug_Hare', 'Jug_Crab')", 'fixture')
+        self.assertEqual(rows, [dict(zip(columns, ('Ordinary', 1, 30)))])
+        rows = encounters.apply_sql(rows, columns, "INSERT INTO mob_skill_lists VALUES ('Jug_Hare',733,3841)", 'fixture')
+        self.assertEqual([row['mob_skill_id'] for row in rows], [30, 3841])
+        encounters.apply_sql(rows, columns, "UPDATE mob_skill_lists SET mob_skill_id = 3842 WHERE skill_list_name IN ('Jug_Hare')", 'fixture')
+        self.assertEqual([row['mob_skill_id'] for row in rows], [30, 3842])
+
+    def test_kit_name_lists_reject_unreadable_predicates(self):
+        for condition in ("missing IN ('Jug_Hare')", "skill_list_name IN (SELECT name FROM other)",
+                          "skill_list_name IN ('Jug_Hare') OR skill_list_id = 1"):
+            with self.subTest(condition=condition), self.assertRaises(RuntimeError):
+                encounters.apply_sql([], ['skill_list_name'], 'DELETE FROM mob_skill_lists WHERE ' + condition, 'fixture')
+
     def test_blue_level_and_minimum_follow_blu_job_byte_and_skill_cap(self):
         jobs = bytearray(22)
         jobs[14], jobs[15], jobs[16] = 75, 50, 99
@@ -363,7 +380,9 @@ class EncounterSourceTests(unittest.TestCase):
                                       overlays.data_roots(cls.tree), content.Content(True, ['rotz', 'cop', 'toau']))
 
     def test_actual_claimshield_list_and_trade_pop(self):
-        self.assertEqual(len(self.reader.claims), 314)
+        self.assertEqual(len(self.reader.claims), 312)
+        self.assertNotIn(('Beaucedine_Glacier', 'Nue'), self.reader.claims)
+        self.assertNotIn(('PsoXja', 'Gyre-Carlin'), self.reader.claims)
         self.assertEqual(self.reader.claims['South_Gustaberg', 'Leaping_Lizzy'], 5)
         self.assertNotIn(('Upper_Delkfutts_Tower', 'Pallas'), self.reader.claims)
         info, _ = self.reader.read(kind('Upper_Delkfutts_Tower', 'Pallas', nm=True))
@@ -405,9 +424,11 @@ class EncounterSourceTests(unittest.TestCase):
     def test_loaded_table_changes_remove_post_era_casts(self):
         # Loaded era SQL removes Diaga III from the shared RDM list.
         self.assertNotIn(35, {row['spell_id'] for row in self.reader.spell_lists[3]})
-        # The WotG adjustment adds Nonno moves and replaces Emperador's higher needle moves.
-        self.assertEqual(self.reader.skill_lists[903], {300, 301, 302, 305, 306})
-        self.assertEqual(self.reader.skill_lists[939], {321, 322})
+        # Sic uses its own pet lists; ordinary monsters keep their original moves.
+        self.assertEqual(self.reader.skill_lists[903], {300, 301, 306})
+        self.assertEqual(self.reader.skill_lists[939], {322, 1625, 1626})
+        self.assertEqual(self.reader.skill_lists[734], {3843, 3844, 3845, 3846, 3847})
+        self.assertEqual(self.reader.skill_lists[739], {3866, 3867})
 
     def test_real_scripted_mobs_keep_their_possible_blue_lessons(self):
         for zone, mob, expected in [('Aydeewa_Subterrane', 'Great_Ameretat', 'Bad Breath'),

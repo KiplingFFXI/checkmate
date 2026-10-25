@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 from unittest import mock
 
@@ -47,6 +48,50 @@ target:addStatusEffect(xi.effect.POISON, { power = 1, duration = 30, tick = 3 })
 xi.combat.action.executeMobskillStatusEffect(pet, target, skill, effectTable)'''
         self.assertEqual(effects.move_effects(text, {'STUN': 10, 'NONE': 255}, 'test.lua'),
                          {10: {'effect': 10, 'seconds': 12}})
+
+    def test_gaze_duration_keeps_its_effect(self):
+        text = 'skill:setMsg(xi.mobskills.mobGazeMove(mob, target, xi.effect.SILENCE, 1, 0, 60))'
+        self.assertEqual(effects.move_effects(text, {'SILENCE': 6, 'NONE': 0}, 'gaze.lua'),
+                         {6: {'effect': 6, 'seconds': 60}})
+
+    def test_pet_forwarding_uses_the_selected_era_callback(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            mob = root / 'scripts/actions/mobskills/example_jugpet.lua'
+            mob.parent.mkdir(parents=True)
+            mob.write_text('mobskill.onMobWeaponSkill = function(mob, target, skill)\n'
+                           '    return xi.mobskills.mobStatusEffectMove(mob, target, xi.effect.SLOW, 1, 0, 300)\nend')
+            pet = root / 'scripts/actions/abilities/pets/example.lua'
+            pet.parent.mkdir(parents=True)
+            pet.write_text("local skillName = 'example_jugpet'\n"
+                           'ability.onPetAbility = function(target, pet, petskill, owner, action)\n'
+                           '    return xi.actions.mobskills[skillName].onMobWeaponSkill(pet, target, petskill, action)\nend')
+            module = root / 'modules/example.lua'
+            module.parent.mkdir()
+            module.write_text("m:addOverrideByEra('xi.actions.mobskills.example_jugpet.onMobWeaponSkill', {\n"
+                              '    [xi.expansion.ROV] = function(mob, target, skill)\n'
+                              '        return xi.mobskills.mobStatusEffectMove(mob, target, xi.effect.SLOW, 1, 0, 180)\n'
+                              '    end,\n'
+                              '    [xi.expansion.SOA] = function(mob, target, skill)\n'
+                              '        return xi.mobskills.mobStatusEffectMove(mob, target, xi.effect.SLOW, 1, 0, 120)\n'
+                              '    end,\n'
+                              '    [xi.expansion.TOAU] = function(mob, target, skill)\n'
+                              '        return xi.mobskills.mobStatusEffectMove(mob, target, xi.effect.SLOW, 1, 0, 15)\n'
+                              '    end,\n})')
+            overrides = effects.override_moves(root, ['modules/example.lua'])
+            with mock.patch.object(effects, 'sql_rows', return_value=[{'pet_skill_id': 700, 'pet_skill_name': 'example'}]):
+                result = effects.moves(root, {'SLOW': 13, 'NONE': 0}, overrides, pet=True)
+            self.assertEqual(result[700]['seconds'], 120)
+
+    def test_unknown_era_callback_stops_the_move_reader(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / 'modules').mkdir()
+            (root / 'modules/example.lua').write_text(
+                "m:addOverrideByEra('xi.actions.mobskills.example.onMobWeaponSkill', {\n"
+                '    [xi.expansion.FUTURE] = function(mob, target, skill)\n    end,\n})')
+            with self.assertRaisesRegex(RuntimeError, 'unreadable era action override'):
+                effects.override_moves(root, ['modules/example.lua'])
 
     def test_spell_table_rejects_unparsed_row(self):
         with self.assertRaisesRegex(RuntimeError, 'unreadable'):
@@ -111,6 +156,15 @@ class PhoenixTests(unittest.TestCase):
     def test_loaded_phoenix_mob_overrides(self):
         for number, seconds in [(305, 180), (310, 120), (345, 300), (371, 120)]:
             self.assertEqual(self.data['skills'][number]['seconds'], seconds)
+
+    def test_era_jugpet_duration_and_gaze_forwarding(self):
+        for number, effect, seconds in [(673, 5, 120), (676, 2, 60), (678, 3, 90),
+                                        (730, 6, 60), (740, 147, 120), (750, 28, 15), (758, 13, 120)]:
+            with self.subTest(pet_skill=number):
+                row = self.data['pacts'][number]
+                self.assertEqual((row['effect'], row['seconds']), (effect, seconds))
+        self.assertEqual(self.data['pet_moves'][3841]['seconds'], 120)
+        self.assertEqual(self.data['pet_moves'][3916]['seconds'], 15)
 
     def test_loaded_poison_range_keeps_its_upper_duration_estimate(self):
         text = effects.source(self.tree, 'modules/phoenix/lua/actions/mobskills/poison_breath_crawler_pre_wotg.lua')

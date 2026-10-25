@@ -71,10 +71,10 @@ BOREAL = 'modules/phoenix/lua/zones/Xarcabard/mobs/boreal_draw_in.lua'
 BOREAL_NAMES = {'Boreal_Coeurl', 'Boreal_Hound', 'Boreal_Tiger'}
 TIAMAT = ('Attohwa_Chasm', 'Tiamat')
 GUARDS = {
-    'src/map/enums/action/category.h': '55febb1a546c1d69b45fd8270bf1fc27771a0b64b2cb82950b7f39602bf4482d',
+    'src/map/enums/action/category.h': 'ce7585a5e0d40eeaa474ac042f80124667a92f20c18a3c9dc0522251df9a4582',
     'scripts/mixins/families/ladybug.lua': '78c94b266c78d72e2fb11471a12fb596266449298910fae4f446112b2aab99d8',
     'scripts/mixins/families/uragnite.lua': '5c31926ff3c6eeb4af82621cd5859ab7437e4aa429739ea30a1a22c9bb4cd95f',
-    'modules/custom/lua/claim_shield.lua': '83a4562f08b2217a6a6f48760653e2e699d2109e76f84ad0223e520c3c0a622d',
+    'modules/custom/lua/claim_shield.lua': 'a6631ab879f21eb5e0865ced49f19ab6968b32742e1f53d587695df0705770e8',
     'modules/phoenix/lua/zones/Xarcabard/mobs/boreal_draw_in.lua': '6ba20618b9bebbb0e1cfdc5d9b9a8994464c980c081a2d1c3561b9ac70aefa5e',
     'scripts/zones/Attohwa_Chasm/mobs/Tiamat.lua': 'eacf53692fcbad4a60d22ce8b6ad349ae99fb29fb1b710005686de560b785bc9',
     'scripts/mixins/rage.lua': 'cdf86c77249a15b9afda448ac455dd00d0a6e99dd76ba33219e529f566e242ed',
@@ -133,11 +133,18 @@ GUARDS = {
     'scripts/globals/mobskills.lua': '985812fe584f74d8fb6fb2228dd88dc9c8f511a77a088a3d15abe007a9dcc70c',
     'scripts/globals/spells/enfeebling_spell.lua': 'a9fec830186f0a14bca6c0062754d88a8974358098bb95a761f51b2749853029',
     'scripts/combat/action_mobskill_status_effect.lua': '1a8a4762bb79b3f869f2382b239c3bcd46f31c999666b4df9b86ce16084c8b56',
+    'src/map/data/datasets/skills/dataset.cpp': '2a3578360ecd59f9b01e30dabd9f17816dffb4b7a83f1edecd10b932ecfacba3',
+    'src/map/data/datasets/skills/dataset.h': '1f722729b27c800fdf25b345744ba70a4efdd9aca3392effd8dfafe62c968edc',
+    'src/map/data/datasets/skills/yaml.h': '7b379197daceaada78637421904c7ea5200ac4402dc1623bb35e3cffdf44e249',
+    'src/map/data/datasets/stats/dataset.h': '90e85cbab6423b85d652e725494582df0bb079f2c1c5ca91a233913278190823',
+    'src/map/utils/dataset_loader.h': '6a5416878f38179117fc2762ed024109fba351b390d1901f1d94e5d8141e869f',
+    'src/map/spawn_slot.h': 'c9c513636ef6ec59098d2b38646abae2ecef3b9f7c358d9f2d3b40e7761f991e',
 }
-MODULE_GUARD = '0904fb7bbf5371f95b70b442c0135c4db2f91f7c1e0175fbbd09b43bcca232fb'
+MODULE_GUARD = '0afcf7dcddad7a6bdd819cb2fa18beb16ecab2e86da5beacc40ff82d47e8f62b'
 NATIVE_GUARDS = {
-    ('src/map/spawn_handler.cpp', 'SpawnHandler::registerForRespawn'): 'a787e7fad3d19ae481ef05620ffd15d32d0dbb6b7a382c8a06a7d6c9e3785a8e',
-    ('src/map/spawn_slot.cpp', 'SpawnSlot::StartCooldown'): '9bffda0bd0b332bfcc4fd124d4f098f74910fd302c08f089a1b9c4f0b1ee09cb',
+    ('src/map/spawn_handler.cpp', 'SpawnHandler::registerForRespawn'): '6e4743c0a069eb5c295f9652f48d11a5ea6e5be7892ef4aa5eb05ccd09cf9e88',
+    ('src/map/spawn_slot.cpp', 'SpawnSlot::OnKill'): '9e5c646f79d160045f1286e2153bc1f4285772caad021d4962b991f5c596c2b5',
+    ('src/map/entities/mob_entity.cpp', 'CMobEntity::Die'): '13778a95cf1dcc1217387aec3490d426825f0e61e5c9a2be297c86eab46cc32f',
     ('src/map/spawn_slot.cpp', 'SpawnSlot::AddMob'): '0edd3fb47a75e81718452f26a5aaba1f94968a1479d0621877f8978c6c110a8f',
     ('src/map/lua/lua_base_entity.cpp', 'CLuaBaseEntity::setSpellList'): '98465dae5a7b72aa7afa158aec5284908960d6f93c9d1e89b75d2780da768a23',
     ('src/map/utils/mobutils.cpp', 'SetSpellList'): '4d5256637436468c0c41eca0e990eb087e5cdb5908192b82d97b5107a5022b35',
@@ -158,16 +165,16 @@ NATIVE_GUARDS = {
     ('src/map/spawn_handler.cpp', 'hourInWindow'): '6c93d49e3d27378c6d7221df1422a472c704faeeffb32230d1a8b5fecad3f3ed',
     ('src/map/spawn_handler.cpp', 'spawnWindowOf'): '0f2c575815922d82299b659f3e7198ffe61e31a4950c926ade31ad0e782d3df5',
     ('src/map/spawn_handler.cpp', 'SpawnHandler::canSpawnNow'): '1e78ca08f24d5dcc45caaa48872dcbc30eed53d0c6b5c0154062e9d23b2bc461',
-    ('src/map/spawn_slot.cpp', 'SpawnSlot::TrySpawn'): '2aba6fd3ec910d87960b6378d6df6e76627154064e8ccd9c65f10b168b65ca39',
+    ('src/map/spawn_slot.cpp', 'SpawnSlot::TrySpawn'): '6c2870cecf3e61e9b725224d260eb3f756f91d50817e2bb3d6081bfa71c23105',
     ('src/map/spawn_handler.cpp', 'SpawnHandler::onGameHour'): '32396b99f84b9279701293eb1aef2d3ccbd5b2f5a0343b595d4044966a219025',
     ('src/map/spawn_handler.cpp', 'SpawnHandler::onWeatherChange'): 'f4096b2c65386c78e754fd917d9b7fab9d9c7723b34d12b378cc97072c8fc24b',
-    ('src/map/spawn_handler.cpp', 'SpawnHandler::Tick'): '4eff2089485938083a3c09d668fee7ac30d89e4718afffc46c14c265946a0ec0',
+    ('src/map/spawn_handler.cpp', 'SpawnHandler::Tick'): 'abe36001157afba334fe6ca920ffc0b65d06f6a925de7cef1ac23d3f7472668f',
     ('src/map/utils/blueutils.cpp', 'TryLearningSpells'): '343dd7ca9e943e2bfd8cbb709f77ea8c1b3bae66245dfd36408d7cdfa5f49b10',
-    ('src/map/entities/mob_entity.cpp', 'CMobEntity::DistributeRewards'): '2c38b0cdef45991d9c785841fc53d77e87ef98a710f59e7ff1eafa7a43742fa0',
+    ('src/map/entities/mob_entity.cpp', 'CMobEntity::DistributeRewards'): 'c2bce00ac32a7cd9331c2902153794d7acaa6a8d9b39d6161ee10487b7897952',
     ('src/map/spell.cpp', 'LoadSpellList'): 'e61fc2f6670c056570fe390dc0ef203518aa115b3f9029fbaa39b8ab1bbdb5bf',
     ('src/map/spell.cpp', 'CSpell::getJob'): '05f5549f6c334d97891f1fc0fcb6bfecae2c7f11989701e45378e9e869e4455a',
-    ('src/map/utils/battleutils.cpp', 'GetMaxSkill'): '81b8356e4d7981493564196ca3df71b571271d5a8f60773962ad383f294f244b',
-    ('src/map/utils/battleutils.cpp', 'LoadSkillTable'): 'e24b885a3be09fed37ba2c2a81c08ca9e42222ad2484ee2646856bc6a9f005ee',
+    ('src/map/utils/battleutils.cpp', 'GetMaxSkill'): 'c3ba36e2d7d7a38fedc042dd3c915a7a1a8d0b50dec765ded07b46f3561252c0',
+    ('src/map/utils/battleutils.cpp', 'LoadSkillTable'): 'f9a87966dc731b87553793d13e229495be87fc40c397f6ab680baab574c710c8',
     ('src/map/mobskill.cpp', 'CMobSkill::isAoE'): '2931b3481c6ec82aaafc4ebc9fc0791679fe41dd461e678001ab08117f3bcc7a',
     ('src/map/mobskill.cpp', 'CMobSkill::isConal'): '31ea8198df1076834da05cc53162bcc0267e208c3114624690df5a253db3eb3a',
     ('src/map/mobskill.cpp', 'CMobSkill::isSingle'): 'c4863473bdda75c75dc268a1c439a21b50535baf6f25f233634a8ea4f66751da',
@@ -387,11 +394,16 @@ def apply_sql(rows, columns, statement, where):
     match = re.fullmatch(r'(UPDATE `?\w+`? SET (.*?)|DELETE FROM `?\w+`?) WHERE (.*)', statement, re.I)
     if not match:
         raise RuntimeError('%s changes a kit table in an unreadable way' % where)
-    condition = source_tables.parse_pairs(match[3], where)
+    names = re.fullmatch(r"`?(\w+)`?\s+IN\s*\(\s*('[^']+'(?:\s*,\s*'[^']+')*)\s*\)", match[3], re.I)
+    if names and names[1] not in columns:
+        raise RuntimeError('%s has an unreadable kit column' % where)
+    condition = None if names else source_tables.parse_pairs(match[3], where)
+    selected = set(re.findall(r"'([^']+)'", names[2])) if names else set()
     changes = source_tables.parse_pairs(match[2], where) if match[2] else None
     out = []
     for row in rows:
-        if all(row.get(key) == value for key, value in condition.items()):
+        matches = row.get(names[1]) in selected if names else all(row.get(key) == value for key, value in condition.items())
+        if matches:
             if changes is None:
                 continue
             row.update(changes)

@@ -164,6 +164,47 @@ end''')
         self.assertEqual(analyze(text)['effects'], ['Paralysis'])
         self.assertEqual(unknown, [])
 
+    def test_era_replacements_keep_native_order_and_super(self):
+        self.write('scripts/actions/mobskills/test.lua', '''mobskillObject.onMobWeaponSkill = function(mob, target, skill, action)
+    target:addStatusEffect(xi.effect.POISON, 1, 0, 30)
+end''')
+        self.write('modules/era.lua', '''m:addOverrideByEra('xi.actions.mobskills.test.onMobWeaponSkill', {
+    [xi.expansion.WOTG] = function(mob, target, skill, action)
+        super(mob, target, skill, action)
+        target:addStatusEffect(xi.effect.BIO, 1, 0, 30)
+    end,
+    [xi.expansion.TOAU] = function(mob, target, skill, action)
+        target:addStatusEffect(xi.effect.SILENCE, 1, 0, 30)
+    end,
+    [xi.expansion.SOA] = function(mob, target, skill, action)
+        target:addStatusEffect(xi.effect.SLOW, 1, 0, 30)
+    end,
+})''')
+        with patch.object(dangers, 'check_era_helper') as guard:
+            text, unknown = dangers.Sources(self.tree, ['modules/era.lua']).move('test')
+        guard.assert_called_once_with(self.tree)
+        self.assertEqual(analyze(text)['effects'], ['Bio', 'Slow'])
+        self.assertEqual(unknown, [])
+
+    def test_enabled_era_case_leaves_native_handler(self):
+        text = '''m:addOverrideByEra('xi.actions.mobskills.test.onMobWeaponSkill', {
+    [xi.expansion.TOAU] = function(mob, target, skill, action)
+        return 0
+    end,
+})'''
+        self.assertEqual(list(dangers.overrides(text)), [])
+
+    def test_unreadable_era_case_stops_export(self):
+        with self.assertRaisesRegex(RuntimeError, 'unreadable case'):
+            list(dangers.overrides("m:addOverrideByEra('xi.actions.mobskills.test.onMobWeaponSkill', {\n"
+                                  '    [xi.expansion.UNKNOWN] = function(mob, target, skill, action)\n'
+                                  '        return 0\n    end,\n})'))
+
+    def test_era_helper_change_stops_export(self):
+        self.write('modules/module_utils.lua', 'function changed() return true end')
+        with self.assertRaisesRegex(RuntimeError, 'Era override selection changed'):
+            dangers.check_era_helper(self.tree)
+
     def test_missing_handler_stays_unknown(self):
         text, unknown = dangers.Sources(self.tree, []).move('absent')
         self.assertEqual(text, '')
@@ -193,15 +234,15 @@ class PinnedSourceTests(unittest.TestCase):
 
     def test_complete_current_script_census(self):
         coverage = self.result['coverage']
-        self.assertEqual(coverage['scripts'], 1690)
-        self.assertEqual(coverage['harmful_scripts'], 752)
+        self.assertEqual(coverage['scripts'], 1792)
+        self.assertEqual(coverage['harmful_scripts'], 807)
         self.assertEqual(coverage['unresolved_scripts'], {})
-        self.assertEqual(coverage['watched_files'], 3011)
+        self.assertEqual(coverage['watched_files'], 3114)
 
     def test_sql_missing_handlers_remain_explicit(self):
         coverage = self.result['coverage']
-        self.assertEqual(coverage['harmful_skill_records'], 941)
-        self.assertEqual(len(coverage['unresolved_skills']), 484)
+        self.assertEqual(coverage['harmful_skill_records'], 943)
+        self.assertEqual(len(coverage['unresolved_skills']), 481)
         self.assertTrue(all('missing' in reasons[0] for reasons in coverage['unresolved_skills'].values()))
 
     def test_known_ailments_and_beneficial_negative_controls(self):
@@ -242,6 +283,12 @@ class PinnedSourceTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertEqual(self.move(name)['effects'], [])
                 self.assertEqual(self.move(name)['unknown'], [])
+
+    def test_jugpet_handlers_keep_paired_effects_and_beneficial_negative_control(self):
+        self.assertEqual(self.move('head_butt_jugpet')['effects'], [])
+        self.assertEqual(self.move('choke_breath_jugpet')['effects'], ['Paralysis', 'Silence'])
+        self.assertEqual(self.move('corrosive_ooze_jugpet')['effects'], ['Attack down', 'Defense down'])
+        self.assertEqual(self.move('purulent_ooze_jugpet')['effects'], ['Bio', 'Max HP down'])
 
     def test_harmful_spells_include_shared_and_direct_helpers(self):
         rows = {row['name']: self.result['spells'].get(row['spellid']) for row in self.spells}

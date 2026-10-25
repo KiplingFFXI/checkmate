@@ -53,14 +53,48 @@ def function_parts(text):
     return out
 
 
+ERAS = {'ROTZ': 1, 'COP': 2, 'TOAU': 3, 'WOTG': 4, 'ACP': 5, 'AMK': 6, 'ASA': 7,
+        'ABYSSEA': 8, 'VOIDWATCH': 9, 'SOA': 10, 'ROV': 11, 'TVR': 12}
+ERA_HELPER_GUARD = 'e6a96f7f7a73e02a53a436440524b67ae94735e3488ac1466455a18a19919b5c'
+
+
+def check_era_helper(tree):
+    text = clean(Path(tree) / 'modules/module_utils.lua')
+    if hashlib.sha256(' '.join(text.split()).encode()).hexdigest() != ERA_HELPER_GUARD:
+        raise RuntimeError('Era override selection changed; review effective danger handlers.')
+
+
 def overrides(text):
-    pattern = re.compile(r"^(?P<pad> *)\w+:addOverride\(\s*['\"](?P<target>xi\.[^'\"]+)['\"],\s*function\((?P<args>[^)]*)\)", re.M)
+    pattern = re.compile(r"^(?P<pad> *)\w+:addOverride(?P<era>ByEra)?\(\s*['\"](?P<target>xi\.[^'\"]+)['\"],", re.M)
     for match in pattern.finditer(text):
-        end = re.search(r'^' + re.escape(match['pad']) + r'end\)', text[match.end():], re.M)
-        if end:
-            body = text[match.end():match.end() + end.start()]
-            body = re.sub(r'^' + re.escape(match['pad']), '', body, flags=re.M)
-            yield match['target'], match['args'], body
+        if match['era']:
+            args = lua_source.call_arguments(text, text.index('(', match.start()))
+            if not args or len(args) < 2:
+                raise RuntimeError('An era danger override has unreadable arguments.')
+            cases = list(re.finditer(r'(?m)^( *)\[xi\.expansion\.(\w+)\]\s*=\s*function\(([^)]*)\)', ', '.join(args[1:])))
+            if not cases:
+                raise RuntimeError('An era danger override has no readable cases.')
+            source = ', '.join(args[1:])
+            handlers = []
+            for case in cases:
+                end = re.search(r'^' + re.escape(case[1]) + r'end\s*,?', source[case.end():], re.M)
+                if not end or case[2] not in ERAS:
+                    raise RuntimeError('An era danger override has an unreadable case.')
+                # Phoenix enables content through ToAU. Later cases apply from newest to oldest.
+                if ERAS[case[2]] > 3:
+                    body = source[case.end():case.end() + end.start()]
+                    body = re.sub(r'^' + re.escape(case[1]), '', body, flags=re.M)
+                    handlers.append((ERAS[case[2]], case[3], body))
+            for _, parameters, body in sorted(handlers, reverse=True):
+                yield match['target'], parameters, body
+        else:
+            callback = re.match(r'\s*function\(([^)]*)\)', text[match.end():])
+            if callback:
+                start = match.end() + callback.end()
+                end = re.search(r'^' + re.escape(match['pad']) + r'end\)', text[start:], re.M)
+                if end:
+                    body = re.sub(r'^' + re.escape(match['pad']), '', text[start:start + end.start()], flags=re.M)
+                    yield match['target'], callback[1], body
 
 
 class Sources:
@@ -73,8 +107,13 @@ class Sources:
         self.spell_paths = defaultdict(list)
         for path in (self.tree / 'scripts/actions/spells').rglob('*.lua'):
             self.spell_paths[path.stem].append(path.relative_to(self.tree).as_posix())
+        era_checked = False
         for rel in self.loaded:
-            for name, args, body in overrides(clean(self.tree / rel)):
+            text = clean(self.tree / rel)
+            if 'addOverrideByEra' in text and not era_checked:
+                check_era_helper(self.tree)
+                era_checked = True
+            for name, args, body in overrides(text):
                 self.overrides[name].append((args, body))
 
     def move(self, name):
@@ -308,7 +347,7 @@ def analyze(text, ids, script_name='', hostile=True):
 
 
 # Every source file in this census is watched, including helper and loaded-module changes.
-SOURCE_GUARD = 'd4bca27277b0bd26d4ec1b13a0b94e812beff5e2caec6f0bbe696e24dc94bbe9'
+SOURCE_GUARD = '96a85f27345e853ed822fb510091b1df5777e9e2b11b56a43429fcde78730357'
 SOURCE_FOLDERS = ('scripts/actions/mobskills', 'scripts/actions/spells', 'scripts/actions/weaponskills',
                   'scripts/globals/spells', 'scripts/combat')
 SOURCE_FILES = ('scripts/globals/mobskills.lua', 'scripts/globals/bluemagic.lua', 'scripts/globals/weaponskills.lua',

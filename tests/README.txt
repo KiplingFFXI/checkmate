@@ -40,6 +40,14 @@ The Verify workflow runs exporter fixture tests and addon tests on pull requests
 must pass the same job before their zip is built. Source-backed exporter checks also run during
 the weekly data refresh; ordinary code checks do not regenerate the bundled data.
 
+Exporter regressions live in tools/tests. test_skill_tables.py covers native skills.yaml, ordered
+module overlays, complete level/rank tables and rejected stale SQL updates. The danger suites check
+effective era callbacks, source guards, paired pet effects and critical/shadow rules. Spawn and PH
+checks keep native defeat-based cooldowns separate from the remaining Lua helper routes.
+test_exists_sql.py keeps skill-list IDs separate from move IDs when checking SQL for spawning moves.
+test_outside.py checks player-only job changes without allowing unreadable monster job changes.
+See ../tools/README.txt for the source-backed run and fresh-extraction comparison.
+
 
 What's here
 -----------

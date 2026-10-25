@@ -117,7 +117,10 @@ What goes into a row
   from the same tables. Nyzul Isle Investigation is left out, because Phoenix hides it.
 - The template's loot, with nonzero despoil weights added as extra kill rolls, since the server rolls them.
 - The template's steal items from its loot block, one name or a list, kept even when a script turns its drops off.
-- The UPDATE lines of the SQL modules in init.txt for job traits and skill ranks.
+- Job traits after the UPDATE lines of the SQL modules in init.txt. Skill caps and job ranks come from
+  data/skills.yaml after the ordered module YAML overlays. The native table covers levels 1 to 99,
+  with a zero row for level 0 and 13 rank columns: None plus A+ through G. Missing levels, extra columns
+  and unknown jobs or ranks stop the export. Older pinned source and fixtures can still use the old SQL tables.
 - Aggro from the same chain: aggressive, true_detection and the behavior flags, the detects list, and the
   ALWAYS_AGGRO, NO_AGGRO and DETECTION mob mods. The literal setAggressive, setTrueDetection and setMobMod calls
   at the top of onMobInitialize and onMobSpawn and their xi.* helpers count, and so do battlefield group mobMods.
@@ -185,7 +188,7 @@ What goes into a row
   is up, and a call does nothing when the list doesn't hold the spawn. The PH, the NM its despawn rolls for and
   the NM that pops all have to be monsters the server makes, so an NM whose content is off isn't one. No Dynamis
   monster is a PH, since Phoenix's Dynamis replaces their onMobDespawn. A loaded module can wrap a PH's
-  onMobDespawn, or swap it for one that calls phOnDespawn for the same NMs the way pxi_nm_spawn_points.lua does.
+  onMobDespawn, or swap it for one that calls phOnDespawn for the same NMs.
   A module that touches a phList, or changes onMobDespawn or phOnDespawn any other way, stops the export. NMs that
   pop some other way, like one that grows out of a monster or comes after enough kills, have no PHs here.
 
@@ -230,9 +233,10 @@ monsters has these fields. Only name, ids and levels are always there.
               when none of its spawns is a PH.
   ph_rules    [PH spawn index][NM spawn index] = { chance, cooldown_min, cooldown_max, conditions }.
               Chance is the source percent. The Lua helper applies server lottery multipliers; native slots
-              use their chance directly. Cooldowns are seconds after the NM despawns, with a range for a
-              random cooldown. Lua helper cooldowns can be scaled by server settings; native slot cooldowns
-              are used directly. NM-side overrides and kill-only exceptions are included in the notes. An
+              use their chance directly. Native member cooldowns start on defeat; Lua cooldowns follow the
+              reviewed helper and callbacks. Random cooldowns keep both bounds. Lua helper cooldowns can be
+              scaled by server settings; native slot cooldowns are used directly. NM-side overrides and
+              kill-only exceptions are included in the notes. An
               unknown numeric value is absent. This never means the live lottery is open or that a timer is
               running. Existing ph_for identity still decides which spawns get a note.
   loot_conditions
@@ -346,7 +350,8 @@ It stops instead of guessing. The message says what it couldn't read.
   module Lua modules\init.txt loads.
 - "The Dynamis reader needs updating" or "The launch reader needs updating" means a Phoenix module changed
   shape. Look at export\dynamis.py or export\launch.py.
-- An SQL module that changes skill caps, the instance tables or pet_list stops it too. See export\tables.py.
+- An SQL module that changes skill caps or ranks after their move to YAML stops it, as does an unsupported
+  change to the instance tables or pet_list. See export\tables.py.
 - "The pet reader needs updating", or another message from export\pets.py, means the jug pets, the avatars,
   JUG_LEVEL_RANGE or Beast Affinity changed shape on Phoenix, like Monster Gloves losing JUG_LEVEL_RANGE.
 - "The steal reader needs updating", or another message from export\steal.py, means Steal's roll, its ability,
@@ -584,7 +589,7 @@ What's here
   export\overlays.py      init.txt data roots and the YAML merge
   export\content.py       content gating
   export\sqlfile.py       reads SQL dump rows
-  export\tables.py        skill caps, skill ranks, job grades, job traits and enums, with module SQL applied
+  export\tables.py        merged YAML skill caps/ranks, job grades, SQL job traits and enums
   export\species.py       the ecosystem, family and species chain
   export\stats.py         the spawn math
   export\lua_source.py    reads Lua handlers and the calls in them
@@ -643,6 +648,8 @@ status_effects.yaml and merits.yaml, spell and ability scripts, item_mods.sql wi
 weapon skill, monster, pet and automaton scripts with loaded era/Phoenix overrides. Spell rows follow the
 SQL content tags. The current
 reader requires Phoenix's rotz/cop/toau content settings; a different era needs its own duration audit.
+Literal addOverrideByEra cases follow the native newest-to-oldest order for those settings, including
+replacement and super calls. Jug-pet action wrappers keep their effective monster-skill handler.
 
 It writes effects, spells, abilities, weaponskills, skills, pacts, pet_moves, automatons, charmed_skills,
 items, reactive, spikes, procs, proc_effects, proc_usual, gear, merits, pictured and troubadour.
@@ -656,8 +663,9 @@ a main-hand item from supplying an unrelated off-hand added effect's duration. A
 resolve stays absent. An unknown action duration does not borrow another action's timer.
 
 Random spell times keep their low and high values. Move times use a literal base or a readable random/TP
-maximum. Usual times take the most common known duration, choosing the longer on a tie. Duration
-merits use the merged cost-list cap: Phoenix currently permits three ranks, not five. Sleep II and Lullaby
+maximum. Usual times take the most common known duration, choosing the longer on a tie. Gaze helpers use
+their duration argument separately from their tick interval, including pet gazes. Duration merits use
+the merged cost-list cap: Phoenix currently permits three ranks, not five. Sleep II and Lullaby
 share Sleep's icon. A status without a supported message or inference rule stays unknown.
 
 The checked duration helpers and loaded overrides have hashes of their comment-free source. A changed or
@@ -752,25 +760,26 @@ also checks the player's level. Direct staff bonuses include eligible nonclassic
 the old classic staff table twice. Latents and effects with unavailable powers are labeled as unknown.
 Source parity separately checks the generated staff fields against merged item_mods.
 
-Lua PH rules use the same enabled callbacks and verified PH/NM pairs as ph_for. Sandstorm gates and Citipati's
-next-respawn night gate are described beside the lottery. The pinned helper does not enforce its dayOnly
-option, so Leshonki's note says so. The NM's callback can replace the helper's cooldown. Loaded era
-callbacks bypass the server cooldown multiplier where specified. Citipati, Black Triple Stars, Shii and
-Manes start their cooldown only after a kill.
+Lua PH rules use the same enabled callbacks and verified PH/NM pairs as ph_for. Their time, weather and
+other eligibility checks stay beside the lottery. The pinned helper does not enforce its dayOnly
+option, so a call using it keeps that warning. An NM callback can replace the helper's cooldown. Loaded era
+callbacks bypass the server cooldown multiplier where specified. Monsters moved to native slots use
+their loaded member rules instead of stale Lua timer or persistence entries.
 
 Native YAML slots also supply PH pairs, lottery chances and member cooldowns after loaded data overlays.
-They do not use the Lua helper's lottery chance or cooldown multipliers. Valkurm Emperor and Golden Bat
-use these slots. Their 15% roll applies only when their slot is empty and eligible to reroll. The one-hour
-member cooldown starts after despawn and is not a live countdown. A placeholder takes the first roll after
-a server restart. Time and weather checks still apply, and some respawns keep the same member instead of
-rerolling. The native slot and spawn-handler rules are guarded.
+They do not use the Lua helper's lottery chance or cooldown multipliers. A member's defeat opens the
+slot for a new roll and starts that member's cooldown. Its chance applies only while the slot is empty
+and eligible to reroll. Time, weather and OnMobSpawnCheck must still permit the spawn. A respawn that keeps
+the same member does not make a fresh lottery roll. These are source rules, not live countdowns or open
+spawn windows. The native slot and spawn-handler rules are guarded.
 
 The ferry reader uses the registered deck slot tables and their night/weather conditions. Fishing-only
 copies do not become deck entries. Ferry helpers, route callbacks and loaded overrides are checked before
 these routes count toward BLU spell availability. The shared deck roll is not an individual monster's chance.
-Fradubio's module saves its deadline across restarts. These callbacks and the helper are guarded; changed
-or new lottery-state code stops the export for review. The addon cannot know the NM's last despawn,
-shared lottery state or deployed server multipliers from this source snapshot.
+Legacy Lua persistence is reported only when the loaded callback still saves that NM's deadline. These
+callbacks and the helper are guarded; changed or new lottery-state code stops the export for review.
+The addon cannot know the NM's last defeat or despawn, shared lottery state or deployed server multipliers
+from this source snapshot.
 
 Prudence's loot condition is guarded against changes to its script or a loaded module that names it. The
 other scripted_drops rows remain qualified; this is not a complete interpreter of dynamic fight loot.
@@ -824,6 +833,8 @@ encounters.py reads source spawn conditions and loaded move lists. Dangers match
 harmful effects and critical-hit paths from the effective move and spell scripts. Shared helpers and
 loaded replacements count; self-buffs do not become player debuffs. Existing reviewed threat notes stay.
 Critical paths that need a buff are listed only when that monster has a supported route to the buff.
+Physical BLU Sneak Attack notes follow the first landed hit and facing/Hide requirements; area spells
+are not excluded. Effective era jug-pet handlers count too, including Mandibular Bite's critical-hit flag.
 Ordinary attacks get a separate entry when supported source callbacks add harmful effects. Native gates,
 enspell priority and required buffs still apply. Undefined selectors and unreadable attack callbacks stay
 unknown. Move checks and known fight restrictions still apply. Source guards and full-script census tests stop

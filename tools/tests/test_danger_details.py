@@ -213,6 +213,15 @@ class PinnedSourceTests(unittest.TestCase):
                 self.assertEqual(value['shadows'][0]['count'], count)
                 self.assertEqual(value['unknown'], [])
 
+    def test_fireball_ignores_shadows_and_jugpet_era_choke_breath_uses_three(self):
+        for name, mode, count in (('fireball', 'ignore', None), ('choke_breath_jugpet', 'absorb', 3)):
+            with self.subTest(name=name):
+                value = self.reader.skill(dict(mob_skill_id=-100, mob_skill_name=name, mob_skill_aoe=0,
+                                               mob_skill_distance=7, mob_skill_aoe_radius=0), {})
+                self.assertEqual(value['shadows'][0]['mode'], mode)
+                self.assertEqual(value['shadows'][0].get('count'), count)
+                self.assertEqual(value['unknown'], [])
+
     def test_blood_drain_retains_pool_conditional_shadow_rule(self):
         value = self.reader.skill(dict(mob_skill_id=1, mob_skill_name='blood_drain', mob_skill_aoe=0,
                                       mob_skill_distance=7, mob_skill_aoe_radius=0), {})

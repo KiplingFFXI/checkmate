@@ -7,7 +7,7 @@ from . import aggro, content, effects, lua_source, lua_writer, modifiers, overla
 
 PHYSICAL = 'scripts/combat/physical_utilities.lua'
 SKILLS = 'scripts/data/skill_ranks.lua'
-SOURCE_GUARD = '5462985e7b408b0067626ee76ada1b345b84b2d7e299eb63b90f311a0b5e767f'
+SOURCE_GUARD = 'f5bf55f27d034fc68cc2ed05cca0db51b17a842cee5940b05797b897210c61e6'
 PATHS = (PHYSICAL, SKILLS, 'src/map/utils/attackutils.cpp', 'src/map/attack.cpp',
          'src/map/utils/charutils.cpp', 'src/map/utils/mobutils.cpp', 'src/map/utils/battleutils.cpp',
          'src/map/utils/zoneutils.cpp', 'src/map/entities/battle_entity.cpp',
@@ -83,10 +83,8 @@ def build(tree, roots, allowed=None):
     allowed = allowed or content.Content(True, ['rotz', 'cop', 'toau'])
     check_traits(tree, allowed)
     shields, gear = equipment(tree)
-    skill_rows = modifiers.sql_rows(tree, 'skill_ranks')
-    ranks = {row['skillid']: row for row in skill_rows}
-    jobs = {job: {'block': max(0, min(11, ranks[30][name])),
-                  'parry': max(0, min(11, ranks[31][name]))}
+    _, ranks = tables.read_skill_tables(tree)
+    jobs = {job: {'block': ranks[30][name], 'parry': ranks[31][name]}
             for job, name in enumerate(tables.JOBS) if job}
     skill_text = effects.source(tree, SKILLS)
     base_caps = {int(level): int(value) for level, value in

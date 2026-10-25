@@ -8,7 +8,7 @@ from . import lua_writer, overlays, tables
 
 NATIVE_PATHS = ('src/map/merit.cpp', 'src/map/utils/charutils.cpp',
                 'src/map/packets/s2c/0x062_clistatus2.cpp')
-SOURCE_GUARD = 'db2786e60ea4aaaa7b9fd57fe12913b151522b282ce855c4d7cf98e82d689b21'
+SOURCE_GUARD = '599929ff17d87076af5dfc3dfd36ab2150e4523fef00e0773766191af2459958'
 
 WEAPONS = ('hand_to_hand', 'dagger', 'sword', 'great_sword', 'axe', 'great_axe',
            'scythe', 'polearm', 'katana', 'great_katana', 'club', 'staff',

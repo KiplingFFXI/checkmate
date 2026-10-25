@@ -11,7 +11,7 @@ GUARDS = {
     'PhysicalDmgTaken': '6d490bb46fe4ead7df44c222d7fd7249581f55188bc529cd7aafc03b90fb0f8b',
     'RangedDmgTaken': 'dac4a6f53bcfef4f331bcc9892cc4723771058e17ae7b2a8d44970a25f24a645',
 }
-MODULE_GUARD = '9d82bbd3eec2dea71b245fc26539d57ca20e03e708fbfae7319b31284da58e6b'
+MODULE_GUARD = 'e04be639ce046aa72c4b2cc1042ae865bab91fa93d38abd5576e72e178cd45f9'
 
 
 def module_digest(tree):

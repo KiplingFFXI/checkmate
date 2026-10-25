@@ -7,7 +7,7 @@ import re
 from . import aggro, danger_effects, lua_source, overlays, tables
 
 
-SOURCE_GUARD = 'd6b21bfacac2a7eb23ab8e9b291c1367bf3faf3bf99e7275d6bb6c8a31ab9583'
+SOURCE_GUARD = '7ff77a07d40aeca7d9d307f1ce395d403e65b5d6c00e6a763c92f6dea3161134'
 SOURCE_FILES = (
     'src/map/mobskill.cpp', 'src/map/spell.cpp', 'src/map/entities/battle_entity.cpp',
     'src/map/ai/controllers/mob_controller.cpp', 'src/map/ai/states/magic_state.cpp',

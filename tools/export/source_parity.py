@@ -30,7 +30,7 @@ GUARDS = {
     'scripts/globals/spells/absorb_spell.lua':
         'ab296eede4669210021dfb043bd951c1392934c670416b07eddee9cec46e5037',
     'scripts/globals/bluemagic.lua':
-        'bc3f6816a066f9ff9745b0ac79811045b750dbfd1033c8c34f18fd98c91d9424',
+        '4ec70d2c7eea609e74bc3b309aad81cd38c27a0c367af066175271158edd5585',
     'scripts/actions/spells/blue/firespit.lua':
         '882868f33e623a4d26f8d18cf5c4c6a85ca81d3f0bd72a1cc81ccac18e0f44f0',
     'scripts/actions/spells/blue/ice_break.lua':
@@ -150,8 +150,8 @@ def check_math(tree, addon=ADDON):
 
 def check_tables(tree, runtime, addon=ADDON):
     spells = runtime.execute((Path(addon) / 'data/spells.lua').read_text(encoding='utf8'))
-    expected_caps = {row['level']: row['r7'] for row in sqlfile.rows(str(Path(tree) / 'sql/skill_caps.sql'), 'skill_caps')
-                     if 1 <= row['level'] <= 99}
+    caps, _ = tables.read_skill_tables(tree)
+    expected_caps = {level: caps[level][7] for level in range(1, 100)}
     same(plain(spells.MEVA_BY_LEVEL), expected_caps, 'MEVA_BY_LEVEL')
     elements = ['fire', 'ice', 'wind', 'earth', 'thunder', 'water', 'light', 'dark']
     staff = {}

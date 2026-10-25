@@ -20,6 +20,13 @@ class InfoTests(unittest.TestCase):
         for level, hp in expected.items():
             self.assertEqual(info.base_hp(level, 2, 2), hp, level)
 
+    def test_hp_keeps_the_monster_main_job_base(self):
+        # The weighted Monipulator base does not apply to ordinary monsters.
+        self.assertEqual(info.base_hp(1, 1, 7), 36)
+        self.assertEqual(info.base_hp(1, 7, 1), 22)
+        self.assertEqual(info.base_hp(50, 1, 7), 2440)
+        self.assertEqual(info.base_hp(50, 7, 1), 2275)
+
     def test_hp_mp_conversion_and_percent_order(self):
         self.assertEqual(info.final_health(100, 50, {}), (100, 50))
         self.assertEqual(info.final_health(100, 50, {'hp': 10, 'hpp': 20, 'mp': 5, 'mpp': 10}), (132, 60))
@@ -238,6 +245,16 @@ class InfoTests(unittest.TestCase):
             with mock.patch.object(info, 'GUARDS', {}), mock.patch.object(info, 'MODULE_GUARD', original):
                 with self.assertRaisesRegex(RuntimeError, 'Loaded monster or reward modules changed'):
                     info.check_source(reader.tree)
+
+    def test_changed_native_information_stays_guarded(self):
+        reader = self.reader()
+        path = reader.tree / 'native.cpp'
+        original = 'int reward() { return 1; }'
+        path.write_text(original, encoding='utf8')
+        with mock.patch.object(info, 'GUARDS', {'native.cpp': info.fingerprint(original)}):
+            path.write_text('int reward() { return 2; }', encoding='utf8')
+            with self.assertRaisesRegex(RuntimeError, 'Monster information source changed: native.cpp'):
+                info.check_source(reader.tree)
 
     @unittest.skipUnless(os.environ.get('CHECKMATE_SOURCE_TREE'), 'needs pinned source tree')
     def test_actual_gustaberg_lizards_override_species_fire(self):

@@ -149,7 +149,9 @@ class CriticalFactsTests(unittest.TestCase):
         self.assertFalse(fact['can_crit'])
         self.assertEqual(fact['required_statuses'], ['AZURE_LORE', 'EFFLUX', 'CHAIN_AFFINITY'])
         self.assertTrue(fact['sneak_attack'])
-        self.assertIn('single target', fact['notes'][1])
+        self.assertIn('behind the target or have Hide', fact['notes'][1])
+        self.assertIn('first landed hit', fact['notes'][1])
+        self.assertNotIn('single target', fact['notes'][1])
 
     def test_ranged_blue_cannot_use_sneak_attack_path(self):
         fact = danger_crit.spell_facts('params.attackType = xi.attackType.RANGED\nreturn xi.spells.blue.usePhysicalSpell(caster,target,spell,params)')
@@ -288,8 +290,21 @@ class PinnedCriticalTests(unittest.TestCase):
 
     def test_complete_effective_callback_census(self):
         counts, rows = self.reader.census()
-        self.assertEqual(counts, dict(files=1690, can_crit=96, mighty_strikes=605, grants_mighty_strikes=1, unresolved=0))
-        self.assertEqual(len(rows), 1690)
+        self.assertEqual(counts, dict(files=1792, can_crit=107, mighty_strikes=649, grants_mighty_strikes=1, unresolved=0))
+        self.assertEqual(len(rows), 1792)
+
+    def test_era_jugpet_choke_breath_uses_the_physical_critical_route(self):
+        value = self.reader.read('choke_breath_jugpet')
+        self.assertFalse(value['can_crit'])
+        self.assertTrue(value['mighty_strikes'])
+        self.assertEqual(value['unknown'], [])
+
+    def test_era_jugpet_mandibular_bite_enables_critical_hits(self):
+        base = (self.tree / 'scripts/actions/mobskills/mandibular_bite_jugpet.lua').read_text(encoding='utf8')
+        self.assertFalse(danger_crit.critical_facts(base)['can_crit'])
+        value = self.reader.read('mandibular_bite_jugpet')
+        self.assertTrue(value['can_crit'])
+        self.assertEqual(value['unknown'], [])
 
     def test_new_spriggan_moves_do_not_gain_intrinsic_critical_hits(self):
         for name in ('frenetic_flurry', 'romp'):

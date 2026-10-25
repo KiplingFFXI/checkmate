@@ -1,8 +1,8 @@
 """
 Reads the skill caps, skill ranks, job grades, job traits and enums the monster math needs from the server tables.
 
-The SQL dumps get the UPDATE lines of every SQL module in modules/init.txt applied first, because dbtool runs
-those on the live database.
+Skill data uses the loaded YAML overlays. SQL traits and older skill tables get the UPDATE lines of every
+SQL module in modules/init.txt applied first, because dbtool runs those on the live database.
 """
 from pathlib import Path
 import glob
@@ -105,6 +105,8 @@ def apply_module_sql(tree, sql_tables):
             raise RuntimeError('%s renames items, which the exporter reads by name.' % rel)
         if table not in UPDATED_TABLES:
             continue
+        if table not in sql_tables:
+            raise RuntimeError('%s changes %s after its move to YAML. Review the skill data module.' % (rel, table))
         update = re.fullmatch(r'UPDATE\s+`?\w+`?\s+SET\s+(.*?)\s+WHERE\s+(.*)', statement, re.I)
         if update is None:
             raise RuntimeError('%s: the exporter can\'t read "%s"' % (rel, statement))
@@ -115,20 +117,97 @@ def apply_module_sql(tree, sql_tables):
                 row.update(changes)
 
 
+SKILL_CAP_RANKS = ('a_plus', 'a', 'b_plus', 'b', 'b_minus', 'c_plus', 'c', 'c_minus', 'd', 'e', 'f', 'g')
+
+
+def skill_document(path):
+    document = overlays.load_yaml(path)
+    if isinstance(document, dict) and isinstance(document.get('skills'), dict):
+        caps = document['skills'].get('caps')
+        if isinstance(caps, dict):
+            levels = {}
+            for level, row in caps.items():
+                if type(level) is not int and not (isinstance(level, str) and re.fullmatch(r'\d+', level)):
+                    raise RuntimeError('Unreadable skill cap level: %s.' % level)
+                number = int(level)
+                if number in levels:
+                    raise RuntimeError('Duplicate skill cap level: %s.' % level)
+                levels[number] = row
+            document['skills']['caps'] = levels
+    return document
+
+
+def read_skill_tables(tree, sql_ranks=None):
+    """Native caps and job ranks, including loaded module changes."""
+    path = Path(tree) / 'data/skills.yaml'
+    if not path.is_file():
+        # Older pinned source and SQL fixtures still use the original tables.
+        caps = sorted(sqlfile.rows(Path(tree) / 'sql/skill_caps.sql', 'skill_caps'), key=lambda row: row['level'])
+        if sql_ranks is None:
+            values = {'traits': [], 'skill_ranks': sqlfile.rows(Path(tree) / 'sql/skill_ranks.sql', 'skill_ranks')}
+            apply_module_sql(tree, values)
+            sql_ranks = values['skill_ranks']
+        return ([[row['r%d' % rank] for rank in range(14)] for row in caps[:100]],
+                {row['skillid']: {job: max(0, min(11, row[job])) for job in JOBS[1:]} for row in sql_ranks})
+
+    for module, table, _ in module_statements(tree):
+        if table in ('skill_caps', 'skill_ranks'):
+            raise RuntimeError('%s changes %s after its move to YAML. Review the skill data module.' % (module, table))
+    document = skill_document(path)
+    for module in overlays.overlay_files(overlays.data_roots(str(tree)), 'skills'):
+        document = overlays.merge_patch(document, skill_document(module))
+    if not isinstance(document, dict) or set(document) != {'skills'}:
+        raise RuntimeError('skills.yaml needs one skills block.')
+    values = document['skills']
+    if not isinstance(values, dict) or set(values) != {'ranks', 'caps'}:
+        raise RuntimeError('skills.yaml needs ranks and caps.')
+    skill_ids, job_ids, rank_ids = (read_enum(tree, name) for name in ('skill_type', 'job', 'skill_rank'))
+    if rank_ids != {'none': 0, **{name: rank for rank, name in enumerate(SKILL_CAP_RANKS, 1)}}:
+        raise RuntimeError('Skill rank enum changed. Review the skill data reader.')
+    if any(not 0 <= value < 64 for value in skill_ids.values()):
+        raise RuntimeError('Skill IDs are outside the native 64-entry table.')
+    ranks = {skill: {job: 0 for job in job_ids} for skill in range(64)}
+    if not isinstance(values['ranks'], dict):
+        raise RuntimeError('skills.yaml ranks must be a map.')
+    seen_skills = set()
+    for skill, jobs in values['ranks'].items():
+        if skill not in skill_ids or not isinstance(jobs, dict):
+            raise RuntimeError('Unknown or unreadable skill rank: %s.' % skill)
+        if skill_ids[skill] in seen_skills:
+            raise RuntimeError('Duplicate skill rank entry: %s.' % skill)
+        seen_skills.add(skill_ids[skill])
+        seen_jobs = set()
+        for job, rank in jobs.items():
+            if job not in job_ids or not isinstance(rank, str) or rank not in rank_ids:
+                raise RuntimeError('Unknown skill job or rank: %s/%s/%s.' % (skill, job, rank))
+            if job_ids[job] in seen_jobs:
+                raise RuntimeError('Duplicate skill job entry: %s/%s.' % (skill, job))
+            seen_jobs.add(job_ids[job])
+            ranks[skill_ids[skill]][job] = rank_ids[rank]
+
+    caps = [[0] * len(rank_ids) for _ in range(100)]
+    source = values['caps']
+    if not isinstance(source, dict) or set(source) != set(range(1, 100)) or any(type(level) is not int for level in source):
+        raise RuntimeError('Skill caps must cover every level from 1 to 99.')
+    for level, row in source.items():
+        if not isinstance(row, dict) or set(row) != set(SKILL_CAP_RANKS):
+            raise RuntimeError('Missing, unknown or unreadable skill caps at level %s.' % level)
+        for rank, name in enumerate(SKILL_CAP_RANKS, 1):
+            cap = row[name]
+            if type(cap) is not int or not 0 <= cap <= 65535:
+                raise RuntimeError('Invalid skill cap at level %s, rank %s.' % (level, name))
+            caps[level][rank] = cap
+    return caps, ranks
+
+
 class Tables:
     def __init__(self, tree, content):
         sql = os.path.join(tree, 'sql')
-        sql_tables = {name: sqlfile.rows(os.path.join(sql, name + '.sql'), name) for name in UPDATED_TABLES}
+        names = ('traits',) if (Path(tree) / 'data/skills.yaml').is_file() else UPDATED_TABLES
+        sql_tables = {name: sqlfile.rows(os.path.join(sql, name + '.sql'), name) for name in names}
         apply_module_sql(tree, sql_tables)
 
-        # battleutils::LoadSkillTable reads skill_caps ordered by level, 100 rows, columns r0..r13.
-        caps = sorted(sqlfile.rows(os.path.join(sql, 'skill_caps.sql'), 'skill_caps'), key=lambda r: r['level'])
-        self.skill_caps = [[row['r%d' % i] for i in range(14)] for row in caps[:100]]
-
-        # Ranks are clamped to 0..11 the same way.
-        self.skill_ranks = {}
-        for row in sql_tables['skill_ranks']:
-            self.skill_ranks[row['skillid']] = {job: max(0, min(11, row[job])) for job in JOBS[1:]}
+        self.skill_caps, self.skill_ranks = read_skill_tables(tree, sql_tables.get('skill_ranks'))
 
         grades = overlays.load_yaml(os.path.join(tree, 'data', 'grades.yaml'))['grades']['jobs']
         order = ['hp', 'mp', 'str', 'dex', 'vit', 'agi', 'int', 'mnd', 'chr']
@@ -172,4 +251,4 @@ class Tables:
     def cap_by_rank(self, rank, level):
         """battleutils::GetMaxSkill(rank, level)."""
         level = max(0, min(level, len(self.skill_caps) - 1))
-        return self.skill_caps[level][rank]
+        return self.skill_caps[level][max(0, min(rank, len(self.skill_caps[level]) - 1))]

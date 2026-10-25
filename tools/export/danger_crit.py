@@ -13,11 +13,11 @@ HELPERS = {
 CRITICAL_STATUSES = ('MIGHTY_STRIKES', 'AZURE_LORE', 'EFFLUX', 'CHAIN_AFFINITY', 'SNEAK_ATTACK')
 GUARDS = {
     'scripts/globals/mobskills.lua': '985812fe584f74d8fb6fb2228dd88dc9c8f511a77a088a3d15abe007a9dcc70c',
-    'scripts/combat/physical_utilities.lua': '8d11d62686a51a142f4a63fa76be7acd56f9f484c7e447070c5ab750241f999c',
-    'scripts/globals/bluemagic.lua': 'bc3f6816a066f9ff9745b0ac79811045b750dbfd1033c8c34f18fd98c91d9424',
-    'src/map/ai/controllers/mob_controller.cpp': '3d0b0fa4f29a6e5fe1ad109078972f193272a7021bcc7476595c7d4e657c76ce',
+    'scripts/combat/physical_utilities.lua': '8056eb4a9abeaf5bed8e2a9fdc143229be5c36489a3eab099dfe1a76fdcccf90',
+    'scripts/globals/bluemagic.lua': '4ec70d2c7eea609e74bc3b309aad81cd38c27a0c367af066175271158edd5585',
+    'src/map/ai/controllers/mob_controller.cpp': '100aeeddd539a0f643e64472d054b9cfcd4c27f616fc78bafd4a3903404be5ef',
 }
-MODULE_GUARD = '31bcb490bdca4e090d024cd8faabd38e6d05318d2f30315ff14bae66b29a74d6'
+MODULE_GUARD = '2892ee33a303168c098d7ce918b144bcf3907f1e45ce13fda0b10f69d8a7d572'
 CALL = re.compile(r'\b(' + '|'.join(re.escape(name) for name in HELPERS) + r')\s*\(')
 SHARED_CHANGE = re.compile(r'xi\.mobskills\.(?:mobPhysicalMove|mobRangedMove|handleSinglePhysicalHit|handleSingleRangedHit)|'
                            r'xi\.combat\.physical\.(?:calculateSwingCriticalRate|calculateRangedCriticalRate)|xi\.spells\.blue\.')
@@ -189,7 +189,7 @@ def spell_facts(text):
         elif values != {'xi.attackType.RANGED'}:
             out['unknown'].append('A physical BLU spell changes its attack type in an unreadable way.')
     if out['sneak_attack']:
-        out['notes'].append('Sneak Attack requires a single target and the caster to be behind it or have Hide.')
+        out['notes'].append('Sneak Attack requires the caster to be behind the target or have Hide. It only applies to the first landed hit.')
     return out
 
 

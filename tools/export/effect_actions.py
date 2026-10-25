@@ -7,7 +7,7 @@ from . import lua_source
 
 HELPERS = {
     'modules/module_utils.lua': 'e6a96f7f7a73e02a53a436440524b67ae94735e3488ac1466455a18a19919b5c',
-    'scripts/globals/bluemagic.lua': 'bc3f6816a066f9ff9745b0ac79811045b750dbfd1033c8c34f18fd98c91d9424',
+    'scripts/globals/bluemagic.lua': '4ec70d2c7eea609e74bc3b309aad81cd38c27a0c367af066175271158edd5585',
     'scripts/globals/weaponskills.lua': '2934a6720464b53e5a80f45198b6165df5461be378af7726d6635e3501e81d61',
     'scripts/globals/spells/absorb_spell.lua': 'ab296eede4669210021dfb043bd951c1392934c670416b07eddee9cec46e5037',
     'src/map/action/action.h': '09afb30f18319047a4c2e75354953ce9c5046fac6ae168a986273672e113e039',
@@ -19,9 +19,9 @@ HELPERS = {
     'scripts/items/bottle_of_hysteroanima.lua': '06e74783db97094297d7ed01f3b49a6803daf69e2421c47f9dedad5e7cf6848e',
     'scripts/items/ccb_polymer_pump.lua': '65555714957c34b49ea1dd1bf0bdead61a67bd9acb3978bfe00c79ccaae6c333',
     'scripts/effects/tomahawk.lua': '0dd0db89f80863b0247d7bf0545cea0e34edbbb9575816d61c4b28d43b99c104',
-    'scripts/enum/msg.lua': '65c5ad858c3b496388bdfacf681afb3e560fc5abfe9ded62171ee13eb71eabe5',
+    'scripts/enum/msg.lua': '4fbd7753ff4c7215bf86b3bc1472e1a51e43d696b66aee125a8c5d569dc29546',
 }
-MODULES = '90818de34c2ca7a203bd6065ff10b138d3708a6a122fd61b51f3ef341cd451d6'
+MODULES = '2b790caf960a502e5e9871b4c3d41c53eab3ed0d428fd7107a94af52798ecf59'
 NATIVE = {
     ('src/map/packets/entity_update.cpp', 'CEntityUpdatePacket::updateWith'):
         'd8d8c8ff6598479391d43356ce514b55e9ebdc0ef8c2b01bded33261d95cfdd2',
@@ -46,7 +46,7 @@ NATIVE = {
     ('src/map/lua/luautils.cpp', 'OnItemUse'):
         'ac66618df1dd4c482761de25027132026af004e97fcdd5c45493b64a05578193',
 }
-INFERENCE_GUARD = '7d61bed85d1846295e2e34d7409dcdc152d00ab538652e31add884aaf7bdc9ba'
+INFERENCE_GUARD = '3706af168c0fce3864fd232c06d8b93d99d13f25448edf2313d74f489b8b1d0d'
 
 
 def inference_digest(tree):

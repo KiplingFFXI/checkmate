@@ -142,6 +142,8 @@ def native_slots(document, placed):
             cooldown = value.get('cooldown', 0)
             conditions = ['This native slot rolls only when empty and eligible; only one member can be up.',
                           'A placeholder takes the first roll after a server restart. Time and weather checks still apply.',
+                          'A kill opens the next lottery roll; a despawn alone does not.',
+                          'The monster\'s spawn check must also allow it to appear.',
                           'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.']
             rule = {'chance': chance, 'cooldown_min': cooldown, 'cooldown_max': cooldown,
                     'conditions': conditions}
@@ -149,6 +151,6 @@ def native_slots(document, placed):
                 pairs.append((ph, nm, rule))
             facts[nm] = {'value': 'Lottery', 'notes': [
                 'Native slot chance: %d%% on an eligible reroll.' % chance,
-                'The member cooldown is %d seconds after despawn; it does not reveal the current spawn window.' % cooldown,
+                'The member cooldown is %d seconds after its defeat; it does not reveal the current spawn window.' % cooldown,
                 *conditions]}
     return pairs, facts

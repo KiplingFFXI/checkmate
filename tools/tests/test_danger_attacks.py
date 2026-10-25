@@ -212,7 +212,7 @@ class OrdinaryAttackSourceTests(unittest.TestCase):
         self.assertIn('dynamic_cast<const CCharEntity*>(PAttacker) != nullptr',native)
         self.assertIn('getMobMod(xi::MobMod::AddEffect) > 0',native)
         self.assertIn('enspell == ENSPELL_BLOOD_WEAPON',native)
-        self.assertEqual(danger_attacks.check_source(self.tree),607)
+        self.assertEqual(danger_attacks.check_source(self.tree),608)
 
 
 if __name__=='__main__':

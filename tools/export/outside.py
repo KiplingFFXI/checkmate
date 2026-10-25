@@ -88,6 +88,11 @@ JOB_LINES = {
     'scripts/zones/Waughroon_Shrine/mobs/Maats_Pet.lua': ('A random pet at spawn. The mob script reader reads it, so '
                                                           'Maat\'s pet gets no job.', {'mob:changeJob(petInfo.job)'}),
     'scripts/globals/monstrosity.lua': ('Players only.', {'player:changeJob(mjob)', 'player:changeJob(xi.job.MON)'}),
+    'scripts/globals/monstrosity/feretory.lua': ('Changes the entering player to Monipulator.',
+                                               {'player:changeJob(xi.job.MON)'}),
+    'scripts/globals/monstrosity/relinquish.lua': ('Restores the leaving player\'s job, or WAR without a saved entry.',
+                                                 {'player:changeJob(data.entry_mjob ~= 0 and data.entry_mjob or xi.job.WAR)',
+                                                  'player:changeJob(data.entry_mjob)'}),
 }
 JOB_CALL = re.compile(r'\bchangeJob\b')
 

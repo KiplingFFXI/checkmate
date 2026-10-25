@@ -73,8 +73,6 @@ KNOWN_MODULES = {
         '01ad736af59f03e7620883fa510ae5b96615c22f18acbfb65bafbef693b9f00b',
     'modules/era/lua/effects/holy_circle.lua':
         '99bde0a978b34dd002c1e020762bcb9f30a4769e14733a3e5863886ee87b3439',
-    'modules/era/lua/effects/level_restriction.lua':
-        '03b3e963f1705aeb0303987636a1909261ef4fd7480f2d6cdbe356434b2b06a2',
     'modules/era/lua/effects/warding_circle.lua':
         '4795182c955c31c75f9d62b5acb356963ccc9f5895d89b353030ae70eba5caa2',
     'modules/era/lua/effects/weight.lua':
@@ -84,7 +82,7 @@ KNOWN_MODULES = {
     'modules/era/lua/globals/job_utils/dark_knight.lua':
         '6e5715fb8d991c33e5a91ba5915f8685960216cc28a3ca3c6dc874668b079f64',
     'modules/era/lua/globals/job_utils/dragoon.lua':
-        '6b3b5c14029fbc240abd13732cb6136292268884aac4bf1a71ab5b40b907e405',
+        '226817a08ace9116c8e532e85b7a78952c4599046889fb568b894cb960539d52',
     'modules/era/lua/globals/job_utils/monk.lua':
         '2f1ac67b39b2a34fa50198629fbc589b5fa2dc5dba86d24f25c15af24ad59b93',
     'modules/era/lua/globals/job_utils/ninja.lua':
@@ -101,6 +99,8 @@ KNOWN_MODULES = {
         '20c8072d5f562a6ad20d2410cae3e9d050f1f36a7032f5c94dbf988513b01c5d',
     'modules/phoenix/lua/actions/mobskills/final_sting_pre_2013.lua':
         'a237aabe1a3d390e39c66c4a6bc6b1b702e356354abbd3ac4ad851e9b5bba7bd',
+    'modules/era/lua/actions/mobskills/era_jugpet_mobskills.lua':
+        'cbf9dcf24d55f793124cc3d32c30041c2a2a0fc77689870447160da9a92cd89b',
     'modules/phoenix/lua/actions/mobskills/leaf_dagger_pre_wotg.lua':
         '2a80d21fef781f2c5d19f8174ceec140b4487b1083f51c53b1432ad7c1bcaf17',
     'modules/phoenix/lua/actions/mobskills/plague_breath_pre_wotg.lua':
@@ -314,7 +314,7 @@ def duration_value(expression, text, seen=()):
 def move_effects(text, ids, where):
     """Explicit applied effects; a hidden companion status is handled separately for Nightmare."""
     effects = defaultdict(list)
-    call = re.compile(r'(?:xi\.mobskills\.(mobBuffMove|mobStatusEffectMove)|\w+:(addStatusEffect))\s*\(')
+    call = re.compile(r'(?:xi\.mobskills\.(mobBuffMove|mobStatusEffectMove|mobGazeMove)|\w+:(addStatusEffect))\s*\(')
     for match in call.finditer(text):
         args = lua_source.call_arguments(text, match.end() - 1)
         if args is None:
@@ -358,17 +358,20 @@ def move_effects(text, ids, where):
 
 def override_moves(tree, loaded):
     """Checked module handlers in init order, keyed by their mob/pet script path."""
+    from . import effect_actions
+    reader = effect_actions.action_sources(tree, loaded)
     found = {}
-    pattern = re.compile(r"\w+:addOverride(?:ByEra)?\(\s*'(xi\.actions\.(mobskills|abilities\.pets)\."
-                         r"([\w.]+)\.(onMobWeaponSkill|onPetAbility|onAutomatonAbility))'")
-    for path in loaded:
-        text = source(tree, path)
-        for match in pattern.finditer(text):
-            args = lua_source.call_arguments(text, text.index('(', match.start()))
-            if args is None or len(args) < 2:
-                raise RuntimeError('%s: unreadable move override' % path)
-            name = ('scripts/actions/mobskills/' if match[2] == 'mobskills' else 'scripts/actions/abilities/pets/')
-            found[name + match[3].replace('.', '/') + '.lua'] = (', '.join(args[1:]), path)
+    pattern = re.compile(r'xi\.actions\.(mobskills|abilities\.pets)\.([\w.]+)\.(onMobWeaponSkill|onPetAbility|onAutomatonAbility)')
+    for target in reader.overrides:
+        match = pattern.fullmatch(target)
+        if match is None:
+            continue
+        folder = 'scripts/actions/mobskills/' if match[1] == 'mobskills' else 'scripts/actions/abilities/pets/'
+        path = folder + match[2].replace('.', '/') + '.lua'
+        text, reasons = reader.read(path, target.rsplit('.', 1)[0] + '.', match[3])
+        if reasons:
+            raise RuntimeError('%s: unreadable move override: %s' % (path, '; '.join(reasons)))
+        found[path] = text, path
     return found
 
 

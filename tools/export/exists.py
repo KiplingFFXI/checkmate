@@ -528,20 +528,33 @@ class Index:
 def check_module_sql(tree, index):
     """
     Stops on module SQL that changes a mob skill that spawns monsters, or deletes from a skill list that holds one,
-    since the exporter reads both as the base SQL has them. Any id or name in the statement counts.
+    since the spawn reader keeps the base SQL. List IDs and skill IDs have separate meanings.
     """
+    from . import encounters
+    data, columns = {}, {}
+    for table in ('mob_skills', 'mob_skill_lists'):
+        path = Path(tree) / 'sql' / (table + '.sql')
+        data[table] = encounters.sql_rows(path, table)
+        columns[table] = sqlfile.columns(path.read_text(encoding='utf8'), table)
     for rel, table, statement in module_statements(tree):
         if table not in ('mob_skills', 'mob_skill_lists'):
             continue
-        words = re.findall(r"'([^']*)'", statement)
-        numbers = [int(number) for number in re.findall(r'\b\d+\b', statement)]
-        skills = words + [index.skill_names.get(number) for number in numbers]
-        lists = []
-        if table == 'mob_skill_lists' and statement.upper().startswith('DELETE'):
-            lists = [index.list_ids.get(word) for word in words] + numbers
-        if index.spawning_skills(skills) or any(index.skill_files(list_id) for list_id in lists):
+        named = set(re.findall(r'`?(\w+)`?\s*(?:=|\bIN\s*\()', re.sub(r"'[^']*'", "''", statement), re.I))
+        if named - set(columns[table]):
+            raise RuntimeError('%s uses an unknown skill-table column. Review its spawn effects.' % rel)
+        before = data[table]
+        after = encounters.apply_sql([dict(row) for row in before], columns[table], statement, rel)
+        row_key = lambda row: tuple(row.get(column) for column in columns[table])
+        removed = {row_key(row) for row in before} - {row_key(row) for row in after}
+        added = {row_key(row) for row in after} - {row_key(row) for row in before}
+        changed = [row for row in before if row_key(row) in removed] + [row for row in after if row_key(row) in added]
+        names = {row['mob_skill_id']: row['mob_skill_name'] for row in data['mob_skills']}
+        skills = ([row['mob_skill_name'] for row in changed] if table == 'mob_skills'
+                  else [names.get(row['mob_skill_id']) for row in changed])
+        if index.spawning_skills(skills):
             raise RuntimeError('%s changes a monster skill that spawns monsters, which the exporter reads. Teach it '
                                'this change.' % rel)
+        data[table] = after
 
 
 def id_keys(tree, script_dir, tables):

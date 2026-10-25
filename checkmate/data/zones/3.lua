@@ -1,5 +1,5 @@
 -- Manaclipper (zone 3).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -69,7 +69,7 @@ danger[62] = { kind = 'skill', id = 508, name = 'Suctorial Tentacle', summary = 
 danger[63] = { danger[48], danger[52], danger[55], danger[56], danger[62] };
 danger[64] = { value = 'Gas Shell: Poison; Venom Shell: Plague, Poison; Palsynyxis: Paralysis; Painful Whip: can crit; Suctorial Tentacle: Bind', notes = danger[44], entries = danger[63], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[12] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     link_lists = {},
     monsters = {

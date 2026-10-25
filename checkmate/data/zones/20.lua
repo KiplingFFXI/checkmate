@@ -1,5 +1,5 @@
 -- Promyvion-Mea (zone 20).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -36,7 +36,7 @@ danger[29] = { kind = 'skill', id = 1232, name = 'Murk', summary = 'Murk: Slow, 
 danger[30] = { danger[22], danger[25], danger[29] };
 danger[31] = { value = 'Brain Spike: Paralysis, can crit; Promyvion Brume: Poison; Murk: Slow, Weight', notes = danger[19], entries = danger[30], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[2] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     link_lists = {},
     monsters = {

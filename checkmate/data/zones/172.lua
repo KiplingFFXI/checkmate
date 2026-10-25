@@ -1,5 +1,5 @@
 -- Zeruhn Mines (zone 172).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -24,7 +24,7 @@ danger[17] = { kind = 'skill', id = 613, name = 'Shell Bash', summary = 'Shell B
 danger[18] = { danger[16], danger[17] };
 danger[19] = { value = 'Head Butt Quadav: Stun; Shell Bash: Stun', notes = danger[15], entries = danger[18], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[3] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -46,10 +46,7 @@ return {
                         attack_skill = 5 },
                 [2] = { acc = 13, eva = 12, agi = 10, int = 6, mnd = 6, chr = 7, dex = 9, def = 18,
                         attack_skill = 7 },
-                [3] = { acc = 16, eva = 15, agi = 10, int = 6, mnd = 6, chr = 7, dex = 9, def = 21,
-                        attack_skill = 10 },
             },
-            spawn_levels = { [1] = { 1, 2 }, [2] = { 1, 2 } },
             ranks  = { fire = -2, ice = -1, wind = -3, earth = -2, thunder = -2, water = -2, light = -3, dark = 6,
                        paralyze = -1, bind = -1, silence = -3, slow = -2, poison = -2, light_sleep = -3,
                        dark_sleep = 6, blind = 6, stun = -2, gravity = -3 },
@@ -62,7 +59,7 @@ return {
             info = {
                 family = { value = 'Flock Bat / Bird', notes = { 'Source species: Flock Bat (ID 181); family ID 81.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
-                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [1] = 33, [2] = 46, [3] = 62 }, mp = { [1] = 0, [2] = 0, [3] = 0 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
+                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [1] = 33, [2] = 46 }, mp = { [1] = 0, [2] = 0 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
                 movement = { value = 'Base speed 40', notes = { 'Source base speed is 40; the ordinary monster default is 40. Animation speed is 40.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'Wind crystal (conditional)', notes = { 'Source crystal element: Wind.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
@@ -85,6 +82,7 @@ return {
                 [4] = { acc = 19, eva = 16, agi = 6, int = 7, mnd = 11, chr = 11, dex = 8, def = 27,
                         attack_skill = 13 },
             },
+            spawn_levels = { [7] = { 2, 3 }, [11] = { 3, 4 } },
             ranks  = { fire = -2, ice = -3, wind = -2, earth = -2, thunder = -3, water = 2, light = -2, dark = -2,
                        paralyze = -3, bind = -3, silence = -2, slow = -2, poison = 2, light_sleep = -2,
                        dark_sleep = -2, blind = -2, stun = -3, gravity = -2 },

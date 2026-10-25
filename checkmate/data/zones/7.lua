@@ -1,5 +1,5 @@
 -- Attohwa Chasm (zone 7).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -184,7 +184,7 @@ danger[177] = { notes = danger[176], unknown = {  }, activation_range = 30.0, sh
 danger[178] = { 'Normal activation range: 18 yalms. This is the move selection limit, not its affected area.', 'Area: single target.', 'These source distances do not establish a safe place to stand.', 'The effect application does not check Utsusemi or Blink.' };
 danger[179] = { notes = danger[178], unknown = {  }, activation_range = 18.0, shape = 'single target', shadows = { { mode = 'ignore' } } };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -1398,7 +1398,7 @@ return {
                 [71] = { acc = 293, eva = 279, agi = 75, int = 55, mnd = 55, chr = 63, dex = 75, def = 351,
                          attack_skill = 237 },
                 [72] = { acc = 298, eva = 284, agi = 75, int = 55, mnd = 55, chr = 63, dex = 75, def = 357,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 304, eva = 290, agi = 76, int = 58, mnd = 58, chr = 64, dex = 76, def = 366,
                          attack_skill = 246 },
             },
@@ -1442,7 +1442,7 @@ return {
             ph_for = { [283] = { 361 } },
             ph_rules = {
                 [283] = {
-                    [361] = { chance = 15, cooldown_min = 3600, cooldown_max = 3600, conditions = { 'A successful roll uses the PH respawn delay.' } },
+                    [361] = { chance = 15, cooldown_min = 3600, cooldown_max = 3600, conditions = { 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.' } },
                 },
             },
             ranks  = { wind = -2, earth = 3, light = -3, dark = 3, silence = -2, slow = 3, light_sleep = -3,
@@ -1516,7 +1516,7 @@ return {
                 [71] = { acc = 296, eva = 257, agi = 75, int = 87, mnd = 60, chr = 67, dex = 80, def = 277,
                          attack_skill = 237 },
                 [72] = { acc = 301, eva = 262, agi = 75, int = 87, mnd = 60, chr = 67, dex = 80, def = 282,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 306, eva = 267, agi = 76, int = 89, mnd = 60, chr = 70, dex = 80, def = 289,
                          attack_skill = 246 },
             },
@@ -1555,7 +1555,7 @@ return {
                 [71] = { acc = 296, eva = 279, agi = 75, int = 55, mnd = 52, chr = 63, dex = 80, def = 293,
                          attack_skill = 237 },
                 [72] = { acc = 301, eva = 284, agi = 75, int = 55, mnd = 52, chr = 63, dex = 80, def = 298,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 306, eva = 290, agi = 76, int = 58, mnd = 54, chr = 64, dex = 80, def = 305,
                          attack_skill = 246 },
             },
@@ -1673,7 +1673,7 @@ return {
             ph_for = { [273] = { 274 } },
             ph_rules = {
                 [273] = {
-                    [274] = { chance = 10, cooldown_min = 10800, cooldown_max = 21600, conditions = { 'The next PH respawn must fall at night (20:00-04:00 Vana\'diel time).', 'A successful roll uses the PH respawn delay.', 'This cooldown starts only after a kill; a natural despawn skips it.' } },
+                    [274] = { chance = 15, cooldown_min = 10800, cooldown_max = 10800, conditions = { 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.' } },
                 },
             },
             ranks  = { fire = -2, ice = 2, wind = -1, earth = 2, thunder = -1, water = -1, light = -3, dark = 3,
@@ -1744,7 +1744,7 @@ return {
                 crystal = { value = 'Dark crystal (conditional)', notes = { 'Source crystal element: Dark.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.' } },
                 traits = { value = 'Triple Attack 10', notes = { 'Base attack delay 290 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
-                spawn = { value = '20:00-04:00; Lottery', notes = { 'Source spawn window: 20:00-04:00 Vana\'diel time. The end hour is excluded.', 'The source despawns this monster outside its time window.', 'Lottery spawn; see a listed placeholder for its chance and cooldown rules.', 'Source rules only; no remaining time or open spawn window is known.' } },
+                spawn = { value = 'Lottery; 20:00-04:00', notes = { 'Native slot chance: 15% on an eligible reroll.', 'The member cooldown is 10800 seconds after its defeat; it does not reveal the current spawn window.', 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.', 'Source spawn window: 20:00-04:00 Vana\'diel time. The end hour is excluded.', 'The source despawns this monster outside its time window.', 'The NM\'s actual respawn is controlled by its script or spawn rules; the base delay is not a live window.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 claim = { value = 'Claimshield 5 seconds', notes = { 'This Phoenix list entry is unclaimable and unkillable for 5 seconds after spawning. Call for Help is blocked during the shield.', 'When the shield ends, Phoenix selects claim from eligible entries on its enmity list. Remaining shield time and the winner are not known.' } },
                 dangers = { value = 'Silence Seal: silence; Envoutement: Curse; Danse Macabre: charm', notes = { 'Silence Seal: silence. Attempts Silence on its targets. Source targeting: area around the monster. Possible effects: Silence.', 'Envoutement: Curse. Source targeting: single target.', 'Danse Macabre: charm. Can charm a player; the target and effect check still have to pass. Source targeting: single target. Possible effects: Charm.', 'These are possible moves from the source. They do not predict the next move.', 'Effects can miss, be resisted or be blocked by immunity. Range, targets, TP, recasts and skill checks still apply.', 'The move returned by the script could not be read.' }, entries = danger[175], coverage = 'partial', incomplete = true, reasons = { 'The move returned by the script could not be read.' }, general_notes = danger[15] },
                 blue = { value = 'Memento Mori', notes = { 'Possible spells from moves this monster can use. It must actually use the move before defeat; learning is not guaranteed.' }, spells = { { id = 538, name = 'Memento Mori', level = 62, min_skill = 181, skill_ids = { 530 } } }, requirements = { 'You need Blue Mage as your main job and enough current Blue Magic skill. When the monster dies, you must be alive and within 100 yalms in the same zone. You cannot learn a spell you already know, or learn from a Call for Help kill.', 'Equipment skill bonuses count. The spell\'s casting level is not a minimum learning level.', 'You or your party or alliance must get credit for the kill. Only one spell that meets the requirements gets a learning roll each time the monster dies.' }, incomplete = false },
@@ -1797,7 +1797,7 @@ return {
             job    = 'blm/blm',
             levels = {
                 [72] = { acc = 301, eva = 262, agi = 75, int = 87, mnd = 60, chr = 67, dex = 80, def = 282,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
             },
             ranks  = { fire = -3, wind = -2, earth = -2, thunder = -2, water = -2, light = -3, dark = 4,
                        silence = -2, slow = -2, poison = -2, light_sleep = -3, dark_sleep = 11, blind = 4,
@@ -1825,7 +1825,7 @@ return {
             ids    = { 329 },
             levels = {
                 [72] = { acc = 301, eva = 284, agi = 75, int = 55, mnd = 52, chr = 63, dex = 80, def = 298,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
             },
             ranks  = { fire = -3, wind = -2, earth = -2, thunder = -2, water = -2, light = -3, dark = 4,
                        silence = -2, slow = -2, poison = -2, light_sleep = -3, dark_sleep = 11, blind = 4,
@@ -2133,7 +2133,7 @@ return {
                 crystal = { value = 'Dark crystal (conditional)', notes = { 'Source crystal element: Dark.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.' } },
                 traits = { value = 'Double Attack 10', notes = { 'Base attack delay 200 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.', 'Scripts or loaded overrides can change attack traits during the fight.' } },
-                spawn = { value = 'Lottery', notes = { 'Lottery spawn; see a listed placeholder for its chance and cooldown rules.', 'Source rules only; no remaining time or open spawn window is known.' } },
+                spawn = { value = 'Lottery', notes = { 'Native slot chance: 15% on an eligible reroll.', 'The member cooldown is 3600 seconds after its defeat; it does not reveal the current spawn window.', 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.', 'The NM\'s actual respawn is controlled by its script or spawn rules; the base delay is not a live window.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 claim = { value = 'Claimshield 5 seconds', notes = { 'This Phoenix list entry is unclaimable and unkillable for 5 seconds after spawning. Call for Help is blocked during the shield.', 'When the shield ends, Phoenix selects claim from eligible entries on its enmity list. Remaining shield time and the winner are not known.' } },
                 dangers = danger[16],
                 blue = { value = 'Mandibular Bite', notes = { 'Possible spells from moves this monster can use. It must actually use the move before defeat; learning is not guaranteed.' }, spells = { { id = 543, name = 'Mandibular Bite', level = 44, min_skill = 104, skill_ids = { 279 } } }, requirements = { 'You need Blue Mage as your main job and enough current Blue Magic skill. When the monster dies, you must be alive and within 100 yalms in the same zone. You cannot learn a spell you already know, or learn from a Call for Help kill.', 'Equipment skill bonuses count. The spell\'s casting level is not a minimum learning level.', 'You or your party or alliance must get credit for the kill. Only one spell that meets the requirements gets a learning roll each time the monster dies.' }, incomplete = false },

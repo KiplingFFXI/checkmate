@@ -1,5 +1,5 @@
 -- Castle Zvahl Baileys (zone 161).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -206,7 +206,7 @@ danger[199] = { value = 'Soul Drain: HP drain; Hecatomb Wave: blindness; Demonic
 danger[200] = { 'Normal hits can drain HP while Blood Weapon is active, except against undead targets. This list does not show whether Blood Weapon is active now.' };
 danger[201] = { kind = 'attack', id = 0, name = 'Normal attacks', summary = 'Normal attacks: HP drain', notes = danger[200], categories = { 'drain' }, effects = { 'HP drain' }, details = { notes = {  }, unknown = {  } } };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -1666,7 +1666,7 @@ return {
                 [71] = { acc = 296, eva = 279, agi = 75, int = 81, mnd = 52, chr = 71, dex = 80, def = 289,
                          attack_skill = 237 },
                 [72] = { acc = 301, eva = 284, agi = 75, int = 81, mnd = 52, chr = 71, dex = 80, def = 294,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 306, eva = 290, agi = 76, int = 83, mnd = 54, chr = 72, dex = 80, def = 301,
                          attack_skill = 246 },
             },
@@ -1705,7 +1705,7 @@ return {
                 [71] = { acc = 296, eva = 275, agi = 67, int = 80, mnd = 43, chr = 56, dex = 80, def = 287,
                          attack_skill = 237 },
                 [72] = { acc = 301, eva = 280, agi = 67, int = 80, mnd = 43, chr = 56, dex = 80, def = 292,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 306, eva = 287, agi = 70, int = 80, mnd = 44, chr = 56, dex = 80, def = 298,
                          attack_skill = 246 },
             },
@@ -1740,7 +1740,7 @@ return {
                 [71] = { acc = 290, eva = 253, agi = 67, int = 84, mnd = 71, chr = 84, dex = 68, def = 277,
                          attack_skill = 237 },
                 [72] = { acc = 295, eva = 258, agi = 67, int = 84, mnd = 71, chr = 84, dex = 68, def = 282,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 300, eva = 264, agi = 70, int = 86, mnd = 74, chr = 86, dex = 68, def = 289,
                          attack_skill = 246 },
             },
@@ -1808,7 +1808,7 @@ return {
                 [71] = { acc = 296, eva = 279, agi = 75, int = 60, mnd = 47, chr = 68, dex = 80, def = 293,
                          attack_skill = 237 },
                 [72] = { acc = 301, eva = 284, agi = 75, int = 60, mnd = 47, chr = 68, dex = 80, def = 298,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 306, eva = 290, agi = 76, int = 62, mnd = 50, chr = 68, dex = 80, def = 305,
                          attack_skill = 246 },
             },

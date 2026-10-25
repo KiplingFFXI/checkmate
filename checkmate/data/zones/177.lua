@@ -1,5 +1,5 @@
 -- VeLugannon Palace (zone 177).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -77,7 +77,7 @@ danger[70] = { kind = 'skill', id = 485, name = 'Blood Saber', summary = 'Blood 
 danger[71] = { danger[60], danger[63], danger[66], danger[70] };
 danger[72] = { value = 'Hell Slash: can crit; Horror Cloud: Slow; Black Cloud: Blindness; Blood Saber: HP drain', notes = danger[59], entries = danger[71], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[6] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -130,7 +130,7 @@ return {
                        339, 341, 343, 345, 347, 349, 351, 353, 355, 357 },
             levels = {
                 [72] = { acc = 301, eva = 291, agi = 88, int = 63, mnd = 52, chr = 68, dex = 80, def = 293,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 306, eva = 296, agi = 89, int = 66, mnd = 54, chr = 68, dex = 80, def = 299,
                          attack_skill = 246 },
                 [74] = { acc = 312, eva = 302, agi = 90, int = 66, mnd = 54, chr = 69, dex = 82, def = 304,

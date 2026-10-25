@@ -1,5 +1,5 @@
 -- Bibiki Bay (zone 4).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -220,7 +220,7 @@ danger[213] = { kind = 'spell', id = 221, name = 'Poison II', summary = 'Poison 
 danger[214] = { 'Scripted spell selection has separate conditions from the ordinary spell-list level limits.' };
 danger[215] = { kind = 'spell', id = 214, name = 'Flood', summary = 'Flood: Thunder magic evasion down', notes = danger[214], categories = { 'debuff' }, effects = { 'Thunder magic evasion down' }, details = danger[183] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -497,7 +497,7 @@ return {
             ph_for = { [45] = { 46 } },
             ph_rules = {
                 [45] = {
-                    [46] = { chance = 10, cooldown_min = 3600, cooldown_max = 3600, conditions = { 'A successful roll uses the PH respawn delay.' } },
+                    [46] = { chance = 15, cooldown_min = 3600, cooldown_max = 3600, conditions = { 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.' } },
                 },
             },
             ranks  = { fire = -2, ice = -3, wind = -2, earth = -2, thunder = -3, water = 6, light = -2, dark = -2,
@@ -805,7 +805,7 @@ return {
                 crystal = { value = 'Water crystal (conditional)', notes = { 'Source crystal element: Water.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.' } },
                 traits = { value = 'Double Attack 10', notes = { 'Base attack delay 240 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
-                spawn = { value = 'Lottery', notes = { 'Lottery spawn; see a listed placeholder for its chance and cooldown rules.', 'Source rules only; no remaining time or open spawn window is known.' } },
+                spawn = { value = 'Lottery', notes = { 'Native slot chance: 15% on an eligible reroll.', 'The member cooldown is 3600 seconds after its defeat; it does not reveal the current spawn window.', 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.', 'The NM\'s actual respawn is controlled by its script or spawn rules; the base delay is not a live window.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 claim = { value = 'Claimshield 5 seconds', notes = { 'This Phoenix list entry is unclaimable and unkillable for 5 seconds after spawning. Call for Help is blocked during the shield.', 'When the shield ends, Phoenix selects claim from eligible entries on its enmity list. Remaining shield time and the winner are not known.' } },
                 dangers = danger[50],
                 blue = { value = 'No learnable BLU spells', notes = { 'No enabled BLU spell is mapped to the usable source moves for this monster.' } },
@@ -960,7 +960,7 @@ return {
             ph_for = { [141] = { 142 } },
             ph_rules = {
                 [141] = {
-                    [142] = { chance = 10, cooldown_min = 3600, cooldown_max = 3600, conditions = { 'A successful roll uses the PH respawn delay.' } },
+                    [142] = { chance = 15, cooldown_min = 3600, cooldown_max = 3600, conditions = { 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.' } },
                 },
             },
             ranks  = { fire = -1, ice = -2, wind = 2, earth = 2, thunder = -1, water = 2, light = -1, dark = -1,
@@ -1054,7 +1054,7 @@ return {
                 crystal = { value = 'Fire crystal (conditional)', notes = { 'Source crystal element: Fire.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.' } },
                 traits = { value = 'Double Attack 10', notes = { 'Base attack delay 210 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
-                spawn = { value = 'Lottery', notes = { 'Lottery spawn; see a listed placeholder for its chance and cooldown rules.', 'Source rules only; no remaining time or open spawn window is known.' } },
+                spawn = { value = 'Lottery', notes = { 'Native slot chance: 15% on an eligible reroll.', 'The member cooldown is 3600 seconds after its defeat; it does not reveal the current spawn window.', 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.', 'The NM\'s actual respawn is controlled by its script or spawn rules; the base delay is not a live window.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 claim = { value = 'Claimshield 5 seconds', notes = { 'This Phoenix list entry is unclaimable and unkillable for 5 seconds after spawning. Call for Help is blocked during the shield.', 'When the shield ends, Phoenix selects claim from eligible entries on its enmity list. Remaining shield time and the winner are not known.' } },
                 dangers = danger[147],
                 blue = { value = 'Geist Wall', notes = { 'Possible spells from moves this monster can use. It must actually use the move before defeat; learning is not guaranteed.' }, spells = { { id = 605, name = 'Geist Wall', level = 46, min_skill = 110, skill_ids = { 516 } } }, requirements = { 'You need Blue Mage as your main job and enough current Blue Magic skill. When the monster dies, you must be alive and within 100 yalms in the same zone. You cannot learn a spell you already know, or learn from a Call for Help kill.', 'Equipment skill bonuses count. The spell\'s casting level is not a minimum learning level.', 'You or your party or alliance must get credit for the kill. Only one spell that meets the requirements gets a learning roll each time the monster dies.' }, incomplete = false },
@@ -1143,7 +1143,7 @@ return {
             ids    = { 150, 184, 196 },
             levels = {
                 [72] = { acc = 302, eva = 287, agi = 80, int = 55, mnd = 55, chr = 63, dex = 83, def = 297,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 308, eva = 292, agi = 80, int = 58, mnd = 58, chr = 64, dex = 84, def = 303,
                          attack_skill = 246 },
                 [74] = { acc = 313, eva = 298, agi = 82, int = 58, mnd = 58, chr = 64, dex = 85, def = 308,
@@ -1181,7 +1181,7 @@ return {
             job    = 'bst/bst',
             levels = {
                 [72] = { acc = 302, eva = 277, agi = 60, int = 63, mnd = 63, chr = 87, dex = 83, def = 287,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 308, eva = 283, agi = 62, int = 64, mnd = 64, chr = 89, dex = 84, def = 293,
                          attack_skill = 246 },
                 [74] = { acc = 313, eva = 288, agi = 63, int = 64, mnd = 64, chr = 89, dex = 85, def = 298,
@@ -1287,7 +1287,7 @@ return {
             job    = 'rng/rng',
             levels = {
                 [72] = { acc = 346, eva = 271, agi = 92, int = 63, mnd = 67, chr = 63, dex = 75, def = 287,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 353, eva = 275, agi = 93, int = 64, mnd = 70, chr = 64, dex = 78, def = 293,
                          attack_skill = 246 },
                 [74] = { acc = 358, eva = 281, agi = 94, int = 64, mnd = 70, chr = 64, dex = 78, def = 298,
@@ -1357,7 +1357,7 @@ return {
             job    = 'blm/blm',
             levels = {
                 [72] = { acc = 302, eva = 265, agi = 80, int = 87, mnd = 63, chr = 67, dex = 83, def = 281,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 308, eva = 269, agi = 80, int = 89, mnd = 64, chr = 70, dex = 84, def = 287,
                          attack_skill = 246 },
                 [74] = { acc = 313, eva = 275, agi = 82, int = 89, mnd = 64, chr = 70, dex = 85, def = 292,
@@ -1395,7 +1395,7 @@ return {
                 [71] = { acc = 293, eva = 282, agi = 80, int = 55, mnd = 55, chr = 63, dex = 75, def = 292,
                          attack_skill = 237 },
                 [72] = { acc = 298, eva = 287, agi = 80, int = 55, mnd = 55, chr = 63, dex = 75, def = 297,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 304, eva = 292, agi = 80, int = 58, mnd = 58, chr = 64, dex = 76, def = 303,
                          attack_skill = 246 },
             },
@@ -1462,7 +1462,7 @@ return {
             job    = 'rdm/rdm',
             levels = {
                 [72] = { acc = 298, eva = 273, agi = 68, int = 75, mnd = 75, chr = 67, dex = 75, def = 285,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 305, eva = 278, agi = 68, int = 76, mnd = 76, chr = 70, dex = 78, def = 290,
                          attack_skill = 246 },
                 [74] = { acc = 310, eva = 282, agi = 69, int = 77, mnd = 77, chr = 70, dex = 78, def = 295,
@@ -1500,7 +1500,7 @@ return {
             job    = 'thf/thf',
             levels = {
                 [72] = { acc = 308, eva = 353, agi = 84, int = 75, mnd = 51, chr = 51, dex = 95, def = 287,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 314, eva = 359, agi = 86, int = 76, mnd = 52, chr = 52, dex = 97, def = 293,
                          attack_skill = 246 },
                 [74] = { acc = 319, eva = 364, agi = 87, int = 77, mnd = 52, chr = 52, dex = 97, def = 298,
@@ -1536,7 +1536,7 @@ return {
             job    = 'whm/whm',
             levels = {
                 [72] = { acc = 292, eva = 259, agi = 68, int = 63, mnd = 87, chr = 75, dex = 63, def = 287,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 299, eva = 263, agi = 68, int = 64, mnd = 89, chr = 76, dex = 66, def = 293,
                          attack_skill = 246 },
                 [74] = { acc = 304, eva = 268, agi = 69, int = 64, mnd = 89, chr = 77, dex = 66, def = 298,
@@ -1568,7 +1568,7 @@ return {
             job    = 'drk/drk',
             levels = {
                 [72] = { acc = 302, eva = 283, agi = 72, int = 75, mnd = 51, chr = 51, dex = 83, def = 291,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 308, eva = 289, agi = 74, int = 76, mnd = 52, chr = 52, dex = 84, def = 296,
                          attack_skill = 246 },
                 [74] = { acc = 313, eva = 294, agi = 75, int = 77, mnd = 52, chr = 52, dex = 85, def = 301,
@@ -1600,7 +1600,7 @@ return {
             ids    = { 234 },
             levels = {
                 [72] = { acc = 302, eva = 287, agi = 80, int = 55, mnd = 55, chr = 63, dex = 83, def = 297,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 308, eva = 292, agi = 80, int = 58, mnd = 58, chr = 64, dex = 84, def = 303,
                          attack_skill = 246 },
                 [74] = { acc = 313, eva = 298, agi = 82, int = 58, mnd = 58, chr = 64, dex = 85, def = 308,

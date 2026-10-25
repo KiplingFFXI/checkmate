@@ -1,9 +1,9 @@
 -- Phoenix physical damage rules. Buff powers and server settings are not known.
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built = 'phoenix/live 071c401048',
+    built = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     version = 1,
     melee_cap = 2,

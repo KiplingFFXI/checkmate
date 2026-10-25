@@ -1,5 +1,5 @@
 -- Sealions Den (zone 32).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -106,7 +106,7 @@ danger[99] = { kind = 'spell', id = 112, name = 'Flash', summary = 'Flash: Flash
 danger[100] = { danger[84], danger[89], danger[92], danger[95], danger[99] };
 danger[101] = { value = 'Diaga II: Dia; Slow: slow; Paralyze: paralysis; Silence: silence; Flash: Flash', notes = danger[79], entries = danger[100], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[77] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

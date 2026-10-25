@@ -1,5 +1,5 @@
 -- Toraimarai Canal (zone 169).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -207,7 +207,7 @@ danger[200] = { kind = 'skill', id = 452, name = 'Screwdriver', summary = 'Screw
 danger[201] = { danger[196], danger[199], danger[200] };
 danger[202] = { value = 'Intimidate: Slow; Aqua Ball: STR down; Screwdriver: can crit', notes = danger[192], entries = danger[201], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[12] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -642,18 +642,7 @@ return {
                          attack_skill = 176 },
                 [57] = { acc = 218, eva = 205, agi = 61, int = 50, mnd = 46, chr = 50, dex = 61, def = 219,
                          attack_skill = 181 },
-                [64] = { acc = 256, eva = 243, agi = 68, int = 54, mnd = 50, chr = 56, dex = 68, def = 256,
-                         attack_skill = 210 },
-                [65] = { acc = 261, eva = 248, agi = 68, int = 56, mnd = 52, chr = 58, dex = 68, def = 261,
-                         attack_skill = 214 },
-                [66] = { acc = 267, eva = 253, agi = 70, int = 57, mnd = 52, chr = 58, dex = 70, def = 265,
-                         attack_skill = 218 },
-                [67] = { acc = 271, eva = 258, agi = 71, int = 57, mnd = 53, chr = 59, dex = 71, def = 271,
-                         attack_skill = 221 },
             },
-            spawn_levels = { [69] = { 54, 57 }, [70] = { 54, 57 }, [96] = { 54, 57 }, [97] = { 54, 57 },
-                             [152] = { 54, 57 }, [153] = { 54, 57 }, [154] = { 54, 57 }, [155] = { 54, 57 },
-                             [261] = { 64, 67 }, [262] = { 64, 67 }, [263] = { 64, 67 } },
             ranks  = { fire = -2, ice = -2, water = 4, light = -3, dark = 2, paralyze = -2, bind = -2, poison = 4,
                        light_sleep = -3, dark_sleep = 2, blind = 2 },
             weapon_dmg = { blunt = -25, hand_to_hand = -25 },
@@ -667,7 +656,7 @@ return {
             info = {
                 family = { value = 'Leech / Amorph', notes = { 'Source species: Leech (ID 8); family ID 5.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
-                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [54] = 2855, [55] = 2939, [56] = 3022, [57] = 3106, [64] = 3690, [65] = 3774, [66] = 3857, [67] = 3941 }, mp = { [54] = 0, [55] = 0, [56] = 0, [57] = 0, [64] = 0, [65] = 0, [66] = 0, [67] = 0 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
+                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [54] = 2855, [55] = 2939, [56] = 3022, [57] = 3106 }, mp = { [54] = 0, [55] = 0, [56] = 0, [57] = 0 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
                 movement = { value = 'Base speed 40', notes = { 'Source base speed is 40; the ordinary monster default is 40. Animation speed is 40.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'Water crystal (conditional)', notes = { 'Source crystal element: Water.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },

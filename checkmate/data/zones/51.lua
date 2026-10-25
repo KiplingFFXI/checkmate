@@ -1,5 +1,5 @@
 -- Wajaom Woodlands (zone 51).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -508,7 +508,7 @@ danger[501] = { kind = 'skill', id = 1792, name = 'Nullsong', summary = 'Nullson
 danger[502] = { danger[494], danger[497], danger[501] };
 danger[503] = { value = 'Body Slam: can crit; Petro Eyes: Petrification; Nullsong: Buff removal', notes = danger[491], entries = danger[502], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[27] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -734,7 +734,7 @@ return {
                 [71] = { acc = 306, eva = 352, agi = 92, int = 88, mnd = 40, chr = 40, dex = 100, def = 278,
                          attack_skill = 237 },
                 [72] = { acc = 311, eva = 357, agi = 92, int = 88, mnd = 40, chr = 40, dex = 100, def = 283,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 317, eva = 363, agi = 95, int = 89, mnd = 40, chr = 40, dex = 102, def = 289,
                          attack_skill = 246 },
             },
@@ -769,7 +769,7 @@ return {
                 [71] = { acc = 306, eva = 352, agi = 92, int = 88, mnd = 40, chr = 40, dex = 100, def = 278,
                          attack_skill = 237 },
                 [72] = { acc = 311, eva = 357, agi = 92, int = 88, mnd = 40, chr = 40, dex = 100, def = 283,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 317, eva = 363, agi = 95, int = 89, mnd = 40, chr = 40, dex = 102, def = 289,
                          attack_skill = 246 },
             },
@@ -818,7 +818,7 @@ return {
             ph_for = { [84] = { 85 } },
             ph_rules = {
                 [84] = {
-                    [85] = { chance = 15, cooldown_min = 1800, cooldown_max = 1800, conditions = { 'A successful roll uses the PH respawn delay.' } },
+                    [85] = { chance = 15, cooldown_min = 1800, cooldown_max = 1800, conditions = { 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.' } },
                 },
             },
             ranks  = { fire = -1, ice = -2, wind = 6, thunder = -1, water = -1, dark = -2, paralyze = -2, bind = -2,
@@ -1285,7 +1285,7 @@ return {
                 crystal = { value = 'Wind crystal (conditional)', notes = { 'Source crystal element: Wind.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.', 'Phoenix monster-pet EXP is reduced by 70%, 80% or 90% for parties of 4, 5 or 6+; smaller parties keep the base award.' } },
                 traits = { value = 'Base delay 220', notes = { 'Base attack delay 220 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
-                spawn = { value = 'Lottery', notes = { 'Lottery spawn; see a listed placeholder for its chance and cooldown rules.', 'Source rules only; no remaining time or open spawn window is known.' } },
+                spawn = { value = 'Lottery', notes = { 'Native slot chance: 15% on an eligible reroll.', 'The member cooldown is 1800 seconds after its defeat; it does not reveal the current spawn window.', 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.', 'The NM\'s actual respawn is controlled by its script or spawn rules; the base delay is not a live window.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 claim = { value = 'Claimshield 5 seconds', notes = { 'This Phoenix list entry is unclaimable and unkillable for 5 seconds after spawning. Call for Help is blocked during the shield.', 'When the shield ends, Phoenix selects claim from eligible entries on its enmity list. Remaining shield time and the winner are not known.' } },
                 dangers = { value = 'Snatch Morsel: Buff removal', notes = { 'Snatch Morsel: Buff removal. Source targeting: single target.', 'These are possible moves from the source. They do not predict the next move.', 'Effects can miss, be resisted or be blocked by immunity. Range, targets, TP, recasts and skill checks still apply.', 'A spell choice in the script could not be read.' }, entries = danger[58], coverage = 'partial', incomplete = true, reasons = { 'A spell choice in the script could not be read.' }, general_notes = danger[27] },
                 blue = { value = 'Feather Tickle', notes = { 'Possible spells from moves this monster can use. It must actually use the move before defeat; learning is not guaranteed.' }, spells = { { id = 573, name = 'Feather Tickle', level = 64, min_skill = 191, skill_ids = { 1701 } } }, requirements = { 'You need Blue Mage as your main job and enough current Blue Magic skill. When the monster dies, you must be alive and within 100 yalms in the same zone. You cannot learn a spell you already know, or learn from a Call for Help kill.', 'Equipment skill bonuses count. The spell\'s casting level is not a minimum learning level.', 'You or your party or alliance must get credit for the kill. Only one spell that meets the requirements gets a learning roll each time the monster dies.' }, incomplete = false },
@@ -1440,7 +1440,7 @@ return {
             job    = 'blu/blu',
             levels = {
                 [72] = { acc = 296, eva = 281, agi = 68, int = 63, mnd = 63, chr = 63, dex = 71, def = 286,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 302, eva = 286, agi = 68, int = 64, mnd = 64, chr = 64, dex = 72, def = 292,
                          attack_skill = 246 },
             },
@@ -1476,7 +1476,7 @@ return {
                 [71] = { acc = 299, eva = 348, agi = 84, int = 75, mnd = 51, chr = 51, dex = 87, def = 282,
                          attack_skill = 237 },
                 [72] = { acc = 304, eva = 353, agi = 84, int = 75, mnd = 51, chr = 51, dex = 87, def = 287,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
             },
             ranks  = { wind = -2, earth = -2, thunder = -2, water = -3, light = -2, dark = -2, silence = -2,
                        slow = -2, poison = -3, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -2,
@@ -1507,7 +1507,7 @@ return {
                 [71] = { acc = 293, eva = 279, agi = 75, int = 55, mnd = 55, chr = 60, dex = 75, def = 355,
                          attack_skill = 237 },
                 [72] = { acc = 298, eva = 284, agi = 75, int = 55, mnd = 55, chr = 60, dex = 75, def = 361,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 304, eva = 290, agi = 76, int = 58, mnd = 58, chr = 60, dex = 76, def = 368,
                          attack_skill = 246 },
                 [74] = { acc = 309, eva = 295, agi = 77, int = 58, mnd = 58, chr = 60, dex = 77, def = 374,
@@ -1645,7 +1645,7 @@ return {
             ids    = { 196 },
             levels = {
                 [72] = { acc = 301, eva = 283, agi = 72, int = 52, mnd = 60, chr = 63, dex = 80, def = 302,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 306, eva = 288, agi = 72, int = 54, mnd = 62, chr = 64, dex = 80, def = 309,
                          attack_skill = 246 },
             },
@@ -1679,7 +1679,7 @@ return {
             job    = 'mnk/mnk',
             levels = {
                 [72] = { acc = 303, eva = 280, agi = 52, int = 48, mnd = 72, chr = 63, dex = 84, def = 302,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 309, eva = 286, agi = 54, int = 48, mnd = 74, chr = 64, dex = 86, def = 308,
                          attack_skill = 246 },
             },
@@ -1712,7 +1712,7 @@ return {
             job    = 'drk/drk',
             levels = {
                 [72] = { acc = 301, eva = 279, agi = 64, int = 72, mnd = 56, chr = 51, dex = 80, def = 296,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 306, eva = 285, agi = 66, int = 72, mnd = 56, chr = 52, dex = 80, def = 302,
                          attack_skill = 246 },
             },
@@ -1746,7 +1746,7 @@ return {
             job    = 'rng/rng',
             levels = {
                 [72] = { acc = 345, eva = 267, agi = 84, int = 60, mnd = 72, chr = 63, dex = 72, def = 292,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 351, eva = 271, agi = 85, int = 60, mnd = 74, chr = 64, dex = 74, def = 299,
                          attack_skill = 246 },
             },
@@ -1858,7 +1858,7 @@ return {
             job    = 'blm/blm',
             levels = {
                 [72] = { acc = 302, eva = 265, agi = 80, int = 87, mnd = 63, chr = 67, dex = 83, def = 282,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 308, eva = 269, agi = 80, int = 89, mnd = 64, chr = 70, dex = 84, def = 289,
                          attack_skill = 246 },
             },
@@ -1891,7 +1891,7 @@ return {
             job    = 'thf/thf',
             levels = {
                 [72] = { acc = 308, eva = 353, agi = 84, int = 75, mnd = 51, chr = 51, dex = 95, def = 288,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 314, eva = 359, agi = 86, int = 76, mnd = 52, chr = 52, dex = 97, def = 295,
                          attack_skill = 246 },
             },
@@ -1926,7 +1926,7 @@ return {
             job    = 'whm/whm',
             levels = {
                 [72] = { acc = 292, eva = 259, agi = 68, int = 63, mnd = 87, chr = 75, dex = 63, def = 288,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 299, eva = 263, agi = 68, int = 64, mnd = 89, chr = 76, dex = 66, def = 295,
                          attack_skill = 246 },
             },
@@ -1965,7 +1965,7 @@ return {
             ph_for = { [265] = { 266 } },
             ph_rules = {
                 [265] = {
-                    [266] = { chance = 10, cooldown_min = 7200, cooldown_max = 7200, conditions = { 'A successful roll uses the PH respawn delay.' } },
+                    [266] = { chance = 15, cooldown_min = 7200, cooldown_max = 7200, conditions = { 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.' } },
                 },
             },
             ranks  = { fire = -1, ice = -1, wind = -1, earth = 3, thunder = -1, water = 3, light = -1, dark = 4,
@@ -2021,7 +2021,7 @@ return {
                 crystal = { value = 'Earth crystal (conditional)', notes = { 'Source crystal element: Earth.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.' } },
                 traits = { value = 'Double Attack 10', notes = { 'Base attack delay 210 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
-                spawn = { value = 'Lottery', notes = { 'Lottery spawn; see a listed placeholder for its chance and cooldown rules.', 'Source rules only; no remaining time or open spawn window is known.' } },
+                spawn = { value = 'Lottery', notes = { 'Native slot chance: 15% on an eligible reroll.', 'The member cooldown is 7200 seconds after its defeat; it does not reveal the current spawn window.', 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.', 'The NM\'s actual respawn is controlled by its script or spawn rules; the base delay is not a live window.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 claim = { value = 'Claimshield 5 seconds', notes = { 'This Phoenix list entry is unclaimable and unkillable for 5 seconds after spawning. Call for Help is blocked during the shield.', 'When the shield ends, Phoenix selects claim from eligible entries on its enmity list. Remaining shield time and the winner are not known.' } },
                 dangers = danger[130],
                 blue = { value = 'Bad Breath', notes = { 'Possible spells from moves this monster can use. It must actually use the move before defeat; learning is not guaranteed.' }, spells = { { id = 604, name = 'Bad Breath', level = 61, min_skill = 176, skill_ids = { 319 } } }, requirements = { 'You need Blue Mage as your main job and enough current Blue Magic skill. When the monster dies, you must be alive and within 100 yalms in the same zone. You cannot learn a spell you already know, or learn from a Call for Help kill.', 'Equipment skill bonuses count. The spell\'s casting level is not a minimum learning level.', 'You or your party or alliance must get credit for the kill. Only one spell that meets the requirements gets a learning roll each time the monster dies.' }, incomplete = false },
@@ -2033,7 +2033,7 @@ return {
             job    = 'nin/nin',
             levels = {
                 [72] = { acc = 304, eva = 305, agi = 84, int = 67, mnd = 51, chr = 55, dex = 87, def = 292,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 311, eva = 311, agi = 86, int = 70, mnd = 52, chr = 58, dex = 90, def = 298,
                          attack_skill = 246 },
             },
@@ -2067,23 +2067,26 @@ return {
             nm     = true,
             job    = 'drk/bst',
             levels = {
-                [95] = { acc = 444, eva = 399, agi = 82, int = 91, mnd = 70, chr = 81, dex = 96, def = 401,
-                         attack_skill = 376 },
+                [99] = { acc = 474, eva = 420, agi = 87, int = 96, mnd = 74, chr = 85, dex = 101, def = 423,
+                         attack_skill = 404 },
             },
             ranks  = { fire = 5, ice = 7, wind = 5, earth = 7, thunder = 5, water = 7, light = 4, dark = 11,
                        paralyze = 7, bind = 7, silence = 5, slow = 7, poison = 7, light_sleep = 4, dark_sleep = 11,
                        blind = 11, stun = 5, gravity = 5 },
+            magic_dmg = { all = -100 },
             weapon_dmg = { slashing = -12.5, piercing = -12.5, blunt = -12.5 },
+            weapon_guard = { physical = -100, ranged = -100 },
+            flags  = { scripted_stats = true },
             info = {
                 family = { value = 'Avatar / Elemental', notes = { 'Source species: Odin (ID 250); family ID 102.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Not charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
-                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [95] = 6150 }, mp = { [95] = 2830 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
+                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.', 'Scripts, jobs or battle state can change the maximum; this is a stored baseline.' }, hp = { [99] = 6480 }, mp = { [99] = 2962 }, uncertain = true, hp_uncertain = true, mp_uncertain = true, hp_unknown = false, mp_unknown = false },
                 movement = { value = 'Base speed 40', notes = { 'Source base speed is 40; the ordinary monster default is 40. Animation speed is 40.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'No base crystal element', notes = { 'Source crystal element: None.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.' } },
-                traits = { value = 'Base delay 240', notes = { 'Base attack delay 240 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
-                dangers = { value = 'Poison II: Poison; Drain: HP drain; Aspir: MP drain; Stun: stun; Bind: bind; Sleep II: sleep; Absorb-Str: STR down; Absorb-Dex: DEX down; Absorb-Vit: VIT down; Absorb-Agi: AGI down; Absorb-Int: INT down; Absorb-Mnd: MND down; Absorb-Chr: CHR down; Absorb-Tp: TP drain', notes = { 'Poison II: Poison.', 'Drain: HP drain.', 'Aspir: MP drain.', 'Stun: stun. Possible effects: Stun.', 'Bind: bind. Possible effects: Bind.', 'Sleep II: sleep. Possible effects: Sleep.', 'Absorb-Str: STR down.', 'Absorb-Dex: DEX down.', 'Absorb-Vit: VIT down.', 'Absorb-Agi: AGI down.', 'Absorb-Int: INT down.', 'Absorb-Mnd: MND down.', 'Absorb-Chr: CHR down.', 'Absorb-Tp: TP drain.', 'These are possible moves from the source. They do not predict the next move.', 'Effects can miss, be resisted or be blocked by immunity. Range, targets, TP, recasts and skill checks still apply.', 'Listed spells can depend on the monster\'s level; explicit scripted casts have separate conditions.', 'The assigned TP-move list is missing from the source tables.' }, entries = { danger[270], danger[271], danger[272], danger[273], danger[274], danger[275], danger[278], danger[283], danger[286], danger[291], danger[294], danger[299], danger[304], danger[305] }, coverage = 'partial', incomplete = true, reasons = { 'The assigned TP-move list is missing from the source tables.' }, general_notes = danger[94] },
+                traits = { value = 'Base delay 220', notes = { 'Base attack delay 220 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
+                dangers = { value = 'Death: instant KO', notes = { 'Death: instant KO. Possible effects: Instant KO. Random effects may not all happen on the same use. Scripted spell selection has separate conditions from the ordinary spell-list level limits.', 'These are possible moves from the source. They do not predict the next move.', 'Effects can miss, be resisted or be blocked by immunity. Range, targets, TP, recasts and skill checks still apply.', 'The assigned TP-move list is missing from the source tables.' }, entries = { { kind = 'spell', id = 367, name = 'Death', summary = 'Death: instant KO', notes = { 'Possible effects: Instant KO. Random effects may not all happen on the same use.', 'Scripted spell selection has separate conditions from the ordinary spell-list level limits.' }, categories = { 'other' }, effects = { 'Instant KO' }, details = { notes = { 'Base casting range: 20 yalms. Normal selection adds both hitboxes; monster casts also have a 28.5-yalm limit.', 'Area: single target.', 'These source distances do not establish a safe place to stand.', 'The spell ignores Utsusemi and Blink.' }, unknown = {  }, activation_range = 20.0, shape = 'single target', shadows = { { mode = 'ignore' } } } } }, coverage = 'partial', incomplete = true, reasons = { 'The assigned TP-move list is missing from the source tables.' }, general_notes = danger[27] },
                 blue = { value = 'Unknown', notes = { 'The assigned TP-move list is missing from the source tables.' }, incomplete = true },
             },
         },
@@ -2092,8 +2095,12 @@ return {
             ids    = { 310, 311, 312 },
             job    = 'blm/blm',
             levels = {
-                [76] = { acc = 323, eva = 285, agi = 85, int = 97, mnd = 54, chr = 77, dex = 85, def = 303,
-                         attack_skill = 261 },
+                [79] = { acc = 339, eva = 299, agi = 87, int = 101, mnd = 56, chr = 80, dex = 87, def = 319,
+                         attack_skill = 276 },
+                [80] = { acc = 344, eva = 304, agi = 87, int = 101, mnd = 56, chr = 80, dex = 87, def = 324,
+                         attack_skill = 281 },
+                [81] = { acc = 352, eva = 310, agi = 90, int = 103, mnd = 58, chr = 82, dex = 90, def = 330,
+                         attack_skill = 287 },
             },
             ranks  = { fire = -1, ice = -1, wind = 2, earth = -1, thunder = -1, water = -1, light = -2, dark = 6,
                        paralyze = -1, bind = -1, silence = 2, slow = -1, poison = -1, light_sleep = -2,
@@ -2105,7 +2112,7 @@ return {
             info = {
                 family = { value = 'Imp / Demon', notes = { 'Source species: Imp (ID 212); family ID 92.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Not charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
-                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [76] = 2924 }, mp = { [76] = 2213 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
+                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [79] = 3085, [80] = 3139, [81] = 3193 }, mp = { [79] = 2309, [80] = 2342, [81] = 2374 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
                 movement = { value = 'Base speed 64', notes = { 'Source base speed is 64; the ordinary monster default is 40. Animation speed is 64.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'Dark crystal (conditional)', notes = { 'Source crystal element: Dark.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
@@ -2119,8 +2126,12 @@ return {
             name   = 'Dark Esquire',
             ids    = { 313, 314, 315 },
             levels = {
-                [76] = { acc = 323, eva = 306, agi = 80, int = 64, mnd = 50, chr = 71, dex = 85, def = 320,
-                         attack_skill = 261 },
+                [79] = { acc = 339, eva = 322, agi = 82, int = 66, mnd = 52, chr = 74, dex = 87, def = 336,
+                         attack_skill = 276 },
+                [80] = { acc = 344, eva = 327, agi = 82, int = 66, mnd = 52, chr = 74, dex = 87, def = 341,
+                         attack_skill = 281 },
+                [81] = { acc = 352, eva = 332, agi = 85, int = 69, mnd = 55, chr = 76, dex = 90, def = 346,
+                         attack_skill = 287 },
             },
             ranks  = { light = -2, light_sleep = -2 },
             magic_dmg = { all = -25 },
@@ -2133,7 +2144,7 @@ return {
             info = {
                 family = { value = 'Demon / Demon', notes = { 'Source species: Kindred (ID 201); family ID 88.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Not charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
-                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [76] = 4695 }, mp = { [76] = 0 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
+                vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [79] = 4947, [80] = 5031, [81] = 5115 }, mp = { [79] = 0, [80] = 0, [81] = 0 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
                 movement = { value = 'Base speed 70', notes = { 'Source base speed is 70; the ordinary monster default is 40. Animation speed is 70.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
                 pursuit = { value = 'Scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Water, Deodorize and weather that disables scent can break scent tracking.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'Dark crystal (conditional)', notes = { 'Source crystal element: Dark.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },

@@ -1,5 +1,5 @@
 -- Ship bound for Selbina Pirates (zone 227).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -110,7 +110,7 @@ danger[103] = { notes = danger[102], unknown = {  }, activation_range = 20.0, sh
 danger[104] = { kind = 'spell', id = 273, name = 'Sleepga', summary = 'Sleepga: area sleep', notes = { 'Possible effects: Sleep.' }, categories = { 'debuff' }, effects = { 'Sleep' }, details = danger[103], level_ranges = { { 31, 55 } } };
 danger[105] = { danger[92], danger[95], danger[99], danger[101] };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     link_lists = {},
     monsters = {

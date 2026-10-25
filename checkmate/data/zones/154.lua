@@ -1,5 +1,5 @@
 -- Dragons Aery (zone 154).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -24,7 +24,7 @@ danger[17] = { notes = danger[16], unknown = {  }, activation_range = 18.0, shap
 danger[18] = { kind = 'skill', id = 957, name = 'Absolute Terror', summary = 'Absolute Terror: Terror', notes = danger[15], categories = { 'debuff' }, effects = { 'Terror' }, details = danger[17] };
 danger[19] = { 'Only effects allowed by the move\'s dispel checks can be removed. Source targeting: single target.' };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -46,7 +46,7 @@ return {
                 [71] = { acc = 293, eva = 282, agi = 80, int = 55, mnd = 55, chr = 60, dex = 75, def = 293,
                          attack_skill = 237 },
                 [72] = { acc = 298, eva = 287, agi = 80, int = 55, mnd = 55, chr = 60, dex = 75, def = 298,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 304, eva = 292, agi = 80, int = 58, mnd = 58, chr = 60, dex = 76, def = 305,
                          attack_skill = 246 },
                 [74] = { acc = 309, eva = 298, agi = 82, int = 58, mnd = 58, chr = 60, dex = 77, def = 310,

@@ -2,6 +2,19 @@
 
 Older entries describe that release. Later entries may change its behavior.
 
+## 1.14.10
+
+Monster data rebuilt from phoenix/live 9a4494d505 (2026-10-18).
+
+- Birdtrap in Carpenters Landing changed its PH lottery rules.
+- Orctrap in Carpenters Landing changed its info.
+- Eft in Bibiki Bay changed its PH lottery rules.
+- Hobgoblin Alastor in Bibiki Bay changed its levels.
+- 624 more monsters changed too.
+- The level bands for monsters with no data changed.
+- The effect durations, removal rules, gear or merits changed.
+- The Blue Magic source catalogue changed.
+
 ## 1.14.9
 
 - BLU spells now show your current and required skill even when the overlay says Skill met, like Skill met: 25/20. Your current skill comes first; the minimum comes second.

@@ -1,5 +1,5 @@
 -- Monastic Cavern (zone 150).
--- Built by tools\export_data.py from phoenix/live 071c401048.
+-- Built by tools\export_data.py from phoenix/live 9a4494d505.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -95,7 +95,7 @@ danger[88] = { notes = danger[87], unknown = {  }, activation_range = 20.0, shap
 danger[89] = { kind = 'spell', id = 274, name = 'Sleepga II', summary = 'Sleepga II: area sleep', notes = { 'Possible effects: Sleep.' }, categories = { 'debuff' }, effects = { 'Sleep' }, details = danger[88], level_ranges = { { 56, 255 } } };
 danger[90] = { 'This move can crit. Its current critical chance is not known. Source targeting: single target.' };
 return {
-    built   = 'phoenix/live 071c401048',
+    built   = 'phoenix/live 9a4494d505',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -531,7 +531,7 @@ return {
                 [71] = { acc = 343, eva = 283, agi = 83, int = 52, mnd = 60, chr = 68, dex = 78, def = 293,
                          attack_skill = 237, resist = { poison = 20, virus = 25 } },
                 [72] = { acc = 348, eva = 288, agi = 83, int = 52, mnd = 60, chr = 68, dex = 78, def = 298,
-                         attack_skill = 241, resist = { poison = 20, virus = 25 } },
+                         attack_skill = 242, resist = { poison = 20, virus = 25 } },
             },
             spawn_levels = { [53] = { 62, 66 }, [75] = { 62, 66 }, [98] = { 62, 66 }, [102] = { 62, 66 },
                              [112] = { 62, 66 }, [116] = { 62, 66 }, [120] = { 62, 66 }, [124] = { 62, 66 },
@@ -586,7 +586,7 @@ return {
                 [71] = { acc = 297, eva = 279, agi = 75, int = 47, mnd = 52, chr = 68, dex = 83, def = 293,
                          attack_skill = 237, resist = { virus = 25 } },
                 [72] = { acc = 302, eva = 284, agi = 75, int = 47, mnd = 52, chr = 68, dex = 83, def = 298,
-                         attack_skill = 241, resist = { virus = 25 } },
+                         attack_skill = 242, resist = { virus = 25 } },
             },
             spawn_levels = { [54] = { 63, 66 }, [76] = { 63, 66 }, [99] = { 63, 66 }, [103] = { 63, 66 },
                              [107] = { 63, 66 }, [110] = { 63, 66 }, [113] = { 63, 66 }, [117] = { 63, 66 },
@@ -643,7 +643,7 @@ return {
                 [71] = { acc = 299, eva = 280, agi = 62, int = 44, mnd = 60, chr = 68, dex = 86, def = 300,
                          attack_skill = 237, resist = { virus = 25 } },
                 [72] = { acc = 304, eva = 285, agi = 62, int = 44, mnd = 60, chr = 68, dex = 86, def = 305,
-                         attack_skill = 241, resist = { virus = 25 } },
+                         attack_skill = 242, resist = { virus = 25 } },
             },
             spawn_levels = { [89] = { 64, 68 }, [100] = { 64, 68 }, [104] = { 64, 68 }, [108] = { 64, 68 },
                              [118] = { 64, 68 }, [122] = { 64, 68 }, [126] = { 64, 68 }, [130] = { 69, 71 },
@@ -698,7 +698,7 @@ return {
                 [71] = { acc = 317, eva = 284, agi = 70, int = 47, mnd = 57, chr = 76, dex = 78, def = 296,
                          attack_skill = 237, resist = { virus = 25 } },
                 [72] = { acc = 322, eva = 289, agi = 70, int = 47, mnd = 57, chr = 76, dex = 78, def = 301,
-                         attack_skill = 241, resist = { virus = 25 } },
+                         attack_skill = 242, resist = { virus = 25 } },
             },
             spawn_levels = { [101] = { 65, 69 }, [105] = { 65, 69 }, [109] = { 65, 69 }, [115] = { 66, 69 },
                              [119] = { 66, 69 }, [123] = { 66, 69 }, [127] = { 66, 69 }, [135] = { 69, 71 },
@@ -736,7 +736,7 @@ return {
             job    = 'drk/war',
             levels = {
                 [72] = { acc = 302, eva = 282, agi = 70, int = 60, mnd = 49, chr = 60, dex = 83, def = 301,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 308, eva = 288, agi = 72, int = 62, mnd = 50, chr = 60, dex = 84, def = 307,
                          attack_skill = 246 },
                 [74] = { acc = 313, eva = 293, agi = 72, int = 63, mnd = 50, chr = 61, dex = 85, def = 312,
@@ -785,7 +785,7 @@ return {
                 [71] = { acc = 293, eva = 271, agi = 59, int = 44, mnd = 65, chr = 76, dex = 75, def = 338,
                          attack_skill = 237 },
                 [72] = { acc = 298, eva = 276, agi = 59, int = 44, mnd = 65, chr = 76, dex = 75, def = 343,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
             },
             ranks  = { wind = -2, earth = -2, thunder = -2, water = -3, light = -2, dark = -2, silence = -2,
                        slow = -2, poison = -3, light_sleep = -2, dark_sleep = -2, blind = -2, stun = -2,
@@ -821,7 +821,7 @@ return {
                 [71] = { acc = 297, eva = 279, agi = 75, int = 68, mnd = 57, chr = 71, dex = 83, def = 289,
                          attack_skill = 237 },
                 [72] = { acc = 302, eva = 284, agi = 75, int = 68, mnd = 57, chr = 71, dex = 83, def = 294,
-                         attack_skill = 241 },
+                         attack_skill = 242 },
                 [73] = { acc = 308, eva = 290, agi = 76, int = 71, mnd = 58, chr = 72, dex = 84, def = 301,
                          attack_skill = 246 },
             },

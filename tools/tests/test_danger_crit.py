@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from export import danger_crit, danger_effects
+from export import aggro, danger_crit, danger_effects
 
 
 def callback(body, helper='mobPhysicalMove', parameter='params'):
@@ -176,6 +176,63 @@ class CriticalFactsTests(unittest.TestCase):
     def test_unknown_physical_blue_params_are_reported(self):
         fact = danger_crit.spell_facts('xi.spells.blue.usePhysicalSpell(caster,target,spell,makeParams())')
         self.assertTrue(fact['unknown'])
+
+
+class LuaModuleOrderTests(unittest.TestCase):
+    def setUp(self):
+        folder = tempfile.TemporaryDirectory(prefix='checkmate_module_order_')
+        self.addCleanup(folder.cleanup)
+        self.tree = Path(folder.name)
+
+    def write(self, rel, text=''):
+        path = self.tree / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding='utf8')
+
+    def test_direct_files_load_first_and_overlapping_entries_still_repeat(self):
+        self.write('modules/init.txt', 'bundle/\nlater.lua\nbundle/a.lua\nbundle\n')
+        for rel in ('later.lua', 'bundle/a.lua', 'bundle/z.lua'):
+            self.write('modules/' + rel)
+        self.assertEqual(aggro.lua_files_loaded(self.tree), [
+            'modules/later.lua', 'modules/bundle/a.lua',
+            'modules/bundle/a.lua', 'modules/bundle/z.lua',
+            'modules/bundle/a.lua', 'modules/bundle/z.lua',
+        ])
+
+    def test_directory_paths_sort_by_case_sensitive_components(self):
+        self.write('modules/init.txt', 'module_utils.lua\nbundle\n')
+        for rel in ('module_utils.lua', 'bundle/b.lua', 'bundle/a.lua', 'bundle/a/x.lua',
+                    'bundle/Z.lua', 'bundle/module_utils.lua', 'bundle/a/module_utils.lua',
+                    'bundle/note.txt', 'bundle/upper.LUA', 'bundle/only.lua/x.lua'):
+            self.write('modules/' + rel)
+        self.assertEqual(aggro.lua_files_loaded(self.tree), [
+            'modules/bundle/Z.lua', 'modules/bundle/a/x.lua', 'modules/bundle/a.lua',
+            'modules/bundle/b.lua', 'modules/bundle/only.lua/x.lua',
+        ])
+
+    def test_enumeration_order_does_not_change_effective_callback_or_guard(self):
+        self.write('modules/init.txt', 'bundle\n')
+        self.write('scripts/actions/mobskills/example.lua', callback('local params = {}'))
+        for name, enabled in (('a', 'true'), ('z', 'false')):
+            text = callback('local params = {canCrit=' + enabled + '}')
+            text = text.replace('mobskillObject.onMobWeaponSkill = function',
+                                "m:addOverride('xi.actions.mobskills.example.onMobWeaponSkill', function") + ')'
+            self.write('modules/bundle/' + name + '.lua', text)
+        expected = aggro.lua_files_loaded(self.tree)
+        fingerprint = danger_crit.module_digest(self.tree, expected)
+        original = Path.rglob
+        def reversed_entries(path, pattern):
+            return iter(reversed(list(original(path, pattern))))
+        with patch.object(Path, 'rglob', reversed_entries):
+            loaded = aggro.lua_files_loaded(self.tree)
+            self.assertEqual(loaded, expected)
+            self.assertEqual(danger_crit.module_digest(self.tree, loaded), fingerprint)
+            text, unknown = danger_effects.Sources(self.tree, loaded).move('example')
+        self.assertEqual(unknown, [])
+        self.assertFalse(danger_crit.critical_facts(text)['can_crit'])
+        self.assertNotEqual(danger_crit.module_digest(self.tree, list(reversed(loaded))), fingerprint)
+        self.write('modules/bundle/z.lua', (self.tree / 'modules/bundle/z.lua').read_text().replace('canCrit=false', 'canCrit=true'))
+        self.assertNotEqual(danger_crit.module_digest(self.tree, loaded), fingerprint)
 
 
 class EffectiveSourceTests(unittest.TestCase):

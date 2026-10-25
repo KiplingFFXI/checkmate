@@ -142,6 +142,8 @@ GUARDS = {
 }
 MODULE_GUARD = '0afcf7dcddad7a6bdd819cb2fa18beb16ecab2e86da5beacc40ff82d47e8f62b'
 NATIVE_GUARDS = {
+    ('src/map/utils/moduleutils.cpp', 'LoadLuaModules'): '47710c8ff1437103cff82da11fbe399fa0a0002a4d2be5602fb82a3f059c011e',
+    ('src/common/utils.h', 'sorted_directory_iterator'): '01976b6334bbbb089add93c8592e86c837acd4f75f3f09ed125e5537f53e8ed3',
     ('src/map/spawn_handler.cpp', 'SpawnHandler::registerForRespawn'): '6e4743c0a069eb5c295f9652f48d11a5ea6e5be7892ef4aa5eb05ccd09cf9e88',
     ('src/map/spawn_slot.cpp', 'SpawnSlot::OnKill'): '9e5c646f79d160045f1286e2153bc1f4285772caad021d4962b991f5c596c2b5',
     ('src/map/entities/mob_entity.cpp', 'CMobEntity::Die'): '13778a95cf1dcc1217387aec3490d426825f0e61e5c9a2be297c86eab46cc32f',

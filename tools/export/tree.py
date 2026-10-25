@@ -21,6 +21,8 @@ TREE_PATHS = [
     'settings/default/map.lua',
     'settings/default/main.lua',
     'src/common/xirand.h',
+    'src/common/utils.h',
+    'src/map/utils/moduleutils.cpp',
     'sql',
     'src/map/utils/mobutils.cpp',
     'src/map/utils/petutils.cpp',

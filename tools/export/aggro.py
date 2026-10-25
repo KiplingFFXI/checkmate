@@ -231,16 +231,16 @@ class Reader:
 
 
 def lua_files_loaded(tree):
-    """Every module Lua file init.txt loads, as paths inside the tree."""
-    found = []
-    for entry in overlays.init_entries(tree):
-        base = os.path.join(tree, 'modules', *entry.split('/'))
-        if os.path.isfile(base) and base.endswith('.lua'):
-            found.append(base)
-        elif os.path.isdir(base):
-            for folder, _, names in os.walk(base):
-                found += [os.path.join(folder, name) for name in names if name.endswith('.lua')]
-    return [os.path.relpath(path, tree).replace(os.sep, '/') for path in found]
+    """Module Lua paths in the order LoadLuaModules loads them."""
+    tree = Path(tree)
+    entries = [tree / 'modules' / entry for entry in overlays.init_entries(str(tree))]
+    expanded = list(entries)
+    # Direct files load first. Each directory then adds its sorted recursive paths.
+    for entry in entries:
+        if entry.is_dir():
+            expanded.extend(sorted(entry.rglob('*'), key=lambda path: path.parts))
+    return [path.relative_to(tree).as_posix() for path in expanded
+            if path.is_file() and path.suffix == '.lua' and path.name != 'module_utils.lua']
 
 
 def exp_rows(text, where):

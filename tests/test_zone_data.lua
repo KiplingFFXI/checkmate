@@ -943,8 +943,8 @@ check('Promyvion-Holla Strays spawn at 20-21, 23-24 or 26-27', row and table.con
 row = find(107, 'Leaping Lizzy', 380);
 check('both Leaping Lizzy spawns are 10-11, the row\'s range', levels_of(row) == '10,11' and row.spawn_levels == nil);
 
--- Placeholders, from each PH's own onMobDespawn and the phList in the NM's script. Each entry shows as
--- "PH index=NM indexes".
+-- Placeholders from native slots or each PH's own onMobDespawn and the NM's phList.
+-- Each entry shows as "PH index=NM indexes".
 local function phs_of(row)
     local list = {};
     for index, nms in pairs(row and row.ph_for or {}) do list[#list + 1] = { index, table.concat(nms, ',') }; end
@@ -979,8 +979,19 @@ check('Fei\'Yin Specters keep their Shadows through the era module\'s own despaw
     == '298=302' and find(204, 'Northern Shadow', 302) ~= nil, phs_of(find(204, 'Specter war', 298)));
 check('Ru\'Aun Gardens has 16 Groundskeepers for Despot', select(2, phs_of(find(130, 'Groundskeeper', 242)):gsub('=258', ''))
     == 16, phs_of(find(130, 'Groundskeeper', 242)));
-check('no Oldton Movalpolos monster is a PH, since Bugbear Strongman\'s PH spawns run a script that isn\'t there',
-    rows_with_ph(11) == 0);
+if (bands.built == 'phoenix/live 071c401048') then
+    check('bundled Oldton data has no PHs because the old despawn script is missing', rows_with_ph(11) == 0);
+else
+    row = find(11, 'Bugbear Bondman noroam', 150);
+    check('Oldton\'s two native slots use Bondman 150 and 154 for the two Strongmen', rows_with_ph(11) == 1
+        and phs_of(row) == '150=151 154=155' and row == find(11, 'Bugbear Bondman noroam', 154)
+        and find(11, 'Bugbear Strongman', 151) ~= nil and find(11, 'Bugbear Strongman', 155) ~= nil, phs_of(row));
+    for _, index in ipairs({ 150, 154 }) do
+        local rule = row and row.ph_rules and row.ph_rules[index] and row.ph_rules[index][index + 1];
+        check('Strongman slot at ' .. index .. ' has a 15% roll with no defeat cooldown', rule ~= nil
+            and rule.chance == 15 and rule.cooldown_min == 0 and rule.cooldown_max == 0);
+    end
+end
 check('a Batallia Downs Evil Weapon isn\'t one, since Prankster Maverix is WotG content', find(105, 'Evil Weapon', 339).ph_for
     == nil and phs_of(find(105, 'Stalking Sapling', 153)) == '153=180');
 

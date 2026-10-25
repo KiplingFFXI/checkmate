@@ -67,8 +67,8 @@ local function zone_row(zone, name, level)
         if (row.name == name and row.levels and row.levels[level]) then return row; end
     end
 end
-local function numbers(me_, mob)
-    local out = physical.readout(me_, mob);
+local function numbers(me_, mob, model)
+    local out = (model or physical).readout(me_, mob);
     local text = {};
     for _, key in ipairs({ 'hit', 'offhand', 'ranged', 'ranged_far', 'evade', 'crit' }) do
         local range = out[key];
@@ -94,10 +94,17 @@ local swordmaker = { row = zone_row(103, 'Goblin Swordmaker', 33), low = 33, hig
 expect('a Lv30 NIN against a Goblin Swordmaker', numbers(nin, swordmaker),
     'hit 69, offhand 62, ranged 63, ranged_far 55, evade 11, crit 5');
 
--- The same NIN against a Lv33 monster with no row that checks as normal evasion. The typical evasion at 33 is 104
--- to 113, and the /check range moves with each accuracy.
-expect('and against a Lv33 monster with no row', numbers(nin, { low = 33, high = 33, con = 5, reading = 1 }),
-    'hit 68-73, offhand 61-66, ranged 62-67, ranged_far 55-59, evade 10-12, crit 5');
+-- Fixed bands keep these rounding examples independent of which monsters are in the latest source.
+-- Lowering the evasion edge by one adds one point to the far shot's upper edge.
+local source_bands = package.loaded['data.bands'];
+for _, case in ipairs({ { 104, 59 }, { 103, 60 } }) do
+    package.loaded['data.bands'] = { rows = { { 33, 119, 124, case[1], 113, 28, 39, 34, 39 } } };
+    local band_math = dofile(ADDON_DIR .. '/core/physical.lua');
+    package.loaded['data.bands'] = source_bands;
+    expect(('no-row Lv33 evasion band %d-113'):format(case[1]),
+        numbers(nin, { low = 33, high = 33, con = 5, reading = 1 }, band_math),
+        'hit 68-73, offhand 61-66, ranged 62-67, ranged_far 55-' .. case[2] .. ', evade 10-12, crit 5');
+end
 
 -- At 25 yalms it's half your level rounded down. 301 against 300 at Lv31 is 75%, and less 15 it's 68%. Less 16 would
 -- be 67%.

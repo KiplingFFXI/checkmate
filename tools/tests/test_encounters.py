@@ -531,6 +531,19 @@ class EncounterSourceTests(unittest.TestCase):
         self.assertNotEqual(encounters.native_digest(changed, 'TryLearningSpells'),
                             encounters.NATIVE_GUARDS[rel, 'TryLearningSpells'])
 
+    def test_native_module_load_order_is_guarded(self):
+        changes = [('src/map/utils/moduleutils.cpp', 'LoadLuaModules',
+                    'std::vector<std::string> expandedList = list;', 'std::vector<std::string> expandedList;'),
+                   ('src/common/utils.h', 'sorted_directory_iterator',
+                    'std::set<std::filesystem::path> sorted_by_name;', 'std::vector<std::filesystem::path> sorted_by_name;')]
+        for rel, name, before, after in changes:
+            with self.subTest(name=name):
+                text = Path(self.tree, rel).read_text(encoding='utf8')
+                self.assertIn(before, text)
+                self.assertEqual(encounters.native_digest(text, name), encounters.NATIVE_GUARDS[rel, name])
+                self.assertNotEqual(encounters.native_digest(text.replace(before, after), name),
+                                    encounters.NATIVE_GUARDS[rel, name])
+
 
 if __name__ == '__main__':
     unittest.main()

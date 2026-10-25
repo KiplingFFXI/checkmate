@@ -46,6 +46,7 @@ effective era callbacks, source guards, paired pet effects and critical/shadow r
 checks keep native defeat-based cooldowns separate from the remaining Lua helper routes.
 test_exists_sql.py keeps skill-list IDs separate from move IDs when checking SQL for spawning moves.
 test_outside.py checks player-only job changes without allowing unreadable monster job changes.
+The critical-move tests also check native module load order against reversed file enumeration.
 See ../tools/README.txt for the source-backed run and fresh-extraction comparison.
 
 

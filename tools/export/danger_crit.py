@@ -17,7 +17,7 @@ GUARDS = {
     'scripts/globals/bluemagic.lua': '4ec70d2c7eea609e74bc3b309aad81cd38c27a0c367af066175271158edd5585',
     'src/map/ai/controllers/mob_controller.cpp': '100aeeddd539a0f643e64472d054b9cfcd4c27f616fc78bafd4a3903404be5ef',
 }
-MODULE_GUARD = '2892ee33a303168c098d7ce918b144bcf3907f1e45ce13fda0b10f69d8a7d572'
+MODULE_GUARD = '65e3769268170e7993b5cd817c9a9d0046d3ec885f4d1be24743e90b85831362'
 CALL = re.compile(r'\b(' + '|'.join(re.escape(name) for name in HELPERS) + r')\s*\(')
 SHARED_CHANGE = re.compile(r'xi\.mobskills\.(?:mobPhysicalMove|mobRangedMove|handleSinglePhysicalHit|handleSingleRangedHit)|'
                            r'xi\.combat\.physical\.(?:calculateSwingCriticalRate|calculateRangedCriticalRate)|xi\.spells\.blue\.')

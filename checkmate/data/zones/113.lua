@@ -1,5 +1,5 @@
 -- Cape Teriggan (zone 113).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -235,7 +235,7 @@ danger[228] = { danger[35], danger[221], danger[120], danger[222], danger[223], 
 danger[229] = { 'Bomb Toss: fire damage. Fire damage that ignores shadows. This entry is the thrown bomb, not the separate suicide move. Source targeting: area around the target.', 'These are possible moves from the source. They do not predict the next move.', 'Effects can miss, be resisted or be blocked by immunity. Range, targets, TP, recasts and skill checks still apply.', 'A move choice in the script could not be read.' };
 danger[230] = { value = 'Bomb Toss: fire damage', notes = danger[229], entries = danger[36], coverage = 'partial', incomplete = true, reasons = { 'A move choice in the script could not be read.' }, general_notes = danger[18] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

@@ -1,5 +1,5 @@
 -- Ordelles Caves (zone 193).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -224,7 +224,7 @@ danger[217] = { kind = 'skill', id = 514, name = 'Whirl Of Rage', summary = 'Whi
 danger[218] = { 'Normal activation range: 7 yalms. This is the move selection limit, not its affected area.', 'Area: single target.', 'These source distances do not establish a safe place to stand.', 'Utsusemi and Blink do not absorb the damage step.', 'The damage shadow rule does not establish whether every additional effect is blocked.', 'Reviewed removal options: Blindness: Blindna, Eye Drops, Remedy.', 'These are selected options, not a complete cure list. The spell or item must be usable; this does not check supplies, recasts or whether you can act.' };
 danger[219] = { notes = danger[218], unknown = {  }, activation_range = 7.0, shape = 'single target', shadows = { { mode = 'ignore', per_hit = false } }, removals = { { effect = 'Blindness', options = { 'Blindna', 'Eye Drops', 'Remedy' } } } };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -1625,7 +1625,7 @@ return {
                 crystal = { value = 'Earth crystal (conditional)', notes = { 'Source crystal element: Earth.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.' } },
                 traits = { value = 'Double Attack 10', notes = { 'Base attack delay 200 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
-                spawn = { value = 'Scripted spawn', notes = { 'Scripted spawn or respawn checks also apply. Their current state is not visible.', 'Source rules only; no remaining time or open spawn window is known.' } },
+                spawn = { value = 'Respawn 21 hours to 24 hours', notes = { 'The era module sets a 21 hours to 24 hours delay during initialization and after despawn. Saved timers can replace the initial delay.', 'Scripted spawn or respawn checks also apply. Their current state is not visible.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 claim = { value = 'Claimshield 5 seconds', notes = { 'This Phoenix list entry is unclaimable and unkillable for 5 seconds after spawning. Call for Help is blocked during the shield.', 'When the shield ends, Phoenix selects claim from eligible entries on its enmity list. Remaining shield time and the winner are not known.' } },
                 dangers = danger[197],
                 blue = { value = 'Bad Breath', notes = { 'Possible spells from moves this monster can use. It must actually use the move before defeat; learning is not guaranteed.' }, spells = { { id = 604, name = 'Bad Breath', level = 61, min_skill = 176, skill_ids = { 319 } } }, requirements = { 'You need Blue Mage as your main job and enough current Blue Magic skill. When the monster dies, you must be alive and within 100 yalms in the same zone. You cannot learn a spell you already know, or learn from a Call for Help kill.', 'Equipment skill bonuses count. The spell\'s casting level is not a minimum learning level.', 'You or your party or alliance must get credit for the kill. Only one spell that meets the requirements gets a learning roll each time the monster dies.' }, incomplete = false },

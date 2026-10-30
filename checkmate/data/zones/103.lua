@@ -1,5 +1,5 @@
 -- Valkurm Dunes (zone 103).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -232,7 +232,7 @@ danger[225] = { value = 'Head Butt Quadav: Stun; Shell Bash: Stun', notes = dang
 danger[226] = { effect = 'VIT down', options = { 'Erase (one random eligible timed ailment)', 'Panacea' } };
 danger[227] = { danger[226] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

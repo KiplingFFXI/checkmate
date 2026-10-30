@@ -1,5 +1,5 @@
 -- Quicksand Caves (zone 208).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -219,7 +219,7 @@ danger[212] = { danger[195], danger[198], danger[199], danger[202], danger[205],
 danger[213] = { value = 'Numbing Breath: Paralysis; Cold Breath: Bind; Mandible Bite: can crit; Poison Sting: Poison; Death Scissors: can crit; Wild Rage: Poison; Earth Pounder: DEX down', notes = danger[192], entries = danger[212], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[19] };
 danger[214] = { danger[44], danger[25], danger[30], danger[33], danger[46], danger[40], danger[49], danger[50], danger[51], danger[52], danger[53], danger[54], danger[191], danger[62], danger[67], danger[72], danger[77], danger[82], danger[87], danger[88], danger[89], danger[93], danger[96], danger[101], danger[102], danger[105] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

@@ -1,5 +1,5 @@
 -- Promyvion-Dem (zone 18).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -29,7 +29,7 @@ danger[22] = { danger[18], danger[21] };
 danger[23] = { value = 'Spirit Absorption Gorger: HP drain; Stygian Flatus: Paralysis', notes = danger[15], entries = danger[22], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[2] };
 danger[24] = { effect = 'Dia', options = { 'Erase (one random eligible timed ailment)', 'Panacea' } };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     link_lists = {},
     monsters = {
@@ -584,12 +584,12 @@ return {
                 family = { value = 'Gorger / Empty', notes = { 'Source species: Gorger (ID 283); family ID 111.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Not charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
                 vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [38] = 3000 }, mp = { [38] = 1032 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
-                movement = { value = 'Base speed 40', notes = { 'Source base speed is 40; the ordinary monster default is 40. Animation speed is 40.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
+                movement = { value = 'Base speed 40', notes = { 'Source base speed is 40; the ordinary monster default is 40. Animation speed is 40.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.', 'A script or loaded override changes movement.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'No base crystal element', notes = { 'Source crystal element: None.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.' } },
                 traits = { value = 'Double Attack 10; Regain 100', notes = { 'Base attack delay 240 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.', 'Scripts or loaded overrides can change attack traits during the fight.' } },
-                spawn = { value = 'Scripted spawn', notes = { 'The NM\'s actual respawn is controlled by its script or spawn rules; the base delay is not a live window.', 'Scripted spawn or respawn checks also apply. Their current state is not visible.', 'Source rules only; no remaining time or open spawn window is known.' } },
+                spawn = { value = 'Respawn 4 hours', notes = { 'The era module sets a 4 hours delay during initialization and after despawn. Saved timers can replace the initial delay.', 'Scripted spawn or respawn checks also apply. Their current state is not visible.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 claim = { value = 'Claimshield 5 seconds', notes = { 'This Phoenix list entry is unclaimable and unkillable for 5 seconds after spawning. Call for Help is blocked during the shield.', 'When the shield ends, Phoenix selects claim from eligible entries on its enmity list. Remaining shield time and the winner are not known.' } },
                 dangers = danger[23],
                 blue = { value = 'No learnable BLU spells', notes = { 'No enabled BLU spell is mapped to the usable source moves for this monster.' } },

@@ -1,5 +1,5 @@
 -- Ranguemont Pass (zone 166).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -154,7 +154,7 @@ danger[147] = { kind = 'spell', id = 273, name = 'Sleepga', summary = 'Sleepga: 
 danger[148] = { danger[128], danger[132], danger[138], danger[141], danger[144], danger[79], danger[87], danger[147] };
 danger[149] = { value = 'Blindeye: Blindness; Hypnosis: Sleep; Mind Break: Max MP down; Binding Wave: Bind; Level 5 Petrify: Petrification; Drain: HP drain; Bind: bind; Sleepga: area sleep', notes = danger[125], entries = danger[148], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[43] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -1039,7 +1039,6 @@ return {
             magic_dmg = { all = -25 },
             drops  = {
                 { rate = 150, item = 557 },  -- ahriman lens
-                { rate = 50, item = 16675 },  -- storm axe
                 { rate = 1000, item = 921 },  -- bottle of ahriman tears
             },
             aggro  = true,

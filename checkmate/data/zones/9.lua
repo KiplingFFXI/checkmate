@@ -1,5 +1,5 @@
 -- PsoXja (zone 9).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -216,7 +216,7 @@ danger[209] = { kind = 'skill', id = 588, name = 'Death Trap', summary = 'Death 
 danger[210] = { danger[209] };
 danger[211] = { value = 'Death Trap: Poison, Stun', notes = danger[204], entries = danger[210], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[21] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

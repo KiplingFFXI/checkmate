@@ -1,8 +1,8 @@
 """
-Phoenix module YAML overlays, merged the way the server's modules/temp_patch/lsb-yaml.patch merges them.
+Phoenix module YAML overlays, merged by the native data loader.
 
-A line in modules/init.txt names a data root when one of its path parts is `data`, or when it is a bare module
-name (then the root is modules/<name>/data). Roots apply in file order, each file once. Each overlay is an
+A line in modules/init.txt names its data root when one of its path parts is `data`. Other entries enable
+their first module directory's data folder. Roots apply in file order, each file once. Each overlay is an
 RFC 7396 merge patch: maps merge key by key, lists replace whole, and null deletes the key.
 """
 import os
@@ -43,11 +43,9 @@ def data_roots(tree):
     roots = []
     for entry in init_entries(tree):
         parts = entry.split('/')
-        if 'data' not in parts and len(parts) != 1:
-            continue
         root = os.path.join(tree, 'modules', *parts)
         if 'data' not in parts:
-            root = os.path.join(root, 'data')
+            root = os.path.join(tree, 'modules', parts[0], 'data')
         if root not in roots:
             roots.append(root)
     return roots

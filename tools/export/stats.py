@@ -10,6 +10,8 @@ import os
 import re
 import struct
 
+from . import weapons
+
 # Skill ids GetBaseSkill and the evasion rank read (data/enums/skill_type.yaml).
 SKILL_GREAT_AXE = 6
 SKILL_STAFF = 12
@@ -154,8 +156,7 @@ def add_traits(tables, traits, job, level, beastmen):
 def load_subjob_zones(tree, zone_ids):
     """The zone names in mobutils.cpp CheckSubJobZone, as data/enums/zone.yaml keys."""
     source = Path(os.path.join(tree, 'src', 'map', 'utils', 'mobutils.cpp')).read_text(encoding='utf-8')
-    body = source[source.index('bool CheckSubJobZone'):]
-    body = body[:body.index('return false;')]
+    body = weapons.native_body(source, 'CheckSubJobZone')
     by_plain = {re.sub(r'[^a-z0-9]', '', name): name for name in zone_ids}
     zones = set()
     for name in re.findall(r'xi::ZoneId::(\w+)', body):

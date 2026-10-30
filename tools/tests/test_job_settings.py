@@ -1,6 +1,7 @@
 """Automatic TH keeps conditional bonuses and unreadable trait values out of exact totals."""
 import os
 from pathlib import Path
+import re
 import sys
 import tempfile
 from types import SimpleNamespace
@@ -48,6 +49,23 @@ class JobSettingsTests(unittest.TestCase):
         with mock.patch.object(job_settings, 'source_digest', return_value='changed'):
             with self.assertRaisesRegex(RuntimeError, 'source changed'):
                 job_settings.build('unused', None)
+
+    def test_current_native_signature_keeps_the_function_guard(self):
+        with tempfile.TemporaryDirectory(prefix='checkmate_job_settings_') as folder:
+            root = Path(folder)
+            (root / 'scripts').mkdir()
+            (root / 'modules').mkdir()
+            (root / 'modules/init.txt').write_text('', encoding='ascii')
+            source = root / job_settings.PATHS[0][0]
+            source.parent.mkdir(parents=True)
+            source.write_text('auto GetScaledItemModifier() -> int32 { return 1; }\n'
+                              'void Other() { int unrelated = 0; }', encoding='ascii')
+            with mock.patch.object(job_settings.aggro, 'lua_files_loaded', return_value=[]):
+                before = job_settings.source_digest(folder)
+                source.write_text(source.read_text().replace('unrelated = 0', 'unrelated = 42'), encoding='ascii')
+                self.assertEqual(before, job_settings.source_digest(folder))
+                source.write_text(source.read_text().replace('return 1', 'return 2'), encoding='ascii')
+                self.assertNotEqual(before, job_settings.source_digest(folder))
 
     def test_source_guard_follows_relevant_function_and_hooks(self):
         with tempfile.TemporaryDirectory(prefix='checkmate_job_settings_') as folder:
@@ -101,10 +119,14 @@ class PinnedJobSettingsTests(unittest.TestCase):
 
     def test_bundled_metadata_matches_source_and_uses_lf(self):
         bundled = Path(__file__).resolve().parents[2] / 'checkmate/data/job_settings.lua'
+        text = bundled.read_text(encoding='ascii')
+        built = re.search(r"^\s*built = '([^']+)'", text, re.M)
+        content_stamp = re.search(r"^\s*content = '([^']+)'", text, re.M)
+        self.assertIsNotNone(built)
+        self.assertIsNotNone(content_stamp)
         with tempfile.TemporaryDirectory(prefix='checkmate_job_settings_') as folder:
             target = Path(folder) / 'job_settings.lua'
-            job_settings.write(target, self.data, SimpleNamespace(built='phoenix/live 9a4494d505',
-                               content='RESTRICT_CONTENT on, rotz cop toau on, the rest off'))
+            job_settings.write(target, self.data, SimpleNamespace(built=built[1], content=content_stamp[1]))
             self.assertEqual(target.read_bytes(), bundled.read_bytes())
             self.assertNotIn(b'\r', target.read_bytes())
 

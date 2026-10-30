@@ -1,10 +1,10 @@
 -- Jug pets by the name the game shows, with each one's own highest level, a summoner's avatars and spirits
 -- by name, the gear that narrows a jug pet's level, and the Beast Affinity merit.
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- [name] = the jug's own highest level, before Beast Affinity and your main level cap it
     jugs = {

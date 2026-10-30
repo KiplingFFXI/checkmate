@@ -43,4 +43,4 @@ Passive displays send no requests. A manual `/check` can trigger a shared `/chec
 
 ## Source and license
 
-Data and calculations follow [Phoenix's source](https://github.com/phoenixffxi/Phoenix). The bundled monster data comes from revision [`9a4494d505`](https://github.com/phoenixffxi/Phoenix/commit/9a4494d5056429d0e75922dc9fa47d419142cf68). checkmate uses [GNU GPL v3.0](LICENSE). Bundled weapon icons have separate [source and license notes](checkmate/assets/weapons/SOURCES.txt); other item and status pictures come from your client.
+Data and calculations follow [Phoenix's source](https://github.com/phoenixffxi/Phoenix). The bundled monster data comes from revision [`ed41f351f6`](https://github.com/phoenixffxi/Phoenix/commit/ed41f351f63b24e015059c5a58f1c29eb3f198ac). checkmate uses [GNU GPL v3.0](LICENSE). Bundled weapon icons have separate [source and license notes](checkmate/assets/weapons/SOURCES.txt); other item and status pictures come from your client.

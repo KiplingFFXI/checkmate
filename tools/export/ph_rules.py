@@ -12,7 +12,7 @@ CALL = re.compile(r'xi\.mob\.phOnDespawn\s*\(')
 ERA_TIMERS = 'modules/era/lua/globals/old_nm_respawn_timers.lua'
 PERSISTENCE = 'modules/phoenix/lua/custom/pxi_timed_nm_respawn_persistence.lua'
 NM_MODULES = {
-    ERA_TIMERS: '0fc1cac8a149adcc7de27f772613abe97aba0e95fb5a306689ca133c65dfce6c',
+    ERA_TIMERS: '50755bb619490bbd74fc70e4ea60229f98574456ee53d50210d79913e7809906',
     PERSISTENCE: '99e833335da377afaa831c4ac5caa1ea5c92f450476852a58491e0dad3429334',
 }
 NM_SCRIPTS = {

@@ -1,5 +1,5 @@
 -- Dynamis-Tavnazia (zone 42).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -17,7 +17,7 @@ danger[10] = { kind = 'attack', id = 0, name = 'Normal attacks', summary = 'Norm
 danger[11] = { danger[10] };
 danger[12] = { value = 'Normal attacks: HP drain', notes = danger[8], entries = danger[11], coverage = 'partial', incomplete = true, reasons = danger[2], general_notes = danger[3] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

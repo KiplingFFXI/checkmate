@@ -5,8 +5,8 @@ import re
 
 from . import aggro, lua_source, modifiers, overlays, tables
 
-SOURCE_GUARD = '3848ab05c4b0e09aa50156fdb32776e7ac12a49a5054246992eb4e3ebf406cd0'
-PATHS = (('src/map/utils/battleutils.cpp', 'int32 GetScaledItemModifier('),)
+SOURCE_GUARD = 'e347b7420e411dec79d39c2883646d88c0f5abfe5822b8b8116de09d6267996d'
+PATHS = (('src/map/utils/battleutils.cpp', 'auto GetScaledItemModifier('),)
 
 
 def function_body(text, signature):

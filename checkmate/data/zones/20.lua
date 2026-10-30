@@ -1,5 +1,5 @@
 -- Promyvion-Mea (zone 20).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -36,7 +36,7 @@ danger[29] = { kind = 'skill', id = 1232, name = 'Murk', summary = 'Murk: Slow, 
 danger[30] = { danger[22], danger[25], danger[29] };
 danger[31] = { value = 'Brain Spike: Paralysis, can crit; Promyvion Brume: Poison; Murk: Slow, Weight', notes = danger[19], entries = danger[30], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[2] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     link_lists = {},
     monsters = {
@@ -589,7 +589,7 @@ return {
                 family = { value = 'Craver / Empty', notes = { 'Source species: Craver (ID 281); family ID 110.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Not charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
                 vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [38] = 3000 }, mp = { [38] = 1032 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
-                movement = { value = 'Base speed 30', notes = { 'Source base speed is 30; the ordinary monster default is 40. Animation speed is 30.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
+                movement = { value = 'Base speed 30', notes = { 'Source base speed is 30; the ordinary monster default is 40. Animation speed is 30.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.', 'A script or loaded override changes movement.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'No base crystal element', notes = { 'Source crystal element: None.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.' } },

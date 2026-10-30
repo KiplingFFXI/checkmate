@@ -237,7 +237,7 @@ class PinnedSourceTests(unittest.TestCase):
         self.assertEqual(coverage['scripts'], 1792)
         self.assertEqual(coverage['harmful_scripts'], 807)
         self.assertEqual(coverage['unresolved_scripts'], {})
-        self.assertEqual(coverage['watched_files'], 3114)
+        self.assertEqual(coverage['watched_files'], 3119)
 
     def test_sql_missing_handlers_remain_explicit(self):
         coverage = self.result['coverage']

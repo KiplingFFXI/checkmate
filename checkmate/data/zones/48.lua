@@ -1,5 +1,5 @@
 -- Al Zahbi (zone 48).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -554,7 +554,7 @@ danger[547] = { kind = 'skill', id = 1697, name = 'Seaspray', summary = 'Seaspra
 danger[548] = { danger[539], danger[543], danger[544], danger[547] };
 danger[549] = { value = 'Vile Belch: Plague, Silence; Hypnic Lamp: Sleep; Seismic Tail: can crit; Seaspray: Slow', notes = danger[535], entries = danger[548], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[7] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     link_lists = {},
     monsters = {

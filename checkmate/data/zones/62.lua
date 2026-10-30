@@ -1,5 +1,5 @@
 -- Halvung (zone 62).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -218,7 +218,7 @@ danger[211] = { danger[207], danger[210] };
 danger[212] = { value = 'Proboscis: Buff removal, MP drain; Erosion Dust: Dia', notes = danger[203], entries = danger[211], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[11] };
 danger[213] = { 'This move can crit. Its current critical chance is not known. Source targeting: single target.' };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

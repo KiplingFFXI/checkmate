@@ -1,5 +1,5 @@
 -- Aydeewa Subterrane (zone 68).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -153,7 +153,7 @@ danger[146] = { danger[122], danger[127], danger[132], danger[137], danger[99], 
 danger[147] = { 'A move choice in the script could not be read.', 'Scripts disable ordinary TP moves; only explicit scripted moves are listed.' };
 danger[148] = { value = 'Poisonga II: area poison; Burn: Burn; Choke: Choke; Shock: Shock; Stun: stun; Blind: Blindness; Bind: bind; Sleepga II: area sleep', notes = danger[145], entries = danger[146], coverage = 'partial', incomplete = true, reasons = danger[147], general_notes = danger[61] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

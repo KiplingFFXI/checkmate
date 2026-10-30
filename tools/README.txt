@@ -31,6 +31,8 @@ the source commit in its header even when the values stayed the same.
 It never changes the Phoenix repo. Every run copies the files it needs from the commit into a new temp folder
 with git archive, reads that copy, and deletes it at the end. Nothing is reused from an earlier run.
 
+Module data roots follow the native YAML loader. Explicit data paths stay as written. Other init entries also enable the first module directory's data folder, with the first occurrence setting its merge order.
+
 Lua modules follow Phoenix's load order: direct file entries first, then each directory's recursive paths
 in case-sensitive component order. Repeated entries still load more than once. The native loader and its
 sorting helper are guarded, so Windows and Linux read the same override chains.
@@ -97,7 +99,7 @@ What goes into a row
 --------------------
 
 - The zone's data/zones/<zone>/mobs.yaml with every module overlay in modules/init.txt merged over it, the way
-  the server's temp_patch/lsb-yaml.patch merges them.
+  the native data loader merges them.
 - The species chain from data/ecosystems.yaml, then the template, then the spawn.
 - The jobs from the same chain, or from mob_pools for an instance monster, the same ones the stat math uses. A
   monster whose chain names no jobs, or an instance monster whose pool is 1/1, gets none in its row, though the
@@ -541,6 +543,8 @@ v<version> with checkmate-<version>.zip attached and that version's CHANGELOG.md
 and anyone else with write access to the repo can see a draft, and its tag isn't made until it's published. If
 that version already has a release, draft or published, it does nothing.
 
+Before preparing any release, fetch phoenix/live and compare its resolved commit with the bundled data stamp. Check code-only releases too. If live moved, review its changed inputs, refresh the data and run the full source check below before packaging. Do not treat checks against an older bundled revision as a check of the current live source.
+
 A version you bump by hand works the same way. Change addon.version, add a section for it to CHANGELOG.md and
 push to main. The job stops with an error if CHANGELOG.md has no section for that version.
 
@@ -666,6 +670,8 @@ replacement and super calls. Jug-pet action wrappers keep their effective monste
 
 It writes effects, spells, abilities, weaponskills, skills, pacts, pet_moves, automatons, charmed_skills,
 items, reactive, spikes, procs, proc_effects, proc_usual, gear, merits, pictured and troubadour.
+Player weapon-skill names and IDs come from data/weapon_skills.yaml and loaded YAML overlays. The canonical enum also includes top-level module copies, even when disabled; known names keep those IDs. Duplicate IDs, invalid rows and loaded weapon_skills SQL stop the build. Guards cover native enum validation, code generation and the action namespace.
+
 Player weapon skills, job abilities and automaton moves
 keep separate ID maps. pacts uses pet_skill_id; pet_moves maps the linked monster skill IDs used by the
 native pet action path. charmed_skills is used only for an actor identified as a player's pet or charmed

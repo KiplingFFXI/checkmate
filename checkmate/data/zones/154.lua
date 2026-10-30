@@ -1,5 +1,5 @@
 -- Dragons Aery (zone 154).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -24,7 +24,7 @@ danger[17] = { notes = danger[16], unknown = {  }, activation_range = 18.0, shap
 danger[18] = { kind = 'skill', id = 957, name = 'Absolute Terror', summary = 'Absolute Terror: Terror', notes = danger[15], categories = { 'debuff' }, effects = { 'Terror' }, details = danger[17] };
 danger[19] = { 'Only effects allowed by the move\'s dispel checks can be removed. Source targeting: single target.' };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

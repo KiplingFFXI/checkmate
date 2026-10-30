@@ -7,14 +7,14 @@ from . import lua_source
 
 HELPERS = {
     'modules/module_utils.lua': 'e6a96f7f7a73e02a53a436440524b67ae94735e3488ac1466455a18a19919b5c',
-    'scripts/globals/bluemagic.lua': '4ec70d2c7eea609e74bc3b309aad81cd38c27a0c367af066175271158edd5585',
+    'scripts/globals/bluemagic.lua': 'd71f8797b10f6e9a5849cfd2b60001be1831ebb6a82b130cd0723185c6c3ee28',
     'scripts/globals/weaponskills.lua': '2934a6720464b53e5a80f45198b6165df5461be378af7726d6635e3501e81d61',
     'scripts/globals/spells/absorb_spell.lua': 'ab296eede4669210021dfb043bd951c1392934c670416b07eddee9cec46e5037',
-    'src/map/action/action.h': '09afb30f18319047a4c2e75354953ce9c5046fac6ae168a986273672e113e039',
+    'src/map/action/action.h': '6013e5670f23c0d2b631fe16afb39e983251fa6654dc7b8cff7792ed3cf2ca3c',
     'src/map/enums/action/react_kind.h': '452e4a905923fca0826cfee8c12847da8602adab3854b5f2729cb0ec43a7211c',
     'src/map/utils/messageutils.cpp': 'c72873a032924975eaf58d7fab209e4945991d57d528ec420020b20e7496e3d3',
     'src/map/utils/messageutils.h': '5972e4d1f00bd8fe2b842985f7498710afe3194440cb12175a9a2eab681fd1c2',
-    'src/map/ai/states/item_state.cpp': '16d1cf6c0c93921ea8d42ba78d42435adcaefeee436534d4372c08f0e2d02d0b',
+    'src/map/ai/states/item_state.cpp': 'cc21468e41ddbd63047182c439dcaaea5b0a49d280e21619f61bcf80c0a5c402',
     'scripts/items/bottle_of_psychoanima.lua': 'e082eed36c9e035eb47d6887e5c3795d756b9a163c916fb51a8f2feaddeb9191',
     'scripts/items/bottle_of_hysteroanima.lua': '06e74783db97094297d7ed01f3b49a6803daf69e2421c47f9dedad5e7cf6848e',
     'scripts/items/ccb_polymer_pump.lua': '65555714957c34b49ea1dd1bf0bdead61a67bd9acb3978bfe00c79ccaae6c333',
@@ -23,6 +23,10 @@ HELPERS = {
 }
 MODULES = '2b790caf960a502e5e9871b4c3d41c53eab3ed0d428fd7107a94af52798ecf59'
 NATIVE = {
+    ('src/map/data/datasets/weapon_skills/dataset.cpp', 'Dataset::decode'):
+        '27adae6e7df9c1d335385ce7fbca228affad7580a7fe2235e782fe7773c2761e',
+    ('src/map/entities/battle_entity.cpp', 'CBattleEntity::OnWeaponSkillFinished'):
+        '5099715f498c5c65327078f302bf25ffed3dba6413e3219b013222510b8905c6',
     ('src/map/packets/entity_update.cpp', 'CEntityUpdatePacket::updateWith'):
         'd8d8c8ff6598479391d43356ce514b55e9ebdc0ef8c2b01bded33261d95cfdd2',
     ('src/map/entities/pet_entity.cpp', 'CPetEntity::OnPetSkillFinished'):
@@ -32,11 +36,11 @@ NATIVE = {
     ('src/map/petskill.cpp', 'CPetSkill::getSkillFinishCategory'):
         '5553c31dee7f3258ee814d02709df777e74b558f4a2e405a8f67a3ac39c09864',
     ('src/map/entities/char_entity.cpp', 'CCharEntity::OnItemFinish'):
-        '251530cde7eabd40b4362ff5b7ca9ac8a89f5ebf4f58c214750624838f404863',
+        'ccdd97505b65ff9a93036a27f09f016b7f65666f0b02ca23b4dfed9f4dbe7af7',
     ('src/map/entities/char_entity.cpp', 'CCharEntity::OnAbility'):
-        'fadc3bb8c834080a42aaac8a640929e578b38dfc4ba9542db5fffff86d02f813',
+        '8b873ee56df1d09abbf49daba683e6175ddca5660ef7d5cb3dbd38c87508b9a8',
     ('src/map/entities/battle_entity.cpp', 'CBattleEntity::OnAttack'):
-        'd5a873a5f5fd265cec0a809905e5ddc2b188a36b2fd287a34832ec38216d7d87',
+        'dfe6a673ac7ba108f762f83fc78a268f3edb5e89718d1b1b71cca113435a6c76',
     ('src/map/utils/battleutils.cpp', 'HandleSpikesStatusEffect'):
         'c74146269ae1f2303d14ab1e32c971b9a62608731ee70ab2f7fa265fbb7f38f7',
     ('src/map/utils/battleutils.cpp', 'HandleSpikesDamage'):
@@ -44,9 +48,22 @@ NATIVE = {
     ('src/map/utils/battleutils.cpp', 'HandleSpikesEquip'):
         '2a483e09829c6d0c321d1d3909c6533ff0aa2bb293d60360d78867b0e32ed2ef',
     ('src/map/lua/luautils.cpp', 'OnItemUse'):
-        'ac66618df1dd4c482761de25027132026af004e97fcdd5c45493b64a05578193',
+        '407d1afdc51f0bc3c7d29ece4c9318f6481af6d9154f29951d22e825a024ef1d',
 }
-INFERENCE_GUARD = '3706af168c0fce3864fd232c06d8b93d99d13f25448edf2313d74f489b8b1d0d'
+INFERENCE_GUARD = 'c14fb49005ebf554baf366be2f0044a8d1563e98571e5cabc8332fccc913e03e'
+
+NAMESPACE_GUARDS = {
+    'src/map/data/yaml/enum_token.h':
+        '968ac895da0d2e5f24465610f407a6e9a13f428cedb4fdd5f3f98c96a32251a6',
+    'src/common/enum_traits.h':
+        '3c8b708b52defe7a84301f3117127455a64d5de4f144c363339418b307425094',
+    'tools/codegen/enum_codegen.py':
+        '9f502bb4be7c3f8fab112464cf2e39779a5a1675756ce2a2ce49342b682b97ea',
+    'tools/codegen/common.py':
+        '38296a284ff0494b87f465c07d489290c6d56f226e9c350eae96d223c97a08f6',
+    'tools/codegen/templates/enum.h.j2':
+        '692e73aa7396abb6e916fb77cd5d20ee1bc458a5ec2a32890cbdc6cb136c5a4f',
+}
 
 
 def inference_digest(tree):
@@ -66,6 +83,9 @@ def inference_digest(tree):
 def check_source(tree, loaded):
     from . import effects
     from .encounters import native_digest
+    for path, digest in NAMESPACE_GUARDS.items():
+        if effects.fingerprint(Path(tree, path).read_text(encoding='utf8')) != digest:
+            raise RuntimeError(path + ' changed. Review the weapon-skill YAML namespace.')
     for path, digest in HELPERS.items():
         if effects.fingerprint(effects.source(tree, path)) != digest:
             raise RuntimeError(path + ' changed. Review action-specific Effects durations.')
@@ -400,7 +420,8 @@ def build(tree, ids, allowed, loaded):
     for table, id_key, folder, callback, output in (
             ('weapon_skills', 'weaponskillid', 'weaponskills', 'onUseWeaponSkill', weaponskills),
             ('abilities', 'abilityId', 'abilities', 'onUseAbility', abilities)):
-        for entry in effects.sql_rows(tree, table):
+        entries = effects.weapon_skill_rows(tree) if table == 'weapon_skills' else effects.sql_rows(tree, table)
+        for entry in entries:
             if table == 'abilities' and (not allowed.allows(entry.get('content_tag')) or entry['level'] > 75):
                 continue
             name = entry['name']

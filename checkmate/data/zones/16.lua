@@ -1,5 +1,5 @@
 -- Promyvion-Holla (zone 16).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -44,7 +44,7 @@ danger[37] = { kind = 'skill', id = 1250, name = 'Binary Tap', summary = 'Binary
 danger[38] = { danger[21], danger[25], danger[28], danger[31], danger[32], danger[33], danger[36], danger[37] };
 danger[39] = { value = 'Empty Cutter Thinker: can crit; Negative Whirl: Slow; Stygian Vapor: Plague; Spirit Absorption Thinker: HP drain; Binary Absorption: HP drain; Trinary Absorption: HP drain; Spirit Tap: Buff theft; Binary Tap: Buff theft', notes = danger[18], entries = danger[38], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[2] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -597,7 +597,7 @@ return {
                 family = { value = 'Thinker / Empty', notes = { 'Source species: Thinker (ID 288); family ID 114.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Not charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
                 vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.' }, hp = { [38] = 3000 }, mp = { [38] = 1032 }, uncertain = false, hp_uncertain = false, mp_uncertain = false, hp_unknown = false, mp_unknown = false },
-                movement = { value = 'Base speed 45', notes = { 'Source base speed is 45; the ordinary monster default is 40. Animation speed is 45.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
+                movement = { value = 'Base speed 45', notes = { 'Source base speed is 45; the ordinary monster default is 40. Animation speed is 45.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.', 'A script or loaded override changes movement.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'No base crystal element', notes = { 'Source crystal element: None.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.' } },

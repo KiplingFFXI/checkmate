@@ -2,6 +2,14 @@
 
 Older entries describe that release. Later entries may change its behavior.
 
+## 1.14.12
+
+- Refreshed Phoenix data to `ed41f351f6` from October 30.
+- Removed Storm Axe from the drops listed for the three affected Bat Eyes in Ranguemont Pass.
+- Spawn details now include supported era NM timer windows, including Satiator's four-hour delay. Current spawn state and remaining time stay unknown.
+- Updated movement warnings and BLU spell finder notes to match the refreshed source.
+- Updated the data exporter for Phoenix's current YAML data and native source layout.
+
 ## 1.14.11
 
 - Fixed merit autofill not reading ranks from the game. After updating, reload Checkmate and zone once to read your supported merit ranks.

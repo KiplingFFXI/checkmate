@@ -11,7 +11,7 @@ GUARDS = {
     'PhysicalDmgTaken': '6d490bb46fe4ead7df44c222d7fd7249581f55188bc529cd7aafc03b90fb0f8b',
     'RangedDmgTaken': 'dac4a6f53bcfef4f331bcc9892cc4723771058e17ae7b2a8d44970a25f24a645',
 }
-MODULE_GUARD = 'e04be639ce046aa72c4b2cc1042ae865bab91fa93d38abd5576e72e178cd45f9'
+MODULE_GUARD = '6e7c51384a6d97e0cafd76a05adadec8e8281ef911bd5ab05b3be1e9ab9f2766'
 
 
 def module_digest(tree):
@@ -27,10 +27,12 @@ def module_digest(tree):
 
 
 def native_body(text, name):
-    match = re.search(r'\bauto\s+' + name + r'\(', text)
+    match = re.search(r'\b(?:auto|bool|uint16)\s+' + re.escape(name) + r'\s*\(', text)
     if match is None:
-        raise RuntimeError('Weapon damage source no longer has %s' % name)
-    start = text.index('{', match.end())
+        raise RuntimeError('Native source no longer has %s' % name)
+    start = text.find('{', match.end())
+    if start < 0 or ';' in text[match.end():start]:
+        raise RuntimeError('Native source has no body for %s' % name)
     depth = 0
     for index in range(start, len(text)):
         if text[index] == '{':
@@ -39,7 +41,7 @@ def native_body(text, name):
             depth -= 1
             if depth == 0:
                 return text[start:index + 1]
-    raise RuntimeError('Weapon damage source has an incomplete %s' % name)
+    raise RuntimeError('Native source has an incomplete %s' % name)
 
 
 def digest(text):

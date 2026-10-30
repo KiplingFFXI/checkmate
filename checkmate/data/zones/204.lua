@@ -1,5 +1,5 @@
 -- FeiYin (zone 204).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -196,7 +196,7 @@ danger[189] = { kind = 'skill', id = 728, name = 'Sweet Breath', summary = 'Swee
 danger[190] = { danger[178], danger[181], danger[186], danger[189] };
 danger[191] = { value = 'Impale: Paralysis, Poison; Drain Whip: HP drain, MP drain, TP drain; Bad Breath: many ailments; Sweet Breath: Sleep', notes = danger[174], entries = danger[190], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[8] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -1514,7 +1514,7 @@ return {
                 crystal = { value = 'Earth crystal (conditional)', notes = { 'Source crystal element: Earth.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Conditional rewards', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.', 'Scripted encounter or loaded module rules can change rewards.' } },
                 traits = { value = 'Double Attack 10', notes = { 'Base attack delay 200 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.', 'Scripts or loaded overrides can change attack traits during the fight.' } },
-                spawn = { value = 'Scripted spawn', notes = { 'Scripted spawn or respawn checks also apply. Their current state is not visible.', 'Source rules only; no remaining time or open spawn window is known.' } },
+                spawn = { value = 'Respawn 21 hours to 24 hours', notes = { 'The era module sets a 21 hours to 24 hours delay during initialization and after despawn. Saved timers can replace the initial delay.', 'Scripted spawn or respawn checks also apply. Their current state is not visible.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 claim = { value = 'Claimshield 5 seconds', notes = { 'This Phoenix list entry is unclaimable and unkillable for 5 seconds after spawning. Call for Help is blocked during the shield.', 'When the shield ends, Phoenix selects claim from eligible entries on its enmity list. Remaining shield time and the winner are not known.' } },
                 fight = { value = 'Rage 20 minutes; Conditional draw-in', notes = { 'Rage starts counting on engagement. This source removes its applied boost on disengage; elapsed engagement time is unseen.', 'Its fight script draws targets in under position or encounter conditions. Distance alone does not establish safety.' } },
                 dangers = danger[191],

@@ -1,5 +1,5 @@
 -- Eastern Altepa Desert (zone 114).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -220,7 +220,7 @@ danger[213] = { kind = 'spell', id = 210, name = 'Quake', summary = 'Quake: Wind
 danger[214] = { danger[42], danger[43], danger[48], danger[51], danger[55], danger[58], danger[208], danger[209], danger[213], danger[141], danger[85], danger[86], danger[91], danger[96], danger[73], danger[101], danger[106], danger[109], danger[110], danger[144], danger[113], danger[78], danger[145], danger[116] };
 danger[215] = { value = 'Spikeball: Poison; Shoulder Slam: can crit; Magnetite Cloud: Weight; Sandstorm: Blindness; Sand Trap: petrification; Jamming Wave: Silence; Freeze: Fire magic evasion down; Tornado: Ice magic evasion down; Quake: Wind magic evasion down; Poison II: Poison; Poisonga: area poison; Burn: Burn; Frost: Frost; Choke: Choke; Rasp: Rasp; Shock: Shock; Drown: Drown; Drain: HP drain; Aspir: MP drain; Stun: stun; Blind: Blindness; Bind: bind; Sleep II: sleep; Sleepga: area sleep', notes = danger[212], entries = danger[214], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[66] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

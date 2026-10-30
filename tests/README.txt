@@ -43,6 +43,8 @@ The Verify workflow runs exporter fixture tests and addon tests on pull requests
 must pass the same job before their zip is built. Source-backed exporter checks also run during
 the weekly data refresh; ordinary code checks do not regenerate the bundled data.
 
+Exporter regressions also cover native return-type changes, implicit YAML data roots, era NM timer windows and the weapon-skill YAML namespace. Known weapon-skill IDs follow the generated enum; loaded overlays cannot renumber them.
+
 Exporter regressions live in tools/tests. test_skill_tables.py covers native skills.yaml, ordered
 module overlays, complete level/rank tables and rejected stale SQL updates. The danger suites check
 effective era callbacks, source guards, paired pet effects and critical/shadow rules. Spawn and PH
@@ -67,6 +69,7 @@ These are the main suite groups. run.py discovers every test_*.lua file, includi
   test_blue_finder_pages.lua bounded spell/place pages, filter resets and complete copied locations
   test_blue_learning_rate.lua actual learning gear, level gates, unknown inputs and no requests
   test_blue_learning_ui.lua visible learning summary, folded requirements and separate row controls
+  test_refreshed_data.lua  reviewed Bat Eye drops, era NM delays and consistent bundled source stamps
   test_merits.lua          observed and selected ranks, partial packets, level caps and input adjustments
   test_merits_ui.lua       shared autofill, manual choices, read ranks and character-owned settings
   test_event_userdata.lua  userdata callbacks, packet fields and merit autofill through the real handler

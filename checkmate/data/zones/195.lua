@@ -1,5 +1,5 @@
 -- The Eldieme Necropolis (zone 195).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -199,7 +199,7 @@ danger[192] = { kind = 'skill', id = 270, name = 'Roar', summary = 'Roar: paraly
 danger[193] = { danger[192] };
 danger[194] = { value = 'Roar: paralysis', notes = danger[190], entries = danger[193], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[58] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

@@ -1,5 +1,5 @@
 -- Mount Zhayolm (zone 61).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -227,7 +227,7 @@ danger[220] = { value = 'Abrasive Tantara: Amnesia; Deafening Tantara: Silence; 
 danger[221] = { danger[107], danger[108], danger[143] };
 danger[222] = { value = 'Rock Smash: Petrification; Enervation: Defense down, Magic defense down; Flash: Flash', notes = danger[139], entries = danger[221], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[73] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

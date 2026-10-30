@@ -1,5 +1,5 @@
 -- Kuftal Tunnel (zone 174).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -219,7 +219,7 @@ danger[212] = { kind = 'skill', id = 591, name = 'Bomb Toss', summary = 'Bomb To
 danger[213] = { danger[212] };
 danger[214] = { value = 'Bomb Toss: fire damage', notes = danger[208], entries = danger[213], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[12] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

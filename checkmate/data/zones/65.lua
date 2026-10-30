@@ -1,5 +1,5 @@
 -- Mamook (zone 65).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -317,7 +317,7 @@ danger[310] = { 'The monster switches spell lists during the fight. These are po
 danger[311] = { 'Snatch Morsel: Buff removal. Source targeting: single target.', 'These are possible moves from the source. They do not predict the next move.', 'Effects can miss, be resisted or be blocked by immunity. Range, targets, TP, recasts and skill checks still apply.' };
 danger[312] = { value = 'Snatch Morsel: Buff removal', notes = danger[311], entries = danger[124], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[18] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {

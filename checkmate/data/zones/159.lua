@@ -1,5 +1,5 @@
 -- Temple of Uggalepih (zone 159).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -209,7 +209,7 @@ danger[202] = { danger[201] };
 danger[203] = { notes = danger[200], unknown = {  }, activation_range = 7.0, shape = 'single target', shadows = { { mode = 'ignore' } }, removals = danger[202] };
 danger[204] = { kind = 'skill', id = 524, name = 'Mind Drain', summary = 'Mind Drain: MND down', notes = { 'Source targeting: single target.' }, categories = { 'debuff' }, effects = { 'MND down' }, details = danger[203] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -1380,7 +1380,7 @@ return {
                 crystal = { value = 'Ice crystal (conditional)', notes = { 'Source crystal element: Ice.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'No-drops settings, region control and party conditions can prevent the reward.' } },
                 rewards = { value = 'Base gil 6000; Mug purse set at spawn', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Notorious monsters do not give the ordinary seal reward; the NM flag alone does not block crystals.', 'Gil can drop when the kill meets the reward rules and Call for Help was not used. Server settings can stop it from dropping. Party size and player bonuses affect the amount.', 'Mug uses the unknown remaining purse; your modifiers can change the payout. This is not a guaranteed amount.' } },
                 traits = { value = 'Double Attack 10', notes = { 'Base attack delay 180 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.', 'Scripts or loaded overrides can change attack traits during the fight.' } },
-                spawn = { value = 'Spawn rules', notes = { 'The NM\'s actual respawn is controlled by its script or spawn rules; the base delay is not a live window.', 'Source rules only; no remaining time or open spawn window is known.' } },
+                spawn = { value = 'Respawn 2 hours', notes = { 'The era module sets a 2 hours delay during initialization and after despawn. Saved timers can replace the initial delay.', 'Source rules only; no remaining time or open spawn window is known.' } },
                 claim = { value = 'Claimshield 5 seconds', notes = { 'This Phoenix list entry is unclaimable and unkillable for 5 seconds after spawning. Call for Help is blocked during the shield.', 'When the shield ends, Phoenix selects claim from eligible entries on its enmity list. Remaining shield time and the winner are not known.' } },
                 dangers = danger[152],
                 blue = { value = 'Blitzstrahl', notes = { 'Possible spells from moves this monster can use. It must actually use the move before defeat; learning is not guaranteed.' }, spells = { { id = 532, name = 'Blitzstrahl', level = 44, min_skill = 104, skill_ids = { 535 } } }, requirements = { 'You need Blue Mage as your main job and enough current Blue Magic skill. When the monster dies, you must be alive and within 100 yalms in the same zone. You cannot learn a spell you already know, or learn from a Call for Help kill.', 'Equipment skill bonuses count. The spell\'s casting level is not a minimum learning level.', 'You or your party or alliance must get credit for the kill. Only one spell that meets the requirements gets a learning roll each time the monster dies.' }, incomplete = false },

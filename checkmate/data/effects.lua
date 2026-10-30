@@ -1,11 +1,11 @@
 -- Action effects, with Phoenix durations before resists.
 -- An absent duration stays untimed. by_effect names each status of a move with several.
 -- infer marks a possible effect, not a confirmed application. default_tp is an assumed TP value.
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- What an effect removes, and its usual duration.
     effects = {

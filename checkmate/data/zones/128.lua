@@ -1,5 +1,5 @@
 -- Valley of Sorrows (zone 128).
--- Built by tools\export_data.py from phoenix/live 9a4494d505.
+-- Built by tools\export_data.py from phoenix/live ed41f351f6.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -34,7 +34,7 @@ danger[27] = { kind = 'skill', id = 806, name = 'Tortoise Stomp', summary = 'Tor
 danger[28] = { danger[17], danger[22], danger[27] };
 danger[29] = { value = 'Tortoise Song: Buff removal; Head Butt Turtle: Accuracy down; Tortoise Stomp: Defense down', notes = danger[13], entries = danger[28], coverage = 'resolved', incomplete = false, reasons = {  }, general_notes = danger[4] };
 return {
-    built   = 'phoenix/live 9a4494d505',
+    built   = 'phoenix/live ed41f351f6',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     link_lists = {},
     monsters = {

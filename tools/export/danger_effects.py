@@ -347,7 +347,7 @@ def analyze(text, ids, script_name='', hostile=True):
 
 
 # Every source file in this census is watched, including helper and loaded-module changes.
-SOURCE_GUARD = '540647b51e502f11399bfc2e23583b0431a0b676de50c8ce4cc469f6179f5088'
+SOURCE_GUARD = '055ea14e9bbe0640e3df5467fbd61a234824d244e669e8f12b4d70084cbee8e3'
 SOURCE_FOLDERS = ('scripts/actions/mobskills', 'scripts/actions/spells', 'scripts/actions/weaponskills',
                   'scripts/globals/spells', 'scripts/combat')
 SOURCE_FILES = ('scripts/globals/mobskills.lua', 'scripts/globals/bluemagic.lua', 'scripts/globals/weaponskills.lua',

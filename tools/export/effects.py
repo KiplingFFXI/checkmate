@@ -41,7 +41,7 @@ CORE_GUARDS = {
     'scripts/globals/job_utils/dragoon.lua':
         '005bb3cee7a8c410f88616e5b2325db67f003746f23529d94931f36bae09e991',
     'scripts/globals/job_utils/corsair.lua':
-        '3d5bbba88b1157f03f7636d3db06f5b09a9553ca2768f0f3e21085b510144c1c',
+        'bc718ec50145cca4a6484ce3bcdaeba813d9c3582a8ef25755b15655705959c0',
     'scripts/actions/abilities/pets/nightmare.lua':
         '6c3b35149bcdf2a1a36b56ef053c04487ff1eb9a2d4fbbd0ca636b41c98d50ef',
     'scripts/items/nadrs.lua':
@@ -111,7 +111,7 @@ KNOWN_MODULES = {
     'modules/phoenix/lua/actions/mobskills/queasyshroom_pre_wotg.lua':
         'b7adee6863f2cf0da1b9a50c9ea8c52d1a3f6357b86f06609afafe41f0d4e930',
     'modules/phoenix/lua/custom/level_sync_penalty.lua':
-        '8a6332cff6735001cf68402ffe959af8c30be4c46affd5a7df84894c51cc7325',
+        'b80c86b33f9341b20696e82da03f88ef3cf73506cc68030bf5e1ae92ac15fe71',
     'modules/phoenix/lua/custom/pernicious_presents_event.lua':
         '9da1df942e47ad794ac2add235c9f6e449caeb7fcf3227e87597d39cc8fae7f6',
     'modules/phoenix/lua/effects/bio.lua':
@@ -151,6 +151,78 @@ def check_source(tree):
     return loaded
 
 
+def weapon_skill_enums(tree):
+    """Match the names emitted from core and every top-level module copy."""
+    from copy import deepcopy
+    document = deepcopy(overlays.load_yaml(Path(tree, 'data/weapon_skills.yaml')))
+    base_entries = document.get('weapon_skills') if isinstance(document, dict) else None
+    own_names = set(base_entries) if isinstance(base_entries, dict) else set()
+
+    def union(target, patch):
+        if not isinstance(target, dict) or not isinstance(patch, dict):
+            return
+        for key, value in patch.items():
+            if value is None:
+                continue
+            if isinstance(value, dict):
+                union(target.setdefault(key, {}), value)
+            elif key not in target:
+                target[key] = value
+
+    archived = source_tree.source_paths(tree)
+    names = archived.values() if archived else (path.relative_to(tree).as_posix() for path in Path(tree, 'modules').glob('*/data/*.yaml'))
+    for name in sorted(name for name in names if re.fullmatch(r'modules/[^/]+/data/weapon_skills\.yaml', name)):
+        union(document, overlays.load_yaml(Path(tree, name)))
+    metadata = document.get('meta') if isinstance(document, dict) else None
+    blocks = metadata.get('enum') if isinstance(metadata, dict) else None
+    if not isinstance(blocks, list):
+        raise RuntimeError('Weapon skills have no readable native enum declaration.')
+    selected = [block for block in blocks if isinstance(block, dict) and isinstance(block.get('cpp'), dict)
+                and block['cpp'].get('class') == 'WeaponSkill']
+    if (len(selected) != 1 or selected[0].get('section', 'weapon_skills') != 'weapon_skills'
+            or selected[0].get('name_from') is not None or selected[0]['cpp'].get('underlying') != 'uint8_t'):
+        raise RuntimeError('The weapon-skill enum declaration changed. Review its YAML namespace.')
+    entries = document.get('weapon_skills')
+    if not isinstance(entries, dict):
+        raise RuntimeError('Weapon skills have no readable enum entries.')
+    values = {}
+    for name, entry in entries.items():
+        number = entry.get('id') if isinstance(entry, dict) else None
+        if not isinstance(name, str) or not re.fullmatch(r'[a-z][a-z0-9_]*', name) or type(number) is not int or not 0 <= number <= 255:
+            raise RuntimeError('Unreadable weapon-skill enum entry: %s.' % name)
+        values[name] = number
+    own_ids = [values[name] for name in own_names]
+    if len(own_ids) != len(set(own_ids)):
+        raise RuntimeError('The base weapon-skill enum reuses an id.')
+    return values
+
+
+def weapon_skill_rows(tree):
+    """Read the native YAML namespace after the loaded data overlays."""
+    for module, target, _ in tables.module_statements(tree):
+        if target == 'weapon_skills':
+            raise RuntimeError('%s changes weapon_skills after its move to YAML.' % module)
+    known = weapon_skill_enums(tree)
+    document = overlays.load_merged(tree, overlays.data_roots(tree), 'weapon_skills')
+    entries = document.get('weapon_skills') if isinstance(document, dict) else None
+    if not isinstance(entries, dict) or not entries:
+        raise RuntimeError('Weapon skills have no readable YAML entries.')
+    found, rows = set(), []
+    for name, entry in entries.items():
+        if not isinstance(name, str) or not re.fullmatch(r'[a-z][a-z0-9_]*', name) or not isinstance(entry, dict):
+            raise RuntimeError('Unreadable weapon skill row: %s.' % name)
+        number = entry.get('id')
+        if type(number) is not int or not 0 <= number <= 255:
+            raise RuntimeError('Weapon skill %s has no uint8 id.' % name)
+        if name in known and number != known[name]:
+            raise RuntimeError('Weapon skill %s must keep enum id %d, not %d.' % (name, known[name], number))
+        if number in found:
+            raise RuntimeError('Duplicate weapon skill id: %d.' % number)
+        found.add(number)
+        rows.append({'weaponskillid': number, 'name': name})
+    return sorted(rows, key=lambda row: row['weaponskillid'])
+
+
 def mode(values):
     """The most common duration, the longer on a tie."""
     counts = Counter(value for value in values if value is not None and value > 0)
@@ -186,7 +258,6 @@ def sql_rows(tree, table):
     fields = {'spell_list': {'spellid', 'name', 'content_tag'},
               'mob_skills': {'mob_skill_id', 'mob_skill_name'},
               'pet_skills': {'pet_skill_id', 'pet_skill_name', 'mob_skill_id'},
-              'weapon_skills': {'weaponskillid', 'name'},
               'abilities': {'abilityId', 'name', 'level', 'content_tag'},
               'item_mods': set(names), 'item_usable': {'itemid', 'name', 'validTargets'}}[table]
     for module, target, statement in tables.module_statements(tree):

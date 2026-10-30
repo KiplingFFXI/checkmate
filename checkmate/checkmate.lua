@@ -1,6 +1,6 @@
 addon.name    = 'checkmate';
 addon.author  = 'Kipling';
-addon.version = '1.14.11';
+addon.version = '1.14.12';
 addon.desc    = 'Monster details, combat estimates and your pet on /check for Phoenix.';
 addon.link    = 'https://github.com/KiplingFFXI/checkmate';
 

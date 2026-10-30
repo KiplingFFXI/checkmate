@@ -30,19 +30,19 @@ GUARDS = {
     'scripts/globals/spells/absorb_spell.lua':
         'ab296eede4669210021dfb043bd951c1392934c670416b07eddee9cec46e5037',
     'scripts/globals/bluemagic.lua':
-        '4ec70d2c7eea609e74bc3b309aad81cd38c27a0c367af066175271158edd5585',
+        'd71f8797b10f6e9a5849cfd2b60001be1831ebb6a82b130cd0723185c6c3ee28',
     'scripts/actions/spells/blue/firespit.lua':
-        '882868f33e623a4d26f8d18cf5c4c6a85ca81d3f0bd72a1cc81ccac18e0f44f0',
+        'da86fff9b09b23ea5d04b79019ab5e5a2b9174d90f9012f0fbd6e6a15cad2a4d',
     'scripts/actions/spells/blue/ice_break.lua':
-        '48dcee6fa58e8427d20239a2f99ee451fa698a5f1ef2d8d56e6503c9a6cb0b4f',
+        '891d7f6ecbd252d86577fd1c62418a85387526bca06e298956ad9afd1e9e8196',
     'scripts/actions/spells/blue/sandspin.lua':
-        '55ef6c5fe2b770a8c0d714c93a8a0a638e901d8739deef7c4f74d544dbc371d8',
+        'cdd9035cc006f448ed25c34608a3280282a6f8c3d0fd1dc940fe8dddffad647f',
     'scripts/actions/spells/blue/blitzstrahl.lua':
-        '75662b7f807efdc9b4f05acf990c4804bc37747e76fc569d33c936814f021c12',
+        'bc1db274c98a9bbda6285b667027c485b587bbbd3be8f81846404872e3281544',
     'scripts/actions/spells/blue/maelstrom.lua':
-        '5e413bb2de80db527e735ecc6c5e25ae06d1b1d012a2e1ce85cc61214439bc08',
+        '57c3e5b1c6503402a692f05430844e88478673da5ae70b36ef1d99d770997e28',
     'scripts/actions/spells/blue/death_ray.lua':
-        'a79e27fec52d85e63b6105103f376338f5ef7e33f01cb80199c18361b6bba82c',
+        '7ddb53e2392271c660d10eb39ae9ce05a3ffb1c7cca02aab8e08d8ae7557fe15',
 }
 MODULE_GUARDS = {
     'modules/era/lua/combat/magic_burst.lua':
@@ -83,16 +83,17 @@ def numeric_table(runtime, text, name):
     return runtime.execute('return {' + value + '}')
 
 
+def check_magic_evasion(cpp):
+    code = re.sub(r'//[^\n]*', '', weapons.native_body(cpp, 'GetMagicEvasion'))
+    expected = '{ uint8 mlvl = std::min<uint8>(PMob->GetMLevel(), 99); if (PMob->objtype == TYPE_TRUST) { return battleutils::GetMaxSkill(12, mlvl); } return battleutils::GetMaxSkill(7, mlvl); }'
+    same(' '.join(code.split()), expected, 'GetMagicEvasion C-rank basis')
+
+
 def check_guards(tree):
     for path, expected in GUARDS.items():
         same(effects.fingerprint(effects.source(tree, path)), expected, path + ' behavior guard')
     cpp = (Path(tree) / 'src/map/utils/mobutils.cpp').read_text(encoding='utf8')
-    match = re.search(r'uint16 GetMagicEvasion\(CMobEntity\* PMob\)(.*?)\n}', cpp, re.S)
-    if not match:
-        raise RuntimeError('Source parity cannot find GetMagicEvasion.')
-    code = re.sub(r'//[^\n]*', '', match[1])
-    expected = '{ uint8 mlvl = std::min<uint8>(PMob->GetMLevel(), 99); if (PMob->objtype == TYPE_TRUST) { return battleutils::GetMaxSkill(12, mlvl); } return battleutils::GetMaxSkill(7, mlvl);'
-    same(' '.join(code.split()), expected, 'GetMagicEvasion C-rank basis')
+    check_magic_evasion(cpp)
     loaded = set(aggro.lua_files_loaded(tree))
     for path, expected in MODULE_GUARDS.items():
         if path not in loaded:

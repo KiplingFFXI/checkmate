@@ -7,6 +7,7 @@ import re
 from . import aggro, danger_attacks, danger_crit, danger_effects, danger_jobs, lua_source, outside, overlays, sqlfile, tables as source_tables
 
 CLAIM = 'modules/custom/lua/claim_shield.lua'
+TIMED = 'modules/era/lua/globals/old_nm_respawn_timers.lua'
 KIT_TABLES = ('mob_skill_lists', 'mob_spell_lists', 'blue_spell_list', 'mob_skills')
 MOVE_TARGETING = {0: 'single target', 1: 'area around the monster', 2: 'area around the target',
                   4: 'cone', 8: 'rear cone'}
@@ -71,6 +72,11 @@ BOREAL = 'modules/phoenix/lua/zones/Xarcabard/mobs/boreal_draw_in.lua'
 BOREAL_NAMES = {'Boreal_Coeurl', 'Boreal_Hound', 'Boreal_Tiger'}
 TIAMAT = ('Attohwa_Chasm', 'Tiamat')
 GUARDS = {
+    'modules/era/lua/globals/old_nm_respawn_timers.lua': '50755bb619490bbd74fc70e4ea60229f98574456ee53d50210d79913e7809906',
+    'modules/module_utils.lua': 'e6a96f7f7a73e02a53a436440524b67ae94735e3488ac1466455a18a19919b5c',
+    'src/map/data/loader.h': 'd9f547280765dd891cb3da01ad409be702982cbbea02ed6ff47e35bbb21af03e',
+    'src/map/data/yaml/merge.cpp': '541dc53621656ea818c8c890c20be17507f4254cd090683b2ef82d5159db5332',
+    'src/map/data/yaml/merge.h': '23901f70994d3beac1883a47fc12abcf5c6ef9f81b4f230960b956b91651a964',
     'src/map/enums/action/category.h': 'ce7585a5e0d40eeaa474ac042f80124667a92f20c18a3c9dc0522251df9a4582',
     'scripts/mixins/families/ladybug.lua': '78c94b266c78d72e2fb11471a12fb596266449298910fae4f446112b2aab99d8',
     'scripts/mixins/families/uragnite.lua': '5c31926ff3c6eeb4af82621cd5859ab7437e4aa429739ea30a1a22c9bb4cd95f',
@@ -130,20 +136,20 @@ GUARDS = {
     'scripts/actions/spells/black/stun.lua': '9bdcfbd090aec044006e8a00de85a52c5e842aa9d56d0e6a552e4c43dfd7ef9a',
     'scripts/actions/spells/black/poisonga.lua': '9bdcfbd090aec044006e8a00de85a52c5e842aa9d56d0e6a552e4c43dfd7ef9a',
     'scripts/actions/spells/black/poisonga_ii.lua': '9bdcfbd090aec044006e8a00de85a52c5e842aa9d56d0e6a552e4c43dfd7ef9a',
-    'scripts/globals/mobskills.lua': '985812fe584f74d8fb6fb2228dd88dc9c8f511a77a088a3d15abe007a9dcc70c',
+    'scripts/globals/mobskills.lua': '5e5505e5818e0a2b88157ec9ceb747c299c43d6f60b9ae8642e9ad86600106dd',
     'scripts/globals/spells/enfeebling_spell.lua': 'a9fec830186f0a14bca6c0062754d88a8974358098bb95a761f51b2749853029',
     'scripts/combat/action_mobskill_status_effect.lua': '1a8a4762bb79b3f869f2382b239c3bcd46f31c999666b4df9b86ce16084c8b56',
     'src/map/data/datasets/skills/dataset.cpp': '2a3578360ecd59f9b01e30dabd9f17816dffb4b7a83f1edecd10b932ecfacba3',
     'src/map/data/datasets/skills/dataset.h': '1f722729b27c800fdf25b345744ba70a4efdd9aca3392effd8dfafe62c968edc',
     'src/map/data/datasets/skills/yaml.h': '7b379197daceaada78637421904c7ea5200ac4402dc1623bb35e3cffdf44e249',
     'src/map/data/datasets/stats/dataset.h': '90e85cbab6423b85d652e725494582df0bb079f2c1c5ca91a233913278190823',
-    'src/map/utils/dataset_loader.h': '6a5416878f38179117fc2762ed024109fba351b390d1901f1d94e5d8141e869f',
+    'src/map/utils/dataset_loader.h': 'c51f95ffe3a5c0a2652ce7dbbd06e9016819a9b479388b0fbe5e550c3f557628',
     'src/map/spawn_slot.h': 'c9c513636ef6ec59098d2b38646abae2ecef3b9f7c358d9f2d3b40e7761f991e',
 }
-MODULE_GUARD = '0afcf7dcddad7a6bdd819cb2fa18beb16ecab2e86da5beacc40ff82d47e8f62b'
+MODULE_GUARD = 'd2a8b49de09e3c589ddedf51d2c894159da5add46da8083c1941c48e1cb3c52c'
 NATIVE_GUARDS = {
-    ('src/map/utils/moduleutils.cpp', 'LoadLuaModules'): '47710c8ff1437103cff82da11fbe399fa0a0002a4d2be5602fb82a3f059c011e',
-    ('src/common/utils.h', 'sorted_directory_iterator'): '01976b6334bbbb089add93c8592e86c837acd4f75f3f09ed125e5537f53e8ed3',
+    ('src/map/utils/moduleutils.cpp', 'LoadLuaModules'): '606b7f8a9cbc78936e03d4bb6a078b7ff9cd8b0dc0f02f835378cbc850751c51',
+    ('src/common/utils.h', 'sorted_directory_iterator'): '3d628a52d258f46a943eaf5d0f330185b3ba44335c788041765e7d413b9dc66c',
     ('src/map/spawn_handler.cpp', 'SpawnHandler::registerForRespawn'): '6e4743c0a069eb5c295f9652f48d11a5ea6e5be7892ef4aa5eb05ccd09cf9e88',
     ('src/map/spawn_slot.cpp', 'SpawnSlot::OnKill'): '9e5c646f79d160045f1286e2153bc1f4285772caad021d4962b991f5c596c2b5',
     ('src/map/entities/mob_entity.cpp', 'CMobEntity::Die'): '13778a95cf1dcc1217387aec3490d426825f0e61e5c9a2be297c86eab46cc32f',
@@ -170,19 +176,19 @@ NATIVE_GUARDS = {
     ('src/map/spawn_slot.cpp', 'SpawnSlot::TrySpawn'): '6c2870cecf3e61e9b725224d260eb3f756f91d50817e2bb3d6081bfa71c23105',
     ('src/map/spawn_handler.cpp', 'SpawnHandler::onGameHour'): '32396b99f84b9279701293eb1aef2d3ccbd5b2f5a0343b595d4044966a219025',
     ('src/map/spawn_handler.cpp', 'SpawnHandler::onWeatherChange'): 'f4096b2c65386c78e754fd917d9b7fab9d9c7723b34d12b378cc97072c8fc24b',
-    ('src/map/spawn_handler.cpp', 'SpawnHandler::Tick'): 'abe36001157afba334fe6ca920ffc0b65d06f6a925de7cef1ac23d3f7472668f',
+    ('src/map/spawn_handler.cpp', 'SpawnHandler::Tick'): 'c3a45132b9e4c4f8f46ed145ea0478a21d9823505ee188f001cef037c0e2c55b',
     ('src/map/utils/blueutils.cpp', 'TryLearningSpells'): '343dd7ca9e943e2bfd8cbb709f77ea8c1b3bae66245dfd36408d7cdfa5f49b10',
-    ('src/map/entities/mob_entity.cpp', 'CMobEntity::DistributeRewards'): 'c2bce00ac32a7cd9331c2902153794d7acaa6a8d9b39d6161ee10487b7897952',
+    ('src/map/entities/mob_entity.cpp', 'CMobEntity::DistributeRewards'): '70c311684a9f83e6f5cfe1b014fb99b0f2d8917085de9a2da9f57036360d7edd',
     ('src/map/spell.cpp', 'LoadSpellList'): 'e61fc2f6670c056570fe390dc0ef203518aa115b3f9029fbaa39b8ab1bbdb5bf',
     ('src/map/spell.cpp', 'CSpell::getJob'): '05f5549f6c334d97891f1fc0fcb6bfecae2c7f11989701e45378e9e869e4455a',
-    ('src/map/utils/battleutils.cpp', 'GetMaxSkill'): 'c3ba36e2d7d7a38fedc042dd3c915a7a1a8d0b50dec765ded07b46f3561252c0',
+    ('src/map/utils/battleutils.cpp', 'GetMaxSkill'): '994f64b1d842a155f2d09962461df200680eaa92dc1a09fa07e2b7d32747a037',
     ('src/map/utils/battleutils.cpp', 'LoadSkillTable'): 'f9a87966dc731b87553793d13e229495be87fc40c397f6ab680baab574c710c8',
-    ('src/map/mobskill.cpp', 'CMobSkill::isAoE'): '2931b3481c6ec82aaafc4ebc9fc0791679fe41dd461e678001ab08117f3bcc7a',
-    ('src/map/mobskill.cpp', 'CMobSkill::isConal'): '31ea8198df1076834da05cc53162bcc0267e208c3114624690df5a253db3eb3a',
-    ('src/map/mobskill.cpp', 'CMobSkill::isSingle'): 'c4863473bdda75c75dc268a1c439a21b50535baf6f25f233634a8ea4f66751da',
+    ('src/map/mobskill.cpp', 'CMobSkill::isAoE'): '20883fcf1d40824cef425b2f9da07b3542b6f5f40a2baab0a434244a984416fc',
+    ('src/map/mobskill.cpp', 'CMobSkill::isConal'): 'b417f1ab0265fad2073ad87bcbd656bca5cd410222ee736a97eb87b3481407c9',
+    ('src/map/mobskill.cpp', 'CMobSkill::isSingle'): '23f3c02714783bab769c5cfa13a7c238d2121fade01f0c07521955f54d512030',
     ('src/map/utils/battleutils.cpp', 'LoadMobSkillsList'): 'a8e66b21d2fe01d6b89f9208c42532270f311f228e43766c47e83236efe6258d',
-    ('src/map/lua/lua_base_entity.cpp', 'CLuaBaseEntity::isFacing'): 'ae1436006f3d905d318426c2d00cd02e33a690db615a6c508f236eef82ed8a31',
-    ('src/map/lua/lua_base_entity.cpp', 'CLuaBaseEntity::isInfront'): 'b80b1296c47f749faff58e26e6b5f4eafaaa2ca977b050eb46c2c777768c7c1e',
+    ('src/map/lua/lua_base_entity.cpp', 'CLuaBaseEntity::isFacing'): '439f1d8b1372d45e9364b2c5a33d3cb1826df3dea5b81433426a2f5dabe26c0a',
+    ('src/map/lua/lua_base_entity.cpp', 'CLuaBaseEntity::isInfront'): '442504658d4af90bb360d91352fcbeaa098af96211aa07d76a11cddf0a122ba0',
 }
 
 
@@ -197,6 +203,32 @@ def digest(text):
 
 def section(value, notes=(), **fields):
     return dict(value=value, notes=list(dict.fromkeys(notes)), **fields)
+
+
+def timed_rules(text, allowed):
+    """Literal timed windows from the reviewed era initialization and despawn hooks."""
+    text = lua_source.strip_comments(text)
+    start = re.search(r'local timedNMs\s*=\s*\{', text)
+    if start is None:
+        raise RuntimeError('The era timed-NM table could not be read.')
+    body = lua_source.block(text, start.start(), 'era timed NMs')
+    row = re.compile(r"\{\s*'([^']+)',\s*'([^']+)',\s*(\d+),\s*(\d+)\s*\}")
+    if row.sub('', body).strip(' ,\r\n\t'):
+        raise RuntimeError('An era timed-NM entry is not a literal window.')
+    entries = [match.groups() for match in row.finditer(body)]
+    conditional = re.search(r'if not xi\.pre\(xi\.expansion\.WOTG\) then\s*'
+                            r'table\.insert\(timedNMs,\s*(' + row.pattern + r')\)\s*end', text)
+    if text.count('table.insert(timedNMs') != (1 if conditional else 0):
+        raise RuntimeError('An era timed-NM addition has unreadable content conditions.')
+    if conditional and allowed.allows('wotg'):
+        entries.append(row.fullmatch(conditional[1]).groups())
+    found = {}
+    for zone, mob, low, high in entries:
+        low, high = int(low), int(high)
+        if low <= 0 or high < low or (zone, mob) in found:
+            raise RuntimeError('An era timed-NM window is invalid or repeated.')
+        found[zone, mob] = (low, high)
+    return found
 
 
 def duration(seconds):
@@ -638,6 +670,7 @@ class Reader:
                 self.blue[row['mob_skill_id']].add(row['spellid'])
                 self.blue_entries[row['spellid']] = blue_entry(self.spells[row['spellid']], self.tables, self.blue_skill)
         check_source(tree, self.loaded)
+        self.timed = timed_rules(text_at(tree, TIMED), allowed) if TIMED in self.loaded else {}
         self.danger_effects = danger_effects.build(self.tree, self.skills.values(), self.spells.values(), self.loaded)
         self.danger_crit = danger_crit.Reader(self.tree, self.loaded)
         from . import danger_details
@@ -879,8 +912,14 @@ class Reader:
             element = attrs.get('element')
             values.append('%s weather' % label(element) if element else 'Matching weather')
             notes.append('An unowned elemental requires weather matching its source element. Weather ending can make it despawn.')
+        timed = getattr(self, 'timed', {}).get((kind.zone_dir, kind.script))
+        if timed:
+            low, high = timed
+            delay = duration(low) if low == high else duration(low) + ' to ' + duration(high)
+            values.append('Respawn ' + delay)
+            notes.append('The era module sets a %s delay during initialization and after despawn. Saved timers can replace the initial delay.' % delay)
         timer = spawn.get('respawn')
-        if not extra.get('ferry') and isinstance(timer, (int, float)) and timer > 0:
+        if not timed and not extra.get('ferry') and isinstance(timer, (int, float)) and timer > 0:
             if not kind.nm and not re.search(r'setRespawnTime|setLocalVar\([\'\"](?:pop|respawn)', combined):
                 values.append('Respawn ' + duration(timer))
                 notes.append('Base respawn delay: %s after despawn. Spawn waves can shift this time; other conditions can delay the next appearance.' % duration(timer))

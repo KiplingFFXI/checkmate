@@ -104,7 +104,7 @@ Under **Display > Overlay options**, **Show overlay** lets you choose **Off**, *
 
 ## Understand estimates and refresh readings
 
-The bundled monster data comes from Phoenix revision [`9a4494d505`](https://github.com/phoenixffxi/Phoenix/commit/9a4494d5056429d0e75922dc9fa47d419142cf68). It describes that source, not hidden fight state or a live server lookup. Later server changes can make it stale. `/checkmate info` shows the addon version, source revision and content settings. It checks the shared data files and current zone for missing or mixed revisions and content settings. It cannot verify the running server's deployed revision.
+The bundled monster data comes from Phoenix revision [`ed41f351f6`](https://github.com/phoenixffxi/Phoenix/commit/ed41f351f63b24e015059c5a58f1c29eb3f198ac). It describes that source, not hidden fight state or a live server lookup. Later server changes can make it stale. `/checkmate info` shows the addon version, source revision and content settings. It checks the shared data files and current zone for missing or mixed revisions and content settings. It cannot verify the running server's deployed revision.
 
 - **Exact level, range or unknown:** a `/check` or widescan can supply a level. Otherwise a source range may be available. A monster's level is forgotten when its observed identity dies, leaves sight or the zone changes.
 - **Monsters without an entry:** combat estimates use typical ranges for that level from the bundled Phoenix data. These are fallback ranges, not known stats for that individual monster.
@@ -112,6 +112,8 @@ The bundled monster data comes from Phoenix revision [`9a4494d505`](https://gith
 - **The `?` on Weaknesses:** those stored values can change during the fight. You can hide the Elements marker without removing its explanation from hover help.
 - **Unknown:** the source or client does not establish the answer. It does not mean no, safe, immune or unavailable.
 - **Source maximums:** HP and MP are estimated maximums for the level or range, not current remaining HP or MP.
+
+Spawn details can show a supported era NM timer window, including the delay set during initialization or after despawn. Saved timers and scripted conditions can affect it. This is source information, not a countdown or a claim that the monster is ready to spawn.
 
 ### Combat inputs and stat replies
 

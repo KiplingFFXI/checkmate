@@ -176,8 +176,13 @@ function defaults.make()
             extra_accuracy = 0,              -- The remaining bonus, or the full direct bonus with known_inputs off.
             schools        = magic_schools(),
         },
+        job_settings = T{
+            hide_blue_learning = false,
+            hide_steal = false,
+        },
         drops = T{
             th          = 0,                 -- Treasure Hunter 0 to 4.
+            th_mode     = 'manual',
             max_items   = 5,                 -- 0 shows every item.
             min_chance  = 0,                 -- Items under this chance in percent are left out.
             sort        = 'chance',          -- 'chance' or 'name'.

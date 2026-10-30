@@ -118,6 +118,8 @@ local names    = {};           -- The game's own names, by effect id, once read.
 local about    = {};           -- The game's own descriptions, by effect id, once read.
 local keep_duration;
 local pet_owners, owner_count = {}, 0;
+local pet_misses, miss_count = {}, 0;
+local OWNER_RETRY = 0.25;
 local pet_flags, flag_count = {}, 0;
 local observed_merits = {};
 local armed, armed_count = {}, 0;
@@ -142,6 +144,11 @@ local function pet_owner(actor, index)
         if (owner ~= nil and owner.ServerId == held.id and owner.PetTargetIndex == index) then return held.id; end
         pet_owners[actor], owner_count = nil, owner_count - 1;
     end
+    local now, missed = os.clock(), pet_misses[index];
+    if (missed ~= nil) then
+        if (missed.actor == actor and now < missed.until_time) then return nil; end
+        pet_misses[index], miss_count = nil, miss_count - 1;
+    end
     for at = 0x400, 0x6FF do
         local owner = GetEntity(at);
         if (owner ~= nil and owner.ServerId > 0 and owner.ServerId < FIRST_MONSTER_ID
@@ -151,6 +158,8 @@ local function pet_owner(actor, index)
             return owner.ServerId;
         end
     end
+    if (miss_count >= MAX_MONSTERS) then pet_misses, miss_count = {}, 0; end
+    pet_misses[index], miss_count = { actor = actor, until_time = now + OWNER_RETRY }, miss_count + 1;
     return nil;
 end
 
@@ -418,16 +427,20 @@ end
 function effects.on_entity(e)
     local actor, owned = packets.player_pet(e);
     if (actor ~= nil) then
+        local index = bit.band(actor, 0xFFF);
+        if (index >= 0x800) then index = index - 0x100; end
+        if (pet_misses[index] ~= nil) then pet_misses[index], miss_count = nil, miss_count - 1; end
         if (pet_flags[actor] == nil) then
             if (flag_count >= 256) then pet_flags, flag_count = {}, 0; end
             flag_count = flag_count + 1;
         end
         pet_flags[actor] = owned;
     end
-    local id = packets.despawned(e);
+    local id, index = packets.despawned(e);
     if (id ~= nil) then
         if (pet_flags[id] ~= nil) then pet_flags[id], flag_count = nil, flag_count - 1; end
         if (pet_owners[id] ~= nil) then pet_owners[id], owner_count = nil, owner_count - 1; end
+        if (pet_misses[index] ~= nil) then pet_misses[index], miss_count = nil, miss_count - 1; end
     end
     if (count == 0 and queued == 0) then
         return;
@@ -437,9 +450,28 @@ function effects.on_entity(e)
     end
 end
 
+-- A player's pet link can change before its next action.
+function effects.on_ownership_change(index)
+    if (index ~= nil) then
+        if (pet_misses[index] ~= nil) then pet_misses[index], miss_count = nil, miss_count - 1; end
+    elseif (miss_count > 0) then
+        pet_misses, miss_count = {}, 0;
+    end
+end
+
+-- Every non-despawn player update includes its current pet index at 0x3C.
+function effects.on_player_update(e)
+    if (miss_count == 0 or type(e.data) ~= 'string' or type(e.size) ~= 'number'
+        or math.min(#e.data, e.size) < 0x3E or bit.band(e.data:byte(0x0B), 0x20) ~= 0) then return; end
+    local low, high = e.data:byte(0x3D, 0x3E);
+    local index = low + 256 * high;
+    if (pet_misses[index] ~= nil) then pet_misses[index], miss_count = nil, miss_count - 1; end
+end
+
 -- You zoned. Everything before it goes, in order with whatever came in before it.
 function effects.on_zone()
     pet_owners, owner_count, observed_merits, armed, armed_count = {}, 0, {}, {}, 0;
+    pet_misses, miss_count = {}, 0;
     pet_flags, flag_count = {}, 0;
     if (count > 0 or queued > 0) then note('zone', 0, nil, nil, false, nil, nil, os.clock()); end
 end
@@ -494,7 +526,7 @@ local function changed(id, mob)
     mob.version = versions;
     local fragile = nil;
     for _, entry in ipairs(mob.list) do
-        if (SLEEPS[entry.effect] or entry.effect == BIND or entry.effect == STONESKIN) then
+        if (SLEEPS[entry.effect] or (entry.effect == BIND and not entry.damage_uncertain) or entry.effect == STONESKIN) then
             fragile = true;
         end
     end
@@ -698,6 +730,7 @@ local function land(d, row, info, tier)
     entry.mine, entry.from, entry.tier, entry.landed = row.mine, row.actor, tier, row.at;
     entry.debuff = row.kind == 'on' or inferred or (about_it ~= nil and about_it.debuff == true);
     entry.deep, entry.inferred = deep, inferred;
+    entry.damage_uncertain = nil;
     entry.default_tp = info and info.default_tp or nil;
     entry.condition = inferred and info and info.condition or nil;
     entry.action_at = same_action and entry.action_at or (not row.reported and row.source ~= nil and row.at or nil);
@@ -759,7 +792,11 @@ local function take(d, row)
         mob = mobs[id];
         if (mob ~= nil and damage > 0) then
             remove(id, mob, SLEEP, row.at);
-            remove(id, mob, BIND, row.at);
+            local bind = find(mob, BIND);
+            if (bind ~= nil and not bind.damage_uncertain) then
+                bind.damage_uncertain = true;
+                changed(id, mob);
+            end
             remove(id, mob, STONESKIN, row.at);
         end
     end
@@ -854,6 +891,7 @@ local function read_out(id, show, now, still)
                 or nil, ends = entry.timed and entry.ends or nil, mine = entry.mine, from = entry.from,
                 debuff = entry.debuff, random = entry.random, own = entry.from == id, basis = entry.basis,
                 inferred = entry.inferred, default_tp = entry.default_tp, condition = entry.condition,
+                damage_uncertain = entry.damage_uncertain,
                 sort_end = entry.timed and entry.ends or math.huge };
             if (still and each.ends ~= nil) then
                 each.left = math.ceil(each.ends - now);
@@ -928,6 +966,7 @@ function effects.forget(clear_merits)
     data = nil;
     if (clear_merits) then observed_merits = {}; end
     pet_owners, owner_count, pet_flags, flag_count, armed, armed_count = {}, 0, {}, 0, {}, 0;
+    pet_misses, miss_count = {}, 0;
     mobs, breaks, queue, queued, count, next_end = {}, {}, {}, 0, 0, math.huge;
 end
 

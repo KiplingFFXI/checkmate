@@ -2,7 +2,7 @@
 local bands = require('data.bands');
 local monsters = require('core.monsters');
 local diagnostics = {};
-local FILES = { 'bands', 'too_weak', 'pets', 'steal', 'crit', 'effects', 'modifiers', 'pdif', 'defenses', 'merits', 'blue_finder' };
+local FILES = { 'bands', 'too_weak', 'pets', 'steal', 'crit', 'effects', 'modifiers', 'pdif', 'defenses', 'merits', 'blue_finder', 'job_settings' };
 local cached, cached_key = nil, nil;
 
 local function stamps(header)

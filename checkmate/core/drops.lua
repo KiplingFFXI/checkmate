@@ -127,19 +127,23 @@ end
 --[[
     The drop list for a data row with the drop settings, or nil when there's nothing to show.
     Returns { th, items = { { id, name, chance }, ... }, more, scripted, exp_only } with chance in percent.
-    Items under the minimum chance are left out. `more` counts the items past the most shown.
+    all_items keeps the full list at the same TH for Target details. `more` counts visible items past the limit.
 ]]
 function drops.readout(row, setting)
     local flags = row.flags or {};
-    local th = drops.clamp_th(setting.th);
-    local items = {};
+    local selected = setting.th_mode == 'auto' and require('core.job_settings').treasure_hunter(setting) or nil;
+    local th = selected and selected.level or drops.clamp_th(setting.th);
+    local items, all_items = {}, {};
     for id, chance in pairs(drops.chances(row.drops, th)) do
         local percent = chance * 100;
-        if (percent > 0 and percent >= (setting.min_chance or 0)) then
-            items[#items + 1] = { id = id, name = drops.item_name(id), chance = percent };
+        if (percent > 0) then
+            all_items[#all_items + 1] = { id = id, name = drops.item_name(id), chance = percent };
         end
     end
-    table.sort(items, setting.sort == 'name' and by_name or by_chance);
+    table.sort(all_items, setting.sort == 'name' and by_name or by_chance);
+    for _, item in ipairs(all_items) do
+        if (item.chance >= (setting.min_chance or 0)) then items[#items + 1] = item; end
+    end
 
     local more = 0;
     local most = setting.max_items or 0;
@@ -152,13 +156,18 @@ function drops.readout(row, setting)
 
     local out = {
         th       = th,
+        th_mode  = selected and selected.mode or 'manual',
+        th_known = selected == nil or selected.known,
+        th_note  = selected and selected.note,
+        th_fallback = selected and selected.fallback,
         items    = items,
+        all_items = all_items,
         more     = more,
         scripted = flags.scripted_drops == true,
         exp_only = flags.exp_only == true,
         conditions = row.loot_conditions,
     };
-    if (#items == 0 and more == 0 and not out.scripted and not out.exp_only) then
+    if (#all_items == 0 and not out.scripted and not out.exp_only) then
         return nil;
     end
     return out;

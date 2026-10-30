@@ -163,7 +163,7 @@ expect('expired Dia II cannot block a new weaker Dia before a frame', left(134),
 reset();
 send(4, 253, 2); send(4, 258, 11); send(1, 0, 30, 1); take();
 expect('same-frame damage removes new Sleep', entry(2), nil);
-expect('same-frame damage removes new Bind', entry(11), nil);
+check('same-frame damage leaves Bind uncertain', entry(11) ~= nil and entry(11).damage_uncertain == true);
 send(4, 253, 2); send(1, 0, 0, 1); take();
 check('zero damage keeps Sleep', entry(2) ~= nil);
 send(1, 0, 0, 1, me, mob, { message = 163, param = 10 }); take();

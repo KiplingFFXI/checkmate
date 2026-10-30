@@ -5,6 +5,7 @@
 
 local player = {};
 local merits = require('core.merits');
+local steal_data = require('data.steal');
 
 -- Equipment slots checkmate reads, and the item ids an empty slot can hold.
 local SLOT_MAIN   = 0;
@@ -148,6 +149,70 @@ function player.jobs()
     return stats:GetMainJob(), stats:GetMainJobLevel(), stats:GetSubJob(), stats:GetSubJobLevel();
 end
 
+-- Keep job filters usable even while the separate trait or equipment data is unavailable.
+function player.job_inputs(want_th, traits, trait_ids)
+    local out = {};
+    local ok = pcall(function()
+        if (not player.in_world()) then error('Your character is not in the world.'); end
+        out.main_job, out.main_level, out.sub_job, out.sub_level = player.jobs();
+        if (type(out.main_job) ~= 'number' or out.main_job < 1 or type(out.main_level) ~= 'number' or out.main_level < 1
+            or type(out.sub_job) ~= 'number' or out.sub_job < 0 or type(out.sub_level) ~= 'number' or out.sub_level < 0) then
+            error('Your current jobs and levels are not readable.');
+        end
+        out.signature = table.concat({ player.server_id() or 0, player.zone() or 0, out.main_job,
+            out.main_level, out.sub_job, out.sub_level }, ':');
+        out.known = true;
+    end);
+    if (not ok) then
+        return { known = false, signature = 'unknown', th_note = 'Your current jobs and levels are not readable.' };
+    end
+    if (not want_th) then return out; end
+    ok = pcall(function()
+        local stats, inventory = memory:GetPlayer(), memory:GetInventory();
+        if (not stats:HasAbilityData()) then error('Your job traits have not been received yet.'); end
+        local keys = { out.signature };
+        out.trait_th, out.equipment = 0, {};
+        for _, id in ipairs(trait_ids) do
+            local has = stats:HasTrait(id);
+            if (type(has) ~= 'boolean') then error('Your job traits are not readable.'); end
+            if (has) then out.trait_th = out.trait_th + traits[id]; end
+            keys[#keys + 1] = id .. '=' .. tostring(has);
+        end
+        for slot = 0, 15 do
+            local equipped = inventory:GetEquippedItem(slot);
+            if (equipped == nil or type(equipped.Index) ~= 'number') then error('Your equipment slots are not readable.'); end
+            local index = equipped and equipped.Index or 0;
+            local item = index ~= 0 and inventory:GetContainerItem(bit.rshift(index, 8), bit.band(index, 0xFF)) or nil;
+            if (index ~= 0 and (item == nil or type(item.Id) ~= 'number' or ITEM_NONE[item.Id])) then
+                error('Your equipped items are not readable.');
+            end
+            local id = item and not ITEM_NONE[item.Id] and item.Id or 0;
+            out.equipment[slot] = id;
+            keys[#keys + 1], keys[#keys + 2] = index, id;
+            if (id >= 10240) then
+                local extra = item and item.Extra;
+                if (type(extra) ~= 'string' or #extra < 2) then
+                    out.th_note = 'Your equipment augment data is not readable.';
+                    error(out.th_note);
+                end
+                local kind, subkind = extra:byte(1, 2);
+                if ((kind == 2 and bit.band(subkind, 0x10) == 0) or (kind == 3 and bit.band(subkind, 0x80) ~= 0)) then
+                    out.th_note = 'Treasure Hunter augments are not included.';
+                    error(out.th_note);
+                end
+                keys[#keys + 1] = #extra .. '/' .. extra;
+            end
+        end
+        out.signature = table.concat(keys, ':');
+        out.th_known = true;
+    end);
+    if (not ok) then
+        out.th_known = false;
+        out.th_note = out.th_note or 'Your current traits or equipment bonuses could not be read.';
+    end
+    return out;
+end
+
 -- The job info packet came in with your max HP before gear and food.
 function player.on_base_hp(hp)
     base_hp = hp;
@@ -244,14 +309,15 @@ local function input(value)
     end
 end
 
-function player.inputs_changed()
+function player.inputs_changed(watch_steal)
     input_slot, input_changed = 0, false;
     input(merits.version());
     local stats = memory:GetPlayer();
-    input(stats:GetMainJob());
-    input(stats:GetMainJobLevel());
-    input(stats:GetSubJob());
-    input(stats:GetSubJobLevel());
+    local main, level, sub, sub_level = stats:GetMainJob(), stats:GetMainJobLevel(), stats:GetSubJob(), stats:GetSubJobLevel();
+    input(main);
+    input(level);
+    input(sub);
+    input(sub_level);
     for _, index in pairs(STAT_INDEX) do
         input(stats:GetStat(index) + stats:GetStatModifier(index));
     end
@@ -260,13 +326,32 @@ function player.inputs_changed()
         input(skill and skill:GetSkill());
     end
     local buffs = stats:GetBuffs();
-    for i = 0, 32 do input(buffs and buffs[i]); end
-    for slot = 0, 15 do input(equipped_id(slot)); end
-    local hp, maximum, tp, known = player.hp_tp();
-    input(hp);
-    input(maximum);
-    input(tp);
-    input(known);
+    local synced = false;
+    for i = 0, 32 do
+        local id = buffs and buffs[i];
+        input(id);
+        synced = synced or id == LEVEL_SYNC;
+    end
+    local thief_level = main == steal_data.ability.job and level or (sub == steal_data.ability.job and sub_level or 0);
+    watch_steal = watch_steal == true and thief_level >= steal_data.ability.level;
+    input(watch_steal);
+    local hp, maximum, tp, known;
+    for slot = 0, 15 do
+        local id = equipped_id(slot);
+        input(id);
+        local latent = watch_steal and steal_data.latents[id];
+        if (latent and level >= latent.level) then
+            if (tp == nil) then hp, maximum, tp, known = player.hp_tp(); end
+            -- Watch the bonus state, not every point of HP or TP gained.
+            local state = 0;
+            if (tp < 1000) then
+                if (not known) then state = -1;
+                elseif (synced) then state = -2;
+                elseif (hp * 100 <= latent.hp_percent * maximum) then state = 1; end
+            end
+            input(state);
+        end
+    end
     return input_changed;
 end
 

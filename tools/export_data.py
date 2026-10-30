@@ -5,7 +5,7 @@ Builds checkmate's monster data from the Phoenix server source.
 
 It copies the ref into a new temp folder with git archive and works out every monster row. It writes
 data\\zones\\<zone id>.lua, data\\bands.lua, data\\too_weak.lua, data\\pets.lua, data\\steal.lua,
-data\\crit.lua, data\\effects.lua, data\\modifiers.lua, data\\pdif.lua, data\\defenses.lua, data\\merits.lua and data\\blue_finder.lua,
+data\\crit.lua, data\\effects.lua, data\\modifiers.lua, data\\job_settings.lua, data\\pdif.lua, data\\defenses.lua, data\\merits.lua and data\\blue_finder.lua,
 then prints a short summary.
 See tools\\README.txt.
 """
@@ -34,6 +34,7 @@ from export import lua_writer
 from export import mobscripts
 from export import merits
 from export import modifiers
+from export import job_settings
 from export import outside
 from export import overlays
 from export import pets
@@ -183,6 +184,7 @@ def build_files(folder, allowed, stamp, out):
     parity_note = source_parity.check(folder)
     ctx = Context(folder, allowed)
     modifier_data = modifiers.build(folder, ctx.roots, allowed)
+    job_data = job_settings.build(folder, allowed)
     merit_data = merits.build(folder, ctx.roots)
     source_parity.check_modifiers(folder, modifier_data)
     # The Steal and crit checks and tables come first, since they're quick and the zones take most of the run.
@@ -272,6 +274,10 @@ def build_files(folder, allowed, stamp, out):
     modifiers_path = os.path.join(out, 'modifiers.lua')
     modifiers.write(modifiers_path, modifier_data, stamp.built, stamp.content)
     modifiers_size = os.path.getsize(modifiers_path)
+    job_path = os.path.join(out, 'job_settings.lua')
+    job_text = job_settings.write(job_path, job_data, stamp)
+    if count_constants(job_text) > CONSTANT_LIMIT:
+        raise RuntimeError('Job settings metadata exceeds the LuaJIT constant limit.')
     pdif_path = os.path.join(out, 'pdif.lua')
     pdif_text = pdif.write(pdif_path, pdif_data, stamp)
     if count_constants(pdif_text) > CONSTANT_LIMIT:
@@ -290,9 +296,9 @@ def build_files(folder, allowed, stamp, out):
     finder_text = blue_finder.write(finder_path, finder_data, stamp)
     if count_constants(finder_text) > CONSTANT_LIMIT:
         raise RuntimeError('Blue finder exceeds the LuaJIT constant limit; review its layout before exporting')
-    note = load_check(written + [bands_path, too_weak_path, pets_path, steal_path, crit_path, effects_path, modifiers_path, finder_path, pdif_path, defenses_path, merits_path])
+    note = load_check(written + [bands_path, too_weak_path, pets_path, steal_path, crit_path, effects_path, modifiers_path, job_path, finder_path, pdif_path, defenses_path, merits_path])
     total_size = (sum(entry[0] for entry in zone_sizes) + bands_size + too_weak_size + pets_size + steal_size
-                  + crit_size + effects_size + modifiers_size + len(finder_text) + pdif_size + len(defenses_text) + len(merits_text))
+                  + crit_size + effects_size + modifiers_size + len(job_text) + len(finder_text) + pdif_size + len(defenses_text) + len(merits_text))
     return {'files': len(written), 'rows': total_rows, 'zone_sizes': zone_sizes, 'total_size': total_size,
             'bands': band_rows, 'note': note, 'skipped': len(ctx.skipped), 'too_weak': too_weak,
             'too_weak_sources': sources, 'jugs': len(jugs), 'avatars': len(avatars), 'affinity': affinity,
@@ -314,7 +320,7 @@ def export(args):
     biggest = max(result['zone_sizes'])
     level_75 = [band for band in result['bands'] if band[0] == 75]
     print('Built from %s (%s).' % (stamp.built, stamp.content))
-    print('%d zone files, %d rows, %.2f MB with bands.lua, too_weak.lua, pets.lua, steal.lua, crit.lua, effects.lua, modifiers.lua, pdif.lua, defenses.lua, merits.lua and blue_finder.lua. Biggest '
+    print('%d zone files, %d rows, %.2f MB with bands.lua, too_weak.lua, pets.lua, steal.lua, crit.lua, effects.lua, modifiers.lua, job_settings.lua, pdif.lua, defenses.lua, merits.lua and blue_finder.lua. Biggest '
           'is %s (zone %d) at %.1f KB.' % (result['files'], result['rows'], result['total_size'] / 1048576.0,
                                          biggest[2], biggest[1], biggest[0] / 1024.0))
     print('bands.lua has %d levels. Level 75 is %s.' % (len(result['bands']), level_75[0] if level_75 else 'missing'))

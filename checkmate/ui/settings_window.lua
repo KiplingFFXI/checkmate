@@ -27,7 +27,8 @@ local dangers     = require('core.dangers');
 local merits = require('core.merits');
 local merit_data = require('data.merits');
 local ui = { display = require('ui.display'), presets = require('ui.presets'), history = require('ui.history'),
-    preview = require('ui.preview'), navigation = require('ui.navigation') };
+    preview = require('ui.preview'), navigation = require('ui.navigation'), job_settings = require('core.job_settings'),
+    th_modes = { { id = 'manual', name = 'Manual' }, { id = 'auto', name = 'Automatic' } } };
 
 local settings_window = {};
 
@@ -1833,7 +1834,7 @@ function settings_window.draw_blue_tab(settings)
         imgui.TableSetupColumn('Overlay');
         imgui.TableHeadersRow();
         imgui.PushID('blue');
-        imgui.TableNextRow(); imgui.TableNextColumn(); cell_text('Show Blue row');
+        imgui.TableNextRow(); imgui.TableNextColumn(); cell_text('Show Blue Magic row');
         imgui.TableNextColumn(); checkbox('##chat', settings.printout.parts.blue, 'on',
             'Shows the Blue Magic row in chat. Choose its contents below.');
         imgui.TableNextColumn(); checkbox('##overlay', settings.overlay.parts, 'blue',
@@ -1845,7 +1846,7 @@ function settings_window.draw_blue_tab(settings)
     if (not settings.overlay.on) then
         note('The overlay is off. Turn it on in Display > Overlay options to show this row.');
     end
-    note('Choose the contents of each visible Blue row. Hidden rows keep their selections.');
+    note('Choose the contents of each visible Blue Magic row. Hidden rows keep their selections.');
     if (imgui.BeginTable('##blue_components', 3, TABLE_FLAGS)) then
         imgui.TableSetupColumn('Component', STRETCH);
         imgui.TableSetupColumn('Chat');
@@ -1930,6 +1931,38 @@ function settings_window.draw_monster_tab(settings)
     help('Opens the full target details, including combat inputs, monster facts and the complete Dangers list.', 'Open target details');
 end
 
+function settings_window.draw_treasure_hunter(settings, label)
+    local d = settings.drops;
+    choice('Treasure Hunter', d, 'th_mode', ui.th_modes,
+        'Automatic uses your own supported traits and equipped gear. Manual uses the level you choose, including for party estimates. '
+        .. 'This does not read the monster\'s applied Treasure Hunter.');
+    slider(imgui.SliderInt, label or '##th', d, 'th', 0, drops.TH_MAX, 'TH %d',
+        TIPS.th .. ' Automatic keeps this manual value for when you switch back.', d.th_mode == 'auto');
+    local th = ui.job_settings.treasure_hunter(d);
+    if (d.th_mode == 'auto') then
+        if (th.known) then
+            note(('Using TH %d (Automatic)'):format(th.level));
+            if (th.note ~= nil) then note(th.note); end
+        else
+            note(th.note or ('Automatic TH unavailable; using manual TH %d.'):format(th.level));
+        end
+    else
+        note(('Using TH %d (Manual)'):format(th.level));
+    end
+end
+
+function settings_window.draw_job_settings(settings)
+    if (not settings_window.section_open('JOB SETTINGS',
+        'Optional rules for chat and the overlay. Your selected rows and manual TH level stay saved.', false)) then return; end
+    checkbox('Hide BLU learning unless my main job is BLU', settings.job_settings, 'hide_blue_learning',
+        'Hides enabled BLU learning rows on other main jobs. BLU spell landing estimates and the spell finder stay available. '
+        .. 'The learning rows return when your main job is BLU.');
+    checkbox('Hide Steal when I can\'t use it', settings.job_settings, 'hide_steal',
+        'Hides enabled Steal rows unless your main or support job has Steal at its current level. '
+        .. 'Turning this off lets you inspect Steal items on any job.');
+    settings_window.draw_treasure_hunter(settings, 'TH level');
+end
+
 local function draw_drops_tab(settings)
     local d = settings.drops;
     if (begin_sections('##drops_sections')) then
@@ -1938,7 +1971,7 @@ local function draw_drops_tab(settings)
         settings_window.focus_control('drops');
         settings_window.focus_control('steal');
         part_off_note(settings, 'drops');
-        slider(imgui.SliderInt, '##th', d, 'th', 0, drops.TH_MAX, 'TH %d', TIPS.th);
+        settings_window.draw_treasure_hunter(settings);
         imgui.TableNextColumn();
         heading('LIST');
         slider(imgui.SliderInt, 'Most items shown', d, 'max_items', 0, drops.MAX_ITEMS,
@@ -2821,6 +2854,13 @@ end
 function settings_window.draw_display_content(settings, page)
     if (page == 'Rows') then
         heading('DISPLAY', 'Choose what goes into chat and the overlay. Both use the same row order and labels.');
+        settings_window.draw_job_settings(settings);
+        if ((settings.printout.parts.blue.on or settings.overlay.parts.blue) and not ui.job_settings.permits_blue_learning(settings)) then
+            note('BLU learning is hidden for your current job. Change this under Job settings.');
+        end
+        if ((settings.printout.parts.steal.on or settings.overlay.parts.steal) and not ui.job_settings.permits_steal(settings)) then
+            note('Steal is hidden for your current job. Change this under Job settings.');
+        end
         ui.display.draw(settings, {
             names = PART_NAMES, tips = PART_TIPS, overlay_tips = OVERLAY_PART_TIPS,
             checkbox = checkbox, text_box = text_box, help = help, note = note, move = move_buttons,
@@ -2874,7 +2914,7 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
 (function ()
     local query = { '' };
     local copied = nil;
-    local target_details, details_text = nil, nil;
+    local target_details;
     local details_groups, details_stamp, details_query = nil, nil, { '' };
     local details_filter = nil;
     local terms = {
@@ -2896,7 +2936,7 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
         Magic = 'magic schools stand-in spell elemental enfeebling divine dark singing ninjutsu accuracy '
             .. 'extra known gear merits direct bonus chance',
         ['Blue Magic'] = 'blue magic learn spells known spellbook unknown spell chance skill accuracy observed move use seen learning roll rate gear Magus Bazubands '
-            .. 'spell finder find monster zone places unlearned',
+            .. 'spell finder find monster zone places unlearned Previous spells Next spells Previous places Next places Page',
         Weaknesses = 'weakness resistance resists elemental strength rank damage weapons slashing piercing '
             .. 'blunt impact hand-to-hand immunity immune sleep bind silence stun gravity poison paralysis '
             .. 'petrify amnesia blind charm',
@@ -2974,7 +3014,7 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
             .. 'In chat In overlay Multiplier range Attack/Defense ratio Both',
         Aggro = 'Most entries shown Group names by family Show how it finds you Show how each one links Show the names it links with Pursuit In chat In overlay',
         Magic = 'Healing Include known gear and merits',
-        ['Blue Magic'] = 'Show Blue row Row hidden Component Chat Overlay Learnable spells Unresisted spell chance Learning chance Learning requirements Stand-in spell Show only unlearned spells Show learning requirements Show skill status in overlay Skill met Skill too low Skill unknown eligibility '
+        ['Blue Magic'] = 'Show Blue Magic row Row hidden Component Chat Overlay Learnable spells Unresisted spell chance Learning chance Learning requirements Stand-in spell Show only unlearned spells Show learning requirements Show skill status in overlay Skill met Skill too low Skill unknown eligibility '
             .. 'Find a BLU spell Find only unlearned spells Monsters in this zone Find a monster or zone Copy places Clear',
         Weaknesses = 'In chat In overlay Component Chat Overlay Elements Weapons Immunities Charm Immune word Resists word Weak word Show how strong each one is Show script warning',
         Pets = 'In chat In overlay Show its name Show its level Hit word Evade word',
@@ -2988,6 +3028,10 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
     terms.Appearance = terms.Appearance .. ' ' .. table.concat(require('ui.navigation').TAB_NAMES, ' ');
     for _, color in ipairs(skins.WINDOW_COLORS) do terms.Appearance = terms.Appearance .. ' ' .. color.label; end
     terms.Display = terms.Printout .. ' ' .. terms.Overlay .. ' Rows Clear all rows Enabled only Options Label New line Order Chat format Overlay options';
+    local job_terms = ' Job settings Hide BLU learning unless my main job is BLU Hide Steal when I can\'t use it '
+        .. 'Treasure Hunter Automatic Manual TH level own traits equipped gear party estimates';
+    terms.Display = terms.Display .. job_terms;
+    terms.Drops = terms.Drops .. ' Treasure Hunter Automatic Manual own traits equipped gear party estimates';
     terms.Printout, terms.Overlay = nil, nil;
     terms.Combat = terms.Combat .. ' Offense Defense Advanced';
     terms.Merits = (terms.Merits or '') .. ' Use my merits when I zone ranks selected read autofill';
@@ -3053,7 +3097,7 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
     function settings_window.set_target_details(value)
         settings_window.current_preview = value;
         if (value ~= target_details) then
-            target_details, details_text, details_groups, copied = value, nil, nil, nil;
+            target_details, details_groups, copied = value, nil, nil;
             details_filter = nil;
         end
     end
@@ -3077,6 +3121,7 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
     end
 
     function settings_window.draw_target_details(settings)
+        local detail_tips = require('ui.tips');
         heading('TARGET DETAILS');
         if (settings_window.jump_details) then
             imgui.SetScrollHereY(0);
@@ -3101,10 +3146,7 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
             if (details_groups == nil or stamp ~= details_stamp or settings_window.details_dirty) then
                 settings_window.details_dirty = nil;
                 details_stamp = stamp;
-                details_groups = require('ui.tips').detail_groups(settings, target_details);
-                local all = {};
-                for _, group in ipairs(details_groups) do all[#all + 1] = group.text; end
-                details_text = table.concat(all, '\n\n');
+                details_groups = detail_tips.detail_groups(settings, target_details, true);
             end
         end
         if (target_details == nil) then
@@ -3120,7 +3162,7 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
                 note('Your latest /check: ' .. printout.clean_text(target_details.name) .. '. These are the inputs read for that result.');
                 if (settings.blue.seen) then note('Observed Blue Magic move use updates as moves finish. The saved inputs stay as they were.'); end
             else
-                note('These details were read when the target or its inputs changed. Hover the overlay for their current age.');
+                note('These details were read when the target or its inputs changed. Their age keeps updating below.');
             end
             imgui.SetNextItemWidth(px(260));
             if (imgui.InputText('Find target details', details_query, 128)) then copied = nil; end
@@ -3130,7 +3172,9 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
                 if (imgui.Button('Clear##details')) then details_query[1], copied = '', nil; end
                 help('Clears the target-details search. Danger category filters stay as you set them.');
             end
-            if (details_filter == nil or details_filter.groups ~= details_groups or details_filter.query ~= details_query[1]) then
+            local age_second = details_query[1] ~= '' and math.floor(os.clock()) or nil;
+            if (details_filter == nil or details_filter.groups ~= details_groups or details_filter.query ~= details_query[1]
+                or details_filter.age_second ~= age_second) then
                 local shown, hidden, active = {}, 0, {};
                 for _, id in ipairs(dangers.CATEGORIES) do
                     if (settings.dangers[id] ~= false) then active[#active + 1] = dangers.LABELS[id]; end
@@ -3138,11 +3182,12 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
                 for _, group in ipairs(details_groups or {}) do
                     if (group.danger_entry ~= nil and not dangers.matches(group.danger_entry, settings.dangers)) then
                         hidden = hidden + 1;
-                    elseif (search.matches(group.label .. ' ' .. group.text, details_query[1])) then
+                    elseif (search.matches(group.label .. ' ' .. detail_tips.detail_text(settings, target_details, group), details_query[1])) then
                         shown[#shown + 1] = group;
                     end
                 end
-                details_filter = { groups = details_groups, query = details_query[1], shown = shown, hidden = hidden, active = active };
+                details_filter = { groups = details_groups, query = details_query[1], shown = shown, hidden = hidden,
+                    active = active, age_second = age_second };
             end
             local shown, hidden, active = details_filter.shown, details_filter.hidden, details_filter.active;
             note(('Showing %d of %d sections.'):format(#shown, #(details_groups or {})));
@@ -3153,7 +3198,7 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
             if (details_query[1] ~= '') then note('Search is active. Clear it to show other matching sections.'); end
             if (imgui.Button('Copy shown')) then
                 local values = {};
-                for _, group in ipairs(shown) do values[#values + 1] = group.text; end
+                for _, group in ipairs(shown) do values[#values + 1] = detail_tips.detail_text(settings, target_details, group); end
                 local report = #values > 0 and table.concat(values, '\n\n') or 'No matching target details.';
                 local ok = pcall(function () imgui.SetClipboardText(report); end);
                 copied = ok and 'Copied shown.' or 'Copy is unavailable. The details are shown below.';
@@ -3161,7 +3206,8 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
             help('Copies sections matching the search and danger categories, including matching sections folded closed.');
             settings_window.flow_button('Copy details', true);
             if (imgui.Button('Copy details')) then
-                local ok = pcall(function () imgui.SetClipboardText(details_text or 'No monster selected.'); end);
+                local report = detail_tips.detail_report(settings, target_details, details_groups);
+                local ok = pcall(function () imgui.SetClipboardText(report); end);
                 copied = ok and 'Copied all details.' or 'Copy is unavailable. The details are shown below.';
             end
             help('Copies all enabled target details, including danger moves hidden by filters, sections hidden by the search or folded closed.');
@@ -3170,7 +3216,7 @@ settings_window.draw_overlay_appearance = draw_overlay_look_section;
             for _, group in ipairs(shown) do
                 if (details_query[1] ~= '') then imgui.SetNextItemOpen(true, ImGuiCond_Always); end
                 if (imgui.CollapsingHeader(group.label .. '##detail_' .. group.id, ImGuiTreeNodeFlags_DefaultOpen)) then
-                    lines(group.text);
+                    lines(detail_tips.detail_text(settings, target_details, group));
                 end
             end
             if (#shown == 0) then note('No matching target details. Clear the search or change the danger filters.'); end

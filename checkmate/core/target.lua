@@ -18,6 +18,7 @@ local elements = require('core.elements');
 local weapons  = require('core.weapons');
 local monster_info = require('core.info');
 local display_parts = require('core.parts');
+local job_settings = require('core.job_settings');
 local pet = require('core.pet');
 local drops    = require('core.drops');
 local steal    = require('core.steal');
@@ -463,7 +464,7 @@ local function build(index, s, parameter_inputs, attack_inputs, defensive_inputs
     if (parts.drops == true) then
         result.drops = drops.readout(row, s.drops);
     end
-    if (parts.steal == true) then
+    if (display_parts.enabled(s, 'steal', 'overlay')) then
         -- Your jobs and gear only matter for a monster with something to steal.
         local you = (row.steal ~= nil) and steal.you(player.jobs()) or nil;
         result.steal = steal.readout(row, you, low, high);
@@ -482,6 +483,12 @@ function target.readout(s)
         end
     end
     local parts, now = s.overlay.parts, os.clock();
+    local filters = s.job_settings or {};
+    if (shown ~= 0 and ((filters.hide_blue_learning and parts.blue) or (filters.hide_steal and parts.steal)
+        or (s.drops.th_mode == 'auto' and parts.drops))) then
+        if (job_settings.poll(s.drops.th_mode == 'auto' and parts.drops == true, now)) then stale = true; end
+    end
+    local steal_on = display_parts.enabled(s, 'steal', 'overlay');
     local magic_on = parts.magic == true or display_parts.blue_enabled(s, 'chance', 'overlay');
     local pdif_on = parts.pdif == true or parts.offhandpdif == true or parts.rangedpdif == true;
     local defenses_on = parts.block == true or parts.parry == true;
@@ -522,7 +529,7 @@ function target.readout(s)
         end
     end
     if (shown ~= 0 and now >= next_inputs and (parts.crit or parts.crittaken or magic_on
-        or parts.steal or parts.pet or pdif_on or defenses_on or parameters_on or blue_skill_on)) then
+        or steal_on or parts.pet or pdif_on or defenses_on or parameters_on or blue_skill_on)) then
         next_inputs = now + 0.25;
         if (blue_skill_on and readout ~= nil and readout.info ~= nil) then
             for _, section in ipairs(readout.info.sections) do
@@ -532,7 +539,7 @@ function target.readout(s)
                 end
             end
         end
-        if ((parts.crit or parts.crittaken or magic_on or parts.steal) and player.inputs_changed()) then
+        if ((parts.crit or parts.crittaken or magic_on or steal_on) and player.inputs_changed(steal_on)) then
             my_level, stale = player.main_level(), true;
         end
         if (parts.pet) then

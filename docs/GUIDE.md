@@ -40,7 +40,11 @@ Escape closes settings while the panel has focus, including during combat. A tex
 - **Abbreviations** lets you shorten the addon's words separately in chat and the overlay.
 - **Profiles** offers starter presets and saves a setup for reuse across characters or a main job. Profile changes leave your window position and hidden tabs alone.
 
-Hover a control's help marker for its explanation. In the overlay, hover text or icons for a short result, inputs and conditions. **Target details**, available at the top of every tab or through **Open target details** on Monster, keeps supported combat and monster notes and full Links and Dangers lists, including your last manual `/check` when the overlay is off. Its search, filters and folded sections do not remove anything from **Copy details**.
+Hover a control's help marker for its explanation. In the overlay, hover text or icons for a short result, inputs and conditions. **Target details**, available at the top of every tab or through **Open target details** on Monster, keeps supported combat and monster notes and full Links, Dangers, Drops and Steal lists for enabled rows, including your last manual `/check` when the overlay is off. The full drop list keeps items hidden by your item limit or minimum chance. It uses the TH value captured for that reading. Its search, filters and folded sections do not remove anything from **Copy details**. Relative ages update while the view is open and when you copy it.
+
+Under **Display > Rows > Job settings**, **Hide BLU learning unless my main job is BLU** hides learning information on other main jobs. BLU spell landing estimates and the spell finder stay available. **Hide Steal when I can't use it** checks your main and support jobs and the level needed for Steal. Both start off, apply to chat and the overlay, and leave your row selections saved. Hidden rows return when your jobs qualify. Display explains when a job rule is hiding a selected row.
+
+**Treasure Hunter** offers **Manual** or **Automatic** in Job settings and Drops. Manual is the default and keeps the existing TH slider, including for party estimates. Automatic uses your current client traits and supported equipped gear, with Phoenix's TH cap. It follows job, effective-level and gear changes, but does not read TH already applied to the monster or another player's TH. If an automatic reading is unavailable, the display says it is using your saved manual value. Switching modes keeps that value; `/checkmate th <0-4>` selects Manual and sets it. Display reset restores the job rules and TH mode without clearing your manual TH level.
 
 For a shorter panel, enable **Appearance > Window style > Compact tab navigation**, or use `/checkmate compacttabs on`. It replaces the wrapped tab buttons with one selector. Search and hidden tabs still work. Settings categories remember your open and closed choices for this character between reloads. Search opens them temporarily without replacing those choices.
 
@@ -61,7 +65,7 @@ Open **Profiles** and choose a preset. The list explains its changes before you 
 | Pet Job | Pet estimates, weaknesses, Charm eligibility and aggro. |
 | Thief | Rewards, drops and Steal, with their conditions. |
 
-Presets enable the overlay, change the selected rows and their order, and limit long lists to three entries. Full Links and Dangers lists remain in Target details. To see more drops, raise Most items shown under Drops. Presets keep your colors, fonts, labels, abbreviations, window positions, hidden tabs, merits, Treasure Hunter and manual accuracy inputs. A preset does not add an estimate that the selected monster or your current inputs cannot support.
+Presets enable the overlay, change the selected rows and their order, and limit long lists to three entries. Full Links, Dangers and reward lists remain in Target details. To see more drops directly in chat or the overlay, raise Most items shown under Drops. Presets keep your colors, fonts, labels, abbreviations, window positions, hidden tabs, merits, Treasure Hunter and manual accuracy inputs. A preset does not add an estimate that the selected monster or your current inputs cannot support.
 
 ### Preview and undo
 
@@ -121,6 +125,8 @@ Combat numbers use the inputs available when the result is built. A `/checkparam
 
 Under **Magic**, **Include known gear and merits** controls the manual accuracy field. With it on, enter only bonuses checkmate has not already counted, such as food. With it off, enter your complete direct magic accuracy bonus from gear, food and merits. Skills and attributes are counted separately in either mode. Do not add bonuses already included automatically a second time.
 
+Merit ranks arrive when you zone or spend points. They are read even when the related chat and overlay rows are off. After updating Checkmate, reload the addon and zone once to read the supported ranks.
+
 The **Merits** sliders change supported estimates without changing your character. Skill and attribute totals already include merits, so Checkmate replaces the observed contribution with your selected one. Zone once to establish the baseline. Without it, the current client total stays in use and the details explain why. Your actual Attack, Accuracy and Evasion from `/checkparam` stay as received; weapon-skill, Evasion and STR rank choices do not rewrite those readings. Level and job limits still apply. Merits are saved per character and are left out of profiles.
 
 ### pDIF
@@ -162,7 +168,7 @@ Possible learnable spells come from the monster's supported source move list. Yo
 **Show skill status in overlay** adds **Skill met: 25/20**, **Skill too low: 15/20** or **Skill unknown** beside each spell. The first number is your current skill; the second is the minimum required. It is off by default. To enable it through the menu:
 
 1. Type `/checkmate` and open **Blue Magic**.
-2. Enable **Show Blue row** in the **Overlay** column.
+2. Enable **Show Blue Magic row** in the **Overlay** column.
 3. Enable **Learnable spells** in the **Overlay** column.
 4. Turn on **Show skill status in overlay**.
 
@@ -174,11 +180,11 @@ The comparison uses your actual Blue Magic skill from the game and updates as it
 
 **Learning chance**, in the Blue Magic tab, shows the base 33% chance plus supported learning gear you currently have equipped. At their required levels, Magus Bazubands add 10 percentage points and Magus Bazubands +1 add 11. The percentage and gear stay visible while the section is open. The nested **Learning requirements** starts closed; open it for the conditions. This is the chance for an eligible attempt, not a guarantee that this monster will teach you a spell. You must be alive on main-job Blue Mage, meet the actual skill requirement, be within 100 yalms, and receive kill credit with your party or alliance. The monster must have used an unlearned move, and Call for Help prevents learning. There is at most one attempt per defeat. Blue Magic skill merits can help meet the skill requirement; they do not increase Learning chance directly. Manual merit choices do not change the actual skill shown in learning requirements.
 
-**Unresisted spell chance** estimates whether a magical BLU spell avoids a resist. It is separate from learning. **Show Blue row** controls whether the row appears in chat or the overlay. A hidden column says **Row hidden** and dims its component choices, keeping their selections for when you turn it back on. If the overlay itself is off, enable it under **Display > Overlay options** too.
+**Unresisted spell chance** estimates whether a magical BLU spell avoids a resist. It is separate from learning. **Show Blue Magic row** controls whether the row appears in chat or the overlay. A hidden column says **Row hidden** and dims its component choices, keeping their selections for when you turn it back on. If the overlay itself is off, enable it under **Display > Overlay options** too.
 
 **Show observed move use** can mark a completed move as seen. Misses and resists count; ready messages and interruptions do not. Not observed can mean the move happened before tracking began or out of view. Tracking starts off and does not establish learning eligibility.
 
-**Spell finder** works without a selected monster. Choose a spell, then search its possible monsters and zones. It keeps exact source level ranges and known spawn or fight conditions. **Find only unlearned spells** filters the finder independently of the readout. You can also filter by your current zone and copy the matching places.
+**Spell finder** works without a selected monster. Choose a spell, then search its possible monsters and zones. It keeps exact source level ranges and known spawn or fight conditions. **Find only unlearned spells** filters the finder independently of the readout. You can also filter by your current zone. Long lists show 20 results per page. Previous and Next move between pages; changing a filter returns to the first page. **Copy places** still copies every matching location.
 
 The finder uses enabled content and supported spawn or encounter routes in the bundled Phoenix data. Places without an established route are left out. It does not check whether a monster is alive or whether the live server has changed. A missing entry does not mean the spell cannot be learned from that monster.
 
@@ -187,6 +193,8 @@ The finder uses enabled content and supported spawn or encounter routes in the b
 Effects tracks buffs and debuffs from spells, weapon skills, job abilities, pet moves, items, weapon and ammunition added effects, and spikes. This includes nearby players and their avatars, jug pets, automatons and charmed monsters. It reads applications and removals reported to your client, including DRK Absorb spells, and estimates supported effects that the action does not report separately.
 
 Timers use Phoenix's duration for that action, including pet and gaze moves. Pet and monster versions of the same move can have different durations. A resist, missing input or early removal can change the estimate. An effect with no supported duration shows without a countdown and clears after three minutes, or sooner if a removal is reported.
+
+Bind stays listed after damage because the client may not report whether it broke. Hover explains when damage may have broken it. A reported removal or the original timer clears it.
 
 Tracking works entirely in the addon. Hover shows whether the game confirmed the effect or checkmate estimated it from an action, including any required merits, buffs or attachments. Effect names have no question marks. An estimated effect may not be active; it does not change combat calculations or replace a confirmed effect. Break timers use Phoenix's duration at 1,000 TP, before resists; the TP actually used is unknown.
 

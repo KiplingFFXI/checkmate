@@ -23,7 +23,9 @@ Type `/checkmate` to open settings. Choose a starter preset under **Profiles**, 
 - **Preview** shows sample or current-target text before you change your layout. **Print a sample** shows the actual chat output.
 - **Find settings** searches controls and their help. **Appearance** holds skins, colors, fonts and visible tabs.
 - **Escape closes overlay**, under **Display > Overlay options**, hides it until your next `/check`. It starts off and keeps your saved readings.
-- **Target details** keeps the full supported notes and Links and Dangers lists. Search them or copy the details, even from your last manual `/check` with the overlay off.
+- **Job settings**, under **Display > Rows**, can hide BLU learning and Steal when you cannot use them. Automatic Treasure Hunter uses your own supported traits and gear. These options start off.
+- **Merits** fills supported ranks when you zone, or keeps your manual choices with autofill off. After updating, reload Checkmate and zone once to read your ranks.
+- **Target details** keeps the full supported notes and Links, Dangers, Drops and Steal lists. Search them or copy the details, even from your last manual `/check` with the overlay off.
 - **Undo last change** restores recent settings edits. Save a profile when you have a setup you want to keep.
 
 ## What it can show

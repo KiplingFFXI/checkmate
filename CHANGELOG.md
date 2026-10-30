@@ -2,6 +2,18 @@
 
 Older entries describe that release. Later entries may change its behavior.
 
+## 1.14.11
+
+- Fixed merit autofill not reading ranks from the game. After updating, reload Checkmate and zone once to read your supported merit ranks.
+- Added optional job rules under Display to hide BLU learning on other main jobs and Steal when it is unavailable. Your selected rows stay saved.
+- Added Automatic and Manual Treasure Hunter modes. Automatic follows your supported traits and gear; Manual keeps your chosen level for party estimates. Both job rules start off, and TH stays Manual by default.
+- Bind no longer disappears from tracking after every damaging hit. Hover explains when damage may have broken it.
+- Display reset now resets Escape closes overlay. Target details and copied text keep their ages current.
+- Unrelated HP and TP changes no longer rebuild Crit and Magic. Repeated pet-owner lookups reuse a short cache.
+- Long BLU finder lists show 20 results per page. Copy places keeps every matching location.
+- Target details now includes full Drops and Steal lists, including drops hidden by display filters.
+- /checkmate info now checks Treasure Hunter metadata for missing or mismatched bundled data.
+
 ## 1.14.10
 
 - Refreshed Phoenix monster data to `9a4494d505`.

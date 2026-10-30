@@ -96,7 +96,7 @@ end
 function merits.on_packet(e)
     local changed, observed_changed = {}, false;
     packets = packets or require('core.packets');
-    if (type(e) ~= 'table' or e.id ~= packets.ID.MERITS) then
+    if ((type(e) ~= 'table' and type(e) ~= 'userdata') or e.id ~= packets.ID.MERITS) then
         return changed, false;
     end
     local counts = packets.merit_counts(e);

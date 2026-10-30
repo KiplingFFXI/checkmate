@@ -55,11 +55,11 @@ check('an uncertain bonus does not qualify a guaranteed roll', r.low == 100 and 
 MOCK.player.buffs = {};
 player.on_base_hp(nil);
 MOCK.player.hp_max = 1000;
-player.inputs_changed();
-check('an unchanged snapshot stays quiet', not player.inputs_changed());
+player.inputs_changed(true);
+check('an unchanged snapshot stays quiet', not player.inputs_changed(true));
 MOCK.packet(MOCK.job_info_packet(1000));
-check('observing equal base HP still changes the input certainty', player.inputs_changed());
-check('that certainty change only refreshes once', not player.inputs_changed());
+check('observing equal base HP still changes the input certainty', player.inputs_changed(true));
+check('that certainty change only refreshes once', not player.inputs_changed(true));
 -- An equal-valued base HP message still replaces the overlay's uncertain result.
 MOCK.zone_in(176);
 MOCK.player.hp, MOCK.player.hp_max, MOCK.player.tp = 760, 1000, 0;

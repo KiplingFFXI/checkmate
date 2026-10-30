@@ -30,6 +30,26 @@ def folder(path, finder=True, zone=100, built='pin before', content='Original'):
 
 @unittest.skipIf(data_report is None, 'LuaJIT is required to compare generated files')
 class FinderReportTests(unittest.TestCase):
+    def test_job_settings_changes_are_reported_without_build_stamps(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            absent = folder(root / 'old')
+            folder(root / 'new')
+            body = "return { built='%s', content='%s', traits={[19]=%d} }"
+            for place, stamp in [('old', 'before'), ('new', 'after')]:
+                (root / place / 'job_settings.lua').write_text(body % (stamp, stamp, 1), encoding='ascii')
+            old = data_report.Folder(str(root / 'old'))
+            new = data_report.Folder(str(root / 'new'))
+            self.assertEqual(data_report.compare(old, new), (None, None))
+            for before, after in ((absent, old), (old, absent)):
+                report, bullets = data_report.compare(before, after)
+                self.assertIn('job_settings.lua changed.', report)
+                self.assertIn('Treasure Hunter traits or equipment bonuses changed.', bullets)
+            (root / 'new/job_settings.lua').write_text(body % ('after', 'after', 2), encoding='ascii')
+            report, bullets = data_report.compare(old, data_report.Folder(str(root / 'new')))
+            self.assertIn('job_settings.lua changed.', report)
+            self.assertIn('Treasure Hunter traits or equipment bonuses changed.', bullets)
+
     def test_merit_metadata_changes_are_reported_but_stamps_are_not(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

@@ -17,6 +17,7 @@ loads.
 
   checkmate\data\effects.lua           effect durations, removal rules, song gear and duration merits
   checkmate\data\modifiers.lua         supported equipped bonuses, merit ranks and effect uncertainty
+  checkmate\data\job_settings.lua      client Treasure Hunter trait values and current-equipment bonuses
   checkmate\data\defenses.lua          Shield and Parry rules, shield sizes, job ranks and gear conditions
   checkmate\data\merits.lua            supported merit names, values, caps and input rules
   checkmate\data\pdif.lua              physical damage caps, level-correction zones and Defense effect warnings
@@ -36,6 +37,11 @@ sorting helper are guarded, so Windows and Linux read the same override chains.
 The extracted tree also keeps each file's exact Git path. This keeps Quests and quests distinct when
 reading modules on Windows. File paths that Windows would overwrite because only their case differs stop
 the extraction instead.
+
+Automatic Treasure Hunter reads the client's current trait bits and equipped item ids. Its metadata comes
+from the enabled trait rows and loaded item-modifier SQL changes. Conditional equipment bonuses and augments
+need a manual TH value. The source guard covers the native equipment-scaling function and scripts or loaded
+native modules that touch Treasure Hunter. An unrelated native combat-function change does not invalidate it.
 
 The other scripts here show what changed between two builds of the data and get a new version ready to release.
 A weekly job on GitHub runs them for you and opens a pull request when Phoenix changed a monster.

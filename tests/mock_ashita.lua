@@ -276,9 +276,19 @@ function ashita.fs.exists(path)
     return true;
 end
 
+-- Ashita gives callbacks userdata. Its fields stay shared with the table supplied by the test.
+function MOCK.event(fields)
+    if (type(fields) == 'userdata') then return fields; end
+    fields = fields or {};
+    local event = newproxy(true);
+    local meta = getmetatable(event);
+    meta.__index, meta.__newindex = fields, fields;
+    return event;
+end
+
 -- MOCK.firing names the event running right now, like 'load' or 'd3d_present', and is nil between them.
 function MOCK.fire(name, e)
-    e = e or {};
+    e = MOCK.event(e);
     local outer = MOCK.firing;
     MOCK.firing = name;
     for _, fn in pairs(MOCK.events[name] or {}) do fn(e); end
@@ -308,6 +318,12 @@ local function player_memory()
     local p = MOCK.player;
     return {
         GetMainJob = function () return p.main_job; end,
+        HasAbilityData = function () return p.ability_data ~= false; end,
+        HasTrait = function (_, id)
+            if (p.traits ~= nil) then return p.traits[id] == true; end
+            local level = p.main_job == 6 and p.main_level or (p.sub_job == 6 and p.sub_level or 0);
+            return (id == 19 and level >= 15) or (id == 64 and level >= 45);
+        end,
         HasSpellData = function ()
             if (MOCK.spell_api_error) then error('spell data unavailable'); end
             return p.spell_data == true;
@@ -340,12 +356,13 @@ end
 local function inventory()
     return {
         GetEquippedItem = function (_, slot)
-            if (MOCK.player.equipment[slot] == nil) then return nil; end
+            if (MOCK.player.equipment[slot] == nil) then return { Slot = slot, Index = 0 }; end
             return { Slot = slot, Index = 0 * 256 + (slot + 10) };
         end,
         GetContainerItem = function (_, container, index)
             if (container ~= 0) then return { Id = 0 }; end
-            return { Id = MOCK.player.equipment[index - 10] or 0 };
+            local extra = MOCK.player.equipment_extra and MOCK.player.equipment_extra[index - 10];
+            return { Id = MOCK.player.equipment[index - 10] or 0, Extra = extra };
         end,
     };
 end
@@ -1263,7 +1280,7 @@ package.preload['settings'] = function () return settings_lib; end
 MOCK.settings = settings_lib;
 
 --[[
-    Packets. Each builder returns the packet_in event table.
+    Packets. Each builder returns packet_in userdata.
 ]]
 
 local function bytes(size)
@@ -1277,7 +1294,7 @@ end
 local function packet(id, b, size)
     local chars = {};
     for i = 0, size - 1 do chars[#chars + 1] = string.char(b[i]); end
-    return { id = id, size = size, data = table.concat(chars), blocked = false };
+    return MOCK.event({ id = id, size = size, data = table.concat(chars), blocked = false });
 end
 
 -- Writes one field the way the server's action packet packer does.

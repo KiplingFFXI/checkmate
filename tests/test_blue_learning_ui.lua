@@ -40,7 +40,7 @@ MOCK.frame(1);
 check('non-Blue mains are told the job requirement', MOCK.drew('Your main job must be Blue Mage to learn spells.'));
 
 local s = MOCK.settings.current;
-check('master row has an explicit label and separate display controls', MOCK.drew('Show Blue row')
+check('master row has an explicit label and separate display controls', MOCK.drew('Show Blue Magic row')
     and MOCK.gui.paths['Blue Magic/blue/##chat'] == 'Checkbox'
     and MOCK.gui.paths['Blue Magic/blue/##overlay'] == 'Checkbox');
 check('the two percentages have distinct names', MOCK.drew('Unresisted spell chance')
@@ -84,7 +84,7 @@ MOCK.frame(0);
 check('clearing search restores the previous requirements fold',
     panel.folded['Blue Magic/LEARNING REQUIREMENTS'] == false
     and not MOCK.drew('Call for Help prevents learning. There is at most one attempt per defeat.'));
-for _, term in ipairs({ 'Show Blue row', 'Unresisted spell chance', 'Learning chance', 'Learning requirements' }) do
+for _, term in ipairs({ 'Show Blue Magic row', 'Unresisted spell chance', 'Learning chance', 'Learning requirements' }) do
     check('Blue control remains searchable: ' .. term, panel.search_tabs(term)['Blue Magic'] == true);
 end
 

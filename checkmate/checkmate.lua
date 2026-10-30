@@ -1,6 +1,6 @@
 addon.name    = 'checkmate';
 addon.author  = 'Kipling';
-addon.version = '1.14.10';
+addon.version = '1.14.11';
 addon.desc    = 'Monster details, combat estimates and your pet on /check for Phoenix.';
 addon.link    = 'https://github.com/KiplingFFXI/checkmate';
 
@@ -60,7 +60,7 @@ local settings_window = require('ui.settings_window');
 local overlay    = require('ui.overlay');
 local icons      = require('ui.icons');
 local navigation = require('ui.navigation');
-local ui_tools = { history = require('ui.history'), presets = require('ui.presets') };
+local ui_tools = { history = require('ui.history'), presets = require('ui.presets'), jobs = require('core.job_settings') };
 
 -- /check reply messages (0x029). 170 to 178 carry the level and con. 249 is "impossible to gauge".
 local CHECK_FIRST      = 170;
@@ -210,9 +210,19 @@ local function tell_overlay(handler, ...)
     end
 end
 
+-- Poll only while a visible display or open menu needs the optional job settings.
+function ui_tools.refresh_jobs(force)
+    local s = checkmate.settings;
+    local filters = s.job_settings;
+    if (filters.hide_blue_learning ~= true and filters.hide_steal ~= true and s.drops.th_mode ~= 'auto') then return false; end
+    if (force) then return ui_tools.jobs.refresh(s.drops.th_mode == 'auto'); end
+    return settings_window.is_open() and ui_tools.jobs.poll(s.drops.th_mode == 'auto', os.clock());
+end
+
 -- A setting changed. Turning the overlay off also clears its error, so turning it on again restarts it.
 local function overlay_changed()
     local s = checkmate.settings;
+    ui_tools.refresh_jobs(true);
     merits.changed();
     if (s.overlay.on ~= true) then
         checkmate.overlay_broken = false;
@@ -310,6 +320,11 @@ local function tidy(s)
     s.printout.label_separator = printout.clean_text(s.printout.label_separator);
     s.printout.label_divider = printout.label_divider_id(s.printout);
     s.drops.th = drops.clamp_th(s.drops.th);
+    if (s.drops.th_mode ~= 'auto') then s.drops.th_mode = 'manual'; end
+    if (type(s.job_settings) ~= 'table') then s.job_settings = T{}; end
+    for _, key in ipairs({ 'hide_blue_learning', 'hide_steal' }) do
+        if (type(s.job_settings[key]) ~= 'boolean') then s.job_settings[key] = false; end
+    end
     if (not EFFECT_SHOWS[s.effects.show]) then
         s.effects.show = 'both';
     end
@@ -356,7 +371,7 @@ local function save_settings()
 end
 
 local function part_on(id)
-    return checkmate.settings.printout.parts[id].on == true;
+    return display_parts.enabled(checkmate.settings, id, 'chat');
 end
 
 local function part_wanted(id)
@@ -389,6 +404,7 @@ end
 
 -- Works out everything the printout shows for one /check. Parts that are off aren't worked out.
 local function readout(check)
+    ui_tools.refresh_jobs(true);
     local s = checkmate.settings;
     local row = check.row;
     local result = { name = check.name, low = check.low, high = check.high, cant_gauge = check.cant_gauge,
@@ -816,7 +832,8 @@ end
 
 -- Your /check of a monster came back.
 local function on_check(target, index, level, param2, message, token)
-    if (not (printout.selected(checkmate.settings.printout)
+    ui_tools.refresh_jobs(true);
+    if (not (printout.selected(checkmate.settings.printout, checkmate.settings)
         or pdif_wanted() or parameters_wanted() or part_wanted('pet'))) then
         return;
     end
@@ -2363,6 +2380,7 @@ local function set_number(sub, word)
         return;
     end
     section(entry.section)[entry.key] = value;
+    if (sub == 'th') then checkmate.settings.drops.th_mode = 'manual'; end
     save_settings();
     local said = entry.said:format(entry.decimal and ('%g'):format(value) or ('%d'):format(value));
     if (value == 0 and entry.zero ~= nil) then
@@ -2908,7 +2926,7 @@ local function on_message(e)
         end
         checkmate.check_token = checkmate.check_token + 1;
         local check = on_check(target, index, param1, param2, message, checkmate.check_token);
-        if (checkmate.settings.printout.replace_game_line and printout.selected(checkmate.settings.printout)) then
+        if (checkmate.settings.printout.replace_game_line and printout.selected(checkmate.settings.printout, checkmate.settings)) then
             e.blocked = true;
         end
         -- The overlay keeps it too, even when the chat printout had nothing to print.
@@ -2951,6 +2969,8 @@ ashita.events.register('packet_in', 'checkmate_packet_in', function (e)
     if (id == packets.ID.ACTION) then
         tell_effects(effects.on_action, e, checkmate.my_id);
         tell_lessons(lessons.on_action, e);
+    elseif (id == packets.ID.PLAYER_UPDATE) then
+        tell_effects(effects.on_player_update, e);
     elseif (id == packets.ID.ENTITY) then
         tell_effects(effects.on_entity, e);
         tell_lessons(lessons.on_entity, e);
@@ -2973,6 +2993,7 @@ ashita.events.register('packet_in', 'checkmate_packet_in', function (e)
         player.on_base_hp(packets.base_hp(e));
     elseif (id == packets.ID.PET_SYNC) then
         local index = packets.pet_index(e);
+        tell_effects(effects.on_ownership_change, index);
         pet.on_sync(index);
         tell_overlay(overlay.on_pet_sync, index);
     elseif (id == packets.ID.MERITS) then
@@ -2982,6 +3003,7 @@ ashita.events.register('packet_in', 'checkmate_packet_in', function (e)
         local s = checkmate.settings;
         if (display_parts.blue_enabled(s, 'lessons', 'overlay')) then tell_overlay(overlay.changed, s); end
     elseif (id == packets.ID.ZONE_IN) then
+        ui_tools.jobs.clear();
         blue_finder.changed();
         check_details.forget();
         lessons.on_zone();
@@ -3113,6 +3135,11 @@ end
 
 local function frame()
     local now = os.clock();
+    if (ui_tools.refresh_jobs(false)) then
+        tracking_changed();
+        tell_overlay(overlay.changed, checkmate.settings);
+        settings_window.changed();
+    end
     tell_effects(effects.take_in, now);
     tell_lessons(lessons.take_in, now);
     check_details.refresh(checkmate.settings.blue.seen);
@@ -3132,6 +3159,11 @@ local function frame()
     end
     if (overlay_on()) then
         draw_overlay();
+    end
+    if (ui_tools.job_revision ~= ui_tools.jobs.version()) then
+        ui_tools.job_revision = ui_tools.jobs.version();
+        tracking_changed();
+        settings_window.changed();
     end
     draw_window();
 end
@@ -3185,6 +3217,7 @@ settings.register('settings', 'checkmate_settings_update', function (s)
         effects.forget(true);
         player.on_base_hp(nil);
         player.forget_attacks();
+        ui_tools.jobs.clear();
         checkmate.settings = s;
     end
     tidy(checkmate.settings);

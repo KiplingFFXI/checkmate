@@ -6,6 +6,9 @@ game. Each test feeds it packets, frames and commands, then checks what checkmat
 or saved. The monster data they load is the real generated data in ..\checkmate\data. Nothing here
 is loaded by the addon or copied into the game.
 
+Event callbacks and packet builders use userdata, like Ashita v4. MOCK.event wraps a table with
+newproxy and shares its fields, so callback changes stay visible to the test that supplied them.
+
 
 Setup (once)
 ------------
@@ -61,16 +64,21 @@ These are the main suite groups. run.py discovers every test_*.lua file, includi
   test_blue_controls.lua   Blue commands, saved profiles, display filtering and spellbook updates
   test_blue_skill_overlay.lua per-spell overlay skill status, automatic refresh and hidden-row read limits
   test_blue_finder.lua     learnable spell lookup, spellbook caching, level gaps, filters and copied places
+  test_blue_finder_pages.lua bounded spell/place pages, filter resets and complete copied locations
   test_blue_learning_rate.lua actual learning gear, level gates, unknown inputs and no requests
   test_blue_learning_ui.lua visible learning summary, folded requirements and separate row controls
   test_merits.lua          observed and selected ranks, partial packets, level caps and input adjustments
   test_merits_ui.lua       shared autofill, manual choices, read ranks and character-owned settings
+  test_event_userdata.lua  userdata callbacks, packet fields and merit autofill through the real handler
   test_section_preferences.lua saved folds, temporary search expansion and reset boundaries
   test_ui_consolidation.lua Display views, direct Options focus and return navigation
   test_reset_all.lua       confirmed current-character resets, ownership and preserved shared profiles
   test_clear_all.lua       all rows off, Undo, preserved settings and queued request cancellation
   test_header_wrap.lua     header field wrapping, hover identity, preview parity and quiet cached frames
   test_detail_usability.lua compact controls, target header, readable details, search and copy choices
+  test_detail_ages.lua     fresh displayed/copied ages without rebuilding static facts
+  test_reward_details.lua complete Drops and Steal lists with conditions and captured TH
+  test_reward_snapshot.lua saved reward readings stay unchanged after later input changes
   test_observation_expiry.lua disappearing targets and pets lose old observed inputs
   test_settings_layout.lua fixed navigation, scrolling pages, collapsible groups and hidden matches
   test_danger_display.lua  long danger lists stay complete while hover text stays short
@@ -91,6 +99,11 @@ These are the main suite groups. run.py discovers every test_*.lua file, includi
   test_profile_io.lua      failed reads, writes and file replacement preserve saved profiles
   test_packets.lua         fixed-field packet bounds and no state changes from truncated packets
   test_current_inputs.lua  gear, buffs and stats refresh while keeping the same target
+  test_input_refresh.lua   quiet HP/TP changes and supported latent eligibility changes
+  test_rewards_data.lua    complete reward snapshots, display limits and Escape reset
+  test_job_settings.lua    current job eligibility, trait bits, gear, unknown TH and unchanged manual inputs
+  test_job_settings_ui.lua folded job controls, search, mode choices, reset and Undo
+  test_job_settings_integration.lua main/support job changes, quiet polls and native check visibility
   test_modifiers.lua       known gear and merits, manual totals and missing combat inputs
   test_magic_migration.lua saved magic totals keep their old meaning after upgrading
   test_ui_details.lua      search, target details, effect timers and ranged distance
@@ -100,6 +113,8 @@ These are the main suite groups. run.py discovers every test_*.lua file, includi
   test_effects_reaction_packets.lua reversed spikes results, player-target filtering, reused rows and truncation
   test_effects.lua         tracker durations from generated Phoenix data, observed removal, ownership,
                           gear and merits, overwrites, unknown timeouts, Sleep/DoT, zoning and cleanup
+  test_effects_audit_fixes.lua Bind uncertainty and bounded pet-owner cache invalidation
+  test_effects_ownership_events.lua player and pet update dispatch with unrelated-owner cache retention
   test_effects_reports.lua Absorb success, inferred secondaries, separate action IDs, confirmed status
                           priority, failed casts, pet identity, removal and idle client reads
   test_effects_inference.lua damage gates, action namespaces, confirmed priority, bounds and cleanup

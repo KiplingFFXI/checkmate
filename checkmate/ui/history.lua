@@ -97,7 +97,7 @@ local SECTIONS = {
         'printout.show_range', 'printout.show_id', 'printout.show_ph', 'printout.number_style',
         'printout.defense_first', 'printout.extras_own_line', 'printout.replace_game_line',
         'printout.icons', 'printout.icons_only' }, chat = true },
-    overlay = { label = 'Overlay', paths = { 'overlay.on', 'overlay.locked', 'overlay.remember', 'overlay.only_checked',
+    overlay = { label = 'Overlay', paths = { 'overlay.on', 'overlay.locked', 'overlay.remember', 'overlay.only_checked', 'overlay.escape_closes',
         'overlay.follow_cursor', 'overlay.show_level', 'overlay.show_range', 'overlay.show_id',
         'overlay.show_ph', 'overlay.own_lines', 'overlay.divider', 'overlay.separator',
         'overlay.icons', 'overlay.icons_only', 'overlay.element_look', 'overlay.tips',
@@ -113,7 +113,7 @@ local SECTIONS = {
     pets = { label = 'Pets', paths = { 'pet.show_name', 'pet.show_level' }, rows = { 'pet' } },
     monster = { label = 'Monster', paths = { 'dangers' },
         rows = { 'job', 'family', 'vitals', 'movement', 'spawn', 'claim', 'dangers', 'fight', 'traits', 'crystal', 'rewards' } },
-    drops = { label = 'Drops', paths = { 'drops.max_items', 'drops.min_chance', 'drops.sort',
+    drops = { label = 'Drops', paths = { 'drops.th_mode', 'drops.max_items', 'drops.min_chance', 'drops.sort',
         'drops.th_in_label', 'drops.notes' }, rows = { 'drops', 'steal' } },
     effects = { label = 'Effects', paths = { 'effects' }, rows = { 'effects' } },
     abbreviations = { label = 'Abbreviations', paths = { 'short', 'printout.short_words', 'overlay.short_words' } },
@@ -165,7 +165,13 @@ local function reset_rows(settings, base, rows, chat, overlay)
 end
 
 local function reset(settings, base, id)
-    if (id == 'display') then reset(settings, base, 'printout'); reset(settings, base, 'overlay'); return; end
+    if (id == 'display') then
+        reset(settings, base, 'printout');
+        reset(settings, base, 'overlay');
+        reset_path(settings, base, 'job_settings');
+        reset_path(settings, base, 'drops.th_mode');
+        return;
+    end
     local section = SECTIONS[id];
     for _, path in ipairs(section.paths) do reset_path(settings, base, path); end
     if (section.chat or section.overlay) then

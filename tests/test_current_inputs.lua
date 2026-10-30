@@ -36,7 +36,7 @@ MOCK.player.hp = 700;
 MOCK.player.tp = 1100;
 MOCK.now = MOCK.now + 0.3;
 local hp_changed, hp_rebuilt = target.readout(s);
-check('HP and TP changes are noticed for latent equipment', hp_rebuilt and hp_changed ~= buffed);
+check('unrelated HP and TP changes keep combat inputs cached', not hp_rebuilt and hp_changed == buffed);
 MOCK.player.equipment[5] = 14505;
 MOCK.now = MOCK.now + 0.3;
 local equipped, gear_rebuilt = target.readout(s);

@@ -13,7 +13,7 @@ check('all real generated datasets agree', real:find('Bundled data revisions and
 expect('diagnostics do not load the finder catalogue', package.loaded['data.blue_finder'], nil);
 
 local files, reads, closes, largest_read = {}, 0, 0, 0;
-local names = { 'bands', 'too_weak', 'pets', 'steal', 'crit', 'effects', 'modifiers', 'pdif', 'defenses', 'merits', 'blue_finder' };
+local names = { 'bands', 'too_weak', 'pets', 'steal', 'crit', 'effects', 'modifiers', 'pdif', 'defenses', 'merits', 'blue_finder', 'job_settings' };
 local function header(built, content)
     return '-- Built by tools/export_data.py from ' .. built .. '.\n-- It assumes ' .. content .. '.\n';
 end
@@ -67,6 +67,18 @@ files.merits = header(bands.built, 'different merit content');
 local merit_content = diagnostics.text('merit-content');
 check('merit catalogue content is checked', merit_content:find('merits: different merit content', 1, true) ~= nil, merit_content);
 files.merits = header(bands.built, bands.content);
+files.job_settings = header('older job rules', bands.content);
+local stale_jobs = diagnostics.text('job-settings');
+check('stale job metadata is named', stale_jobs:find('job_settings: older job rules', 1, true) ~= nil, stale_jobs);
+files.job_settings = header(bands.built, 'different job content');
+local job_content = diagnostics.text('job-content');
+check('job metadata content is checked', job_content:find('job_settings: different job content', 1, true) ~= nil, job_content);
+files.job_settings = nil;
+local missing_jobs = diagnostics.text('missing-job-settings');
+check('missing job metadata is named', missing_jobs:find('job_settings: missing build stamp', 1, true) ~= nil, missing_jobs);
+files.job_settings = "return { built = '" .. bands.built .. "', content = '" .. bands.content .. "' };";
+local table_jobs = diagnostics.text('table-job-settings');
+check('table-stamped job metadata can match', table_jobs:find('settings match.', 1, true) ~= nil, table_jobs);
 files.modifiers = "return { built = '" .. bands.built .. "', content = 'other content' };";
 local modifiers = diagnostics.text('6');
 check('table-stamped modifiers also check content', modifiers:find('modifiers: other content', 1, true) ~= nil, modifiers);

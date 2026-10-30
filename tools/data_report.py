@@ -117,6 +117,8 @@ class Folder:
         self.effects = without_stamps(load_file(effects)) if os.path.exists(effects) else None
         modifiers = os.path.join(root, 'modifiers.lua')
         self.modifiers = without_stamps(load_file(modifiers)) if os.path.exists(modifiers) else None
+        job_settings = os.path.join(root, 'job_settings.lua')
+        self.job_settings = without_stamps(load_file(job_settings)) if os.path.exists(job_settings) else None
         pdif = os.path.join(root, 'pdif.lua')
         self.pdif = without_stamps(load_file(pdif)) if os.path.exists(pdif) else None
         defenses = os.path.join(root, 'defenses.lua')
@@ -431,6 +433,9 @@ def compare(old, new):
     if old.modifiers != new.modifiers:
         notes.append('modifiers.lua changed.')
         extra_bullets.append('The supported combat bonuses, merits or their conditions changed.')
+    if old.job_settings != new.job_settings:
+        notes.append('job_settings.lua changed.')
+        extra_bullets.append('The supported Treasure Hunter traits or equipment bonuses changed.')
     if old.defenses != new.defenses:
         notes.append('defenses.lua changed.')
         extra_bullets.append('Updated Shield and Parry inputs.')

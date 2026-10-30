@@ -1,4 +1,5 @@
 -- Shared display rows and migration from the old grouped layout.
+local job_settings = require('core.job_settings');
 local parts = {};
 
 parts.VERSION = 2;
@@ -32,6 +33,13 @@ parts.ORDER = { 'difficulty', 'hit', 'pdif', 'offhand', 'offhandpdif', 'ranged',
 parts.DEFAULT_ORDER = table.concat(parts.ORDER, ' ');
 
 function parts.enabled(s, id, display)
+    if (id == 'steal' and not job_settings.permits_steal(s)) then return false; end
+    if (id == 'blue') then
+        local options = ((s.blue or {})[display or 'chat'] or {});
+        if (options.chance ~= true and (options.lessons == false or not job_settings.permits_blue_learning(s))) then
+            return false;
+        end
+    end
     if (display == 'overlay') then
         return (((s.overlay or {}).parts or {})[id]) == true;
     end
@@ -48,6 +56,7 @@ function parts.component_enabled(s, id, display)
 end
 
 function parts.blue_enabled(s, component, display)
+    if (component == 'lessons' and not job_settings.permits_blue_learning(s)) then return false; end
     local options = ((s.blue or {})[display or 'chat'] or {});
     local on = component == 'lessons' and options.lessons ~= false or component == 'chance' and options.chance == true;
     return parts.enabled(s, 'blue', display) and on;

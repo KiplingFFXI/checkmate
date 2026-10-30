@@ -1,0 +1,32 @@
+-- Reward details keep the same TH reading and the rows hidden by display limits.
+local drops = require('core.drops');
+local s = require('ui.defaults').make();
+local row = { drops = { { item = 501, rate = 150 }, { item = 502, rate = 100 }, { item = 503, rate = 50 } } };
+s.drops.th, s.drops.max_items = 2, 1;
+local r = drops.readout(row, s.drops);
+expect('the visible drop limit stays in place', #r.items, 1);
+expect('more counts only visible items beyond the limit', r.more, 2);
+expect('full details retain every drop', #r.all_items, 3);
+expect('full and visible items share the exact rate snapshot', r.items[1], r.all_items[1]);
+local chance = r.all_items[1].chance;
+s.drops.th = 4;
+expect('changing the selected TH does not rewrite saved rewards', r.all_items[1].chance, chance);
+expect('the saved reward TH stays unchanged', r.th, 2);
+s.drops.min_chance = 100;
+r = drops.readout(row, s.drops);
+check('hiding every displayed item retains the full detail list', r ~= nil and #r.items == 0 and #r.all_items == 3);
+expect('the display count does not include filtered items', r.more, 0);
+row.loot_conditions = { 'Special eligibility applies.' };
+r = drops.readout(row, s.drops);
+for _, part in pairs(s.printout.parts) do part.on = false; end
+s.printout.parts.drops.on, s.printout.replace_game_line = true, false;
+local text = MOCK.plain(table.concat(require('core.printout').lines(s, { name = 'Example', drops = r }), '\n'));
+expect('fully filtered rewards do not leave an orphan conditions row', text, '');
+expect('full detail rewards still retain their conditions', r.conditions[1], 'Special eligibility applies.');
+expect('an empty source still has no drop result', drops.readout({ drops = {} }, s.drops), nil);
+local reset = require('ui.defaults').make();
+local history = require('ui.history');
+reset.overlay.escape_closes = true;
+check('Display reset includes Escape closes overlay', history.reset_section(reset, 'Display') and not reset.overlay.escape_closes);
+check('Undo restores the optional Escape behavior', history.undo(reset) and reset.overlay.escape_closes);
+return MOCK.report();

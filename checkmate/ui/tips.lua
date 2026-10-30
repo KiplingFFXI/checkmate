@@ -207,7 +207,7 @@ end
 -- A drop, like "Beastman Blood. It drops 15% of the time at Treasure Hunter 0."
 local function drop_tip(_, result, id)
     local list = result.drops;
-    local item = list and find(list.items, 'id', tonumber(id));
+    local item = list and find(list.all_items or list.items, 'id', tonumber(id));
     if (item == nil) then
         return nil;
     end
@@ -219,6 +219,7 @@ local function drop_tip(_, result, id)
         conditions[#conditions + 1] = 'A script can change which drops are available.';
     end
     local suffix = #conditions > 0 and (' These rates apply only when the drop conditions are met. ' .. table.concat(conditions, ' ')) or '';
+    if (list.th_note ~= nil) then suffix = suffix .. ' ' .. printout.clean_text(list.th_note); end
     if (item.chance >= 100) then
         return name .. (#conditions > 0 and '. Its listed drop rate is 100%.' or '. It always drops.') .. suffix;
     end
@@ -348,6 +349,7 @@ local function effect_text(_, result, id)
             .. 'Nightmare or a Stoneskin soaks the tick.';
     elseif (n == BIND) then
         text = text .. ' A hit will most likely break it.';
+        if (each.damage_uncertain) then text = text .. ' Damage may have broken Bind. No wear-off has been observed.'; end
     elseif (n == THRENODY) then
         text = text .. ' The game never says when Threnody wears off, even to the bard who sang it.';
     end
@@ -880,20 +882,23 @@ local function danger_details(entry)
     return table.concat(out, '\n\n');
 end
 
-function tips.detail_groups(s, result)
+function tips.detail_groups(s, result, static)
     if (result == nil) then return {}; end
     local out = {};
     local function add(id, label, text)
         if (text ~= nil and text ~= '') then out[#out + 1] = { id = id, label = label, text = text }; end
     end
-    local age = age_more(s, result);
+    local age = not static and age_more(s, result);
     add('source', 'Level and source', level_tip(s, result) .. (age and ('\n' .. age) or ''));
+    if (static) then out[#out].has_age = true; end
     for _, id in ipairs({ 'hit', 'offhand', 'ranged', 'pdif', 'offhandpdif', 'rangedpdif', 'evade', 'block', 'parry', 'crit', 'crittaken', 'pet' }) do
         local optional = PDIF_PARTS[id] ~= nil or id == 'block' or id == 'parry';
         if (result[id] ~= nil and (not optional or parts.enabled(s, id, 'chat') or parts.enabled(s, id, 'overlay'))) then
             local text = number_details(s, result, id);
-            local age = (PARAMETER_PARTS[id] or PDIF_PARTS[id] ~= nil) and age_more(s, result, id);
+            local has_age = PARAMETER_PARTS[id] or PDIF_PARTS[id] ~= nil;
+            local age = not static and has_age and age_more(s, result, id);
             add(id, s.printout.parts[id].label, text and (text .. (age and ('\n' .. age) or '')));
+            if (static and has_age and text) then out[#out].has_age, out[#out].age_id = true, id; end
         end
     end
     if (result.reading ~= nil or result.defense ~= nil) then add('reading', 'Check reading', number_details(s, result, 'reading')); end
@@ -940,7 +945,51 @@ function tips.detail_groups(s, result)
     if (result.aggro ~= nil) then add('aggro', 'Aggro', aggro_tip(s, result)); end
     if (result.links ~= nil) then add('links', 'Links', links_tip(s, result, 'links', true)); end
     if (result.ph_for ~= nil) then add('ph', 'Placeholder rules', ph_tip(s, result)); end
+    if (result.drops ~= nil and (parts.enabled(s, 'drops', 'chat') or parts.enabled(s, 'drops', 'overlay'))) then
+        add('drops', 'Drops', tips.drop_details(result.drops));
+    end
+    if (result.steal ~= nil and (parts.enabled(s, 'steal', 'chat') or parts.enabled(s, 'steal', 'overlay'))) then
+        local values = {};
+        for _, id in ipairs(result.steal.ids or {}) do values[#values + 1] = steal_tip(s, result, id); end
+        add('steal', 'Steal', #values > 0 and table.concat(values, '\n\n') or 'No Steal items are listed for this monster.');
+    end
     return out;
+end
+
+function tips.drop_details(list)
+    local values = { ('Drop chances at Treasure Hunter %d:'):format(list.th or 0) };
+    for _, item in ipairs(list.all_items or list.items or {}) do
+        values[#values + 1] = printout.clean_text(item.name) .. ': ' .. printout.chance_text(item.chance) .. '.';
+    end
+    if (#values == 1) then values[#values + 1] = 'No drop items are listed for this monster.'; end
+    if (list.th_note ~= nil) then values[#values + 1] = printout.clean_text(list.th_note); end
+    if (list.exp_only) then values[#values + 1] = 'You must receive EXP.'; end
+    for _, condition in ipairs(list.conditions or {}) do values[#values + 1] = printout.clean_text(condition); end
+    if (list.scripted and #(list.conditions or {}) == 0) then
+        values[#values + 1] = 'A script can change which drops are available.';
+    end
+    if (list.scripted or list.exp_only or #(list.conditions or {}) > 0) then
+        values[#values + 1] = 'These chances apply only when the drop conditions are met.';
+    end
+    return table.concat(values, '\n');
+end
+
+-- Only the short age line changes while a reading stays the same.
+function tips.detail_text(s, result, group)
+    if (not group.has_age) then return group.text; end
+    local second = math.floor(os.clock());
+    if (group.age_second ~= second) then
+        local age = age_more(s, result, group.age_id);
+        group.age_second = second;
+        group.age_text = group.text .. (age and ('\n' .. age) or '');
+    end
+    return group.age_text;
+end
+
+function tips.detail_report(s, result, groups)
+    local values = {};
+    for _, group in ipairs(groups or {}) do values[#values + 1] = tips.detail_text(s, result, group); end
+    return table.concat(values, '\n\n');
 end
 
 function tips.details(s, result)

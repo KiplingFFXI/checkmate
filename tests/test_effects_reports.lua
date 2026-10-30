@@ -64,7 +64,7 @@ check('Sleep report after applying damage stays', entry(2) ~= nil);
 check('Bind report after applying damage stays', entry(11) ~= nil);
 action(1, 0, 25, 1, other);
 expect('later independent damage clears Sleep', entry(2), nil);
-expect('later independent damage clears Bind', entry(11), nil);
+check('later independent damage leaves Bind uncertain', entry(11) ~= nil and entry(11).damage_uncertain == true);
 action(4, 253, 0, 75);
 expect('failed spell cannot resurrect an earlier report', entry(2), nil);
 

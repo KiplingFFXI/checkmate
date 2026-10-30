@@ -9,6 +9,7 @@ local packets = {};
 
 packets.ID = {
     ZONE_IN  = 0x00A,
+    PLAYER_UPDATE = 0x00D,
     ENTITY   = 0x00E,
     JOB_INFO = 0x01B,
     ACTION   = 0x028,
@@ -126,7 +127,7 @@ end
 
 -- Read a complete merit packet once. A short list cannot partly update the saved ranks.
 function packets.merit_counts(e)
-    if (type(e) ~= 'table') then return nil; end
+    if (type(e) ~= 'table' and type(e) ~= 'userdata') then return nil; end
     local size = byte_count(e);
     if (size < 8) then return nil; end
     local count = struct.unpack('H', e.data, 5);

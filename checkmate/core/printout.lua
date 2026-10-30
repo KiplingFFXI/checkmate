@@ -17,9 +17,9 @@ local printout = {};
 printout.PARTS = layout.ORDER;
 printout.DEFAULT_ORDER = layout.DEFAULT_ORDER;
 
-function printout.selected(ps)
-    for _, part in pairs(ps.parts) do
-        if (part.on == true) then return true; end
+function printout.selected(ps, s)
+    for id, part in pairs(ps.parts) do
+        if (part.on == true and (s == nil or layout.enabled(s, id, ps.display))) then return true; end
     end
     return false;
 end
@@ -1269,7 +1269,7 @@ end
 
 local function drops_value(s, result, sep)
     local list = result.drops;
-    if (list == nil) then
+    if (list == nil or (list.all_items ~= nil and #list.items == 0 and list.more == 0 and not list.scripted and not list.exp_only)) then
         return nil;
     end
     local items = {};
@@ -1290,6 +1290,9 @@ local function drops_value(s, result, sep)
     end
     if (s.drops.notes and #(list.conditions or {}) > 0) then
         notes[#notes + 1] = '(' .. word(s, 'drops_conditional') .. ')';
+    end
+    if (list.th_fallback) then
+        notes[#notes + 1] = ('(automatic TH unavailable; using manual TH %d)'):format(list.th);
     end
     if (#notes > 0) then
         text = text .. paint(s, 'drops_detail', (text == '' and '' or ' ') .. table.concat(notes, ' '));
@@ -1657,7 +1660,7 @@ end
 ]]
 function printout.lines(s, result)
     local ps = s.printout;
-    if (not printout.selected(ps)) then return {}, nil, {}; end
+    if (not printout.selected(ps, s)) then return {}, nil, {}; end
     local sep = divider_text(ps);
     local label_sep = label_divider_text(ps);
     local line_color = color_code(s.colors.line);
@@ -1692,7 +1695,7 @@ function printout.lines(s, result)
     -- `always` adds the part, and the reading riding on it, even when they're off.
     local function add(id, always)
         local part, value = ps.parts[id], values[id];
-        if (part == nil or not (part.on or always) or value == nil) then
+        if (part == nil or not ((part.on and layout.enabled(s, id, ps.display)) or always) or value == nil) then
             return;
         end
         -- With the extras on their own line, check parts and extras never share a line.

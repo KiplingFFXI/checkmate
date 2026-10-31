@@ -173,7 +173,8 @@ function player.job_inputs(want_th, traits, trait_ids)
         local keys = { out.signature };
         out.trait_th, out.equipment = 0, {};
         for _, id in ipairs(trait_ids) do
-            local has = stats:HasTrait(id);
+            -- Traits follow the weapon-skill, ability and pet-command masks.
+            local has = stats:HasTrait(0x600 + id);
             if (type(has) ~= 'boolean') then error('Your job traits are not readable.'); end
             if (has) then out.trait_th = out.trait_th + traits[id]; end
             keys[#keys + 1] = id .. '=' .. tostring(has);

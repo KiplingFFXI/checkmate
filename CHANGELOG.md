@@ -2,6 +2,15 @@
 
 Older entries describe that release. Later entries may change its behavior.
 
+## 1.14.13
+
+- Fixed Automatic Treasure Hunter missing your job traits, including TH1 on a level 24 THF.
+- Automatic now hides the manual TH slider. Your manual value stays saved for when you switch back.
+- Profile changes are saved one at a time so one save cannot replace another.
+- Save as new protects existing names, including profiles created after you opened the menu.
+- Settings now cleans up its UI state after a drawing error.
+- Failed or cancelled data exports keep the previous complete dataset available.
+
 ## 1.14.12
 
 - Refreshed Phoenix data to `ed41f351f6` from October 30.

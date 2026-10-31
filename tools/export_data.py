@@ -37,6 +37,7 @@ from export import modifiers
 from export import job_settings
 from export import outside
 from export import overlays
+from export import output
 from export import pets
 from export import pdif
 from export import placeholders
@@ -163,11 +164,11 @@ def count_constants(text):
 
 
 def load_check(paths):
-    """Loads every file with lupa's LuaJIT when lupa is installed. Returns a note for the summary."""
+    """Loads every generated file with LuaJIT. A missing checker stops the export."""
     try:
         from lupa import luajit21
-    except ImportError:
-        return 'Skipped the LuaJIT load check because lupa is not installed.'
+    except ImportError as error:
+        raise RuntimeError('The export needs lupa for the LuaJIT load check. Install tools/requirements.txt.') from error
     runtime = luajit21.LuaRuntime()
     loader = runtime.eval('function(path) local chunk, err = loadfile(path) if not chunk then return err end '
                           'local ok, data = pcall(chunk) if not ok then return data end '
@@ -179,7 +180,7 @@ def load_check(paths):
     return 'All %d files load in LuaJIT.' % len(paths)
 
 
-def build_files(folder, allowed, stamp, out):
+def _write_files(folder, allowed, stamp, out):
     """Reads the source tree in folder and writes every data file. Returns the numbers for the summary."""
     parity_note = source_parity.check(folder)
     ctx = Context(folder, allowed)
@@ -221,9 +222,6 @@ def build_files(folder, allowed, stamp, out):
 
     out_zones = os.path.join(out, 'zones')
     os.makedirs(out_zones, exist_ok=True)
-    for old in os.listdir(out_zones):
-        if old.endswith('.lua'):
-            os.remove(os.path.join(out_zones, old))
     written, zone_sizes, total_rows = [], [], 0
     finder = blue_finder.Builder()
     for number, script_dir, kinds in built:
@@ -296,15 +294,29 @@ def build_files(folder, allowed, stamp, out):
     finder_text = blue_finder.write(finder_path, finder_data, stamp)
     if count_constants(finder_text) > CONSTANT_LIMIT:
         raise RuntimeError('Blue finder exceeds the LuaJIT constant limit; review its layout before exporting')
-    note = load_check(written + [bands_path, too_weak_path, pets_path, steal_path, crit_path, effects_path, modifiers_path, job_path, finder_path, pdif_path, defenses_path, merits_path])
     total_size = (sum(entry[0] for entry in zone_sizes) + bands_size + too_weak_size + pets_size + steal_size
                   + crit_size + effects_size + modifiers_size + len(job_text) + len(finder_text) + pdif_size + len(defenses_text) + len(merits_text))
     return {'files': len(written), 'rows': total_rows, 'zone_sizes': zone_sizes, 'total_size': total_size,
-            'bands': band_rows, 'note': note, 'skipped': len(ctx.skipped), 'too_weak': too_weak,
+            'bands': band_rows, 'skipped': len(ctx.skipped), 'too_weak': too_weak,
             'too_weak_sources': sources, 'jugs': len(jugs), 'avatars': len(avatars), 'affinity': affinity,
             'steal_ability': steal_ability, 'steal_items': len(steal_items), 'steal_latents': len(steal_latents),
             'crit_merits': crit_merits, 'crit_caps': crit_caps, 'crit_items': len(crit_items),
             'effects': effect_data, 'modifiers': modifier_data, 'blue_finder': finder_data, 'parity_note': parity_note}
+
+
+def build_files(folder, allowed, stamp, out):
+    """Generate and validate the full set before replacing any prior output."""
+    with output.Output(out, folder) as transaction:
+        result = _write_files(folder, allowed, stamp, str(transaction.stage))
+        paths = transaction.files()
+        for path in paths:
+            constants = count_constants(path.read_text(encoding='utf-8'))
+            if constants > CONSTANT_LIMIT:
+                raise RuntimeError('%s needs about %d constants, over the %d limit'
+                                   % (path, constants, CONSTANT_LIMIT))
+        result['note'] = load_check([str(path) for path in paths])
+        transaction.promote()
+    return result
 
 
 def export(args):

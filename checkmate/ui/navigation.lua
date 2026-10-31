@@ -137,11 +137,12 @@ function navigation.draw(settings, tabs, matches, search_changed, draw_page, opt
             active, revealed = hidden[1][1], true;
         end
         if (imgui.IsItemHovered()) then
-            imgui.BeginTooltip();
-            imgui.PushTextWrapPos(360);
-            imgui.TextUnformatted('Shows the hidden tabs matching this search. Their feature settings stay as they are.');
-            imgui.PopTextWrapPos();
-            imgui.EndTooltip();
+            if (imgui.BeginTooltip()) then
+                imgui.PushTextWrapPos(360);
+                imgui.TextUnformatted('Shows the hidden tabs matching this search. Their feature settings stay as they are.');
+                imgui.PopTextWrapPos();
+                imgui.EndTooltip();
+            end
         end
     end
     if (#visible == 0) then return revealed; end

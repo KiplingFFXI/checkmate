@@ -44,7 +44,9 @@ Hover a control's help marker for its explanation. In the overlay, hover text or
 
 Under **Display > Rows > Job settings**, **Hide BLU learning unless my main job is BLU** hides learning information on other main jobs. BLU spell landing estimates and the spell finder stay available. **Hide Steal when I can't use it** checks your main and support jobs and the level needed for Steal. Both start off, apply to chat and the overlay, and leave your row selections saved. Hidden rows return when your jobs qualify. Display explains when a job rule is hiding a selected row.
 
-**Treasure Hunter** offers **Manual** or **Automatic** in Job settings and Drops. Manual is the default and keeps the existing TH slider, including for party estimates. Automatic uses your current client traits and supported equipped gear, with Phoenix's TH cap. It follows job, effective-level and gear changes, but does not read TH already applied to the monster or another player's TH. If an automatic reading is unavailable, the display says it is using your saved manual value. Switching modes keeps that value; `/checkmate th <0-4>` selects Manual and sets it. Display reset restores the job rules and TH mode without clearing your manual TH level.
+**Treasure Hunter** offers **Manual** or **Automatic** in Job settings and Drops. Manual is the default and shows the TH slider, including for party estimates. Automatic shows the TH value being used and hides the manual slider. Your manual value stays saved and returns when you select Manual.
+
+Automatic uses your current client traits and supported equipped gear, with Phoenix's TH cap. It follows job, effective-level and gear changes, but does not read TH already applied to the monster or another player's TH. If an automatic reading is unavailable, the display says it is using your saved manual value. `/checkmate th <0-4>` selects Manual and sets it. Display reset restores the job rules and TH mode without clearing your manual TH level.
 
 For a shorter panel, enable **Appearance > Window style > Compact tab navigation**, or use `/checkmate compacttabs on`. It replaces the wrapped tab buttons with one selector. Search and hidden tabs still work. Settings categories remember your open and closed choices for this character between reloads. Search opens them temporarily without replacing those choices.
 
@@ -66,6 +68,8 @@ Open **Profiles** and choose a preset. The list explains its changes before you 
 | Thief | Rewards, drops and Steal, with their conditions. |
 
 Presets enable the overlay, change the selected rows and their order, and limit long lists to three entries. Full Links, Dangers and reward lists remain in Target details. To see more drops directly in chat or the overlay, raise Most items shown under Drops. Presets keep your colors, fonts, labels, abbreviations, window positions, hidden tabs, merits, Treasure Hunter and manual accuracy inputs. A preset does not add an estimate that the selected monster or your current inputs cannot support.
+
+Saved profiles are shared across characters in the same installation. **Save as new** keeps existing names protected; select a saved profile and use **Overwrite** to replace it. If a profile save is busy, try again in a moment. A busy or failed save leaves your saved profiles in place.
 
 ### Preview and undo
 

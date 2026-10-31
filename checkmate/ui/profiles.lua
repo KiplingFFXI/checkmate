@@ -18,7 +18,12 @@ local presets  = require('ui.presets');
 ffi.cdef[[
     unsigned long __stdcall GetCurrentProcessId(void);
     int __stdcall MoveFileExA(const char* existing, const char* replacement, unsigned long flags);
+    void* __stdcall CreateFileA(const char* path, unsigned long access, unsigned long share, void* security,
+        unsigned long creation, unsigned long flags, void* template_file);
+    unsigned long __stdcall GetLastError(void);
+    int __stdcall CloseHandle(void* handle);
 ]];
+local INVALID_HANDLE = ffi.cast('void*', -1);
 
 local profiles = {};
 
@@ -84,22 +89,24 @@ local function read()
     saved, readable = {}, true;
     revision = revision + 1;
     local path = folder() .. FILE_NAME;
-    local file = io.open(path, 'r');
-    if (file ~= nil) then
-        local text = file:read('*a');
-        file:close();
-        local ok, data = pcall(json.decode, text);
+    local opened, file = pcall(io.open, path, 'r');
+    if (not opened) then
+        readable = false;
+    elseif (file ~= nil) then
+        local got_text, text = pcall(function() return file:read('*a'); end);
+        local closed_ok, closed = pcall(function() return file:close(); end);
+        local ok, data;
+        if (got_text and closed_ok and closed) then ok, data = pcall(json.decode, text); end
         if (ok and type(data) == 'table') then
             for name, profile in pairs(data) do
-                if (type(name) == 'string' and type(profile) == 'table') then
-                    saved[name] = profile;
-                end
+                if (type(name) == 'string' and type(profile) == 'table') then saved[name] = profile; end
             end
         else
             readable = false;
         end
-    elseif (ashita.fs.exists(path)) then
-        readable = false;
+    else
+        local ok, exists = pcall(ashita.fs.exists, path);
+        if (not ok or exists) then readable = false; end
     end
     sort_names();
     return saved;
@@ -128,21 +135,49 @@ local function write()
     if (file == nil) then
         return false;
     end
-    local written = file:write(text);
-    local closed = file:close();
-    if (not written or not closed) then
+    local finished, written, closed = pcall(function()
+        local written = file:write(text);
+        return written, file:close();
+    end);
+    if (not finished or not written or not closed) then
+        pcall(function() file:close(); end);
         os.remove(temp);
         return false;
     end
     -- Replace only after the complete file is closed. A failed save leaves the old file in place.
-    local replaced = ffi.C.MoveFileExA(temp, path, 9) ~= 0; -- REPLACE_EXISTING | WRITE_THROUGH.
-    if (not replaced) then
+    local moved, replaced = pcall(function() return ffi.C.MoveFileExA(temp, path, 9) ~= 0; end);
+    if (not moved or not replaced) then
         os.remove(temp);
         return false;
     end
     sort_names();
     revision = revision + 1;
     return true;
+end
+
+-- The OS releases this exclusive handle if the game closes, including after a crash.
+local function with_lock(change)
+    local opened, handle = pcall(function()
+        ashita.fs.create_dir(folder());
+        -- Read, write and delete access; no sharing; open or create; delete on close.
+        return ffi.C.CreateFileA(folder() .. FILE_NAME .. '.lock', 0xC0010000, 0, nil, 4, 0x04000100, nil);
+    end);
+    if (not opened or handle == nil or handle == INVALID_HANDLE) then
+        local ok, code = pcall(function() return ffi.C.GetLastError(); end);
+        return false, opened and ok and (code == 32 or code == 33) and 'busy' or 'file';
+    end
+    local ok, changed, reason = pcall(function()
+        read();
+        if (not readable) then return false, 'file'; end
+        return change();
+    end);
+    if (not ok) then
+        local restored = pcall(read);
+        if (not restored) then saved, names, readable = {}, {}, false; end
+    end
+    ffi.C.CloseHandle(handle);
+    if (not ok) then return false, 'file'; end
+    return changed, reason;
 end
 
 -- Your saved value, with anything missing or of the wrong type taken from the defaults.
@@ -186,31 +221,26 @@ function profiles.file_ok()
     return readable;
 end
 
--- Saves `settings` as the named profile, new or over an old one.
-function profiles.save(settings, name)
+-- Saves a profile. Save as new checks for an existing name while the file is locked.
+function profiles.save(settings, name, create_only)
     name = profiles.clean_name(name);
-    if (name == '') then
-        return false;
-    end
-    read();
-    local before = saved[name];
-    local profile = {};
-    for key, value in pairs(settings) do
-        if (not NOT_SAVED[key]) then
-            profile[key] = copy(value);
+    if (name == '') then return false, 'name'; end
+    return with_lock(function()
+        local before = saved[name];
+        if (create_only == true and before ~= nil) then return false, 'exists'; end
+        local profile = {};
+        for key, value in pairs(settings) do
+            if (not NOT_SAVED[key]) then profile[key] = copy(value); end
         end
-    end
-    saved[name] = profile;
-    if (not write()) then
-        saved[name] = before;
-        return false;
-    end
-    if (before ~= nil and not history.equal(before, profile)) then
-        overwritten = { name = name, before = copy(before), after = copy(profile) };
-    end
-    settings.profile_source = T{ kind = 'profile', name = name };
-    profiles.changed(settings);
-    return true;
+        saved[name] = profile;
+        if (not write()) then saved[name] = before; return false, 'file'; end
+        if (before ~= nil and not history.equal(before, profile)) then
+            overwritten = { name = name, before = copy(before), after = copy(profile) };
+        end
+        settings.profile_source = T{ kind = 'profile', name = name };
+        profiles.changed(settings);
+        return true;
+    end);
 end
 
 -- Loads the named profile into `settings`. Anything a newer version added comes from the defaults, but a
@@ -325,61 +355,50 @@ end
 -- Read again and restore only when this is still the exact version we overwrote it with.
 function profiles.undo_overwrite()
     if (overwritten == nil) then return false, 'none'; end
-    read();
-    if (not readable) then return false, 'file'; end
-    if (not history.equal(saved[overwritten.name], overwritten.after)) then return false, 'changed'; end
-    saved[overwritten.name] = copy(overwritten.before);
-    if (not write()) then saved[overwritten.name] = copy(overwritten.after); return false, 'file'; end
-    local name = overwritten.name;
-    overwritten = nil;
-    return true, name;
+    return with_lock(function()
+        if (not history.equal(saved[overwritten.name], overwritten.after)) then return false, 'changed'; end
+        saved[overwritten.name] = copy(overwritten.before);
+        if (not write()) then saved[overwritten.name] = copy(overwritten.after); return false, 'file'; end
+        local name = overwritten.name;
+        overwritten = nil;
+        return true, name;
+    end);
 end
 
 -- Renames a profile. This character's job links follow it.
 function profiles.rename(settings, old, new)
     new = profiles.clean_name(new);
-    read();
-    if (saved[old] == nil or new == '' or saved[new] ~= nil) then
-        return false;
-    end
-    saved[new], saved[old] = saved[old], nil;
-    if (not write()) then
-        saved[old], saved[new] = saved[new], nil;
-        return false;
-    end
-    for job, linked in pairs(settings.job_links) do
-        if (linked == old) then
-            settings.job_links[job] = new;
+    if (new == '') then return false, 'name'; end
+    return with_lock(function()
+        if (saved[old] == nil) then return false, 'missing'; end
+        if (saved[new] ~= nil) then return false, 'exists'; end
+        saved[new], saved[old] = saved[old], nil;
+        if (not write()) then saved[old], saved[new] = saved[new], nil; return false, 'file'; end
+        for job, linked in pairs(settings.job_links) do
+            if (linked == old) then settings.job_links[job] = new; end
         end
-    end
-    if (settings.profile_source and settings.profile_source.kind == 'profile' and settings.profile_source.name == old) then
-        settings.profile_source.name = new;
-    end
-    profiles.changed(settings);
-    return true;
+        if (settings.profile_source and settings.profile_source.kind == 'profile' and settings.profile_source.name == old) then
+            settings.profile_source.name = new;
+        end
+        profiles.changed(settings);
+        return true;
+    end);
 end
 
 -- Deletes a profile. This character's job links to it go too.
 function profiles.delete(settings, name)
-    read();
-    local before = saved[name];
-    if (before == nil) then
-        return false;
-    end
-    saved[name] = nil;
-    if (not write()) then
-        saved[name] = before;
-        return false;
-    end
-    deleted = { name = name, profile = copy(before), links = {}, owner = settings };
-    for job, linked in pairs(settings.job_links) do
-        if (linked == name) then
-            deleted.links[job] = name;
-            settings.job_links[job] = nil;
+    return with_lock(function()
+        local before = saved[name];
+        if (before == nil) then return false, 'missing'; end
+        saved[name] = nil;
+        if (not write()) then saved[name] = before; return false, 'file'; end
+        deleted = { name = name, profile = copy(before), links = {}, owner = settings };
+        for job, linked in pairs(settings.job_links) do
+            if (linked == name) then deleted.links[job], settings.job_links[job] = name, nil; end
         end
-    end
-    profiles.changed(settings);
-    return true;
+        profiles.changed(settings);
+        return true;
+    end);
 end
 
 function profiles.deleted_name()
@@ -389,19 +408,19 @@ end
 -- Restore only the last successful deletion, without overwriting a recreated profile or new job link.
 function profiles.undo_delete(settings)
     if (deleted == nil) then return false, 'none'; end
-    read();
-    if (not readable) then return false, 'file'; end
-    if (saved[deleted.name] ~= nil) then return false, 'exists'; end
-    saved[deleted.name] = copy(deleted.profile);
-    if (not write()) then saved[deleted.name] = nil; return false, 'file'; end
-    if (settings == deleted.owner) then
-        for job, name in pairs(deleted.links) do
-            if (settings.job_links[job] == nil) then settings.job_links[job] = name; end
+    return with_lock(function()
+        if (saved[deleted.name] ~= nil) then return false, 'exists'; end
+        saved[deleted.name] = copy(deleted.profile);
+        if (not write()) then saved[deleted.name] = nil; return false, 'file'; end
+        if (settings == deleted.owner) then
+            for job, name in pairs(deleted.links) do
+                if (settings.job_links[job] == nil) then settings.job_links[job] = name; end
+            end
         end
-    end
-    local name = deleted.name;
-    deleted = nil;
-    return true, name;
+        local name = deleted.name;
+        deleted = nil;
+        return true, name;
+    end);
 end
 
 -- Loads the profile linked to this main job id. Returns its name, or nil when nothing loaded.

@@ -54,11 +54,12 @@ end
 
 local function hover_tip(text)
     if (text == nil or not imgui.IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) then return; end
-    imgui.BeginTooltip();
-    imgui.PushTextWrapPos(360 * imgui.GetFontSize() / 18);
-    imgui.TextUnformatted(text);
-    imgui.PopTextWrapPos();
-    imgui.EndTooltip();
+    if (imgui.BeginTooltip()) then
+        imgui.PushTextWrapPos(360 * imgui.GetFontSize() / 18);
+        imgui.TextUnformatted(text);
+        imgui.PopTextWrapPos();
+        imgui.EndTooltip();
+    end
 end
 
 local function options(ui, id)

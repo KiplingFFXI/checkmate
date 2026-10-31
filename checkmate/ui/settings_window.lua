@@ -10,6 +10,7 @@
 ]]
 
 local imgui       = require('imgui');
+local draw_guard  = require('ui.draw_guard');
 local printout    = require('core.printout');
 local physical    = require('core.physical');
 local aggro       = require('core.aggro');
@@ -1039,11 +1040,12 @@ end
 local function help_mark(tip)
     imgui.TextDisabled(HELP_MARK);
     if (imgui.IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) then
-        imgui.BeginTooltip();
-        imgui.PushTextWrapPos(px(TIP_WIDTH));
-        imgui.TextUnformatted(tip);
-        imgui.PopTextWrapPos();
-        imgui.EndTooltip();
+        if (imgui.BeginTooltip()) then
+            imgui.PushTextWrapPos(px(TIP_WIDTH));
+            imgui.TextUnformatted(tip);
+            imgui.PopTextWrapPos();
+            imgui.EndTooltip();
+        end
     end
 end
 
@@ -1066,11 +1068,12 @@ settings_window.control_help = help;
 
 local function hover_help(tip)
     if (imgui.IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) then
-        imgui.BeginTooltip();
-        imgui.PushTextWrapPos(px(TIP_WIDTH));
-        imgui.TextUnformatted(tip);
-        imgui.PopTextWrapPos();
-        imgui.EndTooltip();
+        if (imgui.BeginTooltip()) then
+            imgui.PushTextWrapPos(px(TIP_WIDTH));
+            imgui.TextUnformatted(tip);
+            imgui.PopTextWrapPos();
+            imgui.EndTooltip();
+        end
     end
 end
 
@@ -1149,11 +1152,12 @@ do
         imgui.PopStyleColor(1);
         search.mark(title, tip);
         if (tip ~= nil and imgui.IsItemHovered()) then
-            imgui.BeginTooltip();
-            imgui.PushTextWrapPos(px(TIP_WIDTH));
-            imgui.TextUnformatted(tip);
-            imgui.PopTextWrapPos();
-            imgui.EndTooltip();
+            if (imgui.BeginTooltip()) then
+                imgui.PushTextWrapPos(px(TIP_WIDTH));
+                imgui.TextUnformatted(tip);
+                imgui.PopTextWrapPos();
+                imgui.EndTooltip();
+            end
         end
         if (not searching) then
             settings_window.folded[key] = shown;
@@ -1936,8 +1940,10 @@ function settings_window.draw_treasure_hunter(settings, label)
     choice('Treasure Hunter', d, 'th_mode', ui.th_modes,
         'Automatic uses your own supported traits and equipped gear. Manual uses the level you choose, including for party estimates. '
         .. 'This does not read the monster\'s applied Treasure Hunter.');
-    slider(imgui.SliderInt, label or '##th', d, 'th', 0, drops.TH_MAX, 'TH %d',
-        TIPS.th .. ' Automatic keeps this manual value for when you switch back.', d.th_mode == 'auto');
+    if (d.th_mode ~= 'auto') then
+        slider(imgui.SliderInt, label or '##th', d, 'th', 0, drops.TH_MAX, 'TH %d',
+            TIPS.th .. ' Switching to Automatic keeps this value.');
+    end
     local th = ui.job_settings.treasure_hunter(d);
     if (d.th_mode == 'auto') then
         if (th.known) then
@@ -2391,7 +2397,10 @@ end
     Profiles tab. Each action returns true or false and the message to show under the buttons.
 ]]
 
-local function file_problem()
+local function file_problem(reason)
+    if (reason == 'busy') then
+        return 'Another game window is changing profiles. Try again in a moment.';
+    end
     if (not profiles.file_ok()) then
         return 'The profiles.json file can\'t be read, so profiles won\'t work until you fix or remove it. You\'ll '
             .. 'find it in config\\addons\\checkmate in your Ashita folder.';
@@ -2403,10 +2412,13 @@ local function save_as_new(settings)
     local name = profiles.clean_name(profile_name[1]);
     if (name == '') then
         return false, 'Type a name for the new profile first.';
-    elseif (profiles.exists(name)) then
-        return false, ('There is already a profile called "%s". Pick it and use Overwrite.'):format(name);
-    elseif (not profiles.save(settings, name)) then
-        return false, file_problem();
+    end
+    local ok, reason = profiles.save(settings, name, true);
+    if (not ok) then
+        if (reason == 'exists') then
+            return false, ('There is already a profile called "%s". Pick it and use Overwrite.'):format(name);
+        end
+        return false, file_problem(reason);
     end
     picked = name;
     result.save, result.label = true, 'Save profile ' .. name;
@@ -2414,15 +2426,15 @@ local function save_as_new(settings)
 end
 
 local function overwrite_picked(settings)
-    if (not profiles.save(settings, picked)) then
-        return false, file_problem();
-    end
+    local ok, reason = profiles.save(settings, picked);
+    if (not ok) then return false, file_problem(reason); end
     result.save, result.label = true, 'Overwrite profile ' .. picked;
     return true, ('Saved your settings over "%s".'):format(picked);
 end
 
 local function load_picked(settings)
     if (not profiles.load(settings, picked)) then
+        if (not profiles.file_ok()) then return false, file_problem(); end
         return false, ('The profile "%s" isn\'t there anymore.'):format(picked);
     end
     result.save, result.label = true, 'Load profile ' .. picked;
@@ -2431,12 +2443,12 @@ end
 
 local function rename_picked(settings)
     local name = profiles.clean_name(profile_name[1]);
-    if (name == '') then
-        return false, 'Type the new name first.';
-    elseif (profiles.exists(name)) then
-        return false, ('There is already a profile called "%s".'):format(name);
-    elseif (not profiles.rename(settings, picked, name)) then
-        return false, file_problem();
+    if (name == '') then return false, 'Type the new name first.'; end
+    local ok, reason = profiles.rename(settings, picked, name);
+    if (not ok) then
+        if (reason == 'exists') then return false, ('There is already a profile called "%s".'):format(name); end
+        if (reason == 'missing') then return false, ('The profile "%s" isn\'t there anymore.'):format(picked); end
+        return false, file_problem(reason);
     end
     local old = picked;
     picked = name;
@@ -2445,8 +2457,10 @@ local function rename_picked(settings)
 end
 
 local function delete_picked(settings)
-    if (not profiles.delete(settings, picked)) then
-        return false, file_problem();
+    local ok, reason = profiles.delete(settings, picked);
+    if (not ok) then
+        if (reason == 'missing') then return false, ('The profile "%s" isn\'t there anymore.'):format(picked); end
+        return false, file_problem(reason);
     end
     local old = picked;
     picked = nil;
@@ -2459,7 +2473,7 @@ function settings_window.undo_profile_delete(settings)
     if (not ok) then
         if (reason == 'exists') then return false, 'That profile name is already in use. Nothing was replaced.'; end
         if (reason == 'none') then return false, 'There is no deleted profile to restore.'; end
-        return false, file_problem();
+        return false, file_problem(reason);
     end
     picked, result.save = reason, true;
     return true, ('Restored "%s".'):format(reason);
@@ -2541,7 +2555,7 @@ local function draw_profiles_section(settings)
         local ok, reason = profiles.undo_overwrite();
         status_ok = ok;
         status = ok and ('Restored the saved profile "' .. reason .. '". Your current settings stay as they are.')
-            or (reason == 'changed' and 'That profile changed again. Nothing was replaced.' or file_problem());
+            or (reason == 'changed' and 'That profile changed again. Nothing was replaced.' or file_problem(reason));
         profiles.changed(settings);
     end
     imgui.EndDisabled();
@@ -3314,7 +3328,7 @@ function settings_window.draw_page(tab, settings)
     imgui.EndChild();
 end
 
-function settings_window.draw(settings, version, sample_provider)
+local function draw(settings, version, sample_provider)
     result.save, result.sample, result.edited = false, false, false;
     result.preferences = false;
     result.reset_all = false;
@@ -3392,6 +3406,10 @@ function settings_window.draw(settings, version, sample_provider)
         profiles.changed(settings);
     end
     return result;
+end
+
+function settings_window.draw(...)
+    return draw_guard.run(draw, ...);
 end
 
 return settings_window;

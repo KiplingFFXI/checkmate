@@ -151,17 +151,57 @@ end
 file_ffi.cdef[[
     unsigned long __stdcall GetCurrentProcessId(void);
     int __stdcall MoveFileExA(const char* existing, const char* replacement, unsigned long flags);
+    void* __stdcall CreateFileA(const char* path, unsigned long access, unsigned long share, void* security,
+        unsigned long creation, unsigned long flags, void* template_file);
+    unsigned long __stdcall GetLastError(void);
+    int __stdcall CloseHandle(void* handle);
 ]];
+local profile_handles, profile_paths, profile_handle_id, profile_lock_error = {}, {}, 0, 0;
+local invalid_handle = file_ffi.cast('void*', -1);
 package.loaded['ffi'] = {
     cdef = function () end,
     new = function () return {}; end,
     cast = function (ctype, value)
         if (ctype == 'uint32_t') then return value.handle; end
+        if (ctype == 'void*') then return file_ffi.cast(ctype, value); end
         return value;
     end,
     C = {
         GetCurrentProcessId = function () return file_ffi.os == 'Windows' and file_ffi.C.GetCurrentProcessId() or 1; end,
+        CreateFileA = function (path, access, share, security, creation, flags, template_file)
+            if (access ~= 0xC0010000 or share ~= 0 or security ~= nil or creation ~= 4
+                or flags ~= 0x04000100 or template_file ~= nil) then
+                MOCK.bad_profile_lock_calls = (MOCK.bad_profile_lock_calls or 0) + 1;
+            end
+            if (MOCK.profile_lock_error) then
+                profile_lock_error = MOCK.profile_lock_error;
+                return invalid_handle;
+            end
+            local handle;
+            if (file_ffi.os == 'Windows') then
+                handle = file_ffi.C.CreateFileA(path, access, share, security, creation, flags, template_file);
+                if (handle == invalid_handle) then profile_lock_error = file_ffi.C.GetLastError(); return handle; end
+            else
+                if (profile_paths[path]) then profile_lock_error = 32; return invalid_handle; end
+                profile_handle_id = profile_handle_id + 1;
+                handle = file_ffi.cast('void*', profile_handle_id);
+                profile_paths[path] = true;
+            end
+            profile_handles[tostring(handle)] = path;
+            MOCK.profile_locks_open = (MOCK.profile_locks_open or 0) + 1;
+            return handle;
+        end,
+        GetLastError = function () return profile_lock_error; end,
+        CloseHandle = function (handle)
+            local key, path = tostring(handle), profile_handles[tostring(handle)];
+            if (path == nil) then return 0; end
+            if (file_ffi.os == 'Windows' and file_ffi.C.CloseHandle(handle) == 0) then return 0; end
+            profile_handles[key], profile_paths[path] = nil, nil;
+            MOCK.profile_locks_open = MOCK.profile_locks_open - 1;
+            return 1;
+        end,
         MoveFileExA = function (existing, replacement, flags)
+            if (MOCK.profile_replace_raise) then error('simulated native replacement error'); end
             if (MOCK.profile_replace_error) then return 0; end
             if (file_ffi.os ~= 'Windows') then return os.rename(existing, replacement) and 1 or 0; end
             return file_ffi.C.MoveFileExA(existing, replacement, flags);
@@ -320,6 +360,13 @@ local function player_memory()
         GetMainJob = function () return p.main_job; end,
         HasAbilityData = function () return p.ability_data ~= false; end,
         HasTrait = function (_, id)
+            -- Ashita reads the whole command mask. Trait IDs start at 1536.
+            if (p.command_data ~= nil) then
+                local value = p.command_data:byte(math.floor(id / 8) + 1) or 0;
+                return bit.band(value, bit.lshift(1, id % 8)) ~= 0;
+            end
+            if (id < 1536 or id >= 1792) then return false; end
+            id = id - 1536;
             if (p.traits ~= nil) then return p.traits[id] == true; end
             local level = p.main_job == 6 and p.main_level or (p.sub_job == 6 and p.sub_level or 0);
             return (id == 19 and level >= 15) or (id == 64 and level >= 45);

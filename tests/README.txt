@@ -9,6 +9,27 @@ is loaded by the addon or copied into the game.
 Event callbacks and packet builders use userdata, like Ashita v4. MOCK.event wraps a table with
 newproxy and shares its fields, so callback changes stay visible to the test that supplied them.
 
+Verified in Ashita v4: packet strings can contain 512 bytes while e.size is shorter. The padded-buffer
+cases keep a valid-looking tail and require readers, including action bit reads, to respect e.size.
+These are synthetic packets; no captured bytes or character data are included.
+
+Check native SDK argument IDs, offsets, bounds and return types against its source or the reviewed
+installed binary. An annotation or a mock agreeing with the addon does not prove that contract.
+HasTrait takes a bit index in the combined command mask: server trait 19 uses 0x600 + 19.
+test_trait_contract.lua checks this through literal 0x0AC mask bytes in fixtures/command_data.lua,
+including wrong-section negative controls. Those bytes come from the reviewed server serializer
+and SDK contract, without reusing the addon's offset. This is a synthetic fixture, not a live capture.
+
+Profile locking is also checked against the actual Windows CreateFile sharing rules, including separate
+processes and forced process exit. The concurrency regression uses independent profile readers and
+requires busy/retry and create-only saves to preserve the other writer's bytes. A mock-only lock is not
+evidence that the game windows exclude each other.
+
+Config drawing tracks only scopes it opens. Error tests cover nested windows, tables, popups, tooltips,
+IDs, styles, fonts and draw-list clips, while keeping preexisting scopes and raw GUI hooks intact.
+The real Dear ImGui preview checks recovery independently of the Lua mock's stack counters.
+Scope tracking uses explicit links and a count, without array length or table.remove.
+
 
 Setup (once)
 ------------
@@ -53,6 +74,8 @@ test_exists_sql.py keeps skill-list IDs separate from move IDs when checking SQL
 test_outside.py checks player-only job changes without allowing unreadable monster job changes.
 The critical-move tests also check native module load order against reversed file enumeration.
 Archive checks cover exact path casing, added files and conflicting filenames.
+test_export_transaction.py covers staged validation, interruption and recovery, OS lock contention,
+concurrent output edits and foreign-directory protection in separate fixture folders.
 See ../tools/README.txt for the source-backed run and fresh-extraction comparison.
 
 
@@ -92,6 +115,10 @@ These are the main suite groups. run.py discovers every test_*.lua file, includi
   test_info_integration.lua Monster commands, cached target details and spellbook packet refresh
   test_expansion_ui.lua    Monster controls, hidden element marks, search focus and wrapped details
   test_profile_undo.lua    deletion undo, name collisions, job links and failed writes
+  test_profile_concurrency.lua independent writers, busy retries, create-only saves and lock cleanup
+  test_profile_create_ui.lua stale menu names, safe creation and accurate save errors
+  test_profile_busy_commands.lua command retries and file errors for shared profile changes
+  test_settings_error_cleanup.lua nested scope cleanup, false tooltips and normal redraws
   test_weapons.lua         weapon damage percentages, source warnings and level-dependent values
   test_weapon_damage_ui.lua chat, overlay icons, missing icons, settings and source notes
   test_weapons_integration.lua controller commands and cached overlay weapon data
@@ -105,7 +132,8 @@ These are the main suite groups. run.py discovers every test_*.lua file, includi
   test_input_refresh.lua   quiet HP/TP changes and supported latent eligibility changes
   test_rewards_data.lua    complete reward snapshots, display limits and Escape reset
   test_job_settings.lua    current job eligibility, trait bits, gear, unknown TH and unchanged manual inputs
-  test_job_settings_ui.lua folded job controls, search, mode choices, reset and Undo
+  test_job_settings_ui.lua folded job controls, current Automatic TH, hidden manual sliders, fallback, reset and Undo
+  test_trait_contract.lua  native HasTrait IDs, literal command-mask bytes and wrong-section controls
   test_job_settings_integration.lua main/support job changes, quiet polls and native check visibility
   test_modifiers.lua       known gear and merits, manual totals and missing combat inputs
   test_magic_migration.lua saved magic totals keep their old meaning after upgrading

@@ -25,7 +25,7 @@ VERSION_LINE = re.compile(r"^addon\.version\s*=\s*'([^']+)';", re.M)
 
 # New runtime files or zones need an explicit entry before they can ship.
 CORE = 'aggro blue_finder blue_learning check_details checkparam dangers defenses diagnostics drops effects elements info job_settings lessons magic merits modifiers monsters packets parts pdif pet physical player printout steal target weapons wording'.split()
-UI = 'blue_finder chat_colors defaults display header_layout history icons navigation overlay presets preview profiles search settings_window skins tips window_font'.split()
+UI = 'blue_finder chat_colors defaults display draw_guard header_layout history icons navigation overlay presets preview profiles search settings_window skins tips window_font'.split()
 DATA = 'bands blue_finder crit defenses effects job_settings merits modifiers pdif pets spells steal too_weak'.split()
 ZONES = (
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29,

@@ -31,6 +31,18 @@ the source commit in its header even when the values stayed the same.
 It never changes the Phoenix repo. Every run copies the files it needs from the commit into a new temp folder
 with git archive, reads that copy, and deletes it at the end. Nothing is reused from an earlier run.
 
+Each export builds and validates the complete generated dataset in a staging folder beside the output.
+The previous output stays available until promotion succeeds. A failed build leaves it in place; a failed
+promotion restores it or keeps a recovery copy. The next export to that output recovers any interrupted
+transaction before starting. Hand-maintained spells.lua and unrelated files are preserved. Obsolete numeric
+zone files are retired only when the replacement is ready.
+If the output changes during a build, the export stops and keeps those edits. Run it again when you finish editing.
+
+The temporary recovery folder is .<output-name>.checkmate-export beside the output. Successful completion
+removes it. Exports to the same output use a nonblocking OS lock, stored under the user cache at
+.cache/checkmate/export-locks. A busy output reports an error so you can retry after the other run finishes.
+If recovery finds changed or replaced output, it stops and keeps both copies for review.
+
 Module data roots follow the native YAML loader. Explicit data paths stay as written. Other init entries also enable the first module directory's data folder, with the first occurrence setting its merge order.
 
 Lua modules follow Phoenix's load order: direct file entries first, then each directory's recursive paths

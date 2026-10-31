@@ -34,6 +34,21 @@ expect('result row reused', rows[1], reused);
 expect('old extra message cleared', rows[1].added, 0);
 expect('old extra value cleared', rows[1].added_param, 0);
 
+-- Ashita can expose a full buffer even when the declared packet ends earlier.
+local padded = MOCK.action_packet(me, 4, 58, mob, { { message = 236, param = 4 } });
+padded.data = padded.data .. string.rep('\0', 512 - #padded.data);
+expect('padding does not change the action category', packets.action_category(padded), 4);
+expect('padding does not change the action results', packets.action_results(padded, rows, 0x1000000), 1);
+expect('padding does not change the effect value', rows[1].param, 4);
+local before_bits = MOCK.bit_reads;
+padded.size = 0;
+expect('zero declared size rejects a padded action header', packets.action_category(padded), 0);
+expect('zero declared size rejects a padded action target', packets.action_target(padded), 0);
+expect('zero declared size rejects padded action results', packets.action_results(padded, rows, 0x1000000), 0);
+expect('zero declared size never reaches the native bit reader', MOCK.bit_reads, before_bits);
+padded.size = 33;
+expect('a complete effect outside the declared size is not accepted', packets.action_results(padded, rows, 0x1000000), 0);
+
 -- Every truncation stops before the native reader goes past the available data.
 local all_safe, no_partial = true, true;
 for size = 0, math.floor((150 + 36 + 85 + 1 + 37 + 1 + 34) / 8) - 1 do

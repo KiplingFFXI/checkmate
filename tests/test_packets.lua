@@ -28,6 +28,11 @@ for _, fixture in ipairs(fixtures) do
         check(name .. ' respects a reported size of ' .. size .. ' bytes', ok and result == nil, result);
     end
     check(name .. ' still reads a valid packet', packets[name](whole, 1) ~= nil);
+    local padded = MOCK.event({ id = whole.id, size = whole.size,
+        data = whole.data .. string.rep('\0', 512 - #whole.data) });
+    expect(name .. ' ignores padding after the declared body', packets[name](padded, 1), packets[name](whole, 1));
+    padded.size = minimum - 1;
+    expect(name .. ' rejects a short declared body with a valid padded tail', packets[name](padded, 1), nil);
 end
 struct.unpack = read_value;
 
@@ -57,4 +62,12 @@ end
 local list = MOCK.merit_packet({ { 1, 2 }, { 2, 3 } });
 list.data, list.size = list.data:sub(1, 12), 12;
 expect('truncated merit list is not partly accepted', packets.merit_count(list, 1), nil);
+list = MOCK.merit_packet({ { 1, 2 }, { 2, 3 } });
+local merit_size = list.size;
+list.data = list.data .. string.rep('\0', 512 - #list.data);
+list.size = 12;
+check('a merit entry in the padded tail cannot validate a short list', not packets.valid(list));
+expect('a merit entry in the padded tail is not observed', packets.merit_counts(list), nil);
+list.size = merit_size;
+expect('a complete merit list still reads with a padded buffer', packets.merit_counts(list)[2], 3);
 return MOCK.report();

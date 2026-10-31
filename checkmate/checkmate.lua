@@ -1,6 +1,6 @@
 addon.name    = 'checkmate';
 addon.author  = 'Kipling';
-addon.version = '1.14.12';
+addon.version = '1.14.13';
 addon.desc    = 'Monster details, combat estimates and your pet on /check for Phoenix.';
 addon.link    = 'https://github.com/KiplingFFXI/checkmate';
 
@@ -1661,6 +1661,7 @@ local PROFILE_DONE = {
     delete = 'The profile "%s" is deleted.',
 };
 local NO_PROFILE = 'There is no profile called "%s".';
+local PROFILE_BUSY = 'Another game window is changing profiles. Try again in a moment.';
 local PROFILE_FAILED = {
     save   = 'Couldn\'t save the profile "%s".',
     load   = NO_PROFILE,
@@ -1687,17 +1688,12 @@ local function rename_profile(old, new)
     if (new == nil) then
         return;
     end
-    profiles.refresh();
-    if (not profiles.exists(old)) then
-        say(NO_PROFILE:format(old));
-        return;
-    end
-    if (profiles.exists(new)) then
-        say(('There is already a profile called "%s".'):format(new));
-        return;
-    end
-    if (not profiles.rename(checkmate.settings, old, new)) then
-        say(('Couldn\'t rename the profile "%s".'):format(old));
+    local ok, reason = profiles.rename(checkmate.settings, old, new);
+    if (not ok) then
+        if (reason == 'busy') then say(PROFILE_BUSY);
+        elseif (reason == 'missing') then say(NO_PROFILE:format(old));
+        elseif (reason == 'exists') then say(('There is already a profile called "%s".'):format(new));
+        else say(('Couldn\'t rename the profile "%s".'):format(old)); end
         return;
     end
     save_settings();
@@ -1714,6 +1710,8 @@ local function run_profile(action, name, new)
             say('There is no deleted profile to restore in this session.');
         elseif (restored == 'exists') then
             say('A profile already has that name. Rename it before restoring the deleted one.');
+        elseif (restored == 'busy') then
+            say(PROFILE_BUSY);
         else
             say('Couldn\'t restore the deleted profile. Your saved profiles were kept.');
         end
@@ -1735,8 +1733,12 @@ local function run_profile(action, name, new)
         end
     end
 
-    if (not profiles[action](checkmate.settings, name)) then
-        say(PROFILE_FAILED[action]:format(name));
+    local ok, reason = profiles[action](checkmate.settings, name);
+    if (not ok) then
+        if (reason == 'busy') then say(PROFILE_BUSY);
+        elseif (action == 'load' and not profiles.file_ok()) then say('Couldn\'t read profiles.json. Your settings were kept.');
+        elseif (reason == 'file' and action == 'delete') then say(('Couldn\'t delete the profile "%s".'):format(name));
+        else say(PROFILE_FAILED[action]:format(name)); end
         return;
     end
     save_settings();

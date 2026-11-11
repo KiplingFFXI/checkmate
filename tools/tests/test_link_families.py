@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from export import lua_writer, mobscripts, rows
+from export import links, lua_writer, mobscripts, rows
 
 try:
     from lupa import luajit21
@@ -26,6 +26,15 @@ def caller(*names):
 
 
 class LinkFamilyTests(unittest.TestCase):
+    def test_named_pet_assignment_keeps_its_master_after_a_despawn_clear(self):
+        placed = [(7, SimpleNamespace(script='Master')), (42, SimpleNamespace(script='Pet'))]
+        master = SimpleNamespace(text='mob:setPet(GetMobByID(ID.mob.PET))\n'
+                                      'mob:setPet(nil)')
+        ctx = SimpleNamespace(dynamis=SimpleNamespace(zone_dirs=set()), scripts=SimpleNamespace(
+            mob_script_path=lambda zone, script: script, lua={'Master': master}.get))
+        ids = SimpleNamespace(first_id={'PET': 42}.__getitem__)
+        self.assertEqual(links.pet_masters(ctx, placed, 'Test', ids), {42: 7})
+
     def test_finish_preserves_exact_source_name_and_family(self):
         kind = rows.Kind('Akbaba HL', False, ('war', 'war'), {}, {}, {}, [], 'bird',
                          mobscripts.Effects(), False, 1, [])

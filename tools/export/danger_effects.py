@@ -306,6 +306,8 @@ def analyze(text, ids, script_name='', hostile=True):
         elif hostile and name in {'target:dispelStatusEffect', 'target:dispelAllStatusEffect'}:
             effects.add('Buff removal')
             notes.add('Only effects allowed by the move\'s dispel checks can be removed.')
+            if script_name == 'blank_gaze_dispel':
+                notes.add('The target must face the monster. Removes up to three buffs based on TP.')
         elif hostile and (name in {'mob:stealStatusEffect', 'caster:stealStatusEffect'} and args and args[0] == 'target' or name == 'xi.mobskills.mobDrainStatusEffectMove'):
             effects.add('Buff theft')
         elif hostile and name == 'mob:charm' and args and args[0] == 'target':
@@ -321,6 +323,8 @@ def analyze(text, ids, script_name='', hostile=True):
                 effects.add('Buff removal')
         elif hostile and name == 'target:setHP' and args and args[0] == '0':
             effects.add('Instant KO')
+            if script_name == 'ka-thwack':
+                notes.add('Consumes Reraise and deals magic damage if the target has Reraise.')
         elif hostile and name == 'xi.mobskills.mobDrainMove' and len(args) > 2:
             drain = re.fullmatch(r'xi\.mobskills\.drainType\.(HP|MP|TP)', args[2])
             if drain:
@@ -347,7 +351,7 @@ def analyze(text, ids, script_name='', hostile=True):
 
 
 # Every source file in this census is watched, including helper and loaded-module changes.
-SOURCE_GUARD = '055ea14e9bbe0640e3df5467fbd61a234824d244e669e8f12b4d70084cbee8e3'
+SOURCE_GUARD = '1f1438129c3b672b17553b52ca1326684bbf68c105f9ae6ca0efbe281d31e24a'
 SOURCE_FOLDERS = ('scripts/actions/mobskills', 'scripts/actions/spells', 'scripts/actions/weaponskills',
                   'scripts/globals/spells', 'scripts/combat')
 SOURCE_FILES = ('scripts/globals/mobskills.lua', 'scripts/globals/bluemagic.lua', 'scripts/globals/weaponskills.lua',

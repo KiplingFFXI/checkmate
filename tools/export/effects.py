@@ -55,7 +55,7 @@ KNOWN_MODULES = {
     'modules/phoenix/lua/globals/spells/enhancing_song.lua':
         'e741e5349313f64e99e62c4f534a5eaad07dc073a4c94a21baa9ad7a1072982b',
     'modules/era/lua/actions/abilities/pets/bloodpact_rage.lua':
-        'e1c593b4ebac9a818c7e4382d6acf970bb2353f877718a20cf85b5af8fe9156f',
+        '613287b396125b15e4969065e352f44aaf5a807927e4858329f7be941392ca72',
     'modules/era/lua/actions/abilities/pets/bloodpact_ward.lua':
         '4d491a27835b695681c2ccc01761fb39f1c9f11931c3c1195a54e6dfa398bc5c',
     'modules/era/lua/actions/abilities/pets/automaton/attachments.lua':
@@ -79,7 +79,7 @@ KNOWN_MODULES = {
     'modules/era/lua/effects/weight.lua':
         '70b7f57d099b709b4cfd5b9f78d5b9433f2ae8a8cea37daa841279f6781b92b7',
     'modules/era/lua/globals/job_utils/corsair.lua':
-        'ee4a332355d21fea23b30a196acb3ef18959bb321fe8458f11527faf1133cc67',
+        'ae9e3bb86db9f21235f19a1ad529f988fca9395dba9bbfaa049e6eba8693c20f',
     'modules/era/lua/globals/job_utils/dark_knight.lua':
         '6e5715fb8d991c33e5a91ba5915f8685960216cc28a3ca3c6dc874668b079f64',
     'modules/era/lua/globals/job_utils/dragoon.lua':
@@ -89,7 +89,7 @@ KNOWN_MODULES = {
     'modules/era/lua/globals/job_utils/ninja.lua':
         '6e87568f012cb3d86bcc97d6169b275977e0b7b7fef75300ca5da1faa17e6686',
     'modules/era/lua/globals/job_utils/paladin.lua':
-        '3ccf61703489d68492ca31843734b1e53b8771e0b82d03fec07dae44e3ac0f36',
+        'dc22a6f34ce4e04e49918d822ba20ad645bd4cbf76cd21510b7bdb073eb07a51',
     'modules/era/lua/globals/job_utils/ranger.lua':
         '5f74cfff6ce9fd98c7d27c113466902bf3181ac6025178ef599d279ab7eb0b4b',
     'modules/era/lua/globals/job_utils/samurai.lua':
@@ -191,6 +191,8 @@ def weapon_skill_enums(tree):
         if not isinstance(name, str) or not re.fullmatch(r'[a-z][a-z0-9_]*', name) or type(number) is not int or not 0 <= number <= 255:
             raise RuntimeError('Unreadable weapon-skill enum entry: %s.' % name)
         values[name] = number
+    if selected[0]['cpp'].get('none') and ('none' in values or 0 in values.values()):
+        raise RuntimeError('The native weapon-skill None member reserves name none and id 0.')
     own_ids = [values[name] for name in own_names]
     if len(own_ids) != len(set(own_ids)):
         raise RuntimeError('The base weapon-skill enum reuses an id.')
@@ -373,9 +375,14 @@ def duration_value(expression, text, seen=()):
     match = re.fullmatch(r'(?:xi\.mobskills\.)?calculateDuration\([^,]+,\s*(\d+),\s*(\d+)\)', expression)
     if match:
         return int(match[2])
-    match = re.fullmatch(r'math\.(?:random|randomInt|randomFloat)\(\s*(\d+),\s*(\d+)\)', expression)
+    match = re.fullmatch(r'math\.(random|randomInt|randomFloat)\(\s*\d+(?:\.\d+)?,\s*(\d+(?:\.\d+)?)\s*\)'
+                         r'(?:\s*\*\s*(?:resist|resistRate|resistanceRate))?', expression)
     if match:
-        return int(match[2])
+        upper = float(match[2])
+        if match[1] != 'randomFloat':
+            # Phoenix rounds fractional bounds for the integer RNG.
+            return int(upper + 0.5)
+        return int(upper) if upper.is_integer() else upper
     # A resist can only shorten this base duration.
     match = re.fullmatch(r'(?:math\.floor\()?\s*(\d+)\s*\*\s*(?:resist|resistRate|resistanceRate)\s*\)?', expression)
     if match:

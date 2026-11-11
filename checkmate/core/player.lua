@@ -278,6 +278,8 @@ function player.read()
         me[name] = merit_input(me, 'stats', name, merits.adjust_stat(name,
             stats:GetStat(index) + stats:GetStatModifier(index), me.level, me.main_job));
     end
+    -- The client can report a negative AGI total. Phoenix uses 0 to 999.
+    me.agi = math.max(0, math.min(999, me.agi));
     for _, id in ipairs(MAGIC_SKILLS) do
         local skill = stats:GetCombatSkill(id);
         me.skills[id] = merit_input(me, 'skills', id, merits.adjust_skill(id,

@@ -459,7 +459,12 @@ local function pdif_tip(result, id)
     return table.concat(out, ' ');
 end
 
-local function number_details(_, result, id)
+local function crit_enabled(s, result, id)
+    local display = (result.provenance or {}).chat_snapshot and 'chat' or 'overlay';
+    return parts.enabled(s, id, display);
+end
+
+local function number_details(s, result, id)
     if (PDIF_PARTS[id] ~= nil) then return pdif_tip(result, id); end
     if (id == 'block' or id == 'parry') then
         local value = result[id] or {};
@@ -491,13 +496,27 @@ local function number_details(_, result, id)
         ranged = 'Ranged hit chance in the weapon\'s sweet spot. A shown distance does not change this estimate.',
         evade = 'The chance the monster\'s normal swings miss you. Other avoidance rolls are separate.',
         crit = 'Critical-hit chance for your melee swings, using the available attributes, gear and merits.',
-        crittaken = 'Critical-hit chance among the monster\'s normal hits that land. TP moves use separate rules.',
         pet = 'Your pet\'s estimated level and combat numbers. A pet /checkparam reads its stats at that moment.',
         reading = 'The evasion and defense reading at your last /check. Gear or buffs changed since then can make it stale.',
     };
-    local text = explanations[id];
+    local text, value = explanations[id], result[id];
+    if (id == 'crittaken') then
+        if (not crit_enabled(s, result, id)) then return nil; end
+        local mode, swings = printout.crit_taken_mode(result);
+        if (mode == 'no_rate') then
+            return swings == 'num_no_swings' and 'This monster has no normal swings, so there is no normal-hit crit rate to show.'
+                or 'This monster uses TP moves in place of normal swings. TP moves use separate rules.';
+        end
+        if (mode == 'counters') then
+            text = 'Critical-hit chance among the monster\'s counters that land.'
+                .. (swings == 'num_no_swings' and ' It has no normal swings.'
+                    or ' It uses TP moves in place of normal swings.');
+        else
+            text = 'Critical-hit chance among the monster\'s normal hits that land. TP moves use separate rules.';
+        end
+        if (value == nil) then text = text .. ' The rate is unknown.'; end
+    end
     if (text == nil) then return nil; end
-    local value = result[id];
     if (type(value) == 'table') then
         if (value.retained) then text = text .. ' ' .. RETAINED; end
         if (value.uncertain) then text = text .. ' The ~ means a condition affecting this number is uncertain.'; end
@@ -539,7 +558,9 @@ local function number_details(_, result, id)
     if (p.stats_source == 'band') then text = text .. ' Monster stats are estimates for its level.'; end
     if (result.scripted) then text = text .. SCRIPTED; end
     local me, inputs = result.inputs or {}, {};
-    if (PARAMETER_PARTS[id]) then
+    if (id == 'crittaken') then
+        me = result.crittaken_inputs or {};
+    elseif (PARAMETER_PARTS[id]) then
         if (result.parameter_inputs ~= nil) then me = result.parameter_inputs;
         elseif (value ~= nil and value.retained) then me = {}; end
     end
@@ -742,6 +763,13 @@ local function age_more(_, result, id)
             .. printout.clock_text(math.max(0, now - math.floor(p.parameter_at))) .. ' ago.') or nil;
         return age_text;
     end
+    if (id == 'crittaken') then
+        local inputs = result.crittaken_inputs;
+        local at = inputs and inputs.observed_at;
+        age_text = printout.crit_taken_mode(result) ~= 'no_rate' and type(at) == 'number' and ('Crit taken inputs: '
+            .. printout.clock_text(math.max(0, now - math.floor(at))) .. ' ago.') or nil;
+        return age_text;
+    end
     if (id == 'pet') then
         local pet = result.pet or {};
         age_text = type(pet.observed_at) == 'number' and ('Pet stat reply: '
@@ -893,9 +921,11 @@ function tips.detail_groups(s, result, static)
     if (static) then out[#out].has_age = true; end
     for _, id in ipairs({ 'hit', 'offhand', 'ranged', 'pdif', 'offhandpdif', 'rangedpdif', 'evade', 'block', 'parry', 'crit', 'crittaken', 'pet' }) do
         local optional = PDIF_PARTS[id] ~= nil or id == 'block' or id == 'parry';
-        if (result[id] ~= nil and (not optional or parts.enabled(s, id, 'chat') or parts.enabled(s, id, 'overlay'))) then
+        local present = result[id] ~= nil or (id == 'crittaken' and result.crittaken_inputs ~= nil);
+        if (present and (id ~= 'crit' or crit_enabled(s, result, id))
+            and (not optional or parts.enabled(s, id, 'chat') or parts.enabled(s, id, 'overlay'))) then
             local text = number_details(s, result, id);
-            local has_age = PARAMETER_PARTS[id] or PDIF_PARTS[id] ~= nil;
+            local has_age = PARAMETER_PARTS[id] or PDIF_PARTS[id] ~= nil or id == 'crittaken';
             local age = not static and has_age and age_more(s, result, id);
             add(id, s.printout.parts[id].label, text and (text .. (age and ('\n' .. age) or '')));
             if (static and has_age and text) then out[#out].has_age, out[#out].age_id = true, id; end

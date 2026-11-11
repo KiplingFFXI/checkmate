@@ -12,12 +12,12 @@ HELPERS = {
 }
 CRITICAL_STATUSES = ('MIGHTY_STRIKES', 'AZURE_LORE', 'EFFLUX', 'CHAIN_AFFINITY', 'SNEAK_ATTACK')
 GUARDS = {
-    'scripts/globals/mobskills.lua': '5e5505e5818e0a2b88157ec9ceb747c299c43d6f60b9ae8642e9ad86600106dd',
+    'scripts/globals/mobskills.lua': 'f02ee09c2fd3769609b4911d2bc844bc216fb9f22fa34ae0f6db2321c406ac3a',
     'scripts/combat/physical_utilities.lua': '8056eb4a9abeaf5bed8e2a9fdc143229be5c36489a3eab099dfe1a76fdcccf90',
-    'scripts/globals/bluemagic.lua': 'd71f8797b10f6e9a5849cfd2b60001be1831ebb6a82b130cd0723185c6c3ee28',
-    'src/map/ai/controllers/mob_controller.cpp': 'ab6e8d4c602746308111fc02ee1b646f7116b7702d9561253483db94c265553f',
+    'scripts/globals/bluemagic.lua': 'a3031bafea601c1a2acf83bf8fa0a32b969e566bab2b9688093e30ed41eee46a',
+    'src/map/ai/controllers/mob_controller.cpp': '27cdb7c937fad395d6fd2d039f861789861cfd1ed85cfbe3789021fe7dd11cb2',
 }
-MODULE_GUARD = '75eb6a75f13abe7df8a830e9fe93d9c8f1403d2df9b7df1b05cc192015ad0423'
+MODULE_GUARD = '225d9fcc49596c7c1548f67a4488789ed53b1e237d6877b9cc0cd79b20ea2649'
 CALL = re.compile(r'\b(' + '|'.join(re.escape(name) for name in HELPERS) + r')\s*\(')
 SHARED_CHANGE = re.compile(r'xi\.mobskills\.(?:mobPhysicalMove|mobRangedMove|handleSinglePhysicalHit|handleSingleRangedHit)|'
                            r'xi\.combat\.physical\.(?:calculateSwingCriticalRate|calculateRangedCriticalRate)|xi\.spells\.blue\.')

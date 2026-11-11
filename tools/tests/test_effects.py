@@ -20,6 +20,8 @@ class ReaderTests(unittest.TestCase):
     def test_tp_random_and_resist_duration(self):
         self.assertEqual(effects.duration_value('xi.mobskills.calculateDuration(skill:getTP(), 30, 90)', ''), 90)
         self.assertEqual(effects.duration_value('math.randomInt(80, 300)', ''), 300)
+        self.assertEqual(effects.duration_value('math.randomInt(4.2, 6.8) * resistanceRate', ''), 7)
+        self.assertEqual(effects.duration_value('math.randomFloat(4.2, 6.2) * resistanceRate', ''), 6.2)
         self.assertEqual(effects.duration_value('math.floor(90 * resistRate)', ''), 90)
         self.assertIsNone(effects.duration_value('caster:getSkillLevel(xi.skill.MAGIC)', ''))
 

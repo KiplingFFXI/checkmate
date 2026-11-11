@@ -153,6 +153,10 @@ class PhoenixActionTests(unittest.TestCase):
         for number in (46, 77, 168):
             for row in self.data['abilities'][number].get('by_effect', {0: self.data['abilities'][number]}).values():
                 self.assertEqual((row['infer'], row['success_messages']), ('success', [110]))
+        shield_bash = self.data['abilities'][46]
+        self.assertEqual((shield_bash['seconds'], shield_bash['top']), (6.2, 6.2))
+        weapon_bash = self.data['abilities'][77]
+        self.assertEqual((weapon_bash['seconds'], weapon_bash['top']), (8, 8))
         jump = self.data['abilities'][66]
         self.assertEqual((jump['seconds'], jump['requires_effect'], jump['success_messages']), (60, 126, [317]))
         penance = self.data['abilities'][82]

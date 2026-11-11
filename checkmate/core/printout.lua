@@ -988,9 +988,15 @@ end
     nothing but TP moves says "(TP moves)" in place of the number, since it isn't theirs, and one that never swings
     says "(no swings)". One of them that can counter keeps the number for its counters, with its word after it.
 ]]
-local function crit_taken_value(s, result)
+function printout.crit_taken_mode(result)
     local swings = (result.no_swings and 'num_no_swings') or (result.tp_moves and 'num_tp_moves') or nil;
-    if (swings ~= nil and not result.counters) then
+    if (swings == nil) then return 'normal'; end
+    return result.counters and 'counters' or 'no_rate', swings;
+end
+
+local function crit_taken_value(s, result)
+    local mode, swings = printout.crit_taken_mode(result);
+    if (mode == 'no_rate') then
         return { text = paint(s, 'crittaken_detail', '(' .. word(s, swings) .. ')') };
     end
     local value = number_value(s, 'crittaken', result.crittaken, result.scripted);

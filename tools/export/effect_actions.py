@@ -7,7 +7,7 @@ from . import lua_source
 
 HELPERS = {
     'modules/module_utils.lua': 'e6a96f7f7a73e02a53a436440524b67ae94735e3488ac1466455a18a19919b5c',
-    'scripts/globals/bluemagic.lua': 'd71f8797b10f6e9a5849cfd2b60001be1831ebb6a82b130cd0723185c6c3ee28',
+    'scripts/globals/bluemagic.lua': 'a3031bafea601c1a2acf83bf8fa0a32b969e566bab2b9688093e30ed41eee46a',
     'scripts/globals/weaponskills.lua': '2934a6720464b53e5a80f45198b6165df5461be378af7726d6635e3501e81d61',
     'scripts/globals/spells/absorb_spell.lua': 'ab296eede4669210021dfb043bd951c1392934c670416b07eddee9cec46e5037',
     'src/map/action/action.h': '6013e5670f23c0d2b631fe16afb39e983251fa6654dc7b8cff7792ed3cf2ca3c',
@@ -21,7 +21,7 @@ HELPERS = {
     'scripts/effects/tomahawk.lua': '0dd0db89f80863b0247d7bf0545cea0e34edbbb9575816d61c4b28d43b99c104',
     'scripts/enum/msg.lua': '4fbd7753ff4c7215bf86b3bc1472e1a51e43d696b66aee125a8c5d569dc29546',
 }
-MODULES = '2b790caf960a502e5e9871b4c3d41c53eab3ed0d428fd7107a94af52798ecf59'
+MODULES = '64edcdebd757691673389f99bd5dd0cee2f60af06f20383f3d8d14d8e406bcdf'
 NATIVE = {
     ('src/map/data/datasets/weapon_skills/dataset.cpp', 'Dataset::decode'):
         '27adae6e7df9c1d335385ce7fbca228affad7580a7fe2235e782fe7773c2761e',
@@ -40,7 +40,7 @@ NATIVE = {
     ('src/map/entities/char_entity.cpp', 'CCharEntity::OnAbility'):
         '8b873ee56df1d09abbf49daba683e6175ddca5660ef7d5cb3dbd38c87508b9a8',
     ('src/map/entities/battle_entity.cpp', 'CBattleEntity::OnAttack'):
-        'dfe6a673ac7ba108f762f83fc78a268f3edb5e89718d1b1b71cca113435a6c76',
+        'daac9597a371fe00d0dd6637f6c51b232850c0e0a52a1b72a34b54c5a07bbea3',
     ('src/map/utils/battleutils.cpp', 'HandleSpikesStatusEffect'):
         'c74146269ae1f2303d14ab1e32c971b9a62608731ee70ab2f7fa265fbb7f38f7',
     ('src/map/utils/battleutils.cpp', 'HandleSpikesDamage'):
@@ -50,7 +50,7 @@ NATIVE = {
     ('src/map/lua/luautils.cpp', 'OnItemUse'):
         '407d1afdc51f0bc3c7d29ece4c9318f6481af6d9154f29951d22e825a024ef1d',
 }
-INFERENCE_GUARD = 'c14fb49005ebf554baf366be2f0044a8d1563e98571e5cabc8332fccc913e03e'
+INFERENCE_GUARD = 'd52d92386500dbd9c45fdb03214613b5e0c0f9eef2b88f45868248db361fdf46'
 
 NAMESPACE_GUARDS = {
     'src/map/data/yaml/enum_token.h':
@@ -58,11 +58,11 @@ NAMESPACE_GUARDS = {
     'src/common/enum_traits.h':
         '3c8b708b52defe7a84301f3117127455a64d5de4f144c363339418b307425094',
     'tools/codegen/enum_codegen.py':
-        '9f502bb4be7c3f8fab112464cf2e39779a5a1675756ce2a2ce49342b682b97ea',
+        'e87e2a7354bf5faadd0fe06007c82660e6d8fa567d4e2fe18a14522808286286',
     'tools/codegen/common.py':
         '38296a284ff0494b87f465c07d489290c6d56f226e9c350eae96d223c97a08f6',
     'tools/codegen/templates/enum.h.j2':
-        '692e73aa7396abb6e916fb77cd5d20ee1bc458a5ec2a32890cbdc6cb136c5a4f',
+        '2f5fad804fd1b17003bb0f9b8b588abdd226ebc2bda0574d2e17c48d8b80e5ef',
 }
 
 
@@ -290,8 +290,9 @@ def infer_completion(statuses, text, ids, name, category):
     if category == 'abilities':
         if name in {'shield_bash', 'weapon_bash', 'blade_bash'}:
             rules = {key: {'success_messages': [110]} for key in ('STUN', 'PLAGUE')}
-            if name in {'shield_bash', 'weapon_bash'}:
-                rules['STUN'].update(seconds=8, top=8)
+            stun_seconds = statuses.get(ids['STUN'], {}).get('seconds')
+            if name in {'shield_bash', 'weapon_bash'} and stun_seconds is not None:
+                rules['STUN']['top'] = stun_seconds
         elif name == 'jump':
             rules = {'DEFENSE_DOWN': {'success_messages': [317], 'requires_effect': ids['SPIRIT_SURGE'],
                                      'condition': 'Jump needs Spirit Surge and a landed hit.'}}

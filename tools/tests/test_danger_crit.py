@@ -382,8 +382,8 @@ class PinnedCriticalTests(unittest.TestCase):
 
     def test_complete_effective_callback_census(self):
         counts, rows = self.reader.census()
-        self.assertEqual(counts, dict(files=1792, can_crit=107, mighty_strikes=649, grants_mighty_strikes=1, unresolved=0))
-        self.assertEqual(len(rows), 1792)
+        self.assertEqual(counts, dict(files=1795, can_crit=107, mighty_strikes=650, grants_mighty_strikes=1, unresolved=0))
+        self.assertEqual(len(rows), 1795)
 
     def test_era_jugpet_choke_breath_uses_the_physical_critical_route(self):
         value = self.reader.read('choke_breath_jugpet')

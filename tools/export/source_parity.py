@@ -30,7 +30,7 @@ GUARDS = {
     'scripts/globals/spells/absorb_spell.lua':
         'ab296eede4669210021dfb043bd951c1392934c670416b07eddee9cec46e5037',
     'scripts/globals/bluemagic.lua':
-        'd71f8797b10f6e9a5849cfd2b60001be1831ebb6a82b130cd0723185c6c3ee28',
+        'a3031bafea601c1a2acf83bf8fa0a32b969e566bab2b9688093e30ed41eee46a',
     'scripts/actions/spells/blue/firespit.lua':
         'da86fff9b09b23ea5d04b79019ab5e5a2b9174d90f9012f0fbd6e6a15cad2a4d',
     'scripts/actions/spells/blue/ice_break.lua':

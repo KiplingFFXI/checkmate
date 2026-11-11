@@ -234,14 +234,14 @@ class PinnedSourceTests(unittest.TestCase):
 
     def test_complete_current_script_census(self):
         coverage = self.result['coverage']
-        self.assertEqual(coverage['scripts'], 1792)
-        self.assertEqual(coverage['harmful_scripts'], 807)
+        self.assertEqual(coverage['scripts'], 1795)
+        self.assertEqual(coverage['harmful_scripts'], 809)
         self.assertEqual(coverage['unresolved_scripts'], {})
-        self.assertEqual(coverage['watched_files'], 3119)
+        self.assertEqual(coverage['watched_files'], 3122)
 
     def test_sql_missing_handlers_remain_explicit(self):
         coverage = self.result['coverage']
-        self.assertEqual(coverage['harmful_skill_records'], 943)
+        self.assertEqual(coverage['harmful_skill_records'], 945)
         self.assertEqual(len(coverage['unresolved_skills']), 481)
         self.assertTrue(all('missing' in reasons[0] for reasons in coverage['unresolved_skills'].values()))
 
@@ -279,10 +279,19 @@ class PinnedSourceTests(unittest.TestCase):
         self.assertEqual(self.move('poison_breath_crawler')['effects'], ['Poison'])
 
     def test_new_moves_and_monipulator_healing_do_not_become_debuffs(self):
-        for name in ('frenetic_flurry', 'romp', 'jittering_jig', 'pollen'):
+        for name in ('double_whammy', 'frenetic_flurry', 'romp', 'jittering_jig', 'pollen'):
             with self.subTest(name=name):
                 self.assertEqual(self.move(name)['effects'], [])
                 self.assertEqual(self.move(name)['unknown'], [])
+
+    def test_blank_gaze_and_aman_mimic_effects(self):
+        blank = self.move('blank_gaze_dispel')
+        self.assertEqual(blank['effects'], ['Buff removal'])
+        self.assertTrue(any('face the monster' in note and 'three buffs' in note for note in blank['notes']))
+        self.assertEqual(self.move('gilded_torpor')['effects'], ['Sleep'])
+        ka_thwack = self.move('ka-thwack')
+        self.assertEqual(ka_thwack['effects'], ['Buff removal', 'Instant KO'])
+        self.assertTrue(any('Reraise' in note for note in ka_thwack['notes']))
 
     def test_jugpet_handlers_keep_paired_effects_and_beneficial_negative_control(self):
         self.assertEqual(self.move('head_butt_jugpet')['effects'], [])

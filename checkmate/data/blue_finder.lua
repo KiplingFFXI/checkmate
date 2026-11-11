@@ -1,5 +1,5 @@
 -- BLU spell locations with an enabled spawn or encounter path.
--- Built by tools\export_data.py from phoenix/live ed41f351f6.
+-- Built by tools\export_data.py from phoenix/live 9785020970.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -77,7 +77,7 @@ shared[70] = { 'Spawn: Fog; Respawn 5 minutes', 'Requires fog weather.', 'Base r
 shared[71] = { 'Spawn: 20:00-04:00', 'Source spawn window: 20:00-04:00 Vana\'diel time. The end hour is excluded.', 'The source despawns this monster outside its time window.', 'Source rules only; no remaining time or open spawn window is known.', 'Fight: Idle despawn 10 minutes', 'Source idle-despawn delay: 10 minutes. This is not its remaining lifetime.' };
 return {
     version = 2,
-    built = 'phoenix/live ed41f351f6',
+    built = 'phoenix/live 9785020970',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     coverage = 'Only monsters with an enabled spawn or encounter path are listed. A missing entry does not mean the spell cannot be learned.',
     spells = {
@@ -85,7 +85,7 @@ return {
             id = 595,
             name = '1000 Needles',
             level = 62,
-            min_skill = 181,
+            min_skill = 183,
             monsters = {
                 { zone = 114, zone_name = 'Eastern Altepa Desert', name = 'Cactrot Rapido', incomplete = false, notes = shared[1], context = shared[2], skill_ids = { 322 }, low = 80, high = 81, level_ranges = { { 80, 81 } }, indices = { 379 } },
                 { zone = 114, zone_name = 'Eastern Altepa Desert', name = 'Sabotender', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 322 }, low = 42, high = 46, level_ranges = { { 42, 46 } }, indices = { 70, 76, 81, 127, 144, 152, 172, 180, 189, 234, 244, 251, 259, 282, 301, 327 } },
@@ -108,7 +108,7 @@ return {
             id = 612,
             name = 'Actinic Burst',
             level = 74,
-            min_skill = 240,
+            min_skill = 242,
             monsters = {
                 { zone = 34, zone_name = 'Grand Palace of HuXzoi', name = 'Eoghrah', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1441 }, low = 75, high = 75, level_ranges = { { 75, 75 } }, indices = { 6, 67, 69, 81, 82 } },
                 { zone = 34, zone_name = 'Grand Palace of HuXzoi', name = 'Eoghrah', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1441 }, low = 75, high = 77, level_ranges = { { 75, 77 } }, indices = { 1, 14, 15, 16, 17, 18, 23, 32, 33, 34, 36, 37, 39, 48, 49, 51, 53, 54, 56, 64, 65, 92, 103, 112, 130, 140, 153, 171, 172, 173, 174, 176, 177, 184, 185, 186, 187, 189, 190, 191, 192, 194, 195, 201, 202, 204, 205, 206, 207, 209, 210, 217, 218, 221, 222, 223, 224, 226, 227, 233, 234, 237, 238, 239, 240, 242, 243, 249, 250, 258, 259, 271, 274, 285, 286, 291, 292, 293, 304, 307, 318, 319 } },
@@ -127,7 +127,7 @@ return {
             id = 642,
             name = 'Amplification',
             level = 70,
-            min_skill = 220,
+            min_skill = 222,
             monsters = {
                 { zone = 62, zone_name = 'Halvung', name = 'Black Pudding', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1821 }, low = 72, high = 74, level_ranges = { { 72, 74 } }, indices = { 24, 27, 28, 34, 39, 43, 44, 55, 59, 62, 65, 141, 145 } },
                 { zone = 62, zone_name = 'Halvung', name = 'Ebony Pudding', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1821 }, low = 77, high = 79, level_ranges = { { 77, 79 } }, indices = { 208, 209, 210, 214, 215, 225, 226, 243, 244, 245, 246, 247, 248, 255, 260, 262, 283, 284, 285, 288, 289, 291, 292, 293, 339, 341, 342, 344, 347, 348 } },
@@ -138,7 +138,7 @@ return {
             id = 606,
             name = 'Awful Eye',
             level = 46,
-            min_skill = 110,
+            min_skill = 112,
             monsters = {
                 { zone = 24, zone_name = 'Lufaise Meadows', name = 'Bugard', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 386 }, low = 34, high = 37, level_ranges = { { 34, 37 } }, indices = { 20, 23, 34, 37, 38, 49, 50, 74, 75, 83, 85, 86, 96, 97, 103 } },
                 { zone = 24, zone_name = 'Lufaise Meadows', name = 'Bugard', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 386 }, low = 37, high = 37, level_ranges = { { 37, 37 } }, indices = { 24, 62, 87 } },
@@ -155,7 +155,7 @@ return {
             id = 604,
             name = 'Bad Breath',
             level = 61,
-            min_skill = 176,
+            min_skill = 178,
             monsters = {
                 { zone = 68, zone_name = 'Aydeewa Subterrane', name = 'Great Ameretat', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 319 }, low = 73, high = 75, level_ranges = { { 73, 75 } }, indices = { 97, 109, 110, 115, 119, 128, 129 } },
                 { zone = 68, zone_name = 'Aydeewa Subterrane', name = 'Great Ameretat', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 319 }, low = 75, high = 76, level_ranges = { { 75, 76 } }, indices = { 264, 267, 270, 274 } },
@@ -187,7 +187,7 @@ return {
             id = 620,
             name = 'Battle Dance',
             level = 12,
-            min_skill = 8,
+            min_skill = 10,
             monsters = {
                 { zone = 105, zone_name = 'Batallia Downs', name = 'Orcish Beastrider', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 609 }, low = 30, high = 31, level_ranges = { { 30, 31 } }, indices = { 126, 145, 172, 256, 296 } },
                 { zone = 105, zone_name = 'Batallia Downs', name = 'Orcish Brawler', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 609 }, low = 30, high = 31, level_ranges = { { 30, 31 } }, indices = { 130, 147, 176, 260, 300 } },
@@ -403,7 +403,7 @@ return {
             id = 592,
             name = 'Blank Gaze',
             level = 38,
-            min_skill = 86,
+            min_skill = 88,
             monsters = {
                 { zone = 4, zone_name = 'Bibiki Bay', name = 'Coastal Opo-opo', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 292 }, low = 37, high = 39, level_ranges = { { 37, 39 } }, indices = shared[19] },
                 { zone = 160, zone_name = 'Den of Rancor', name = 'Bullbeggar', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 292 }, low = 78, high = 80, level_ranges = { { 78, 80 } }, indices = shared[20] },
@@ -422,7 +422,7 @@ return {
             id = 618,
             name = 'Blastbomb',
             level = 18,
-            min_skill = 26,
+            min_skill = 28,
             monsters = {
                 { zone = 149, zone_name = 'Davoi', name = 'Orcish Firebelcher', incomplete = false, notes = shared[1], context = shared[13], skill_ids = { 638 }, low = 39, high = 42, level_ranges = { { 39, 42 } }, indices = { 62, 121 } },
                 { zone = 141, zone_name = 'Fort Ghelsba', name = 'Orcish Flamethrower', incomplete = false, notes = shared[1], context = shared[17], skill_ids = { 638 }, low = 16, high = 18, level_ranges = { { 16, 18 } }, indices = { 32, 63, 127, 145, 168, 177, 181, 209 } },
@@ -439,7 +439,7 @@ return {
             id = 532,
             name = 'Blitzstrahl',
             level = 44,
-            min_skill = 104,
+            min_skill = 106,
             monsters = {
                 { zone = 111, zone_name = 'Beaucedine Glacier', name = 'Living Statue', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 535 }, low = 37, high = 39, level_ranges = { { 37, 39 } }, indices = { 24, 25, 59, 60, 105, 106, 132, 133, 178, 179, 213, 214, 240, 241, 242, 243, 244, 251 } },
                 { zone = 204, zone_name = 'FeiYin', name = 'Drone', incomplete = false, notes = shared[1], context = shared[13], skill_ids = { 535 }, low = 41, high = 43, level_ranges = { { 41, 43 } }, indices = { 8, 14, 19, 25, 26, 29, 30, 31, 32, 54, 55, 60, 61, 64, 65 } },
@@ -469,7 +469,7 @@ return {
             id = 570,
             name = 'Blood Drain',
             level = 20,
-            min_skill = 32,
+            min_skill = 34,
             monsters = {
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Purgatory Bat', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 394 }, low = 72, high = 73, level_ranges = { { 72, 73 } }, indices = { 91, 92, 95, 96, 223, 224, 225, 226, 227 } },
                 { zone = 127, zone_name = 'Behemoths Dominion', name = 'Greater Gayla', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 394 }, low = 43, high = 44, level_ranges = { { 43, 44 } }, indices = { 4, 5, 18, 19, 22, 23 } },
@@ -633,7 +633,7 @@ return {
             id = 541,
             name = 'Blood Saber',
             level = 48,
-            min_skill = 116,
+            min_skill = 118,
             monsters = {
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Bloody Bones', incomplete = true, notes = shared[9], context = shared[40], skill_ids = { 485 }, low = 83, high = 83, level_ranges = { { 83, 83 } }, indices = { 255 } },
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Draugar Servant', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 485 }, low = 79, high = 81, level_ranges = { { 79, 81 } }, indices = { 238, 246, 248, 253, 254, 259, 262, 265, 286, 312, 364, 365, 368, 369, 372, 373, 374, 376, 377, 378, 379, 380, 397, 398, 401, 402, 403, 404, 405, 406, 407, 409, 410, 411, 413, 414 } },
@@ -856,7 +856,7 @@ return {
             id = 529,
             name = 'Bludgeon',
             level = 18,
-            min_skill = 26,
+            min_skill = 28,
             monsters = {
                 { zone = 194, zone_name = 'Outer Horutoto Ruins', name = 'Eight of Batons', incomplete = false, notes = shared[1], context = shared[10], skill_ids = { 683 }, low = 30, high = 34, level_ranges = { { 30, 34 } }, indices = { 146, 150, 154, 158 } },
                 { zone = 194, zone_name = 'Outer Horutoto Ruins', name = 'Eight of Coins', incomplete = false, notes = shared[1], context = shared[10], skill_ids = { 683 }, low = 30, high = 34, level_ranges = { { 30, 34 } }, indices = { 148, 152, 156, 160 } },
@@ -907,7 +907,7 @@ return {
             id = 564,
             name = 'Body Slam',
             level = 62,
-            min_skill = 181,
+            min_skill = 183,
             monsters = {
                 { zone = 62, zone_name = 'Halvung', name = 'Dahak', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 645 }, low = 79, high = 82, level_ranges = { { 79, 82 } }, indices = { 365 } },
                 { zone = 205, zone_name = 'Ifrits Cauldron', name = 'Ash Dragon', incomplete = false, notes = shared[1], context = shared[43], skill_ids = { 645 }, low = 82, high = 82, level_ranges = { { 82, 82 } }, indices = { 251 } },
@@ -918,7 +918,7 @@ return {
             id = 626,
             name = 'Bomb Toss',
             level = 28,
-            min_skill = 56,
+            min_skill = 58,
             monsters = {
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Goblin Furrier', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 591 }, low = 35, high = 37, level_ranges = { { 35, 37 } }, indices = { 15, 18, 24, 29, 60, 62 } },
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Goblin Pathfinder', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 591 }, low = 36, high = 38, level_ranges = { { 36, 38 } }, indices = { 16 } },
@@ -1415,7 +1415,7 @@ return {
             id = 643,
             name = 'Cannonball',
             level = 70,
-            min_skill = 220,
+            min_skill = 222,
             monsters = {
                 { zone = 62, zone_name = 'Halvung', name = 'Wamouracampa', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1818 }, low = 72, high = 76, level_ranges = { { 72, 76 } }, indices = { 33, 35, 94, 96, 136, 137, 138, 140, 142, 143, 146, 147, 148, 151, 152, 153, 163, 166, 168, 170, 172, 173, 202, 207 } },
                 { zone = 61, zone_name = 'Mount Zhayolm', name = 'Wamoura Prince', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1818 }, low = 79, high = 81, level_ranges = { { 79, 81 } }, indices = { 48, 124, 125, 127, 128, 130, 131, 132, 266, 268, 269, 271, 272, 273, 274, 292, 293, 300, 301, 303, 316, 317, 318, 319, 320, 321, 322, 324, 326, 331, 332, 340, 341, 342, 343, 344, 345, 347, 353, 355, 356, 358, 359, 361, 362, 363, 365, 366 } },
@@ -1425,7 +1425,7 @@ return {
             id = 582,
             name = 'Chaotic Eye',
             level = 32,
-            min_skill = 68,
+            min_skill = 70,
             monsters = {
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Attohwa Coeurl', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 653 }, low = 37, high = 39, level_ranges = { { 37, 39 } }, indices = { 21, 34, 35, 43, 73, 76, 77, 79, 88 } },
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Attohwa Coeurl', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 653 }, low = 38, high = 39, level_ranges = { { 38, 39 } }, indices = { 44 } },
@@ -1448,7 +1448,7 @@ return {
             id = 587,
             name = 'Claw Cyclone',
             level = 20,
-            min_skill = 32,
+            min_skill = 34,
             monsters = {
                 { zone = 68, zone_name = 'Aydeewa Subterrane', name = 'Cave Tiger', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 273 }, low = 73, high = 75, level_ranges = { { 73, 75 } }, indices = { 243, 245, 250, 253, 257, 259, 260 } },
                 { zone = 68, zone_name = 'Aydeewa Subterrane', name = 'Cave Tiger', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 273 }, low = 73, high = 76, level_ranges = { { 73, 76 } }, indices = { 134, 135, 278 } },
@@ -1546,10 +1546,29 @@ return {
             },
         },
         {
+            id = 535,
+            name = 'Cold Wave',
+            level = 52,
+            min_skill = 134,
+            monsters = {
+                { zone = 9, zone_name = 'PsoXja', name = 'Avalanche', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 528 }, low = 75, high = 75, level_ranges = { { 75, 75 } }, indices = { 310, 313, 319 } },
+                { zone = 9, zone_name = 'PsoXja', name = 'Morozko', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 528 }, low = 65, high = 65, level_ranges = { { 65, 65 } }, indices = { 110, 125, 150 } },
+                { zone = 9, zone_name = 'PsoXja', name = 'Snoll', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 528 }, low = 56, high = 59, level_ranges = { { 56, 59 } }, indices = { 37, 58, 111, 112, 114, 119, 121, 123 } },
+                { zone = 9, zone_name = 'PsoXja', name = 'Snowball', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 528 }, low = 43, high = 46, level_ranges = { { 43, 46 } }, indices = { 231, 241, 252, 288, 289 } },
+                { zone = 9, zone_name = 'PsoXja', name = 'Snowball', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 528 }, low = 47, high = 50, level_ranges = { { 47, 50 } }, indices = { 279, 280 } },
+                { zone = 5, zone_name = 'Uleguerand Range', name = 'Agloolik', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 528 }, low = 77, high = 80, level_ranges = { { 77, 80 } }, indices = { 198, 200, 232, 274, 275, 276, 277, 278, 287, 288, 289, 290, 291, 292, 293, 294, 297, 300, 301 } },
+                { zone = 5, zone_name = 'Uleguerand Range', name = 'Akselloak', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 528 }, low = 71, high = 74, level_ranges = { { 71, 74 } }, indices = { 153, 155, 156, 157 } },
+                { zone = 5, zone_name = 'Uleguerand Range', name = 'Father Frost', incomplete = false, notes = shared[1], context = shared[2], skill_ids = { 528 }, low = 74, high = 75, level_ranges = { { 74, 75 } }, indices = { 114 } },
+                { zone = 5, zone_name = 'Uleguerand Range', name = 'Morozko', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 528 }, low = 67, high = 70, level_ranges = { { 67, 70 } }, indices = { 81, 110, 111, 112, 124, 127 } },
+                { zone = 5, zone_name = 'Uleguerand Range', name = 'Snoll', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 528 }, low = 60, high = 63, level_ranges = { { 60, 63 } }, indices = { 22, 23, 24, 25, 38, 41, 43, 44, 45, 46, 351, 352, 353, 373, 374 } },
+                { zone = 5, zone_name = 'Uleguerand Range', name = 'Snow Maiden', incomplete = false, notes = shared[1], context = shared[2], skill_ids = { 528 }, low = 71, high = 72, level_ranges = { { 71, 72 } }, indices = { 113 } },
+            },
+        },
+        {
             id = 544,
             name = 'Cursed Sphere',
             level = 18,
-            min_skill = 26,
+            min_skill = 28,
             monsters = {
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Gallinipper AC', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 659 }, low = 36, high = 38, level_ranges = { { 36, 38 } }, indices = { 3, 4, 10, 11, 19, 20, 23, 28, 31, 32 } },
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Gallinipper AC', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 659 }, low = 37, high = 39, level_ranges = { { 37, 39 } }, indices = { 42, 47, 53, 55, 57, 64, 71, 72, 87, 89, 90 } },
@@ -1595,7 +1614,7 @@ return {
             id = 522,
             name = 'Death Ray',
             level = 34,
-            min_skill = 74,
+            min_skill = 76,
             monsters = {
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Hecteyes AC', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 437 }, low = 35, high = 37, level_ranges = { { 35, 37 } }, indices = { 144, 145, 146, 147, 149, 150, 154, 155, 156, 170, 171, 173, 176, 178, 179 } },
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Hecteyes AC', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 437 }, low = 36, high = 37, level_ranges = { { 36, 37 } }, indices = { 157 } },
@@ -1631,7 +1650,7 @@ return {
             id = 554,
             name = 'Death Scissors',
             level = 60,
-            min_skill = 172,
+            min_skill = 174,
             monsters = {
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Cutlass Scorpion AC', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 353 }, low = 67, high = 69, level_ranges = { { 67, 69 } }, indices = { 250, 251, 261, 262, 265, 269, 286, 287, 296, 313, 323, 324, 325, 326, 334 } },
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Doom Scorpion', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 353 }, low = 41, high = 44, level_ranges = { { 41, 44 } }, indices = { 8, 9, 26, 27, 41, 45, 46, 114, 115, 116 } },
@@ -1669,7 +1688,7 @@ return {
             id = 632,
             name = 'Diamondhide',
             level = 67,
-            min_skill = 205,
+            min_skill = 207,
             monsters = {
                 { zone = 52, zone_name = 'Bhaflau Thickets', name = 'Troll Shieldbearer', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1897 }, low = 72, high = 73, level_ranges = { { 72, 73 } }, indices = { 113 } },
                 { zone = 62, zone_name = 'Halvung', name = 'Troll Gemologist', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1897 }, low = 71, high = 73, level_ranges = { { 71, 73 } }, indices = { 87, 130 } },
@@ -1697,7 +1716,7 @@ return {
             id = 542,
             name = 'Digest',
             level = 36,
-            min_skill = 80,
+            min_skill = 82,
             monsters = {
                 { zone = 68, zone_name = 'Aydeewa Subterrane', name = 'Cave Mold', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 433 }, low = 66, high = 69, level_ranges = { { 66, 69 } }, indices = { 1, 2 } },
                 { zone = 68, zone_name = 'Aydeewa Subterrane', name = 'Slime Mold', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 433 }, low = 67, high = 69, level_ranges = { { 67, 69 } }, indices = { 17, 18, 24, 25, 34, 35, 42, 43 } },
@@ -1768,7 +1787,7 @@ return {
             id = 589,
             name = 'Dimensional Death',
             level = 60,
-            min_skill = 172,
+            min_skill = 174,
             monsters = {
                 { zone = 167, zone_name = 'Bostaunieux Oubliette', name = 'Drexerion the Condemned', incomplete = true, notes = shared[9], context = shared[2], skill_ids = { 255 }, low = 72, high = 73, level_ranges = { { 72, 73 } }, indices = { 90 } },
                 { zone = 167, zone_name = 'Bostaunieux Oubliette', name = 'Phanduron the Condemned', incomplete = true, notes = shared[9], context = shared[2], skill_ids = { 255 }, low = 72, high = 73, level_ranges = { { 72, 73 } }, indices = { 95 } },
@@ -1819,7 +1838,7 @@ return {
             id = 611,
             name = 'Disseverment',
             level = 72,
-            min_skill = 230,
+            min_skill = 232,
             monsters = {
                 { zone = 33, zone_name = 'AlTaieu', name = 'Absolute Virtue', incomplete = true, notes = shared[9], context = shared[8], skill_ids = { 1384 }, low = 92, high = 92, level_ranges = { { 92, 92 } }, indices = { 492 } },
                 { zone = 33, zone_name = 'AlTaieu', name = 'Omaern blm', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1384 }, low = 75, high = 78, level_ranges = { { 75, 78 } }, indices = { 116, 133, 222, 234, 265, 322, 361 } },
@@ -1843,7 +1862,7 @@ return {
             id = 633,
             name = 'Enervation',
             level = 67,
-            min_skill = 205,
+            min_skill = 207,
             monsters = {
                 { zone = 52, zone_name = 'Bhaflau Thickets', name = 'Troll Sabreur', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1745 }, low = 72, high = 73, level_ranges = { { 72, 73 } }, indices = { 114 } },
                 { zone = 52, zone_name = 'Bhaflau Thickets', name = 'Troll Surveillant', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1745 }, low = 72, high = 73, level_ranges = { { 72, 73 } }, indices = { 111, 115 } },
@@ -1879,7 +1898,7 @@ return {
             id = 645,
             name = 'Exuviation',
             level = 75,
-            min_skill = 245,
+            min_skill = 247,
             monsters = {
                 { zone = 62, zone_name = 'Halvung', name = 'Wamoura', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1955 }, low = 80, high = 82, level_ranges = { { 80, 82 } }, indices = { 167, 169, 171, 174 } },
                 { zone = 61, zone_name = 'Mount Zhayolm', name = 'Wamoura', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 1955 }, low = 80, high = 82, level_ranges = { { 80, 82 } }, indices = { 126, 129, 270, 275, 346, 348, 354, 357 } },
@@ -1890,7 +1909,7 @@ return {
             id = 557,
             name = 'Eyes On Me',
             level = 61,
-            min_skill = 176,
+            min_skill = 178,
             monsters = {
                 { zone = 111, zone_name = 'Beaucedine Glacier', name = 'Bat Eye', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 549 }, low = 40, high = 42, level_ranges = { { 40, 42 } }, indices = { 26, 35, 36, 42, 43, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 78, 79, 80, 85, 86, 87, 92, 93, 109, 110, 119, 120, 135, 136 } },
                 { zone = 161, zone_name = 'Castle Zvahl Baileys', name = 'Ahriman', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 549 }, low = 63, high = 65, level_ranges = { { 63, 65 } }, indices = { 229, 230, 231, 232, 233, 234, 235, 236, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271 } },
@@ -1914,7 +1933,7 @@ return {
             id = 574,
             name = 'Feather Barrier',
             level = 56,
-            min_skill = 152,
+            min_skill = 154,
             monsters = {
                 { zone = 105, zone_name = 'Batallia Downs', name = 'Suparna', incomplete = true, notes = shared[9], context = shared[8], skill_ids = { 402 }, low = 72, high = 72, level_ranges = { { 72, 72 } }, indices = { 401 } },
                 { zone = 105, zone_name = 'Batallia Downs', name = 'Suparna Fledgling', incomplete = true, notes = shared[9], context = shared[8], skill_ids = { 402 }, low = 68, high = 68, level_ranges = { { 68, 68 } }, indices = { 402 } },
@@ -1935,7 +1954,7 @@ return {
             id = 638,
             name = 'Feather Storm',
             level = 12,
-            min_skill = 8,
+            min_skill = 10,
             monsters = {
                 { zone = 152, zone_name = 'Altar Room', name = 'Duu Masa the Onecut', incomplete = true, notes = shared[9], context = {  }, skill_ids = { 617 }, low = 60, high = 60, level_ranges = { { 60, 60 } }, indices = { 5 } },
                 { zone = 152, zone_name = 'Altar Room', name = 'Fee Jugu the Ramfist', incomplete = true, notes = shared[9], context = {  }, skill_ids = { 617 }, low = 60, high = 60, level_ranges = { { 60, 60 } }, indices = { 6 } },
@@ -2085,7 +2104,7 @@ return {
             id = 573,
             name = 'Feather Tickle',
             level = 64,
-            min_skill = 191,
+            min_skill = 193,
             monsters = {
                 { zone = 52, zone_name = 'Bhaflau Thickets', name = 'Colibri', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1701 }, low = 71, high = 72, level_ranges = { { 71, 72 } }, indices = { 125 } },
                 { zone = 52, zone_name = 'Bhaflau Thickets', name = 'Colibri', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1701 }, low = 71, high = 73, level_ranges = { { 71, 73 } }, indices = { 92, 93, 94, 95, 107, 108, 109, 110, 122, 123, 124, 126, 127, 128, 149, 150, 151, 155, 156, 157, 158 } },
@@ -2101,7 +2120,7 @@ return {
             id = 548,
             name = 'Filamented Hold',
             level = 52,
-            min_skill = 132,
+            min_skill = 134,
             monsters = {
                 { zone = 68, zone_name = 'Aydeewa Subterrane', name = 'Aydeewa Diremite', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 364 }, low = 70, high = 72, level_ranges = { { 70, 72 } }, indices = { 81, 83, 88, 90 } },
                 { zone = 68, zone_name = 'Aydeewa Subterrane', name = 'Aydeewa Diremite', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 364 }, low = 70, high = 74, level_ranges = { { 70, 74 } }, indices = { 132, 133, 136, 137, 275, 276, 277, 286, 287, 288, 289, 290, 291 } },
@@ -2129,7 +2148,7 @@ return {
             id = 637,
             name = 'Firespit',
             level = 68,
-            min_skill = 210,
+            min_skill = 212,
             monsters = {
                 { zone = 52, zone_name = 'Bhaflau Thickets', name = 'Mamool Ja Infiltrator', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1733 }, low = 81, high = 83, level_ranges = { { 81, 83 } }, indices = { 180, 200, 201, 231 } },
                 { zone = 52, zone_name = 'Bhaflau Thickets', name = 'Mamool Ja Lurker', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1733 }, low = 81, high = 83, level_ranges = { { 81, 83 } }, indices = { 199, 226 } },
@@ -2156,7 +2175,7 @@ return {
             id = 629,
             name = 'Flying Hip Press',
             level = 58,
-            min_skill = 162,
+            min_skill = 164,
             monsters = {
                 { zone = 12, zone_name = 'Newton Movalpolos', name = 'Bugbear Deathsman', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 360 }, low = 74, high = 75, level_ranges = { { 74, 75 } }, indices = { 120, 126, 157, 165, 168 } },
                 { zone = 12, zone_name = 'Newton Movalpolos', name = 'Bugbear Trashman', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 360 }, low = 65, high = 65, level_ranges = { { 65, 65 } }, indices = { 27 } },
@@ -2236,7 +2255,7 @@ return {
             id = 560,
             name = 'Frenetic Rip',
             level = 63,
-            min_skill = 186,
+            min_skill = 188,
             monsters = {
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Bukki', incomplete = true, notes = shared[9], context = shared[14], skill_ids = { 1711 }, low = 72, high = 72, level_ranges = { { 72, 72 } }, indices = { 434 } },
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Heraldic Imp', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1711 }, low = 72, high = 74, level_ranges = { { 72, 74 } }, indices = { 102, 103, 104, 105, 161, 162, 163, 211, 212 } },
@@ -2254,7 +2273,7 @@ return {
             id = 561,
             name = 'Frightful Roar',
             level = 50,
-            min_skill = 122,
+            min_skill = 124,
             monsters = {
                 { zone = 27, zone_name = 'Phomiuna Aqueducts', name = 'Mahisha', incomplete = false, notes = shared[1], context = shared[2], skill_ids = { 501 }, low = 50, high = 50, level_ranges = { { 50, 50 } }, indices = { 77 } },
                 { zone = 27, zone_name = 'Phomiuna Aqueducts', name = 'Minotaur', incomplete = true, notes = shared[9], context = { 'Spawn: Spawn rules', 'The NM\'s actual respawn is controlled by its script or spawn rules; the base delay is not a live window.', 'Source rules only; no remaining time or open spawn window is known.', 'Fight: Conditional draw-in', 'Its fight script draws targets in under position or encounter conditions. Distance alone does not establish safety.' }, skill_ids = { 501 }, low = 46, high = 48, level_ranges = { { 46, 48 } }, indices = { 81 } },
@@ -2274,7 +2293,7 @@ return {
             id = 608,
             name = 'Frost Breath',
             level = 66,
-            min_skill = 201,
+            min_skill = 203,
             monsters = {
                 { zone = 5, zone_name = 'Uleguerand Range', name = 'Nival Raptor', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 377 }, low = 68, high = 70, level_ranges = { { 68, 70 } }, indices = { 57, 58, 61, 62, 63, 67, 68, 69, 70, 71, 83, 84, 85, 86, 89, 90, 91, 92, 93, 101, 102, 104, 107 } },
             },
@@ -2283,7 +2302,7 @@ return {
             id = 628,
             name = 'Frypan',
             level = 63,
-            min_skill = 186,
+            min_skill = 188,
             monsters = {
                 { zone = 62, zone_name = 'Halvung', name = 'Moblin Billionaire', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1081 }, low = 74, high = 75, level_ranges = { { 74, 75 } }, indices = { 181, 188 } },
                 { zone = 62, zone_name = 'Halvung', name = 'Moblin Billionaire', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1081 }, low = 76, high = 77, level_ranges = { { 76, 77 } }, indices = { 312 } },
@@ -2339,7 +2358,7 @@ return {
             id = 605,
             name = 'Geist Wall',
             level = 46,
-            min_skill = 110,
+            min_skill = 112,
             monsters = {
                 { zone = 4, zone_name = 'Bibiki Bay', name = 'Eft', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 516 }, low = 33, high = 35, level_ranges = { { 33, 35 } }, indices = { 123, 130, 131, 132, 133, 134, 135, 136, 137, 141, 145 } },
                 { zone = 4, zone_name = 'Bibiki Bay', name = 'Intulo', incomplete = false, notes = shared[1], context = shared[7], skill_ids = { 516 }, low = 46, high = 47, level_ranges = { { 46, 47 } }, indices = { 142 } },
@@ -2350,7 +2369,7 @@ return {
             id = 622,
             name = 'Grand Slam',
             level = 30,
-            min_skill = 62,
+            min_skill = 64,
             monsters = {
                 { zone = 111, zone_name = 'Beaucedine Glacier', name = 'Cold Gigas', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 665 }, low = 40, high = 43, level_ranges = { { 40, 43 } }, indices = { 29, 37, 52, 114, 164, 182, 187, 217, 223, 228 } },
                 { zone = 111, zone_name = 'Beaucedine Glacier', name = 'Gigas Clearcutter', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 665 }, low = 40, high = 45, level_ranges = { { 40, 45 } }, indices = { 268, 269, 272, 273 } },
@@ -2430,7 +2449,7 @@ return {
             id = 623,
             name = 'Head Butt',
             level = 12,
-            min_skill = 8,
+            min_skill = 10,
             monsters = {
                 { zone = 147, zone_name = 'Beadeaux', name = 'Ancient Quadav', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 612 }, low = 62, high = 66, level_ranges = { { 62, 66 } }, indices = { 393, 407, 411, 415, 423, 427, 436, 441, 444, 447 } },
                 { zone = 147, zone_name = 'Beadeaux', name = 'BiGho Headtaker', incomplete = true, notes = shared[9], context = shared[7], skill_ids = { 612 }, low = 25, high = 25, level_ranges = { { 25, 25 } }, indices = { 23 } },
@@ -2585,7 +2604,7 @@ return {
             id = 581,
             name = 'Healing Breeze',
             level = 16,
-            min_skill = 20,
+            min_skill = 22,
             monsters = {
                 { zone = 4, zone_name = 'Bibiki Bay', name = 'Catoblepas', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 287 }, low = 76, high = 77, level_ranges = { { 76, 77 } }, indices = { 158, 168, 169, 171, 172, 182, 190, 194, 195, 206, 207, 212, 213, 219, 220, 221 } },
                 { zone = 4, zone_name = 'Bibiki Bay', name = 'Marine Dhalmel', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 287 }, low = 34, high = 37, level_ranges = { { 34, 37 } }, indices = { 119, 120, 122, 127, 143, 144, 148 } },
@@ -2604,7 +2623,7 @@ return {
             id = 591,
             name = 'Heat Breath',
             level = 71,
-            min_skill = 225,
+            min_skill = 227,
             monsters = {
                 { zone = 113, zone_name = 'Cape Teriggan', name = 'Frostmane', incomplete = false, notes = shared[1], context = shared[7], skill_ids = { 800 }, low = 80, high = 80, level_ranges = { { 80, 80 } }, indices = { 312 } },
                 { zone = 113, zone_name = 'Cape Teriggan', name = 'Greater Manticore', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 800 }, low = 76, high = 79, level_ranges = { { 76, 79 } }, indices = { 295, 296, 297, 298, 300, 301, 303, 304, 305, 307, 308, 309, 310, 311, 315, 316, 317, 318, 319, 328, 329, 333, 334, 335, 336, 341, 342, 343, 344 } },
@@ -2621,7 +2640,7 @@ return {
             id = 563,
             name = 'Hecatomb Wave',
             level = 54,
-            min_skill = 142,
+            min_skill = 144,
             monsters = {
                 { zone = 161, zone_name = 'Castle Zvahl Baileys', name = 'Abyssal Demon', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 560 }, low = 64, high = 66, level_ranges = { { 64, 66 } }, indices = { 202, 207, 212, 216, 223, 227 } },
                 { zone = 161, zone_name = 'Castle Zvahl Baileys', name = 'Arch Demon', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 560 }, low = 64, high = 66, level_ranges = { { 64, 66 } }, indices = { 199, 211, 215, 220, 222, 226 } },
@@ -2685,7 +2704,7 @@ return {
             id = 567,
             name = 'Helldive',
             level = 16,
-            min_skill = 20,
+            min_skill = 22,
             monsters = {
                 { zone = 105, zone_name = 'Batallia Downs', name = 'Ba', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 622 }, low = 27, high = 28, level_ranges = { { 27, 28 } }, indices = { 188, 197, 207, 225, 234, 245, 246, 264, 265, 266, 267, 274, 275, 276, 277, 284, 285, 286, 303, 304, 315, 316, 322, 345, 346, 347 } },
                 { zone = 4, zone_name = 'Bibiki Bay', name = 'Raven', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 622 }, low = 36, high = 38, level_ranges = { { 36, 38 } }, indices = { 121, 124, 138, 139, 140 } },
@@ -2728,7 +2747,7 @@ return {
             id = 631,
             name = 'Hydro Shot',
             level = 63,
-            min_skill = 186,
+            min_skill = 188,
             monsters = {
                 { zone = 65, zone_name = 'Mamook', name = 'Mamool Ja Diver', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 777 }, low = 75, high = 76, level_ranges = { { 75, 76 } }, indices = { 142, 143, 145 } },
                 { zone = 65, zone_name = 'Mamook', name = 'Mamool Ja Frogman', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 777 }, low = 75, high = 76, level_ranges = { { 75, 76 } }, indices = { 138, 144, 146 } },
@@ -2796,7 +2815,7 @@ return {
             id = 641,
             name = 'Hysteric Barrage',
             level = 69,
-            min_skill = 215,
+            min_skill = 217,
             monsters = {
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Lamia Bellydancer', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1753 }, low = 81, high = 83, level_ranges = { { 81, 83 } }, indices = { 236 } },
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Lamia Dancer', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1753 }, low = 73, high = 75, level_ranges = { { 73, 75 } }, indices = { 27, 118 } },
@@ -2822,7 +2841,7 @@ return {
             id = 531,
             name = 'Ice Break',
             level = 50,
-            min_skill = 122,
+            min_skill = 124,
             monsters = {
                 { zone = 111, zone_name = 'Beaucedine Glacier', name = 'Gargantua', incomplete = false, notes = shared[1], context = shared[7], skill_ids = { 676 }, low = 47, high = 48, level_ranges = { { 47, 48 } }, indices = { 207 } },
                 { zone = 111, zone_name = 'Beaucedine Glacier', name = 'Stone Golem', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 676 }, low = 40, high = 42, level_ranges = { { 40, 42 } }, indices = { 124, 140, 141, 197, 206 } },
@@ -2843,7 +2862,7 @@ return {
             id = 610,
             name = 'Infrasonics',
             level = 65,
-            min_skill = 196,
+            min_skill = 198,
             monsters = {
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Bane Lizard', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 372 }, low = 47, high = 48, level_ranges = { { 47, 48 } }, indices = { 117, 118, 121, 122, 126 } },
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Bane Lizard', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 372 }, low = 47, high = 49, level_ranges = { { 47, 49 } }, indices = { 137, 138 } },
@@ -2915,7 +2934,7 @@ return {
             id = 569,
             name = 'Jet Stream',
             level = 38,
-            min_skill = 86,
+            min_skill = 88,
             monsters = {
                 { zone = 127, zone_name = 'Behemoths Dominion', name = 'Lesser Gaylas', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 395 }, low = 41, high = 42, level_ranges = { { 41, 42 } }, indices = { 1, 2, 3, 16, 17, 20, 21 } },
                 { zone = 52, zone_name = 'Bhaflau Thickets', name = 'Fomors Bats', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 395 }, low = 58, high = 60, level_ranges = { { 58, 60 } }, indices = { 16, 25, 40 } },
@@ -3079,7 +3098,7 @@ return {
             id = 575,
             name = 'Jettatura',
             level = 48,
-            min_skill = 116,
+            min_skill = 118,
             monsters = {
                 { zone = 30, zone_name = 'Riverne-Site A01', name = 'Cloud Hippogryph', incomplete = false, notes = shared[1], context = shared[13], skill_ids = { 577 }, low = 45, high = 47, level_ranges = { { 45, 47 } }, indices = { 128, 129, 130, 169, 170, 171, 172, 173, 180, 181, 182, 183, 184, 185, 186, 187, 188 } },
                 { zone = 30, zone_name = 'Riverne-Site A01', name = 'Hippogryph', incomplete = false, notes = shared[1], context = shared[13], skill_ids = { 577 }, low = 40, high = 42, level_ranges = { { 40, 42 } }, indices = { 7, 10, 11, 12, 13, 23, 24, 32, 56, 57, 58, 70, 71, 78, 90, 91, 101, 102, 114, 115 } },
@@ -3093,7 +3112,7 @@ return {
             id = 634,
             name = 'Light Of Penance',
             level = 58,
-            min_skill = 162,
+            min_skill = 164,
             monsters = {
                 { zone = 2, zone_name = 'Carpenters Landing', name = 'Cryptonberry Assassin', incomplete = true, notes = shared[9], context = shared[8], skill_ids = { 785 }, low = 65, high = 65, level_ranges = { { 65, 65 } }, indices = { 303, 304, 305 } },
                 { zone = 2, zone_name = 'Carpenters Landing', name = 'Cryptonberry Executor', incomplete = false, notes = shared[1], context = shared[8], skill_ids = { 785 }, low = 68, high = 68, level_ranges = { { 68, 68 } }, indices = { 302 } },
@@ -3190,7 +3209,7 @@ return {
             id = 588,
             name = 'Lowing',
             level = 71,
-            min_skill = 225,
+            min_skill = 227,
             monsters = {
                 { zone = 5, zone_name = 'Uleguerand Range', name = 'Bonnacon', incomplete = false, notes = shared[1], context = shared[7], skill_ids = { 497 }, low = 69, high = 69, level_ranges = { { 69, 69 } }, indices = { 360 } },
                 { zone = 5, zone_name = 'Uleguerand Range', name = 'Buffalo', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 497 }, low = 62, high = 65, level_ranges = { { 62, 65 } }, indices = { 26, 27, 28, 29, 354, 355, 356, 357, 358, 359 } },
@@ -3203,7 +3222,7 @@ return {
             id = 515,
             name = 'Maelstrom',
             level = 61,
-            min_skill = 176,
+            min_skill = 178,
             monsters = {
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Lahama', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 462 }, low = 76, high = 78, level_ranges = { { 76, 78 } }, indices = { 86, 90 } },
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Lahama', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 462 }, low = 79, high = 80, level_ranges = { { 79, 80 } }, indices = { 245, 247, 250, 251, 266 } },
@@ -3225,6 +3244,7 @@ return {
                 { zone = 47, zone_name = 'Open sea route to Mhaura', name = 'Blanched Kraken', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 462 }, low = 45, high = 45, level_ranges = { { 45, 45 } }, indices = { 5 } },
                 { zone = 47, zone_name = 'Open sea route to Mhaura', name = 'Ocean Kraken', incomplete = false, notes = shared[1], context = shared[64], skill_ids = { 462 }, low = 41, high = 43, level_ranges = { { 41, 43 } }, indices = { 12 } },
                 { zone = 126, zone_name = 'Qufim Island', name = 'Kraken', incomplete = false, notes = shared[1], context = shared[44], skill_ids = { 462 }, low = 37, high = 37, level_ranges = { { 37, 37 } }, indices = { 174 } },
+                { zone = 126, zone_name = 'Qufim Island', name = 'Kraken', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 462 }, low = 39, high = 40, level_ranges = { { 39, 40 } }, indices = { 5, 6 } },
                 { zone = 126, zone_name = 'Qufim Island', name = 'Sea Bishop', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 462 }, low = 31, high = 32, level_ranges = { { 31, 32 } }, indices = { 3 } },
                 { zone = 208, zone_name = 'Quicksand Caves', name = 'Honor', incomplete = false, notes = shared[1], context = shared[8], skill_ids = { 462 }, low = 70, high = 70, level_ranges = { { 70, 70 } }, indices = { 2 } },
                 { zone = 208, zone_name = 'Quicksand Caves', name = 'Valor', incomplete = true, notes = shared[9], context = shared[8], skill_ids = { 462 }, low = 70, high = 70, level_ranges = { { 70, 70 } }, indices = { 1 } },
@@ -3252,7 +3272,7 @@ return {
             id = 593,
             name = 'Magic Fruit',
             level = 58,
-            min_skill = 162,
+            min_skill = 164,
             monsters = {
                 { zone = 4, zone_name = 'Bibiki Bay', name = 'Coastal Opo-opo', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 295 }, low = 37, high = 39, level_ranges = { { 37, 39 } }, indices = shared[19] },
                 { zone = 160, zone_name = 'Den of Rancor', name = 'Bullbeggar', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 295 }, low = 78, high = 80, level_ranges = { { 78, 80 } }, indices = shared[20] },
@@ -3271,7 +3291,7 @@ return {
             id = 646,
             name = 'Magic Hammer',
             level = 74,
-            min_skill = 240,
+            min_skill = 242,
             monsters = {
                 { zone = 65, zone_name = 'Mamook', name = 'Mikilulu', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 1958 }, low = 50, high = 50, level_ranges = { { 50, 50 } }, indices = { 426 } },
                 { zone = 65, zone_name = 'Mamook', name = 'Mikiluru', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 1958 }, low = 50, high = 50, level_ranges = { { 50, 50 } }, indices = { 429 } },
@@ -3286,7 +3306,7 @@ return {
             id = 555,
             name = 'Magnetite Cloud',
             level = 46,
-            min_skill = 110,
+            min_skill = 112,
             monsters = {
                 { zone = 114, zone_name = 'Eastern Altepa Desert', name = 'Antican Auxiliarius', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 791 }, low = 35, high = 38, level_ranges = { { 35, 38 } }, indices = { 17, 18, 22, 23, 29 } },
                 { zone = 114, zone_name = 'Eastern Altepa Desert', name = 'Antican Auxiliarius', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 791 }, low = 36, high = 39, level_ranges = { { 36, 39 } }, indices = { 26, 34 } },
@@ -3362,7 +3382,7 @@ return {
             id = 543,
             name = 'Mandibular Bite',
             level = 44,
-            min_skill = 104,
+            min_skill = 106,
             monsters = {
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Alastor Antlion', incomplete = false, notes = shared[1], context = shared[48], skill_ids = { 279 }, low = 83, high = 83, level_ranges = { { 83, 83 } }, indices = { 360 } },
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Ambusher Antlion', incomplete = false, notes = shared[1], context = shared[7], skill_ids = { 279 }, low = 75, high = 77, level_ranges = { { 75, 77 } }, indices = { 361 } },
@@ -3384,7 +3404,7 @@ return {
             id = 538,
             name = 'Memento Mori',
             level = 62,
-            min_skill = 181,
+            min_skill = 183,
             monsters = {
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Arch Corse', incomplete = false, notes = shared[1], context = shared[41], skill_ids = { 530 }, low = 75, high = 80, level_ranges = { { 75, 80 } }, indices = { 337, 340, 341, 342 } },
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Citipati', incomplete = false, notes = shared[1], context = { 'Spawn: Lottery; 20:00-04:00', 'Native slot chance: 15% on an eligible reroll.', 'The member cooldown is 10800 seconds after its defeat; it does not reveal the current spawn window.', 'This native slot rolls only when empty and eligible; only one member can be up.', 'A placeholder takes the first roll after a server restart. Time and weather checks still apply.', 'A kill opens the next lottery roll; a despawn alone does not.', 'The monster\'s spawn check must also allow it to appear.', 'A scripted or deaggro respawn can keep the same member instead of rerolling the slot.', 'Source spawn window: 20:00-04:00 Vana\'diel time. The end hour is excluded.', 'The source despawns this monster outside its time window.', 'The NM\'s actual respawn is controlled by its script or spawn rules; the base delay is not a live window.', 'Source rules only; no remaining time or open spawn window is known.' }, skill_ids = { 530 }, low = 67, high = 70, level_ranges = { { 67, 70 } }, indices = { 274 } },
@@ -3548,7 +3568,7 @@ return {
             id = 644,
             name = 'Mind Blast',
             level = 73,
-            min_skill = 235,
+            min_skill = 237,
             monsters = {
                 { zone = 72, zone_name = 'Alzadaal Undersea Ruins', name = 'Nepionic Soulflayer', incomplete = true, notes = shared[9], context = shared[8], skill_ids = { 1963 }, low = 66, high = 66, level_ranges = { { 66, 66 } }, indices = { 1 } },
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Soulflayer', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1963 }, low = 82, high = 83, level_ranges = { { 82, 83 } }, indices = { 204, 206, 209, 239, 240, 241, 242, 243, 244, 275 } },
@@ -3559,7 +3579,7 @@ return {
             id = 521,
             name = 'Mp Drainkiss',
             level = 42,
-            min_skill = 98,
+            min_skill = 100,
             monsters = {
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Ashakku', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 421 }, low = 73, high = 74, level_ranges = { { 73, 74 } }, indices = { 84, 85, 87, 88, 89, 106, 107, 108, 109, 110, 111, 155, 156, 157, 158 } },
                 { zone = 68, zone_name = 'Aydeewa Subterrane', name = 'Anautogenous Slug', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 421 }, low = 66, high = 66, level_ranges = { { 66, 66 } }, indices = { 3 } },
@@ -3636,7 +3656,7 @@ return {
             id = 534,
             name = 'Mysterious Light',
             level = 40,
-            min_skill = 92,
+            min_skill = 94,
             monsters = {
                 { zone = 204, zone_name = 'FeiYin', name = 'Clockwork Pod FY', incomplete = false, notes = shared[1], context = shared[13], skill_ids = { 523 }, low = 41, high = 43, level_ranges = { { 41, 43 } }, indices = { 47, 48, 56, 57, 58, 157, 162 } },
                 { zone = 204, zone_name = 'FeiYin', name = 'Droma FY', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 523 }, low = 54, high = 56, level_ranges = { { 54, 56 } }, indices = { 173, 174, 175, 198, 199, 234, 235, 236, 324, 325 } },
@@ -3676,7 +3696,7 @@ return {
             id = 596,
             name = 'Pinecone Bomb',
             level = 36,
-            min_skill = 80,
+            min_skill = 82,
             monsters = {
                 { zone = 105, zone_name = 'Batallia Downs', name = 'Ahtu', incomplete = false, notes = shared[1], context = shared[2], skill_ids = { 329 }, low = 51, high = 52, level_ranges = { { 51, 52 } }, indices = { 361 } },
                 { zone = 105, zone_name = 'Batallia Downs', name = 'Treant', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 329 }, low = 36, high = 37, level_ranges = { { 36, 37 } }, indices = { 187, 398 } },
@@ -3705,7 +3725,7 @@ return {
             id = 615,
             name = 'Plasma Charge',
             level = 75,
-            min_skill = 245,
+            min_skill = 247,
             monsters = {
                 { zone = 33, zone_name = 'AlTaieu', name = 'Jailer of Hope', incomplete = true, notes = shared[9], context = shared[8], skill_ids = { 1358 }, low = 85, high = 85, level_ranges = { { 85, 85 } }, indices = { 454 } },
                 { zone = 33, zone_name = 'AlTaieu', name = 'Omphuabo', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1358 }, low = 79, high = 81, level_ranges = { { 79, 81 } }, indices = { 131, 132, 152, 153, 158, 159, 160, 193, 212, 213, 214, 233, 246, 251, 256, 257, 263, 269, 270, 275, 280, 286, 293, 302, 309, 318, 319, 320, 321, 330, 336, 337, 346, 347, 350, 351, 355, 356, 357, 360, 367, 368, 373, 374, 375, 380, 383, 390, 395, 400, 407, 414, 415, 420, 425, 426 } },
@@ -3717,7 +3737,7 @@ return {
             id = 536,
             name = 'Poison Breath',
             level = 22,
-            min_skill = 38,
+            min_skill = 40,
             monsters = {
                 { zone = 105, zone_name = 'Batallia Downs', name = 'Mauthe Doog BD', incomplete = false, notes = shared[1], context = shared[41], skill_ids = { 466 }, low = 31, high = 32, level_ranges = { { 31, 32 } }, indices = { 23, 34, 45, 68, 75, 83, 105, 113, 123, 157, 165, 196, 204, 213, 233, 243, 253, 273, 283, 311 } },
                 { zone = 167, zone_name = 'Bostaunieux Oubliette', name = 'Garm BO', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 466 }, low = 64, high = 66, level_ranges = { { 64, 66 } }, indices = { 28, 29, 30, 31, 60, 61, 62, 63, 64, 65, 66, 86, 87, 91, 92, 122, 123, 124, 132, 133 } },
@@ -3912,7 +3932,7 @@ return {
             id = 565,
             name = 'Radiant Breath',
             level = 54,
-            min_skill = 142,
+            min_skill = 144,
             monsters = {
                 { zone = 52, zone_name = 'Bhaflau Thickets', name = 'Skoffin', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 821 }, low = 82, high = 83, level_ranges = { { 82, 83 } }, indices = { 187, 191, 192, 193, 196 } },
                 { zone = 212, zone_name = 'Gustav Tunnel', name = 'Bune', incomplete = true, notes = shared[9], context = shared[43], skill_ids = { 821 }, low = 83, high = 83, level_ranges = { { 83, 83 } }, indices = { 10 } },
@@ -3936,7 +3956,7 @@ return {
             id = 585,
             name = 'Ram Charge',
             level = 73,
-            min_skill = 235,
+            min_skill = 237,
             monsters = {
                 { zone = 79, zone_name = 'Caedarva Mire', name = 'Mosshorn', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 266 }, low = 80, high = 81, level_ranges = { { 80, 81 } }, indices = { 165, 167, 171, 173, 175 } },
                 { zone = 108, zone_name = 'Konschtat Highlands', name = 'Rampaging Ram', incomplete = false, notes = shared[1], context = shared[67], skill_ids = { 266 }, low = 27, high = 28, level_ranges = { { 27, 28 } }, indices = { 302 } },
@@ -3953,7 +3973,7 @@ return {
             id = 613,
             name = 'Reactor Cool',
             level = 74,
-            min_skill = 240,
+            min_skill = 242,
             monsters = {
                 { zone = 34, zone_name = 'Grand Palace of HuXzoi', name = 'Eozdei', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1463 }, low = 77, high = 78, level_ranges = { { 77, 78 } }, indices = { 2, 5, 7, 8, 9, 19, 22, 24, 25, 28, 35, 38, 40, 41, 45, 52, 55, 57, 58, 61, 68, 71, 73, 74, 80, 100, 101, 120, 121, 128, 129, 149, 150, 168, 169, 170, 175, 178, 188, 193, 198, 203, 208, 214, 220, 225, 230, 236, 241, 248, 267, 300, 317 } },
                 { zone = 34, zone_name = 'Grand Palace of HuXzoi', name = 'Eozdei', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1463 }, low = 78, high = 78, level_ranges = { { 78, 78 } }, indices = { 284 } },
@@ -3968,7 +3988,7 @@ return {
             id = 530,
             name = 'Refueling',
             level = 48,
-            min_skill = 116,
+            min_skill = 118,
             monsters = {
                 { zone = 24, zone_name = 'Lufaise Meadows', name = 'Atomic Cluster', incomplete = true, notes = shared[69], context = shared[70], skill_ids = { 569 }, low = 44, high = 46, level_ranges = { { 44, 46 } }, indices = { 173, 217 } },
                 { zone = 24, zone_name = 'Lufaise Meadows', name = 'Cluster', incomplete = true, notes = shared[69], context = shared[70], skill_ids = { 569 }, low = 38, high = 40, level_ranges = { { 38, 40 } }, indices = { 22, 73, 84 } },
@@ -3986,7 +4006,7 @@ return {
             id = 614,
             name = 'Saline Coat',
             level = 72,
-            min_skill = 230,
+            min_skill = 232,
             monsters = {
                 { zone = 33, zone_name = 'AlTaieu', name = 'Aerns Xzomit', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 1352 }, low = 65, high = 69, level_ranges = { { 65, 69 } }, indices = { 24, 99, 147, 230, 283, 341 } },
                 { zone = 33, zone_name = 'AlTaieu', name = 'Jailer of Justice', incomplete = true, notes = shared[9], context = shared[8], skill_ids = { 1352 }, low = 85, high = 85, level_ranges = { { 85, 85 } }, indices = { 455 } },
@@ -4074,7 +4094,7 @@ return {
             id = 621,
             name = 'Sandspray',
             level = 66,
-            min_skill = 201,
+            min_skill = 203,
             monsters = {
                 { zone = 72, zone_name = 'Alzadaal Undersea Ruins', name = 'Qiqirn Goldsmith', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1727 }, low = 76, high = 78, level_ranges = { { 76, 78 } }, indices = { 3, 8, 10, 12, 14, 16, 20, 24, 26, 28, 31, 33, 35, 40 } },
                 { zone = 72, zone_name = 'Alzadaal Undersea Ruins', name = 'Qiqirn Poulterer', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1727 }, low = 76, high = 78, level_ranges = { { 76, 78 } }, indices = { 2, 6, 7, 18, 19, 23, 30, 37, 38, 39 } },
@@ -4099,7 +4119,7 @@ return {
             id = 519,
             name = 'Screwdriver',
             level = 26,
-            min_skill = 50,
+            min_skill = 52,
             monsters = {
                 { zone = 68, zone_name = 'Aydeewa Subterrane', name = 'Cave Pugil', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 452 }, low = 69, high = 69, level_ranges = { { 69, 69 } }, indices = { 4 } },
                 { zone = 105, zone_name = 'Batallia Downs', name = 'Greater Pugil', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 452 }, low = 20, high = 23, level_ranges = { { 20, 23 } }, indices = { 4 } },
@@ -4262,7 +4282,7 @@ return {
             id = 533,
             name = 'Self-Destruct',
             level = 50,
-            min_skill = 122,
+            min_skill = 124,
             monsters = {
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Bifrons', incomplete = false, notes = shared[1], context = shared[70], skill_ids = { 509 }, low = 75, high = 75, level_ranges = { { 75, 75 } }, indices = { 343, 344 } },
                 { zone = 7, zone_name = 'Attohwa Chasm', name = 'Will-o-the-Wykes', incomplete = false, notes = shared[1], context = shared[70], skill_ids = { 509 }, low = 40, high = 43, level_ranges = { { 40, 43 } }, indices = { 153, 159, 172, 189, 190, 200 } },
@@ -4350,7 +4370,7 @@ return {
             id = 584,
             name = 'Sheep Song',
             level = 16,
-            min_skill = 20,
+            min_skill = 22,
             monsters = {
                 { zone = 147, zone_name = 'Beadeaux', name = 'Broo', incomplete = false, notes = shared[1], context = shared[13], skill_ids = { 264 }, low = 39, high = 41, level_ranges = { { 39, 41 } }, indices = { 286, 296, 303, 308, 335, 336, 337, 338, 341, 342, 343, 344, 353, 354, 355, 356, 357 } },
                 { zone = 147, zone_name = 'Beadeaux', name = 'Charging Sheep', incomplete = false, notes = shared[1], context = shared[10], skill_ids = { 264 }, low = 28, high = 30, level_ranges = { { 28, 30 } }, indices = { 135, 136, 137, 138, 139, 146, 147, 148, 153, 154, 155, 156, 157, 158 } },
@@ -4385,7 +4405,7 @@ return {
             id = 545,
             name = 'Sickle Slash',
             level = 48,
-            min_skill = 116,
+            min_skill = 118,
             monsters = {
                 { zone = 52, zone_name = 'Bhaflau Thickets', name = 'Aht Urhgan Attercop', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 810 }, low = 64, high = 65, level_ranges = { { 64, 65 } }, indices = { 6, 7, 10, 11, 12, 18, 19, 41, 42, 50, 51, 53, 54, 63, 64, 65, 66, 67, 70, 71, 76, 77, 78 } },
                 { zone = 154, zone_name = 'Dragons Aery', name = 'Bark Tarantula', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 810 }, low = 77, high = 80, level_ranges = { { 77, 80 } }, indices = { 6, 7, 8, 15, 16, 17, 26, 27, 28, 29, 30, 31 } },
@@ -4415,7 +4435,7 @@ return {
             id = 527,
             name = 'Smite Of Rage',
             level = 34,
-            min_skill = 74,
+            min_skill = 76,
             monsters = {
                 { zone = 105, zone_name = 'Batallia Downs', name = 'Evil Weapon', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 513 }, low = 37, high = 38, level_ranges = { { 37, 38 } }, indices = { 339, 340, 341, 342, 343 } },
                 { zone = 127, zone_name = 'Behemoths Dominion', name = 'Ancient Weapon', incomplete = true, notes = shared[9], context = shared[14], skill_ids = { 513 }, low = 66, high = 66, level_ranges = { { 66, 66 } }, indices = { 41 } },
@@ -4461,7 +4481,7 @@ return {
             id = 598,
             name = 'Soporific',
             level = 24,
-            min_skill = 44,
+            min_skill = 46,
             monsters = {
                 { zone = 68, zone_name = 'Aydeewa Subterrane', name = 'Puktrap', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 434 }, low = 67, high = 69, level_ranges = { { 67, 69 } }, indices = { 8, 9, 10, 11, 40, 41, 61, 64, 66, 70, 71 } },
                 { zone = 68, zone_name = 'Aydeewa Subterrane', name = 'Puktrap', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 434 }, low = 69, high = 70, level_ranges = { { 69, 70 } }, indices = { 204, 205, 207, 377, 378, 379, 394, 395, 397 } },
@@ -4486,7 +4506,7 @@ return {
             id = 572,
             name = 'Sound Blast',
             level = 32,
-            min_skill = 68,
+            min_skill = 70,
             monsters = {
                 { zone = 113, zone_name = 'Cape Teriggan', name = 'Sand Cockatrice', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 410 }, low = 71, high = 74, level_ranges = { { 71, 74 } }, indices = { 113, 114, 126, 129, 130, 133, 134, 138, 139, 180, 181, 182, 183, 184, 185, 186, 189, 190, 191, 192, 193, 195, 196, 199, 200, 204, 205, 208, 209, 254, 255, 256, 257, 293, 294, 299, 302, 306, 314, 325, 326, 327, 330, 331, 332, 337, 338, 339, 340, 345, 346, 347, 348 } },
                 { zone = 200, zone_name = 'Garlaige Citadel', name = 'Skewer Sam', incomplete = false, notes = shared[1], context = shared[2], skill_ids = { 410 }, low = 54, high = 54, level_ranges = { { 54, 54 } }, indices = { 91 } },
@@ -4506,7 +4526,7 @@ return {
             id = 540,
             name = 'Spinal Cleave',
             level = 63,
-            min_skill = 186,
+            min_skill = 188,
             monsters = {
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Lamia Idolater', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1778 }, low = 80, high = 82, level_ranges = { { 80, 82 } }, indices = { 289, 290, 292, 293, 294, 295, 298, 299, 300, 301, 302, 309, 383, 384, 386, 387, 388, 391, 392, 394, 395, 396, 418, 419 } },
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Qutrub', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1778 }, low = 73, high = 74, level_ranges = { { 73, 74 } }, indices = { 66, 67, 68, 70, 71, 72, 73, 74, 76, 77, 78, 79, 80, 82, 83, 93, 94, 112, 113, 114, 115, 116, 117 } },
@@ -4569,7 +4589,7 @@ return {
             id = 537,
             name = 'Stinking Gas',
             level = 44,
-            min_skill = 104,
+            min_skill = 106,
             monsters = {
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Jnun AR', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 489 }, low = 77, high = 78, level_ranges = { { 77, 78 } }, indices = { 42, 43, 147, 154, 165, 166, 178, 194 } },
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Jnun AR', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 489 }, low = 77, high = 80, level_ranges = { { 77, 80 } }, indices = { 234, 235, 269, 270, 271, 272 } },
@@ -4599,7 +4619,7 @@ return {
             id = 640,
             name = 'Tail Slap',
             level = 69,
-            min_skill = 215,
+            min_skill = 217,
             monsters = {
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Merrow Bladedancer', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1771 }, low = 81, high = 83, level_ranges = { { 81, 83 } }, indices = { 263, 336 } },
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Merrow Chantress', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1771 }, low = 73, high = 75, level_ranges = { { 73, 75 } }, indices = { 9, 37, 122, 148, 170, 174, 179, 199, 200 } },
@@ -4620,7 +4640,7 @@ return {
             id = 616,
             name = 'Temporal Shift',
             level = 73,
-            min_skill = 235,
+            min_skill = 237,
             monsters = {
                 { zone = 33, zone_name = 'AlTaieu', name = 'Jailer of Prudence', incomplete = false, notes = shared[1], context = shared[8], skill_ids = { 1366 }, low = 85, high = 85, level_ranges = { { 85, 85 } }, indices = { 462, 463 } },
                 { zone = 33, zone_name = 'AlTaieu', name = 'Omhpemde', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1366 }, low = 73, high = 77, level_ranges = { { 73, 77 } }, indices = { 92, 93, 94, 95, 96, 112, 113, 114, 123, 124, 125, 126, 127, 128, 129, 130, 148, 149, 150, 151, 154, 155, 156, 157, 205, 206, 207, 208, 215, 216, 217, 218, 219, 220, 226, 227, 228, 229, 254, 255, 261, 262, 267, 268, 273, 274, 278, 279, 284, 285, 291, 292, 296, 297, 334, 335, 344, 345, 349, 352, 353, 354, 365, 366, 384, 385, 386, 387, 388, 389, 393, 394, 398, 399, 418, 419, 423, 424 } },
@@ -4632,7 +4652,7 @@ return {
             id = 539,
             name = 'Terror Touch',
             level = 40,
-            min_skill = 92,
+            min_skill = 94,
             monsters = {
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Bhoot', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 475 }, low = 80, high = 82, level_ranges = { { 80, 82 } }, indices = { 150, 256, 308 } },
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Phasma', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 475 }, low = 73, high = 74, level_ranges = { { 73, 74 } }, indices = { 23, 149, 151, 159, 164, 210, 257, 258, 306, 307 } },
@@ -4731,7 +4751,7 @@ return {
             id = 594,
             name = 'Uppercut',
             level = 38,
-            min_skill = 86,
+            min_skill = 88,
             monsters = {
                 { zone = 109, zone_name = 'Pashhow Marshlands', name = 'Goobbue', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 584 }, low = 24, high = 25, level_ranges = { { 24, 25 } }, indices = { 56, 57, 105, 106, 159, 208, 268, 269, 391, 392 } },
                 { zone = 109, zone_name = 'Pashhow Marshlands', name = 'Jolly Green', incomplete = false, notes = shared[1], context = shared[53], skill_ids = { 584 }, low = 27, high = 28, level_ranges = { { 27, 28 } }, indices = { 209 } },
@@ -4744,10 +4764,24 @@ return {
             },
         },
         {
+            id = 513,
+            name = 'Venom Shell',
+            level = 42,
+            min_skill = 100,
+            monsters = {
+                { zone = 4, zone_name = 'Bibiki Bay', name = 'Coralline Uragnite', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 505 }, low = 32, high = 34, level_ranges = { { 32, 34 } }, indices = { 8, 9, 10, 11, 14, 15, 17, 37 } },
+                { zone = 4, zone_name = 'Bibiki Bay', name = 'Coralline Uragnite', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 505 }, low = 33, high = 35, level_ranges = { { 33, 35 } }, indices = { 38, 42, 43, 62, 63, 65, 66, 86, 87, 89, 90 } },
+                { zone = 4, zone_name = 'Bibiki Bay', name = 'Shen', incomplete = false, notes = shared[1], context = shared[8], skill_ids = { 505 }, low = 83, high = 84, level_ranges = { { 83, 84 } }, indices = { 329 } },
+                { zone = 3, zone_name = 'Manaclipper', name = 'Cyclopean Conch', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 505 }, low = 55, high = 55, level_ranges = { { 55, 55 } }, indices = { 6 } },
+                { zone = 3, zone_name = 'Manaclipper', name = 'Harajnite', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 505 }, low = 51, high = 51, level_ranges = { { 51, 51 } }, indices = { 5 } },
+                { zone = 3, zone_name = 'Manaclipper', name = 'Zoredonite', incomplete = true, notes = shared[9], context = shared[2], skill_ids = { 505 }, low = 61, high = 62, level_ranges = { { 61, 62 } }, indices = { 14 } },
+            },
+        },
+        {
             id = 617,
             name = 'Vertical Cleave',
             level = 75,
-            min_skill = 245,
+            min_skill = 247,
             monsters = {
                 { zone = 33, zone_name = 'AlTaieu', name = 'Aweuvhi', incomplete = false, notes = shared[1], context = shared[16], skill_ids = { 1447 }, low = 78, high = 80, level_ranges = { { 78, 80 } }, indices = { 427, 429, 431, 433, 435, 437, 439, 441, 443 } },
                 { zone = 34, zone_name = 'Grand Palace of HuXzoi', name = 'Aerns Euvhi', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 1447 }, low = 63, high = 65, level_ranges = { { 63, 65 } }, indices = { 110, 147, 167, 332 } },
@@ -4768,7 +4802,7 @@ return {
             id = 579,
             name = 'Voracious Trunk',
             level = 64,
-            min_skill = 191,
+            min_skill = 193,
             monsters = {
                 { zone = 52, zone_name = 'Bhaflau Thickets', name = 'Marid', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1707 }, low = 77, high = 78, level_ranges = { { 77, 78 } }, indices = { 88, 89, 90, 91, 96, 97 } },
                 { zone = 51, zone_name = 'Wajaom Woodlands', name = 'Marid', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1707 }, low = 77, high = 78, level_ranges = { { 77, 78 } }, indices = { 32, 33, 38, 39, 60, 61, 65, 66 } },
@@ -4778,7 +4812,7 @@ return {
             id = 636,
             name = 'Warm-Up',
             level = 68,
-            min_skill = 210,
+            min_skill = 212,
             monsters = {
                 { zone = 52, zone_name = 'Bhaflau Thickets', name = 'Mamool Ja Infiltrator', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1734 }, low = 81, high = 83, level_ranges = { { 81, 83 } }, indices = { 180, 200, 201, 231 } },
                 { zone = 52, zone_name = 'Bhaflau Thickets', name = 'Mamool Ja Lurker', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1734 }, low = 81, high = 83, level_ranges = { { 81, 83 } }, indices = { 199, 226 } },
@@ -4805,7 +4839,7 @@ return {
             id = 578,
             name = 'Wild Carrot',
             level = 30,
-            min_skill = 62,
+            min_skill = 64,
             monsters = {
                 { zone = 4, zone_name = 'Bibiki Bay', name = 'Goblins Rarab', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 323 }, low = 29, high = 31, level_ranges = { { 29, 31 } }, indices = { 147 } },
                 { zone = 4, zone_name = 'Bibiki Bay', name = 'Goblins Rarab', incomplete = false, notes = shared[1], context = {  }, skill_ids = { 323 }, low = 66, high = 69, level_ranges = { { 66, 69 } }, indices = { 152, 178, 198 } },
@@ -4850,7 +4884,7 @@ return {
             id = 576,
             name = 'Yawn',
             level = 64,
-            min_skill = 191,
+            min_skill = 193,
             monsters = {
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Arrapago Apkallu', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1713 }, low = 70, high = 72, level_ranges = { { 70, 72 } }, indices = { 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 31, 32, 33, 34, 35, 36, 213, 214, 215, 216, 217, 218, 219 } },
                 { zone = 54, zone_name = 'Arrapago Reef', name = 'Emperor Apkallu', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1713 }, low = 81, high = 83, level_ranges = { { 81, 83 } }, indices = { 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332 } },
@@ -4866,7 +4900,7 @@ return {
             id = 647,
             name = 'Zephyr Mantle',
             level = 65,
-            min_skill = 196,
+            min_skill = 198,
             monsters = {
                 { zone = 52, zone_name = 'Bhaflau Thickets', name = 'Sea Puk BT', incomplete = false, notes = shared[1], context = shared[3], skill_ids = { 1722 }, low = 77, high = 78, level_ranges = { { 77, 78 } }, indices = { 175, 176, 177, 183, 184, 185, 186, 190, 204, 206 } },
                 { zone = 65, zone_name = 'Mamook', name = 'Puk M', incomplete = false, notes = shared[1], context = shared[5], skill_ids = { 1722 }, low = 70, high = 72, level_ranges = { { 70, 72 } }, indices = { 75, 82, 92, 100, 103, 169, 198, 199, 200, 201, 205, 206, 238, 239 } },

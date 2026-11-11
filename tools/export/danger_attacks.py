@@ -5,7 +5,7 @@ import re
 
 from . import aggro, danger_effects, lua_source, overlays
 
-SOURCE_GUARD = 'aae79879de3cad43a5f30a86367500abf9263edf414098e61bd87b49924cabb7'
+SOURCE_GUARD = 'c2b9593ea35b107a89e27014dc9cda53950a0e7e48bbdece4fb943d2cfa5250f'
 SOURCE_FILES = (
     'src/map/utils/battleutils.cpp', 'src/map/utils/battleutils.h',
     'src/map/entities/battle_entity.cpp', 'src/map/lua/luautils.cpp',

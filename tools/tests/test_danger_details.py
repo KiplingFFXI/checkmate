@@ -118,12 +118,14 @@ class ShadowTests(unittest.TestCase):
     def test_inline_parameter_table_is_read(self):
         value = danger_details.shadows(callback(parameter='{shadowBehavior=3}'))
         self.assertEqual(value['rules'][0]['count'], 3)
+        self.assertIn('it can take one image per hit', ' '.join(value['notes']))
 
     def test_aoe_notes_blink_and_mitigation(self):
         value = danger_details.shadows(callback('local params = {}\nparams.shadowBehavior = 4'), aoe=True)
         text = ' '.join(value['notes'])
         self.assertIn('removes Blink', text)
         self.assertIn('mitigation', text)
+        self.assertNotIn('it can take one image per hit', text)
 
     def test_direct_gaze_bypasses_images(self):
         value = danger_details.shadows('xi.mobskills.mobGazeMove(mob, target, xi.effect.PETRIFICATION, 1, 0, 60)')

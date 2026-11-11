@@ -2,6 +2,16 @@
 
 Older entries describe that release. Later entries may change its behavior.
 
+## 1.14.14
+
+- Chat keeps the Crit taken estimate and inputs from your check while waiting for player or pet stats. The overlay still updates as your stats change.
+- Crit taken uses Phoenix's AGI limits, including when a debuff would take your AGI below zero.
+- Target Details and Copy details follow the Crit taken switch for the chat or overlay reading they show.
+- Crit taken hover help explains when a monster has no swings, uses TP moves instead, or shows a rate for counters only.
+- Refreshed monster data from Phoenix `9785020970`, including Wivre drops in Bhaflau Thickets and Cutlass Scorpion Steal lists.
+- Updated the minimum Blue Magic skill for learning. The spell finder now lists Venom Shell and Cold Wave.
+- Updated the Blank Gaze warning, the shadow help for some multi-hit moves, and the Shield Bash stun estimate.
+
 ## 1.14.13
 
 - Fixed Automatic Treasure Hunter missing your job traits, including TH1 on a level 24 THF.

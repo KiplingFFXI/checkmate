@@ -137,7 +137,10 @@ SPLIT_SUPERLINKS = ('GetMobByID(ID.mob.JAILER_OF_JUSTICE):getTargID()', 'GetMobB
 SET_PET = re.compile(r"xi\.pet\.setMobPet\(\s*mob\s*,\s*(-?\d+)\s*,\s*'([^']+)'\s*\)")
 SET_PET_BY_ID = re.compile(r'mob:setPet\(\s*GetMobByID\(\s*mob:getID\(\)\s*\+\s*(\d+)\s*[,)]')
 
-# Any call that makes a monster a pet.
+SET_PET_BY_NAME = re.compile(r'mob:setPet\(\s*GetMobByID\(\s*(ID\.mob\.\w+)\s*\)\s*\)')
+CLEAR_PET = re.compile(r'mob:setPet\(\s*nil\s*\)')
+
+# Count every pet call, including clearing a pet when its master despawns.
 ANY_PET = re.compile(r'setMobPet\s*\(|:setPet\s*\(')
 
 # The one way a Dynamis type's onMobInitialize helper gives a monster a pet, by its name, like Dagourmarche's avatar
@@ -662,7 +665,7 @@ def dynamis_pets(ctx, script_dir, script):
 
 
 def pet_calls(ctx, script_dir, script):
-    """(offset, pet script or None for any) for each pet a monster takes when the zone loads."""
+    """(offset or named mob ID, optional pet script) for each pet a monster takes."""
     found, base = [], True
     if script_dir in ctx.dynamis.zone_dirs:
         if ctx.dynamis.mob_type(script_dir, script) == dynamis.MASTER:
@@ -674,7 +677,8 @@ def pet_calls(ctx, script_dir, script):
         return found
     text = source.text
     calls = SET_PET.findall(text) + [(offset, None) for offset in SET_PET_BY_ID.findall(text)]
-    read = len(calls) + (1 if (script_dir, script) in TABLE_PETS else 0)
+    calls += [(name, None) for name in SET_PET_BY_NAME.findall(text)]
+    read = len(calls) + len(CLEAR_PET.findall(text)) + (1 if (script_dir, script) in TABLE_PETS else 0)
     if len(ANY_PET.findall(text)) > read and (script_dir, script) not in KNOWN_PET_SCRIPTS:
         raise RuntimeError('%s %s sets a pet the exporter can\'t read' % (script_dir, script))
     return found + calls + HAND_PETS.get((script_dir, script), [])
@@ -691,10 +695,12 @@ def pet_masters(ctx, placed, script_dir, ids):
     for spawn_id, kind in placed:
         if kind.script not in offsets:
             offsets[kind.script] = pet_calls(ctx, script_dir, kind.script)
-        for offset, name in offsets[kind.script]:
-            pet = kinds.get(spawn_id + int(offset))
+        for reference, name in offsets[kind.script]:
+            fixed = ID_OF.fullmatch(reference)
+            pet_id = ids.first_id(fixed[1]) if fixed else spawn_id + int(reference)
+            pet = kinds.get(pet_id)
             if pet is not None and name in (None, pet.script):
-                masters[spawn_id + int(offset)] = spawn_id
+                masters[pet_id] = spawn_id
         table = TABLE_PETS.get((script_dir, kind.script))
         if table is not None:
             pets = ids.tables.get(table[0], [])

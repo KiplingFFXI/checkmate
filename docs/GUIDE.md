@@ -108,7 +108,7 @@ Under **Display > Overlay options**, **Show overlay** lets you choose **Off**, *
 
 ## Understand estimates and refresh readings
 
-The bundled monster data comes from Phoenix revision [`ed41f351f6`](https://github.com/phoenixffxi/Phoenix/commit/ed41f351f63b24e015059c5a58f1c29eb3f198ac). It describes that source, not hidden fight state or a live server lookup. Later server changes can make it stale. `/checkmate info` shows the addon version, source revision and content settings. It checks the shared data files and current zone for missing or mixed revisions and content settings. It cannot verify the running server's deployed revision.
+The bundled monster data comes from Phoenix revision [`9785020970`](https://github.com/phoenixffxi/Phoenix/commit/978502097031e587dbc618392cc8b868e3cbe3ab). It describes that source, not hidden fight state or a live server lookup. Later server changes can make it stale. `/checkmate info` shows the addon version, source revision and content settings. It checks the shared data files and current zone for missing or mixed revisions and content settings. It cannot verify the running server's deployed revision.
 
 - **Exact level, range or unknown:** a `/check` or widescan can supply a level. Otherwise a source range may be available. A monster's level is forgotten when its observed identity dies, leaves sight or the zone changes.
 - **Monsters without an entry:** combat estimates use typical ranges for that level from the bundled Phoenix data. These are fallback ranges, not known stats for that individual monster.
@@ -128,6 +128,10 @@ Checked numbers have no time limit. The monster dying or leaving sight clears it
 Choose **Only after checking** to keep unchecked monsters hidden. **Keep readings when switching targets** lets them show again when retargeted; with it off, you need to check again after changing targets. `/checkmate overlaychecked on` selects this behavior while the overlay is enabled. Settings previews still work.
 
 Combat numbers use the inputs available when the result is built. A `/checkparam` reading is a snapshot; later gear, buffs, debuffs or fight changes can affect it. Magic hover help names the selected spell and explains whether its percentage means landing at all or doing full, unresisted damage.
+
+**Crit taken** shows how often a normal hit that lands is critical. Monsters without normal swings show **(TP moves)** or **(no swings)**. A percentage beside either label applies to counters that land. Hover the row for the attack type and any inputs used.
+
+Choose the row for chat, overlay or both under **Display > Rows**. **Target details** and **Copy details** follow the switch for the result you are viewing. The chat estimate and its inputs stay with your `/check`, even if the line waits for a stat reply. The overlay updates as your inputs change.
 
 Under **Magic**, **Include known gear and merits** controls the manual accuracy field. With it on, enter only bonuses checkmate has not already counted, such as food. With it off, enter your complete direct magic accuracy bonus from gear, food and merits. Skills and attributes are counted separately in either mode. Do not add bonuses already included automatically a second time.
 
@@ -182,7 +186,7 @@ If the overlay itself is off, enable it under **Display > Overlay options**. You
 
 The comparison uses your actual Blue Magic skill from the game and updates as it changes; manual merit choices do not change it. **Skill unknown** means the current skill or the spell's requirement could not be read. **Skill met** means you meet that spell's skill requirement. It does not guarantee learning; the other conditions still apply. **Not learned** only means the spell is missing from your spellbook.
 
-**Show learning requirements** adds minimum Blue Magic skill and the inputs read with the result to hover help and Target details. These are a snapshot. The monster must use the move, the server checks the other conditions on defeat, and learning still has a chance to fail. A spell's casting level is not a minimum learning level.
+**Show learning requirements** adds minimum Blue Magic skill and the inputs read with the result to hover help and Target details. These are a snapshot. The monster must use the move, the server checks the other conditions on defeat, and learning still has a chance to fail. A spell's casting level is not a minimum learning level. Phoenix sets the skill minimum 29 points below the Blue Magic skill cap at the spell's level, with a floor of 0.
 
 **Learning chance**, in the Blue Magic tab, shows the base 33% chance plus supported learning gear you currently have equipped. At their required levels, Magus Bazubands add 10 percentage points and Magus Bazubands +1 add 11. The percentage and gear stay visible while the section is open. The nested **Learning requirements** starts closed; open it for the conditions. This is the chance for an eligible attempt, not a guarantee that this monster will teach you a spell. You must be alive on main-job Blue Mage, meet the actual skill requirement, be within 100 yalms, and receive kill credit with your party or alliance. The monster must have used an unlearned move, and Call for Help prevents learning. There is at most one attempt per defeat. Blue Magic skill merits can help meet the skill requirement; they do not increase Learning chance directly. Manual merit choices do not change the actual skill shown in learning requirements.
 

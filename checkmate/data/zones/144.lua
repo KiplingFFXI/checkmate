@@ -1,5 +1,5 @@
 -- Waughroon Shrine (zone 144).
--- Built by tools\export_data.py from phoenix/live ed41f351f6.
+-- Built by tools\export_data.py from phoenix/live 9785020970.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 -- Identical tables are shared within this file.
@@ -22,7 +22,7 @@ danger[15] = { kind = 'attack', id = 0, name = 'Normal attacks', summary = 'Norm
 danger[16] = { danger[15] };
 danger[17] = { value = 'Normal attacks: HP drain', notes = danger[13], entries = danger[16], coverage = 'partial', incomplete = true, reasons = danger[2], general_notes = danger[3] };
 return {
-    built   = 'phoenix/live ed41f351f6',
+    built   = 'phoenix/live 9785020970',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- Each list of link names by how they link, written once. A row's links is the number of its list.
     link_lists = {
@@ -78,11 +78,15 @@ return {
         [32] = { superlink = { 'Titanis Dax', 'Titanis Max', 'Titanis Xax' } },
         [33] = { superlink = { 'Titanis Dax', 'Titanis Jax', 'Titanis Max' } },
         [34] = { superlink = { 'Titanis Jax', 'Titanis Max', 'Titanis Xax' } },
+        [35] = { true_sound = { 'Chest OPlenty' } },
+        [36] = { true_sound = { 'Coffer OPlenty' } },
     },
     -- Exact helper names with an unambiguous source family.
     link_families = {
         ['Ayakashi'] = { id = 102, name = 'Avatar' },
         ['BiFho Jestergrin'] = { id = 67, name = 'Quadav' },
+        ['Chest OPlenty'] = { id = 33, name = 'Mimic' },
+        ['Coffer OPlenty'] = { id = 33, name = 'Mimic' },
         ['DaShu Knightslayer'] = { id = 67, name = 'Quadav' },
         ['Dark Dragon'] = { id = 95, name = 'Dragon' },
         ['EaTho Cruelheart'] = { id = 67, name = 'Quadav' },
@@ -507,7 +511,7 @@ return {
             links  = 12,
             flags  = { scripted_stats = true, scripted_elements = true, scripted_weapons = true, scripted_defense = true, scripted_attack_skill = true },
             info = {
-                family = { value = 'Mandragora / Plantoid', notes = { 'Source species: Mandragora (ID 350); family ID 146.', 'Species names can be internal variants of the same visible family.' } },
+                family = { value = 'Mandragora / Plantoid', notes = { 'Source species: Korrigan (ID 348); family ID 146.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Not charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
                 vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.', 'This spawn is a monster pet. Derived base HP includes the native pet reduction.', 'Encounter setup or participant scaling can change these base estimates.', 'Scripts, jobs or battle state can change the maximum; this is a stored baseline.' }, hp = { [56] = 300 }, mp = { [56] = 0 }, uncertain = true, hp_uncertain = true, mp_uncertain = true, hp_unknown = false, mp_unknown = false },
                 movement = { value = 'Base speed 40', notes = { 'Source base speed is 40; the ordinary monster default is 40. Animation speed is 40.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.', 'A script or loaded override changes movement.' } },
@@ -1418,18 +1422,17 @@ return {
             job    = 'blm/drk',
             levels = {},
             weapon_dmg = { slashing = -50, piercing = -50, blunt = -50, hand_to_hand = -50 },
-            aggro  = true,
-            true_detect = true,
-            detects = { 'sound', 'magic' },
+            links  = 35,
             info = {
                 family = { value = 'Mimic / Arcana', notes = { 'Source species: Mimic (ID 73); family ID 33.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Not charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
                 vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.', 'Encounter setup or participant scaling can change these base estimates.', 'Scripts, jobs or battle state can change the maximum; this is a stored baseline.', 'No stored level is available for a maximum estimate.' }, hp = {  }, mp = {  }, uncertain = true, hp_uncertain = true, mp_uncertain = true, hp_unknown = true, mp_unknown = true },
-                movement = { value = 'Base speed 0', notes = { 'Source base speed is 0; the ordinary monster default is 40. Animation speed is 0.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
+                movement = { value = 'Base speed 0', notes = { 'Source base speed is 0; the ordinary monster default is 40. Animation speed is 0.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.', 'Movement is disabled in the stored spawn setup.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'Crystal reward disabled', notes = { 'Source crystal element: None.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'Stored encounter, zone or no-drops rules block the ordinary crystal reward.' } },
                 rewards = { value = 'EXP modifier -100%', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Stored encounter, zone or no-drops rules block the ordinary seal reward.' } },
                 traits = { value = 'Base delay 170', notes = { 'Base attack delay 170 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
+                fight = { value = 'Conditional draw-in', notes = { 'Its fight script draws targets in under position or encounter conditions. Distance alone does not establish safety.' } },
                 dangers = danger[4],
                 blue = { value = 'Unknown', notes = { 'The fight can replace this monster\'s TP-move list. That replacement list is unknown.' }, incomplete = true },
             },
@@ -1442,18 +1445,17 @@ return {
             job    = 'blm/drk',
             levels = {},
             weapon_dmg = { slashing = -50, piercing = -50, blunt = -50, hand_to_hand = -50 },
-            aggro  = true,
-            true_detect = true,
-            detects = { 'sound', 'magic' },
+            links  = 36,
             info = {
                 family = { value = 'Mimic / Arcana', notes = { 'Source species: Mimic (ID 73); family ID 33.', 'Species names can be internal variants of the same visible family.' } },
                 charm = { value = 'Not charm eligible', notes = { 'This tells you whether Charm is allowed. It does not predict success or duration.', 'An existing master, encounter restrictions and current states can prevent Charm.' } },
                 vitals = { value = 'Estimated maximum HP / MP', notes = { 'Estimated maximum at the stored level, not current HP or MP.', 'Uses the source default server HP/MP multipliers. Private server setting overrides are unknown.', 'Encounter setup or participant scaling can change these base estimates.', 'Scripts, jobs or battle state can change the maximum; this is a stored baseline.', 'No stored level is available for a maximum estimate.' }, hp = {  }, mp = {  }, uncertain = true, hp_uncertain = true, mp_uncertain = true, hp_unknown = true, mp_unknown = true },
-                movement = { value = 'Base speed 0', notes = { 'Source base speed is 0; the ordinary monster default is 40. Animation speed is 0.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.' } },
+                movement = { value = 'Base speed 0', notes = { 'Source base speed is 0; the ordinary monster default is 40. Animation speed is 0.', 'Chase speed, Gravity, movement modifiers and scripts can change actual movement.', 'The default server run multiplier is 2.5; this is not a safe kiting prediction.', 'Movement is disabled in the stored spawn setup.' } },
                 pursuit = { value = 'No base scent tracking', notes = { 'Scent is a pursuit rule, separate from initial aggro.', 'Losing scent alone does not guarantee immediate deaggro; other detection and fight state still matter.' } },
                 crystal = { value = 'Crystal reward disabled', notes = { 'Source crystal element: None.', 'Crystals use separate reward rolls. Their drop chance is not part of the normal Treasure Hunter loot table.', 'Crystal drops depend on the zone, battle, EXP rules, and whether a player with Signet or Sanction can receive one.', 'Stored encounter, zone or no-drops rules block the ordinary crystal reward.' } },
                 rewards = { value = 'EXP modifier -100%', notes = { 'Actual EXP depends on level, party, claim, who qualifies for the reward, and server settings.', 'Stored encounter, zone or no-drops rules block the ordinary seal reward.' } },
                 traits = { value = 'Base delay 170', notes = { 'Base attack delay 170 (source delay units), before haste, slows and fight changes.', 'Multi-attacks and counters can depend on conditions. These values do not tell you exactly when the monster will attack.', 'Store TP changes the monster\'s TP gain, not the player\'s TP feed.', 'These are the job traits and fixed bonuses listed in the source. Buffs and scripts may add others.' } },
+                fight = { value = 'Conditional draw-in', notes = { 'Its fight script draws targets in under position or encounter conditions. Distance alone does not establish safety.' } },
                 dangers = danger[4],
                 blue = { value = 'Unknown', notes = { 'The fight can replace this monster\'s TP-move list. That replacement list is unknown.' }, incomplete = true },
             },

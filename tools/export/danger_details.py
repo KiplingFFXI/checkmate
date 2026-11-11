@@ -7,7 +7,7 @@ import re
 from . import aggro, danger_effects, lua_source, overlays, tables
 
 
-SOURCE_GUARD = '60b798c678ce6939f4adde432eb7d449b59e17b71ae29f0e28afb0c1f042e8b0'
+SOURCE_GUARD = '73cc9c74591e2ef44b405f62bab015612dd45a1c4b8c365fa83570cf8fb7858a'
 SOURCE_FILES = (
     'src/map/mobskill.cpp', 'src/map/spell.cpp', 'src/map/entities/battle_entity.cpp',
     'src/map/ai/controllers/mob_controller.cpp', 'src/map/ai/states/magic_state.cpp',
@@ -196,6 +196,7 @@ def shadow_values(text, end, parameter, default):
 def shadows(text, aoe=False):
     text = lua_source.strip_comments(text)
     rules, notes, unknown = [], [], []
+    can_take_one_per_hit = False
     for match in re.finditer(r'\butils\.takeShadows\s*\(', text):
         args = lua_source.call_arguments(text, match.end() - 1)
         if args and args[0] == 'target':
@@ -218,6 +219,8 @@ def shadows(text, aoe=False):
             rule = {'mode': 'ignore' if value == 0 else 'wipe' if value == 999 else 'absorb', 'per_hit': per_hit}
             if 0 < value < 999:
                 rule['count'] = value
+                if not aoe and value > 1 and match[1] in ('xi.mobskills.mobPhysicalMove', 'xi.mobskills.mobRangedMove'):
+                    can_take_one_per_hit = True
             if rule not in rules:
                 rules.append(rule)
     if rules:
@@ -233,6 +236,9 @@ def shadows(text, aoe=False):
                 count = str(rule['count']) if 'count' in rule else '%d-%d' % (rule['count_min'], rule['count_max'])
                 notes.append('Shadow check: %s image%s %s. Too few images do not fully block it.' %
                              (count, '' if count == '1' else 's', unit))
+        if can_take_one_per_hit:
+            notes.append('If this single-target move hits more than once and you have fewer images than listed, '
+                         'it can take one image per hit.')
         if len(rules) > 1:
             notes.insert(0, 'Shadow behavior changes with script conditions; the following are possible rules.')
         if aoe and any(not rule.get('legacy') for rule in rules):

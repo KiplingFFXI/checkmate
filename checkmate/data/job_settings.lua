@@ -1,7 +1,7 @@
 -- Current job traits and equipped Treasure Hunter bonuses.
--- Built from phoenix/live ed41f351f6. Conditional bonuses need a manual value.
+-- Built from phoenix/live 9785020970. Conditional bonuses need a manual value.
 return {
-    built = 'phoenix/live ed41f351f6',
+    built = 'phoenix/live 9785020970',
     conditional_items = {},
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     items = {

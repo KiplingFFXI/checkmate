@@ -32,7 +32,7 @@ for element in ELEMENTS[:6]:
     name = 'lightning' if element == 'thunder' else element
     MERITS[name + '_magic_accuracy'] = ('rdm_group_1', 5, element)
 
-LEARNING_GUARD = '5bd39d364922f0dd06ece663280f2b8383509000161ddd01f68efe7fb4e9d3d2'
+LEARNING_GUARD = 'c801c649c96b0ff57ac16ec2da64f65ef58e8b72d41951ca4a0ba40769c7aa67'
 LEARNING_PATHS = ('src/map/utils/blueutils.cpp', 'src/common/xirand.h',
                   'src/map/utils/charutils.cpp', 'src/map/entities/mob_entity.cpp',
                   'src/map/entities/battle_entity.cpp', 'src/map/utils/battleutils.cpp')

@@ -894,9 +894,9 @@ note that additional learnable spells are unknown. A listed spell does not guara
 its move or the player will learn it. The client marks each possible spell known, not learned or
 spellbook unknown without requests.
 Each exported spell also records its BLU spell level and minimum current Blue Magic skill. The minimum
-comes from the native skill cap at that spell level, less 31, floored at zero. The spell level is not a
-minimum learning level. The addon can filter confirmed learned spells and show the client inputs read
-with the result, but does not decide full eligibility or predict a learning roll. An incomplete flag
+comes from the native skill cap at that spell level minus the gap read from Phoenix. The current gap is 29.
+The result has a floor of zero. The addon can filter confirmed learned spells and show the client inputs
+read with the result. Full eligibility and the learning roll still depend on the server. An incomplete flag
 keeps filtered lists from claiming all learnable spells are known.
 The optional overlay skill status compares each minimum with the actual Blue Magic skill read from
 the client and refreshes as that skill changes. Manual merit choices do not change the comparison.

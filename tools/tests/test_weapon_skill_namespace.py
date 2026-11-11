@@ -13,14 +13,14 @@ from export import effect_actions, effects
 
 
 class WeaponSkillNamespaceTests(unittest.TestCase):
-    def tree(self, entries):
+    def tree(self, entries, native_none=False):
         temporary = tempfile.TemporaryDirectory(prefix='checkmate_weapon_skills_')
         self.addCleanup(temporary.cleanup)
         folder = Path(temporary.name)
         (folder / 'data').mkdir()
         (folder / 'modules').mkdir()
         (folder / 'modules/init.txt').write_text('', encoding='ascii')
-        document = {'meta': {'enum': [{'cpp': {'class': 'WeaponSkill', 'underlying': 'uint8_t'},
+        document = {'meta': {'enum': [{'cpp': {'class': 'WeaponSkill', 'underlying': 'uint8_t', 'none': native_none},
                                       'lua': {'table': 'xi.weaponskill'}}]}, 'weapon_skills': entries}
         (folder / 'data/weapon_skills.yaml').write_text(yaml.safe_dump(document), encoding='ascii')
         return folder
@@ -31,6 +31,13 @@ class WeaponSkillNamespaceTests(unittest.TestCase):
             {'weaponskillid': 80, 'name': 'shield_break'},
             {'weaponskillid': 83, 'name': 'armor_break'},
         ])
+
+    def test_native_none_has_no_action_row(self):
+        folder = self.tree({'shield_break': {'id': 80}}, native_none=True)
+        self.assertEqual(effects.weapon_skill_rows(folder), [{'weaponskillid': 80, 'name': 'shield_break'}])
+        for entries in ({'other': {'id': 0}}, {'none': {'id': 5}}):
+            with self.subTest(entries=entries), self.assertRaisesRegex(RuntimeError, 'None member reserves'):
+                effects.weapon_skill_rows(self.tree(entries, native_none=True))
 
     def test_loaded_overlays_follow_order_and_delete_rows(self):
         folder = self.tree({'shield_break': {'id': 80}, 'removed': {'id': 90}})

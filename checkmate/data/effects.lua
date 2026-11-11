@@ -1,11 +1,11 @@
 -- Action effects, with Phoenix durations before resists.
 -- An absent duration stays untimed. by_effect names each status of a move with several.
 -- infer marks a possible effect, not a confirmed application. default_tp is an assumed TP value.
--- Built by tools\export_data.py from phoenix/live ed41f351f6.
+-- Built by tools\export_data.py from phoenix/live 9785020970.
 -- It assumes RESTRICT_CONTENT on, rotz cop toau on, the rest off.
 -- Don't edit this file by hand.
 return {
-    built   = 'phoenix/live ed41f351f6',
+    built   = 'phoenix/live 9785020970',
     content = 'RESTRICT_CONTENT on, rotz cop toau on, the rest off',
     -- What an effect removes, and its usual duration.
     effects = {
@@ -1168,7 +1168,13 @@ return {
         [42] = { effect = 32 },  -- flee
         [43] = { effect = 76 },  -- hide
         [44] = { effect = 65, seconds = 60 },  -- sneak_attack
-        [46] = { effect = 10, infer = 'success', success_messages = { 110 }, seconds = 8, top = 8 },  -- shield_bash
+        [46] = { -- shield_bash
+            effect = 10,
+            seconds = 6.2,
+            infer = 'success',
+            success_messages = { 110 },
+            top = 6.2,
+        },
         [47] = { effect = 74 },  -- holy_circle
         [48] = { effect = 62 },  -- sentinel
         [49] = { effect = 63 },  -- souleater
@@ -1195,7 +1201,7 @@ return {
         [74] = { effect = 78, seconds = 60 },  -- divine_seal
         [75] = { effect = 79, seconds = 60 },  -- elemental_seal
         [76] = { effect = 87, seconds = 60 },  -- trick_attack
-        [77] = { effect = 10, infer = 'success', success_messages = { 110 }, seconds = 8, top = 8 },  -- weapon_bash
+        [77] = { effect = 10, seconds = 8, infer = 'success', success_messages = { 110 }, top = 8 },  -- weapon_bash
         [78] = { effect = 42, seconds = 180 },  -- reward
         [79] = { effect = 114 },  -- cover
         [82] = { -- chi_blast
@@ -1796,6 +1802,7 @@ return {
         [651] = { effect = 12, seconds = 30 },  -- lodesong
         [652] = { effect = 4, seconds = 60 },  -- blaster
         [653] = { effect = 6, seconds = 60 },  -- chaotic_eye
+        [656] = { effect = 2, seconds = 30 },  -- gilded_torpor
         [660] = { effect = 3, seconds = 60 },  -- venom
         [661] = { effect = 4, seconds = 120 },  -- snow_cloud
         [674] = { effect = 40, seconds = 300 },  -- crystal_shield

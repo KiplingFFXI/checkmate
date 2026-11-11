@@ -76,19 +76,29 @@ class EncounterTests(unittest.TestCase):
             calls.append((skill, job, level))
             return 153
         spell = dict(spellid=533, name='self-destruct', jobs=int.from_bytes(jobs, 'big'))
-        entry = encounters.blue_entry(spell, SimpleNamespace(max_skill=cap), 43)
-        self.assertEqual(entry, dict(id=533, name='Self-Destruct', level=50, min_skill=122))
+        entry = encounters.blue_entry(spell, SimpleNamespace(max_skill=cap), 43, 29)
+        self.assertEqual(entry, dict(id=533, name='Self-Destruct', level=50, min_skill=124))
         self.assertEqual(calls, [(43, 'blu', 50)])
-        entry = encounters.blue_entry(spell, SimpleNamespace(max_skill=lambda *_: 5), 43)
+        entry = encounters.blue_entry(spell, SimpleNamespace(max_skill=lambda *_: 5), 43, 29)
         self.assertEqual(entry['min_skill'], 0)
         spell['jobs'] = 0
-        self.assertEqual(encounters.blue_entry(spell, SimpleNamespace(max_skill=cap), 43)['level'], 255)
+        self.assertEqual(encounters.blue_entry(spell, SimpleNamespace(max_skill=cap), 43, 29)['level'], 255)
         self.assertEqual(calls[-1], (43, 'blu', 255))
 
     def test_unreadable_blue_job_bytes_fail_instead_of_inventing_requirements(self):
         for jobs in (None, 'unknown', -1, 1 << 176):
             with self.subTest(jobs=jobs), self.assertRaisesRegex(RuntimeError, 'Unreadable BLU'):
-                encounters.blue_entry(dict(spellid=1, name='fixture', jobs=jobs), None, 43)
+                encounters.blue_entry(dict(spellid=1, name='fixture', jobs=jobs), None, 43, 29)
+
+    def test_blue_skill_gap_follows_the_native_learning_check(self):
+        source = 'void TryLearningSpells()\n{\n%s\n}\n'
+        check = 'if (playerSkillLvl >= skillLvlForSpell - %d) {}'
+        for gap in (31, 29):
+            with self.subTest(gap=gap):
+                self.assertEqual(encounters.blue_skill_gap(source % ('// ' + check % 99 + '\n' + check % gap)), gap)
+        for changed in ('if (playerSkillLvl > skillLvlForSpell - 29) {}', (check % 29) * 2):
+            with self.subTest(changed=changed), self.assertRaisesRegex(RuntimeError, 'Unreadable BLU'):
+                encounters.blue_skill_gap(source % changed)
 
     def test_loaded_spell_levels_apply_in_order_and_unsupported_changes_fail(self):
         rows = [dict(spellid=533, name='self-destruct', jobs=0, AOE=1)]
@@ -426,7 +436,7 @@ class EncounterSourceTests(unittest.TestCase):
     def test_bomb_and_phoenix_final_sting_danger(self):
         info, _ = self.reader.read(kind('West_Ronfaure', 'Bomb', attributes={'source': {'skill_list_id': 56}}))
         self.assertIn('Self-Destruct', info['dangers']['value'])
-        self.assertEqual([{key: value for key, value in spell.items() if key != 'skill_ids'} for spell in info['blue']['spells']], [{'id': 533, 'name': 'Self-Destruct', 'level': 50, 'min_skill': 122}])
+        self.assertEqual([{key: value for key, value in spell.items() if key != 'skill_ids'} for spell in info['blue']['spells']], [{'id': 533, 'name': 'Self-Destruct', 'level': 50, 'min_skill': 124}])
         self.assertTrue(info['blue']['spells'][0]['skill_ids'])
         info, _ = self.reader.read(kind('North_Gustaberg', 'Huge_Hornet', attributes={'source': {'skill_list_id': 48}}))
         self.assertIn('33% HP', ' '.join(info['dangers']['notes']))
@@ -467,11 +477,23 @@ class EncounterSourceTests(unittest.TestCase):
 
     def test_actual_learning_requirements_and_loaded_spell_job_updates(self):
         self.assertEqual(self.reader.blue_skill, 43)
-        self.assertEqual(self.reader.blue_entries[604], dict(id=604, name='Bad Breath', level=61, min_skill=176))
+        self.assertEqual(self.reader.blue_entries[604], dict(id=604, name='Bad Breath', level=61, min_skill=178))
         self.assertTrue(all(1 <= row['level'] <= 75 and row['min_skill'] >= 0 for row in self.reader.blue_entries.values()))
         # The loaded RoV revert changes WHM Banishga from retail level10 to level15.
         banishga = next(row for row in self.reader.spells.values() if row['name'] == 'banishga')
         self.assertEqual(banishga['jobs'].to_bytes(22, 'big')[2], 15)
+
+    def test_actual_venom_shell_and_cold_wave_match_the_current_teacher_moves(self):
+        teachers = [('Bibiki_Bay', 'bibiki_bay', 'Coralline_Uragnite', [32, 34],
+                     dict(id=513, name='Venom Shell', level=42, min_skill=100, skill_ids=[505]), 1572),
+                    ('PsoXja', 'psoxja', 'Snoll', [56, 59],
+                     dict(id=535, name='Cold Wave', level=52, min_skill=134, skill_ids=[528]), 1646)]
+        for zone, data_zone, mob, levels, spell, old_move in teachers:
+            with self.subTest(mob=mob):
+                fixture = self.data_kind(zone, mob, data_zone=data_zone, levels=levels)
+                info, _ = self.reader.read(fixture)
+                self.assertIn(spell, info['blue']['spells'])
+                self.assertNotIn(spell['id'], self.reader.blue.get(old_move, ()))
 
     def test_common_families_have_reviewed_status_and_targeting_notes(self):
         cases = [('sheep_song', 'Sleep', 'area around the monster'),

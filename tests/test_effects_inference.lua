@@ -105,7 +105,7 @@ expect('ordinary wear-off removes the tracked effect', entry(148), nil);
 reset();
 action(3, 46, 20, 110);
 expect('physical job ability uses its own inference row', entry(10).inferred, true);
-expect('Shield Bash uses the exported upper duration', entry(10).ends, 108);
+expect('Shield Bash uses the exported upper duration in whole seconds', entry(10).ends, 106);
 reset();
 local pet = MOCK.pet_id(0x700);
 MOCK.player.pet_index = 0x700;

@@ -30,19 +30,19 @@ EXTRA_METHODS = re.compile(r'\b(?:mob\w*)\s*:\s*(speed|setBaseSpeed|setAnimation
 
 # Changes here need a review of the stored facts and estimates.
 GUARDS = {
-    'src/map/utils/mobutils.cpp': 'b4b2245fa821e60e8b7498accf0e51622226779c2e93a38646c54e540a1a2a69',
-    'src/map/entities/battle_entity.cpp': '00c8ccd29402677cb055e99f308501e2faedd9f6b192e1f7f3d7f0fb80d8c636',
-    'src/map/entities/mob_entity.cpp': '38ccd51b4f1c16ed636cd3179978ae8d57600b775f7ca98b34e33e222bbd6a37',
-    'src/map/grades.cpp': '18040c5ff421067f4442d6563de1ea63e104218a1206d542195de6d375fe05fe',
-    'src/map/instance_loader.cpp': 'ae033eef49d1cf9f1b09bab7a873ce9df51487794a29f0f0827183e9dab12138',
-    'src/map/ai/controllers/mob_controller.cpp': 'b59b1a0099c9868c19f077399a510f6180382bd9ab48a244d5f9cdf62908fa5d',
+    'src/map/utils/mobutils.cpp': '77bd3f27c7d039ae1e7dd1b4864dd547307d41ed78588b2a1f85ba933955a502',
+    'src/map/entities/battle_entity.cpp': '71b82bedc41695ff9bfc83ca76fe3ec301922f3404da25361fbf49205be6c455',
+    'src/map/entities/mob_entity.cpp': 'a6f83a7ed42dac5549185258ff6f755e2867a7a2c71b7b378c7d56c6a361525e',
+    'src/map/grades.cpp': 'c920b0b2f7ac1437477c41e331638f8a473a43d6f80f9e2a92e60c4994ef5083',
+    'src/map/instance_loader.cpp': '2dc56bf063a1aacc6450a61f029907d86f7df8b1be3089fede4e344844873bee',
+    'src/map/ai/controllers/mob_controller.cpp': 'a937f8e56538d911f62801187589cd7186d77bbcaedef7a54de5208d7828fbb8',
     'src/map/data/shared_types/mob_attributes/dataset.cpp': '8cfd4ed2de15c7ecabb81d0f27f421d23ab25b4191ed1fb0bd9ce168d3e5c3f9',
-    'src/map/lua/lua_base_entity.cpp': '7ba332514f161b9aee84c499c8eca6dd18156f7de41f94d9e8bbd741bdf2cb08',
+    'src/map/lua/lua_base_entity.cpp': '161ec6b78c4bfb108bfc733e33c1417c9f499c3c8be84c059cd8ea936f9ed877',
     'scripts/globals/job_utils/beastmaster.lua': '1b33183523568ac9e322b7f1e5d03fd6c3c9f9bd0c54dd87339348dfd0871b6e',
     'modules/phoenix/lua/custom/exp_penalties.lua': 'fcc1b93356db22fe94a077e1256e6676769466f3983388baaf239db32d7fca92',
-    'src/map/utils/zoneutils.cpp': '81ea7f72adf44873cf53c2df7d30cbcaf1b7042d21e8e0ca0560271d108f320b',
-    'src/map/attackround.cpp': '35b462a5ef71d386fd0ee06cec57ae51d23c12616cb5e8d51b37288a00489b10',
-    'src/map/utils/battleutils.cpp': '927c068520b49bba81645e594b620c6f1ed4426a86ad74cad4dfb4326ae8bd5f',
+    'src/map/utils/zoneutils.cpp': '1f8264f8cf55f4cb7db756d24e72b6f7ae451ef5b3719434706a6f15c0f91e95',
+    'src/map/attackround.cpp': 'b7d4aeedf5715e3eddcfa967848a26ee777757c3bc5dd73c34e2569c2be4257a',
+    'src/map/utils/battleutils.cpp': '901294906212f495c4a7350f6b2b5771d4ae1a48adc88814c3957c8d221f0772',
     'scripts/globals/job_utils/thief.lua': '2818aca1ab4b9ca9de8d9de65e931798c0c0ef840fe3aea5a9cbcf338dd50d8a',
 }
 MODULE_GUARD = '9479e32432e63322b6885a428b3d77bcbd5f98d063c6cc275e68399deafb4ec8'

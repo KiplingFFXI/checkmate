@@ -34,7 +34,7 @@ DANGERS = {
     'poison_breath_crawler': ('Poison Breath: poison', 'Water breath damage that ignores shadows. On a successful damage result it attempts Poison; Phoenix uses the pre-WotG poison duration.'),
     'heat_breath': ('Heat Breath: fire breath', 'Fire breath damage based on the monster\'s HP at move start. Ignores shadows; resistance and damage reductions still apply.'),
     'blank_gaze': ('Blank Gaze: paralysis gaze', 'Attempts Paralysis when the target faces the monster and the monster is in front of the target.'),
-    'blank_gaze_dispel': ('Blank Gaze: dispel gaze', 'Attempts to remove one dispellable status effect when the target faces the monster.'),
+    'blank_gaze_dispel': ('Blank Gaze: dispel gaze', 'Can remove one to three dispellable buffs based on TP when the target faces the monster.'),
     'curse': ('Curse: curse', 'Attempts Curse on its targets.'),
     'hex_eye': ('Hex Eye: paralysis gaze', 'Attempts Paralysis when the target faces the monster and the monster is in front of the target.'),
     'frightful_roar': ('Frightful Roar: defense down', 'Attempts Defense Down on its targets.'),
@@ -111,7 +111,7 @@ GUARDS = {
     'scripts/actions/mobskills/poison_breath_crawler.lua': '6c62a4c86b71b6ff6cbe0339f8a3a55f1fe77060ca024d1bb015644d023bbf16',
     'scripts/actions/mobskills/heat_breath.lua': 'a2f1748dc3898636ec9fb2a0f442fcc745a22c92602257ece39919ed6fce9855',
     'scripts/actions/mobskills/blank_gaze.lua': '2e20c81efe2610e6a0f6b238b231418c49521f65c48dbc5736b1523129ec7feb',
-    'scripts/actions/mobskills/blank_gaze_dispel.lua': '07b95707530e63fee3a7176667e449865a170ce85ddc11c6d45c64eb684add55',
+    'scripts/actions/mobskills/blank_gaze_dispel.lua': 'fff23a25380add5b09f781655b4c96dbed96427f52808d4565c43dd7f9bb4ecc',
     'scripts/actions/mobskills/curse.lua': '50c792998ef7f7cc397557b7490fa2af9dacf45730b87db5a77b76606fc18ab4',
     'scripts/actions/mobskills/hex_eye.lua': 'f40f4ee41b744312fb8dd27260dacebfc85f7cc560c254a6d2c9397347e7be43',
     'scripts/actions/mobskills/frightful_roar.lua': 'dcb3e7a2fc095e6e8a3a9a2f423130fc467385f2634e0f490a913de50a46e26c',
@@ -136,7 +136,7 @@ GUARDS = {
     'scripts/actions/spells/black/stun.lua': '9bdcfbd090aec044006e8a00de85a52c5e842aa9d56d0e6a552e4c43dfd7ef9a',
     'scripts/actions/spells/black/poisonga.lua': '9bdcfbd090aec044006e8a00de85a52c5e842aa9d56d0e6a552e4c43dfd7ef9a',
     'scripts/actions/spells/black/poisonga_ii.lua': '9bdcfbd090aec044006e8a00de85a52c5e842aa9d56d0e6a552e4c43dfd7ef9a',
-    'scripts/globals/mobskills.lua': '5e5505e5818e0a2b88157ec9ceb747c299c43d6f60b9ae8642e9ad86600106dd',
+    'scripts/globals/mobskills.lua': 'f02ee09c2fd3769609b4911d2bc844bc216fb9f22fa34ae0f6db2321c406ac3a',
     'scripts/globals/spells/enfeebling_spell.lua': 'a9fec830186f0a14bca6c0062754d88a8974358098bb95a761f51b2749853029',
     'scripts/combat/action_mobskill_status_effect.lua': '1a8a4762bb79b3f869f2382b239c3bcd46f31c999666b4df9b86ce16084c8b56',
     'src/map/data/datasets/skills/dataset.cpp': '2a3578360ecd59f9b01e30dabd9f17816dffb4b7a83f1edecd10b932ecfacba3',
@@ -144,12 +144,12 @@ GUARDS = {
     'src/map/data/datasets/skills/yaml.h': '7b379197daceaada78637421904c7ea5200ac4402dc1623bb35e3cffdf44e249',
     'src/map/data/datasets/stats/dataset.h': '90e85cbab6423b85d652e725494582df0bb079f2c1c5ca91a233913278190823',
     'src/map/utils/dataset_loader.h': 'c51f95ffe3a5c0a2652ce7dbbd06e9016819a9b479388b0fbe5e550c3f557628',
-    'src/map/spawn_slot.h': 'c9c513636ef6ec59098d2b38646abae2ecef3b9f7c358d9f2d3b40e7761f991e',
+    'src/map/spawn_slot.h': '161bd3f6138a3c9f514d5761f68e6484a38a3c28d7080c571831b4d6dafd197b',
 }
-MODULE_GUARD = 'd2a8b49de09e3c589ddedf51d2c894159da5add46da8083c1941c48e1cb3c52c'
+MODULE_GUARD = '2adfd58e715a6a96792971e60bcbd48c5d78ffcc2bbae0838d54728197f7a395'
 NATIVE_GUARDS = {
     ('src/map/utils/moduleutils.cpp', 'LoadLuaModules'): '606b7f8a9cbc78936e03d4bb6a078b7ff9cd8b0dc0f02f835378cbc850751c51',
-    ('src/common/utils.h', 'sorted_directory_iterator'): '3d628a52d258f46a943eaf5d0f330185b3ba44335c788041765e7d413b9dc66c',
+    ('src/common/utils.h', 'sorted_directory_iterator'): '3b718001d16b33f076f07d02f43d160c5e88a99f9b080a40abd1b39914e34b74',
     ('src/map/spawn_handler.cpp', 'SpawnHandler::registerForRespawn'): '6e4743c0a069eb5c295f9652f48d11a5ea6e5be7892ef4aa5eb05ccd09cf9e88',
     ('src/map/spawn_slot.cpp', 'SpawnSlot::OnKill'): '9e5c646f79d160045f1286e2153bc1f4285772caad021d4962b991f5c596c2b5',
     ('src/map/entities/mob_entity.cpp', 'CMobEntity::Die'): '13778a95cf1dcc1217387aec3490d426825f0e61e5c9a2be297c86eab46cc32f',
@@ -157,7 +157,7 @@ NATIVE_GUARDS = {
     ('src/map/lua/lua_base_entity.cpp', 'CLuaBaseEntity::setSpellList'): '98465dae5a7b72aa7afa158aec5284908960d6f93c9d1e89b75d2780da768a23',
     ('src/map/utils/mobutils.cpp', 'SetSpellList'): '4d5256637436468c0c41eca0e990eb087e5cdb5908192b82d97b5107a5022b35',
     ('src/map/utils/mobutils.cpp', 'RecalculateSpellContainer'): '73067866e6b540c0ede552be06184f2323e428df03cffa88d79de061fb8a0716',
-    ('src/map/mob_spell_list.cpp', 'LoadMobSpellList'): '330c538bc5a9103c6ae4aef008443e695e7651284dea7814abf695dfe2e1dec6',
+    ('src/map/mob_spell_list.cpp', 'LoadMobSpellList'): 'a7dfc1dbc4d71a8792493d908c5d10bd1ecde71d997bbf3012088eed3bf4b195',
     ('src/map/mob_spell_list.cpp', 'GetMobSpellList'): '2beb9238cf2dea223b97b3f3aeb5ff2c96fab29dfb83c5b1b7448132510e2593',
     ('src/map/entities/battle_entity.cpp', 'CBattleEntity::OnMobSkillFinished'): '665f5b70e8806b8926619adbcee9bb195093920ac001a24707ba49b352c75260',
     ('src/map/action/action.cpp', 'action_t::normalize'): 'b1acece5a0d5e5f15d53662abd8f100e579cd2ea77898a127304423b4b35d194',
@@ -169,7 +169,7 @@ NATIVE_GUARDS = {
     ('src/map/ai/controllers/mob_controller.cpp', 'CMobController::TryMobSkill'): '72a9858ce83997e1321958e80b925beeb35b12f8b5ca4656d66c72547bdc00d9',
     ('src/map/ai/controllers/mob_controller.cpp', 'CMobController::TrySpecialSkill'): '4c207c89149afdcc64a6832ac1b6615b884af169328de17463cc8a1dc499748e',
     ('src/map/lua/lua_base_entity.cpp', 'CLuaBaseEntity::useMobAbility'): 'a787d0d8b4443bdf630ccc69d4d84e62bfea4d0a49fd6679cfbd64ce9ab07511',
-    ('src/map/utils/mobutils.cpp', 'SetupJob'): '2514743e2a594b20cb72906112209a563a12cc34d500ddd3e403f92b1525429a',
+    ('src/map/utils/mobutils.cpp', 'SetupJob'): '3b378232a581f6b7c485c65dbb48e8dbd70fa30486c07d91947f9a605d955497',
     ('src/map/spawn_handler.cpp', 'hourInWindow'): '6c93d49e3d27378c6d7221df1422a472c704faeeffb32230d1a8b5fecad3f3ed',
     ('src/map/spawn_handler.cpp', 'spawnWindowOf'): '0f2c575815922d82299b659f3e7198ffe61e31a4950c926ade31ad0e782d3df5',
     ('src/map/spawn_handler.cpp', 'SpawnHandler::canSpawnNow'): '1e78ca08f24d5dcc45caaa48872dcbc30eed53d0c6b5c0154062e9d23b2bc461',
@@ -177,8 +177,8 @@ NATIVE_GUARDS = {
     ('src/map/spawn_handler.cpp', 'SpawnHandler::onGameHour'): '32396b99f84b9279701293eb1aef2d3ccbd5b2f5a0343b595d4044966a219025',
     ('src/map/spawn_handler.cpp', 'SpawnHandler::onWeatherChange'): 'f4096b2c65386c78e754fd917d9b7fab9d9c7723b34d12b378cc97072c8fc24b',
     ('src/map/spawn_handler.cpp', 'SpawnHandler::Tick'): 'c3a45132b9e4c4f8f46ed145ea0478a21d9823505ee188f001cef037c0e2c55b',
-    ('src/map/utils/blueutils.cpp', 'TryLearningSpells'): '343dd7ca9e943e2bfd8cbb709f77ea8c1b3bae66245dfd36408d7cdfa5f49b10',
-    ('src/map/entities/mob_entity.cpp', 'CMobEntity::DistributeRewards'): '70c311684a9f83e6f5cfe1b014fb99b0f2d8917085de9a2da9f57036360d7edd',
+    ('src/map/utils/blueutils.cpp', 'TryLearningSpells'): '4ad69db5533e4b53a36ac7d48a35f888596ec5221619946374f32d6342d61c67',
+    ('src/map/entities/mob_entity.cpp', 'CMobEntity::DistributeRewards'): 'e56ef6825fc21c66627e64085754d55d2ec6092b3634a043b5dc4e8a1600576b',
     ('src/map/spell.cpp', 'LoadSpellList'): 'e61fc2f6670c056570fe390dc0ef203518aa115b3f9029fbaa39b8ab1bbdb5bf',
     ('src/map/spell.cpp', 'CSpell::getJob'): '05f5549f6c334d97891f1fc0fcb6bfecae2c7f11989701e45378e9e869e4455a',
     ('src/map/utils/battleutils.cpp', 'GetMaxSkill'): '994f64b1d842a155f2d09962461df200680eaa92dc1a09fa07e2b7d32747a037',
@@ -383,13 +383,16 @@ def possible_skill(text):
     return not bare or bare[1].strip() == '0'
 
 
-def native_digest(text, name):
+def native_code(text, name):
     pattern = r'^[^\n;{}]*\b(?P<code>' + re.escape(name) + r'\([^)]*\)[^{;\n]*\n\{.*?^})'
     matches = list(re.finditer(pattern, text, re.S | re.M))
     if not matches:
         raise RuntimeError('Encounter source has no readable ' + name)
-    code = '\n'.join(re.sub(r'/\*.*?\*/|//[^\n]*', '', match['code'], flags=re.S) for match in matches)
-    return digest(code)
+    return '\n'.join(re.sub(r'/\*.*?\*/|//[^\n]*', '', match['code'], flags=re.S) for match in matches)
+
+
+def native_digest(text, name):
+    return digest(native_code(text, name))
 
 
 def check_source(tree, loaded):
@@ -470,13 +473,21 @@ def apply_spell_jobs(rows, statement, where):
     return rows
 
 
-def blue_entry(spell, tables, skill_id):
+def blue_skill_gap(text):
+    body = native_code(text, 'TryLearningSpells')
+    gaps = re.findall(r'\bif\s*\(\s*playerSkillLvl\s*>=\s*skillLvlForSpell\s*-\s*(\d+)\s*\)', body)
+    if len(gaps) != 1:
+        raise RuntimeError('Unreadable BLU learning skill requirement')
+    return int(gaps[0])
+
+
+def blue_entry(spell, tables, skill_id, skill_gap):
     jobs = spell.get('jobs')
     if not isinstance(jobs, int) or jobs < 0 or jobs >= 1 << (22 * 8):
         raise RuntimeError('Unreadable BLU spell job levels: %s' % spell.get('name'))
     level = jobs.to_bytes(22, 'big')[15] or 255
     return dict(id=spell['spellid'], name=label(spell['name']), level=level,
-                min_skill=max(0, tables.max_skill(skill_id, 'blu', level) - 31))
+                min_skill=max(0, tables.max_skill(skill_id, 'blu', level) - skill_gap))
 
 
 def move_danger(row):
@@ -658,6 +669,7 @@ class Reader:
         self.spells = {row['spellid']: row for row in spell_rows
                        if allowed.allows(row['content_tag'])}
         self.blue_skill = source_tables.read_enum(tree, 'skill_type')['blue_magic']
+        skill_gap = blue_skill_gap(Path(tree, 'src/map/utils/blueutils.cpp').read_text(encoding='utf8'))
         self.blue_entries = {}
         self.move_enum = source_tables.lua_enum(str(Path(tree) / 'scripts/enum/mob_skill.lua'), 'xi.mobSkill')
         self.spell_enum = source_tables.lua_enum(str(Path(tree) / 'scripts/enum/magic.lua'), 'xi.magic.spell')
@@ -668,7 +680,8 @@ class Reader:
         for row in self.data['blue_spell_list']:
             if row['spellid'] in self.spells:
                 self.blue[row['mob_skill_id']].add(row['spellid'])
-                self.blue_entries[row['spellid']] = blue_entry(self.spells[row['spellid']], self.tables, self.blue_skill)
+                self.blue_entries[row['spellid']] = blue_entry(
+                    self.spells[row['spellid']], self.tables, self.blue_skill, skill_gap)
         check_source(tree, self.loaded)
         self.timed = timed_rules(text_at(tree, TIMED), allowed) if TIMED in self.loaded else {}
         self.danger_effects = danger_effects.build(self.tree, self.skills.values(), self.spells.values(), self.loaded)

@@ -16,7 +16,7 @@ IDS = {688: 'MIGHTY_STRIKES', 1008: 'MIGHTY_STRIKES', 2939: 'MIGHTY_STRIKES',
        1015: 'BLOOD_WEAPON', 2249: 'BLOOD_WEAPON'}
 GUARDS = {
     'scripts/mixins/job_special.lua': '6e578870a225d6a8900de4a4861137f14c02a7c7f46d4257fa9b41587d354557',
-    'scripts/enum/mob_skill.lua': '994d405e58536e0562cd5919836d97b233b036b3d5bff0145251b25f808ab0ff',
+    'scripts/enum/mob_skill.lua': 'c0ebdf3978847aa2e94a99224202e140506b956ba87934b30d310208bb0b5187',
     'scripts/globals/dynamis/dynamis_mobinfo.lua': 'cb01a238320f744784bb38478d0f516a5e6bd7b4956e44d6ab86c96f9972d176',
     'scripts/zones/AlTaieu/mobs/Absolute_Virtue.lua': '3d2464d301b360f3b0ace6cb508429ca0c15749fa0eefbbfbd6492bd3f46cc36',
     'scripts/zones/Dynamis-Xarcabard/mobs/Dynamis_Lord.lua': '1920e35de7eaafc99cf7d92465c38156f804b5396f2411a4a108b1f6337aee6d',

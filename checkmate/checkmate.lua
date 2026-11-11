@@ -1,6 +1,6 @@
 addon.name    = 'checkmate';
 addon.author  = 'Kipling';
-addon.version = '1.14.13';
+addon.version = '1.14.14';
 addon.desc    = 'Monster details, combat estimates and your pet on /check for Phoenix.';
 addon.link    = 'https://github.com/KiplingFFXI/checkmate';
 
@@ -421,8 +421,9 @@ local function readout(check)
         return result;
     end
 
+    local crit_taken_on = part_on('crittaken');
     local physical_needed = part_on('hit') or part_on('offhand') or part_on('ranged') or part_on('evade')
-        or part_on('crit') or part_on('crittaken');
+        or part_on('crit') or crit_taken_on;
     local magic_needed = part_on('magic') or display_parts.blue_enabled(s, 'chance', 'chat');
     local pdif_needed = part_on('pdif') or part_on('offhandpdif') or part_on('rangedpdif');
     local defenses_needed = part_on('block') or part_on('parry');
@@ -448,11 +449,9 @@ local function readout(check)
         end
         me.extra_accuracy = s.magic.extra_accuracy;
         me.crit_merits, me.enemy_crit_merits = s.merits.crit_hit_rate, s.merits.enemy_crit_rate;
-        -- Keep the same gear bonus across both parts of a delayed reply.
-        if (part_on('crittaken') and check.crit_evasion == nil) then
-            check.crit_evasion = physical.crit_evasion(player.equipped_items(), me.level);
+        if (crit_taken_on and check.crittaken_snapshot == nil) then
+            me.crit_evasion = physical.crit_evasion(player.equipped_items(), me.level);
         end
-        me.crit_evasion = check.crit_evasion;
     end
     if (physical_needed or magic_needed or pdif_needed or check.pet ~= nil) then
         check.effects = checkmate.tracking and effects.readout(check.id, 'both', os.clock()) or nil;
@@ -465,10 +464,22 @@ local function readout(check)
 
     if (physical_needed) then
         local numbers = physical.readout(me, check);
-        result.hit, result.evade, result.crit = numbers.hit, numbers.evade, numbers.crit;
+        result.hit, result.evade = numbers.hit, numbers.evade;
+        if (part_on('crit')) then result.crit = numbers.crit; end
         result.offhand, result.ranged, result.ranged_far = numbers.offhand, numbers.ranged, numbers.ranged_far;
         result.signet = numbers.signet;
-        result.crittaken, result.tp_moves = numbers.crittaken, numbers.tp_moves;
+        if (crit_taken_on) then
+            -- Player and pet replies keep the first Crit taken reading.
+            local snapshot = check.crittaken_snapshot;
+            if (snapshot == nil) then
+                snapshot = { value = numbers.crittaken, inputs = { level = me.level, agi = me.agi,
+                    enemy_crit_merits = me.enemy_crit_merits, crit_evasion = me.crit_evasion,
+                    observed_at = result.provenance.inputs_at } };
+                check.crittaken_snapshot = snapshot;
+            end
+            result.crittaken, result.crittaken_inputs = snapshot.value, snapshot.inputs;
+        end
+        result.tp_moves = numbers.tp_moves;
         result.no_swings, result.counters = numbers.no_swings, numbers.counters;
         result.notes, result.uncertain = numbers.notes, numbers.uncertain;
         if (parameter_conditions_changed) then physical.qualify_parameters(result); end

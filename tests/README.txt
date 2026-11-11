@@ -312,6 +312,9 @@ These are the main suite groups. run.py discovers every test_*.lua file, includi
                           the switch, profiles and job links leaving your merits out, reset, help, the
                           Merits tab's sliders, the overlay's input refreshes, and the
                           sample
+  test_crit_taken_agi.lua       AGI limits in chat and overlay, including negative totals and merit choices
+  test_crit_taken_details.lua  chat and overlay switches, copied details, and help for each attack type
+  test_crit_taken_snapshot.lua saved chat rates and inputs through delayed player and pet stat replies
   test_job.lua            the Job part: the letters and the support job rule, the 22 jobs and
                           their artifact heads, real monsters through a /check, the rows whose data
                           names no job or whose job is set at spawn, the overlay's pictures with

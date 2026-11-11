@@ -349,7 +349,12 @@ local function build(index, s, parameter_inputs, attack_inputs, defensive_inputs
     end
     if (parts.crit == true or parts.crittaken == true or parameters ~= nil) then
         local numbers = physical.readout(me, mob);
-        if (parts.crit or parts.crittaken) then result.crit, result.crittaken = numbers.crit, numbers.crittaken; end
+        if (parts.crit == true) then result.crit = numbers.crit; end
+        if (parts.crittaken == true) then
+            result.crittaken = numbers.crittaken;
+            result.crittaken_inputs = { level = me.level, agi = me.agi, enemy_crit_merits = me.enemy_crit_merits,
+                crit_evasion = me.crit_evasion, observed_at = result.provenance.inputs_at };
+        end
         result.tp_moves = numbers.tp_moves;
         result.no_swings, result.counters = numbers.no_swings, numbers.counters;
         result.notes, result.uncertain = numbers.notes, numbers.uncertain;

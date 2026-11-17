@@ -281,11 +281,7 @@ local function check_of(zone, index, name, level, con, message, reply)
     end
     MOCK.entities[index] = { Name = name };
     local n = #MOCK.printed;
-    if (con == nil) then
-        MOCK.packet(MOCK.message_packet(MOCK.player.server_id, MOCK.mob_id(zone, index), 0, 0, message, index));
-    else
-        MOCK.packet(MOCK.check_packet(index, level, con, message));
-    end
+    MOCK.packet(MOCK.check_packet(index, level, con, message));
     MOCK.frame();
     if (reply ~= nil) then
         MOCK.wait(1.6);
@@ -1036,7 +1032,7 @@ overlay_at(520);
 -- Valkurm Emperor fits on one line with abbreviations.
 MOCK.target_monster(334, 'Valkurm Emperor');
 MOCK.level_up(43);
-MOCK.packet(MOCK.message_packet(MOCK.player.server_id, MOCK.mob_id(103, 334), 0, 0, 249, 334));
+MOCK.packet(MOCK.check_packet(334, 0, nil, 249));
 expect('Valkurm Emperor at 43', overlay_frame(), 'Valkurm Emperor (Lv 29-30) | ITG // Aggro: A if Lv 30+ (H) | L Damselfly '
     .. '(H)');
 MOCK.command('/checkmate overlayshort off');

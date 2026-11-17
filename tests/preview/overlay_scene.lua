@@ -157,7 +157,7 @@ return function (scene)
     if (scene == 'nm') then
         MOCK.level_up(43);
         MOCK.target_monster(334, 'Valkurm Emperor');
-        MOCK.packet(MOCK.message_packet(MOCK.player.server_id, MOCK.mob_id(103, 334), 0, 0, 249, 334));
+        MOCK.packet(MOCK.check_packet(334, 0, nil, 249));
         return;
     elseif (scene == 'nodata') then
         MOCK.target_monster(2000, 'Mysterious Bug');

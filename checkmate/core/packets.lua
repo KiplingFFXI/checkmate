@@ -1,5 +1,5 @@
 --[[
-    Reads the few incoming packet fields checkmate needs.
+    Reads the packet fields checkmate needs.
 
     Offsets come from the LandSandBoat server source (src/map/packets), which Phoenix runs unchanged
     for these packets.
@@ -28,6 +28,19 @@ packets.CHECK_OUT = 0x0DD;
 local function byte_count(e)
     if (type(e.data) ~= 'string' or type(e.size) ~= 'number') then return 0; end
     return math.max(0, math.min(#e.data, e.size));
+end
+
+-- Outgoing 0x0DD, kind 0. The other kinds are /checkname and /checkparam.
+function packets.check_request(e)
+    if (e.id ~= packets.CHECK_OUT or e.size ~= 0x10 or byte_count(e) < 0x10) then return nil; end
+    local original = e.data;
+    local data = e.data_modified;
+    if (data == nil or data == '') then data = original; end
+    if (type(data) ~= 'string' or #data < 0x10 or data:byte(0x0C + 1) ~= 0) then return nil; end
+    local id = struct.unpack('L', data, 0x04 + 1);
+    local index = struct.unpack('L', data, 0x08 + 1);
+    if (id == 0 or index == 0 or index > 0xFFFF) then return nil; end
+    return id, index, original:byte(0x0C + 1) == 0;
 end
 
 local MINIMUM = { [packets.ID.MESSAGE] = 26, [packets.ID.WIDESCAN] = 7,

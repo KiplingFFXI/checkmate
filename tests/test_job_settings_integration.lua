@@ -46,7 +46,7 @@ check('off-job learning and Steal disappear together', not has_blue(first) and f
 check('automatic hiding preserves both display selections', s.printout.parts.blue.on and s.printout.parts.steal.on
     and s.overlay.parts.blue and s.overlay.parts.steal);
 local e = MOCK.check_packet(1, 40, 3, 174);
-MOCK.fire('packet_in', e);
+MOCK.packet(e);
 check('only hidden rows leave the native check line alone', not e.blocked);
 
 MOCK.player.main_job = 16;
@@ -72,7 +72,7 @@ before = reads;
 for i = 1, 20 do frame(); end
 expect('chat-only filters do not poll on idle frames', reads, before);
 MOCK.player.sub_job, MOCK.player.sub_level = 6, 5;
-MOCK.fire('packet_in', MOCK.check_packet(1, 40, 3, 174));
+MOCK.packet(MOCK.check_packet(1, 40, 3, 174));
 check('a chat-only check reads the latest support job', jobs.state().can_steal == true);
 
 row.drops = { { item = 656, rate = 100 } };
@@ -88,7 +88,7 @@ frame();
 expect('THF 24 shows client TH1 in the overlay', target.readout(s).drops.th, 1);
 s.printout.parts.drops.on = true;
 before = #MOCK.printed;
-MOCK.fire('packet_in', MOCK.check_packet(1, 40, 3, 174));
+MOCK.packet(MOCK.check_packet(1, 40, 3, 174));
 frame();
 check('a check prints the same automatic TH1', table.concat(MOCK.printed_since(before), '\n'):find('Drops (TH 1)', 1, true) ~= nil);
 MOCK.player.main_job, MOCK.player.main_level = 1, 75;

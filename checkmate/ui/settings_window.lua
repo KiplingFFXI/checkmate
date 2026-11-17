@@ -234,7 +234,7 @@ local TIPS = {
         .. 'yourself, and it reads the reply.',
     overlay_on    = 'Turns the overlay on. It\'s off by default, and while it\'s off checkmate doesn\'t read your '
         .. 'target at all.',
-    overlay_checked = 'Keeps unchecked monsters hidden until your /check reply arrives. With Keep readings when switching targets on, '
+    overlay_checked = 'Keeps unchecked monsters hidden until your manual /check reply arrives. With Keep readings when switching targets on, '
         .. 'checked monsters show again when you target them. With it off, changing targets hides them until you /check again. '
         .. 'Settings previews still use sample data.',
     overlay_escape = 'Escape hides the overlay until your next manual /check reply arrives. It starts off and works with '
@@ -2770,7 +2770,7 @@ local function draw_overlay_section(settings)
     overlay_mode.id = not o.on and 'off' or (o.only_checked and 'checked' or 'target');
     local before = overlay_mode.id;
     choice('Show overlay', overlay_mode, 'id', settings_window.OVERLAY_MODES,
-        'Off hides the overlay. Any targeted monster shows the monster you select. Only after checking waits for your /check reply. '
+        'Off hides the overlay. Any targeted monster shows the monster you select. Only after checking waits for your manual /check reply. '
             .. 'Keep readings when switching targets controls whether checked monsters show again. Settings previews still work.');
     if (overlay_mode.id ~= before) then
         o.on = overlay_mode.id ~= 'off';

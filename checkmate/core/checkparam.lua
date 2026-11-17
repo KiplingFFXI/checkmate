@@ -1,7 +1,7 @@
 --[[
     Hit, off-hand, ranged, evade and pDIF use /checkparam <me>. Pet uses /checkparam <pet> after it.
     Requests wait 1.5 seconds after other checks because the game ignores them when sent too soon.
-    A reply that arrives before our request is reused.
+    A reply that arrives before our request is reused. A check stops waiting to send after five seconds.
 
     Only replies to our own requests are hidden: six lines for you and five for your pet.
     Each request waits three seconds for its last line. A checkparam you type still prints.
@@ -12,6 +12,7 @@ local checkparam = {};
 -- Seconds from the last /check or /checkparam to the send. The game ignores a /checkparam sent right
 -- after a /check. Keep this gap so other pending requests can finish too.
 local SEND_DELAY = 1.5;
+local SEND_TIMEOUT = 5.0;
 
 -- How long to wait for the reply after sending, before printing without it.
 local REPLY_TIMEOUT = 3.0;
@@ -30,10 +31,10 @@ local LAST_LINE = 715;
 local ORDER = { 'me', 'pet' };
 checkparam.COMMANDS = { me = '/checkparam <me>', pet = '/checkparam <pet>' };
 
--- Each request holds the /check waiting on it, whether it's due, when its reply is overdue once it's sent,
+-- Each request holds the /check waiting on it, its send and reply deadlines,
 -- the server id its reply is about, and the accuracy, evasion and Attack values it supplied.
 local function blank()
-    return { pending = nil, due = false, wait_until = nil, about = nil, accuracy = nil, evasion = nil, offhand = nil,
+    return { pending = nil, due_until = nil, wait_until = nil, about = nil, accuracy = nil, evasion = nil, offhand = nil,
         ranged = nil, attack = nil, offhand_attack = nil, ranged_attack = nil, pdif_expected = nil,
         parameter_expected = nil, received_at = nil };
 end
@@ -46,7 +47,7 @@ local quiet_from = -math.huge;
 -- Ends a request's wait and returns the /check that waited on it, or nil. Its values stay for printing.
 local function finish(r)
     local pending = r.pending;
-    r.pending, r.due, r.wait_until = nil, false, nil;
+    r.pending, r.due_until, r.wait_until = nil, nil, nil;
     return pending;
 end
 
@@ -58,7 +59,7 @@ end
 function checkparam.is_active()
     for _, kind in ipairs(ORDER) do
         local r = requests[kind];
-        if (r.due or r.wait_until ~= nil) then
+        if (r.due_until ~= nil or r.wait_until ~= nil) then
             return true;
         end
     end
@@ -88,7 +89,7 @@ function checkparam.ask(kind, check, about)
         r.pending = nil;
         return replaced, false;
     end
-    r.pending, r.about, r.due = check, about, true;
+    r.pending, r.about, r.due_until = check, about, os.clock() + SEND_TIMEOUT;
     r.pdif_expected = check.pdif_expected;
     r.parameter_expected = check.parameter_expected;
     r.accuracy, r.evasion, r.offhand, r.ranged = nil, nil, nil, nil;
@@ -101,7 +102,7 @@ end
 function checkparam.cancel(kind)
     local r = requests[kind];
     local dropped = r.pending;
-    r.pending, r.due = nil, false;
+    r.pending, r.due_until = nil, nil;
     return dropped;
 end
 
@@ -112,7 +113,7 @@ function checkparam.ready(now)
     end
     for _, kind in ipairs(ORDER) do
         local r = requests[kind];
-        if (r.due) then
+        if (r.due_until ~= nil and now < r.due_until) then
             return kind, r.about;
         end
     end
@@ -122,16 +123,16 @@ end
 -- Request `kind` just went out.
 function checkparam.sent(now, kind)
     local r = requests[kind];
-    r.due, r.wait_until = false, now + REPLY_TIMEOUT;
+    r.due_until, r.wait_until = nil, now + REPLY_TIMEOUT;
     quiet_from = now;
 end
 
--- The /check waiting on the first request whose reply is overdue, and that request's kind, or nil. The
+-- The /check waiting on the first request whose send or reply is overdue, and that request's kind, or nil. The
 -- /check prints without the missing values. It can be nil when nothing waits on that request anymore.
 function checkparam.timed_out(now)
     for _, kind in ipairs(ORDER) do
         local r = requests[kind];
-        if (r.wait_until ~= nil and now > r.wait_until) then
+        if ((r.due_until ~= nil and now >= r.due_until) or (r.wait_until ~= nil and now > r.wait_until)) then
             return finish(r), kind;
         end
     end
@@ -148,7 +149,7 @@ function checkparam.on_reply(now, message, value, about, attack)
     local found;
     for _, kind in ipairs(ORDER) do
         local r = requests[kind];
-        if (r.about == about and (r.pending ~= nil or r.wait_until ~= nil)) then
+        if (r.about == about and (r.wait_until ~= nil or (r.due_until ~= nil and now < r.due_until))) then
             found = kind;
             break;
         end

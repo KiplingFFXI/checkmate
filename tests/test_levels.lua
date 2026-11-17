@@ -85,7 +85,7 @@ expect('a row with levels in two blocks', first_line(10, 0, nil, 249), '[checkma
 
 -- A monster a script spawned has 0x800 or more in its server id's low 12 bits, and is found by name.
 local n = #MOCK.printed;
-MOCK.packet(MOCK.message_packet(MOCK.player.server_id, MOCK.mob_id(900, 0x805), 30, 68, 174, 0x705));
+MOCK.packet(MOCK.check_packet(0x705, 30, 4, 174, MOCK.mob_id(900, 0x805)));
 MOCK.frame();
 expect('a dynamic spawn is found by name', MOCK.printed_since(n)[1], '[checkmate] Fixture Treant (Lv 30)');
 
@@ -181,7 +181,7 @@ expect('a block of one level shows just that', first_line(10, 76, 4), '[checkmat
 expect('a level outside the range shows the level alone', first_line(10, 60, 4), '[checkmate] Fixture Worm (Lv 60)');
 expect('with no known level the range keeps both blocks', first_line(10, 0, nil, 249), '[checkmate] Fixture Worm (Lv 51-76)');
 n = #MOCK.printed;
-MOCK.packet(MOCK.message_packet(MOCK.player.server_id, MOCK.mob_id(900, 0x805), 30, 68, 174, 0x705));
+MOCK.packet(MOCK.check_packet(0x705, 30, 4, 174, MOCK.mob_id(900, 0x805)));
 MOCK.frame();
 expect('a monster that spawns at one level shows just that', MOCK.printed_since(n)[1], '[checkmate] Fixture Treant (Lv 30)');
 expect('no row shows just the /check level', first_line(77, 30, 3), '[checkmate] Mystery Mob (Lv 30)');

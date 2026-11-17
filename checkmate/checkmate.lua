@@ -1,6 +1,6 @@
 addon.name    = 'checkmate';
 addon.author  = 'Kipling';
-addon.version = '1.14.14';
+addon.version = '1.14.15';
 addon.desc    = 'Monster details, combat estimates and your pet on /check for Phoenix.';
 addon.link    = 'https://github.com/KiplingFFXI/checkmate';
 
@@ -116,6 +116,7 @@ local checkmate = {
     broken    = false,   -- Set when a frame failed, so the error isn't repeated every frame.
     overlay_broken = false,   -- Set when the overlay failed. It stays off until you turn it on again.
     check_token = 0,
+    check_origin = require('core.check_origin'),
     reset_asked = nil,   -- When you first typed /checkmate reset, by os.clock.
 };
 
@@ -2922,6 +2923,7 @@ local function on_message(e)
     local actor, target, param1, param2, message, index = packets.message(e);
     -- Anyone's kill counts.
     if (message == DEFEATS or message == FALLS) then
+        checkmate.check_origin.forget(target, index);
         check_details.forget(index);
         monsters.on_death(index);
         tell_overlay(overlay.on_death, index);
@@ -2933,6 +2935,8 @@ local function on_message(e)
     end
 
     if (message == CHECK_IMPOSSIBLE or (message >= CHECK_FIRST and message <= CHECK_LAST)) then
+        -- The reply looks the same when another plugin checks a monster.
+        if (e.injected or checkmate.check_origin.take(target, index, os.clock()) ~= 'manual') then return; end
         -- A checkmate stopped after an error skips the /check, so the game's line stays.
         if (checkmate.broken) then
             return;
@@ -2975,7 +2979,7 @@ local function fill_merits(e)
     end
 end
 
--- Another addon can block the /check line, and checkmate still reads it.
+-- Another addon can block a manual /check line, and checkmate still reads it.
 ashita.events.register('packet_in', 'checkmate_packet_in', function (e)
     if (not packets.valid(e)) then return; end
     local id = e.id;
@@ -2989,6 +2993,7 @@ ashita.events.register('packet_in', 'checkmate_packet_in', function (e)
         tell_lessons(lessons.on_entity, e);
         local vanished, index = packets.despawned(e);
         if (vanished ~= nil and index ~= nil and index > 0) then
+            checkmate.check_origin.forget(vanished, index);
             check_details.forget(index);
             monsters.on_disappear(index);
             pet.on_disappear(index);
@@ -3016,6 +3021,7 @@ ashita.events.register('packet_in', 'checkmate_packet_in', function (e)
         local s = checkmate.settings;
         if (display_parts.blue_enabled(s, 'lessons', 'overlay')) then tell_overlay(overlay.changed, s); end
     elseif (id == packets.ID.ZONE_IN) then
+        checkmate.check_origin.reset();
         ui_tools.jobs.clear();
         blue_finder.changed();
         check_details.forget();
@@ -3041,7 +3047,9 @@ end);
 -- or blocked.
 ashita.events.register('packet_out', 'checkmate_packet_out', function (e)
     if (e.id == packets.CHECK_OUT) then
-        checkparam.wait_from(os.clock());
+        local now = os.clock();
+        checkmate.check_origin.record(e, now);
+        checkparam.wait_from(now);
     end
 end);
 
@@ -3208,6 +3216,7 @@ ashita.events.register('load', 'checkmate_load', function ()
 end);
 
 ashita.events.register('unload', 'checkmate_unload', function ()
+    checkmate.check_origin.reset();
     player.forget_attacks();
     blue_finder.changed();
     check_details.forget();
@@ -3221,6 +3230,7 @@ end);
 -- Another character logged in, or the settings were reset. The new settings replace the current ones.
 settings.register('settings', 'checkmate_settings_update', function (s)
     if (s ~= nil) then
+        checkmate.check_origin.reset();
         checkparam.reset();
         checkmate.ready = {};
         overlay.forget();

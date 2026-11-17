@@ -2,6 +2,12 @@
 
 Older entries describe that release. Later entries may change its behavior.
 
+## 1.14.15
+
+- HeadsUp's automatic checks no longer fill the chat log with Checkmate lines. Check a mob yourself to see your usual details.
+- Automatic checks leave your last manual reading alone. The checked-only overlay and extra stat requests still wait for a check you start.
+- If nearby auto-checks keep delaying a stat request, Checkmate prints the details it already has after a few seconds.
+
 ## 1.14.14
 
 - Chat keeps the Crit taken estimate and inputs from your check while waiting for player or pet stats. The overlay still updates as your stats change.

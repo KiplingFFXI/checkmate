@@ -1327,7 +1327,7 @@ package.preload['settings'] = function () return settings_lib; end
 MOCK.settings = settings_lib;
 
 --[[
-    Packets. Each builder returns packet_in userdata.
+    Packets. Each builder returns event userdata.
 ]]
 
 local function bytes(size)
@@ -1439,11 +1439,30 @@ function MOCK.message_packet(actor, target, param1, param2, message, target_inde
     return packet(0x029, b, 0x1C);
 end
 
--- The reply to your own /check of the monster at `index` in your zone. `con` is 0 to 7, nil for 249.
-function MOCK.check_packet(index, level, con, message)
+-- Build the real outgoing inspection packet. Pass false for a game request or true for an injected one.
+function MOCK.check_request(index, injected, kind, target)
+    local b = bytes(0x10);
+    put(b, 0x04, target or MOCK.mob_id(MOCK.player.zone, index), 4);
+    put(b, 0x08, index, 4);
+    b[0x0C] = kind or 0;
+    local e = packet(0x0DD, b, 0x10);
+    e.injected = injected;
+    return e;
+end
+
+-- The server's reply to a /check. `con` is 0 to 7, nil for 249.
+function MOCK.check_reply(index, level, con, message, target)
     local me = MOCK.player.server_id;
     local param2 = (con ~= nil) and (64 + con) or 0;
-    return MOCK.message_packet(me, MOCK.mob_id(MOCK.player.zone, index), level, param2, message, index);
+    return MOCK.message_packet(me, target or MOCK.mob_id(MOCK.player.zone, index), level, param2, message, index);
+end
+
+-- A manual check fixture delivers its outgoing request immediately before its reply.
+local manual_checks = setmetatable({}, { __mode = 'k' });
+function MOCK.check_packet(index, level, con, message, target)
+    local reply = MOCK.check_reply(index, level, con, message, target);
+    manual_checks[reply] = MOCK.check_request(index, false, nil, target);
+    return reply;
 end
 
 -- The six /checkparam reply lines about `who` (you by default), 712 with `accuracy`, 713 with `offhand`, 714 with
@@ -1535,6 +1554,11 @@ end
 ]]
 
 function MOCK.packet(e)
+    local request = manual_checks[e];
+    if (request ~= nil) then
+        manual_checks[e] = nil;
+        MOCK.fire('packet_out', request);
+    end
     return MOCK.fire('packet_in', e);
 end
 

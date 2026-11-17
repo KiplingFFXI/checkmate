@@ -651,7 +651,7 @@ check('and it says what else hides it, the sample and how Shift moves it', MOCK.
 tip = tips();
 check('its tips say what it reads and never sends', has(tip[overlay_path('OVERLAY')], 'It never sends anything on its own. You /check '
     .. 'yourself, and it reads the reply.') and has(tip[overlay_path('Show overlay')], 'Off hides the overlay.')
-    and has(tip[overlay_path('Show overlay')], 'Only after checking waits for your /check reply.') and has(tip[overlay_path('Lock it in place')], 'This stops both, so neither happens by accident. '
+    and has(tip[overlay_path('Show overlay')], 'Only after checking waits for your manual /check reply.') and has(tip[overlay_path('Lock it in place')], 'This stops both, so neither happens by accident. '
     .. 'Without Shift, or with this on, clicks go through the overlay to the game.'));
 check('checked-stat rows explain their manual refresh', has(tip['Display/hit/##overlay_tip'], 'manual /check') and has(tip['Display/aggro/##overlay_tip'], 'Before you /check it, it goes by the monster\'s level '
     .. 'against yours') and has(tip['Display/links/##overlay_tip'], 'like the chat\'s Links part. It comes from the data, so it shows '

@@ -178,7 +178,7 @@ local function check_of(zone, index, name, level)
     local n = #MOCK.printed;
     MOCK.commands = {};
     if (level == nil) then
-        MOCK.packet(MOCK.message_packet(p.server_id, MOCK.mob_id(zone, index), 0, 0, 249, index));
+        MOCK.packet(MOCK.check_packet(index, 0, nil, 249));
     else
         MOCK.packet(MOCK.check_packet(index, level, 4, 174));
     end

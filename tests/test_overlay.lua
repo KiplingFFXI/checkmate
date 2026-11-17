@@ -67,7 +67,7 @@ local function check_reply(index, level, con, reading, defense)
 end
 -- Your /check of an NM, which the server answers with "impossible to gauge" and no level.
 local function check_nm(index)
-    return MOCK.packet(MOCK.message_packet(MOCK.player.server_id, MOCK.mob_id(MOCK.player.zone, index), 0, 0, 249, index));
+    return MOCK.packet(MOCK.check_packet(index, 0, nil, 249));
 end
 local function widescan(index, level) return MOCK.packet(MOCK.widescan_packet(index, level)); end
 -- Someone defeats the monster at `index` near you.
@@ -484,7 +484,7 @@ check('nor with nothing targeted', frame() == '' and not drew());
 MOCK.entities[0x700] = { Name = 'Fixture Treant', ServerId = MOCK.pet_id(0x700), SpawnFlags = 0x10, HPPercent = 100 };
 MOCK.target.slot0 = 0x700;
 check('a monster a script spawned draws nothing before a /check', frame() == '' and not drew());
-MOCK.packet(MOCK.message_packet(MOCK.player.server_id, MOCK.pet_id(0x700), 30, 64 + 4, 174, 0x700));
+MOCK.packet(MOCK.check_packet(0x700, 30, 4, 174, MOCK.pet_id(0x700)));
 check('and its name, level and difficulty once you /check it', frame() == 'Fixture Treant (Lv 30) | Even Match // Aggro: '
     .. 'Not aggressive | Doesn\'t link', frame());
 

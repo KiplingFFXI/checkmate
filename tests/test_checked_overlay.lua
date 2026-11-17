@@ -85,7 +85,7 @@ check('the previous target remains forgotten after that fast reply', hidden());
 s.overlay.remember = true;
 
 select(400);
-MOCK.packet(MOCK.message_packet(MOCK.player.server_id, MOCK.mob_id(900, 400), 0, 0, 249, 400));
+MOCK.packet(MOCK.check_packet(400, 0, nil, 249));
 check('an impossible-to-gauge reply also counts as a manual check', frame() ~= '' and target.current().impossible == true);
 MOCK.packet(MOCK.widescan_packet(400, 51));
 check('a later widescan can refine an already checked NM', frame() ~= '' and target.current().low == 51);

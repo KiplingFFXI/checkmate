@@ -190,7 +190,7 @@ local function check_lines(index, name, level)
     MOCK.monster(index, name);
     local n = #MOCK.printed;
     if (level == nil) then
-        MOCK.packet(MOCK.message_packet(MOCK.player.server_id, MOCK.mob_id(MOCK.player.zone, index), 0, 0, 249, index));
+        MOCK.packet(MOCK.check_packet(index, 0, nil, 249));
     else
         MOCK.packet(MOCK.check_packet(index, level, 4, 174));
     end

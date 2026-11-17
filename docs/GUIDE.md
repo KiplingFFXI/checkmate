@@ -125,7 +125,7 @@ Hit rate, off-hand hit rate, ranged hit rate and Evade can appear in either disp
 
 Checked numbers have no time limit. The monster dying or leaving sight clears its saved readings. Zoning, turning the overlay off or resetting settings clears all saved readings. Turning off **Keep readings when switching targets** also clears them when you change targets.
 
-Choose **Only after checking** to keep unchecked monsters hidden. **Keep readings when switching targets** lets them show again when retargeted; with it off, you need to check again after changing targets. `/checkmate overlaychecked on` selects this behavior while the overlay is enabled. Settings previews still work.
+Choose **Only after checking** to show a monster after your manual `/check` reply arrives. Turn on **Keep readings when switching targets** to see a checked monster again when you retarget it. With it off, check again after changing targets. `/checkmate overlaychecked on` selects this behavior while the overlay is enabled. Settings previews still work.
 
 Combat numbers use the inputs available when the result is built. A `/checkparam` reading is a snapshot; later gear, buffs, debuffs or fight changes can affect it. Magic hover help names the selected spell and explains whether its percentage means landing at all or doing full, unresisted damage.
 
@@ -252,9 +252,9 @@ Help topics are `display`, `combat`, `merits`, `aggro`, `magic`, `blue`, `weakne
 
 checkmate uses the monster data bundled with it, your local client state and packets the client already receives. Passive overlay updates, Effects, Blue tracking and the spell finder send no game commands or requests.
 
-After a manual `/check`, enabled hit, off-hand, ranged, evade or pDIF calculations can request `/checkparam <me>`. Rows enabled only in the active overlay can use this request too. All player rows share one request; off-hand and ranged need the relevant weapon equipped. The Pet row in either display can request `/checkparam <pet>` for supported pet types. These requests wait between checks and only their own replies are hidden. A parameter command you type yourself remains visible. The passive overlay never sends a parameter request.
+After a manual `/check`, enabled hit, off-hand, ranged, evade or pDIF calculations can request `/checkparam <me>`. Rows enabled only in the active overlay can use this request too. All player rows share one request; off-hand and ranged need the relevant weapon equipped. The Pet row in either display can request `/checkparam <pet>` for supported pet types. These requests wait between checks and only their own replies are hidden. If other checks keep a request from going out, Checkmate shows the details it has after five seconds. A parameter command you type yourself remains visible. The passive overlay never sends a parameter request.
 
-By default, checkmate replaces the game's original `/check` line with its own. Use Replace the game's /check line or `/checkmate replace off` to keep it. Other addons that replace the same line or request parameters can produce duplicate output.
+Checkmate prints in chat when you check a monster from the game's menu, keyboard shortcut or `/check`. For background checks, Checkmate leaves the game's chat line and your saved readings alone. By default, checkmate replaces the game's original line for your checks. Turn off **Replace the game's /check line** or use `/checkmate replace off` to keep it. Other addons that replace the same line or request parameters can produce duplicate output.
 
 Settings and profiles stay in Ashita's configuration folder. checkmate does not upload them. Shared profiles are replaced only after a new file has been written successfully; a failed save keeps the previous profiles.
 

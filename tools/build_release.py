@@ -24,7 +24,7 @@ LICENSE = os.path.join(ROOT, 'LICENSE')
 VERSION_LINE = re.compile(r"^addon\.version\s*=\s*'([^']+)';", re.M)
 
 # New runtime files or zones need an explicit entry before they can ship.
-CORE = 'aggro blue_finder blue_learning check_details checkparam dangers defenses diagnostics drops effects elements info job_settings lessons magic merits modifiers monsters packets parts pdif pet physical player printout steal target weapons wording'.split()
+CORE = 'aggro blue_finder blue_learning check_details check_origin checkparam dangers defenses diagnostics drops effects elements info job_settings lessons magic merits modifiers monsters packets parts pdif pet physical player printout steal target weapons wording'.split()
 UI = 'blue_finder chat_colors defaults display draw_guard header_layout history icons navigation overlay presets preview profiles search settings_window skins tips window_font'.split()
 DATA = 'bands blue_finder crit defenses effects job_settings merits modifiers pdif pets spells steal too_weak'.split()
 ZONES = (

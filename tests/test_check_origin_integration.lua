@@ -31,7 +31,7 @@ local printed = #MOCK.printed;
 check('checked-only overlay starts hidden', not visible() and target.current() == nil);
 
 request(1, true);
-expect('a matched injected response keeps its game line', reply(1, 40).blocked, false);
+expect('replacement hides a matched automatic response', reply(1, 40).blocked, true);
 expect('an unsolicited response keeps its game line', reply(1, 40).blocked, false);
 request(1, nil);
 expect('a request with no injected flag is not manual', reply(1, 40).blocked, false);
@@ -48,7 +48,7 @@ check('unmatched and automatic responses cannot reveal the checked-only overlay'
 -- Two requests for one monster can get replies in the same frame. Only the manual reply is used.
 request(1, true);
 request(1, false);
-expect('the injected reply for the same monster is left alone', reply(1, 40).blocked, false);
+expect('replacement hides the automatic reply for the same monster', reply(1, 40).blocked, true);
 expect('a player check reply still replaces the game line', reply(1, 39).blocked, true);
 MOCK.frame();
 check('the manual result reveals the checked-only overlay on the correct level', visible() and target.current()
@@ -58,7 +58,7 @@ check('only the manual check asks for player stats', #MOCK.commands == 1
     and MOCK.commands[1].command == '/checkparam <me>' and checkparam.is_active());
 
 request(5, true);
-expect('a background check leaves the game line alone while stats are pending', reply(5, 3).blocked, false);
+expect('replacement hides a background game line while stats are pending', reply(5, 3).blocked, true);
 check('the manual stat request is still waiting after a background check', checkparam.is_active());
 expect('the manual request still owns the six parameter lines', MOCK.reply(300, 250), 6);
 MOCK.frame();

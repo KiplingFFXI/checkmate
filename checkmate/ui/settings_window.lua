@@ -217,9 +217,10 @@ local TIPS = {
         .. 'numbers, spaces and symbols.',
     number_style  = 'How a range prints for hit rate, off-hand, ranged, evade, shield block, parry, crit, crit taken, '
         .. 'magic, steal and pet numbers: the bounds or their approximate middle. Shield block and Parry keep fractional percentages.',
-    replace       = 'Hides the game\'s own line for your /check, and checkmate\'s lines take its place. If your selected '
-        .. 'parts have nothing to show, checkmate prints the name, level, difficulty and evasion and defense reading. '
-        .. 'With every chat row off, the game\'s line stays visible. Another addon can still hide it.',
+    replace       = 'Hides the game\'s reply to your /check and recognized automatic monster checks while chat rows '
+        .. 'are on. Checkmate only prints details for checks you start. If your selected parts have nothing to show, '
+        .. 'checkmate prints the name, level, difficulty and evasion and defense reading. With every chat row off, '
+        .. 'the game\'s line stays visible. Another addon can still hide it.',
     sample        = 'Prints a made-up /check in chat with your settings, in the real chat colors.',
     icons         = 'Puts the game\'s own element symbol from the chat font in front of each element name. That\'s '
         .. 'each element in Weaknesses, and the element inside the brackets after a Magic school\'s chance. '

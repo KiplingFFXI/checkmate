@@ -1,6 +1,6 @@
 addon.name    = 'checkmate';
 addon.author  = 'Kipling';
-addon.version = '1.14.15';
+addon.version = '1.14.16';
 addon.desc    = 'Monster details, combat estimates and your pet on /check for Phoenix.';
 addon.link    = 'https://github.com/KiplingFFXI/checkmate';
 
@@ -11,7 +11,7 @@ addon.link    = 'https://github.com/KiplingFFXI/checkmate';
     Hit, off-hand, ranged, evade and pDIF can request /checkparam <me>. The Pet part can request
     /checkparam <pet>. Each waits 1.5 seconds after the last check request or reply so the game accepts
     it. Only its own six player or five pet reply lines are hidden.
-    Replace check line also hides the game's /check line when a replacement is ready.
+    Replace check line hides matching monster check replies while chat rows are on.
 
     The overlay reads local inputs at most four times a second when a calculation needs them.
     Effects tracks actions while a display or combat calculation needs its observations. Neither
@@ -2915,7 +2915,7 @@ ashita.events.register('command', 'checkmate_command', function (e)
 end);
 
 --[[
-    Packets. checkmate only ever blocks the game's line for your own /check while replacement and a chat row are on,
+    Packets. checkmate blocks matching monster check replies while replacement and a chat row are on,
     and the reply lines to its own /checkparam.
 ]]
 
@@ -2936,7 +2936,15 @@ local function on_message(e)
 
     if (message == CHECK_IMPOSSIBLE or (message >= CHECK_FIRST and message <= CHECK_LAST)) then
         -- The reply looks the same when another plugin checks a monster.
-        if (e.injected or checkmate.check_origin.take(target, index, os.clock()) ~= 'manual') then return; end
+        if (e.injected) then return; end
+        local origin = checkmate.check_origin.take(target, index, os.clock());
+        if (origin ~= 'manual') then
+            if (origin == 'injected' and not checkmate.broken and checkmate.settings.printout.replace_game_line
+                and printout.selected(checkmate.settings.printout, checkmate.settings)) then
+                e.blocked = true;
+            end
+            return;
+        end
         -- A checkmate stopped after an error skips the /check, so the game's line stays.
         if (checkmate.broken) then
             return;

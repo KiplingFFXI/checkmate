@@ -2,6 +2,10 @@
 
 Older entries describe that release. Later entries may change its behavior.
 
+## 1.14.16
+
+- Addressed an issue where HeadsUp's automatic checks could still show the game's check messages alongside your manual Checkmate result. **Replace the game's /check line** now hides those automatic replies too.
+
 ## 1.14.15
 
 - HeadsUp's automatic checks no longer fill the chat log with Checkmate lines. Check a mob yourself to see your usual details.

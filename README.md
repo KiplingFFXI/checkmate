@@ -20,6 +20,7 @@ Updates replace the `addons\checkmate` folder. Leave `config\addons\checkmate\` 
 
 Type `/checkmate` to open settings. Choose a starter preset under **Profiles**, or use **Display** to select chat and overlay rows independently. Presets enable the overlay; you can turn it off with `/checkmate overlay off`. Escape closes settings, including during combat. If you are editing a field or using a dropdown, the first press cancels that instead.
 
+- With HeadsUp's **Auto-Check Mobs**, keep **Replace the game's /check line** enabled on **Display** to hide automatic check messages while chat rows are on.
 - **Preview** shows sample or current-target text before you change your layout. **Print a sample** shows the actual chat output.
 - **Find settings** searches controls and their help. **Appearance** holds skins, colors, fonts and visible tabs.
 - **Escape closes overlay**, under **Display > Overlay options**, hides it until your next `/check`. It starts off and keeps your saved readings.

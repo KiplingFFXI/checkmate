@@ -97,6 +97,7 @@ These are the main suite groups. run.py discovers every test_*.lua file, includi
   test_merits_ui.lua       shared autofill, manual choices, read ranks and character-owned settings
   test_event_userdata.lua  userdata callbacks, packet fields and merit autofill through the real handler
   test_check_origin_integration.lua automatic and manual check replies, overlay visibility and stat requests
+  test_check_chat_integration.lua same-mob manual and automatic checks, native chat replacement and callback order
   test_section_preferences.lua saved folds, temporary search expansion and reset boundaries
   test_ui_consolidation.lua Display views, direct Options focus and return navigation
   test_reset_all.lua       confirmed current-character resets, ownership and preserved shared profiles

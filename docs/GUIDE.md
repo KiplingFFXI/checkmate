@@ -254,7 +254,9 @@ checkmate uses the monster data bundled with it, your local client state and pac
 
 After a manual `/check`, enabled hit, off-hand, ranged, evade or pDIF calculations can request `/checkparam <me>`. Rows enabled only in the active overlay can use this request too. All player rows share one request; off-hand and ranged need the relevant weapon equipped. The Pet row in either display can request `/checkparam <pet>` for supported pet types. These requests wait between checks and only their own replies are hidden. If other checks keep a request from going out, Checkmate shows the details it has after five seconds. A parameter command you type yourself remains visible. The passive overlay never sends a parameter request.
 
-Checkmate prints in chat when you check a monster from the game's menu, keyboard shortcut or `/check`. For background checks, Checkmate leaves the game's chat line and your saved readings alone. By default, checkmate replaces the game's original line for your checks. Turn off **Replace the game's /check line** or use `/checkmate replace off` to keep it. Other addons that replace the same line or request parameters can produce duplicate output.
+Checkmate prints in chat when you check a monster from the game's menu, keyboard shortcut or `/check`. Automatic checks leave your saved readings alone.
+
+For HeadsUp's **Auto-Check Mobs**, keep **Replace the game's /check line** enabled under **Display** and at least one chat row on. Checkmate hides the game's replies to your checks and automatic monster checks it recognizes. Turn replacement off or use `/checkmate replace off` to keep the game's replies. With every chat row off, the game's replies stay visible. Other addons that print their own check messages or request parameters can still add output.
 
 Settings and profiles stay in Ashita's configuration folder. checkmate does not upload them. Shared profiles are replaced only after a new file has been written successfully; a failed save keeps the previous profiles.
 

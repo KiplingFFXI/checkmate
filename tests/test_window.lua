@@ -594,8 +594,9 @@ frame();
 check('and back on', s.printout.extras_own_line == true);
 
 check('Replace the game\'s /check line is a box, on', MOCK.gui.paths['Display/chat_format/Replace the game\'s /check line'] == 'Checkbox'
-    and s.printout.replace_game_line == true and has(tips()['Display/chat_format/Replace the game\'s /check line'], 'checkmate\'s lines '
-    .. 'take its place'));
+    and s.printout.replace_game_line == true
+    and has(tips()['Display/chat_format/Replace the game\'s /check line'], 'recognized automatic monster checks')
+    and has(tips()['Display/chat_format/Replace the game\'s /check line'], 'Checkmate only prints details for checks you start.'));
 saves = MOCK.saved;
 MOCK.clicks['Display/chat_format/Replace the game\'s /check line'] = true;
 frame();
